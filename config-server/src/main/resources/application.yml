@@ -1,17 +1,20 @@
+server:
+  port: 8888  # Standard port for the Config Server
+
 spring:
   application:
-    name: config-server
+    name: configuration-service
   cloud:
     config:
       server:
         git:
-          uri: https://github.com/dvoracek-martin/ecommerce-config-repo.git
-          clone-on-start: true
-          # No username or password needed for public repos
-server:
-  port: 8888
+          uri: https://github.com/dvoracek-martin/ecommerce-config-repo  # Replace with your actual config repo
+          default-label: main  # The branch to pull configs from
+          clone-on-start: true  # Clone the repo when the server starts
 
 eureka:
   client:
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
