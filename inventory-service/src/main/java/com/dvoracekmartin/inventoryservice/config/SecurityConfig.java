@@ -23,14 +23,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())  // Disable CSRF for APIs
+                .csrf(csrf -> csrf.disable())  // Disable CSRF (safe for APIs)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll() // Allow Swagger UI & API Docs
-                        .requestMatchers(INTERNAL_SERVICE_ENDPOINTS).permitAll() // Allow internal service calls
-                        .anyRequest().authenticated() // Require authentication for all other requests
+                        .anyRequest().permitAll()
                 )
-                .httpBasic(withDefaults()) // Basic Authentication
                 .build();
     }
 }

@@ -5,8 +5,9 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/dvoracek-martin
+          uri: https://github.com/dvoracek-martin/ecommerce-config-repo.git
           clone-on-start: true
+          # No username or password needed for public repos
 server:
   port: 8888
 

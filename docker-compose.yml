@@ -2,35 +2,10 @@ version: '3.8'
 
 services:
   eureka-server:
-    image: eureka-server
+    build: ./eureka-server
     container_name: eureka-server
     ports:
       - "8761:8761"
-    networks:
-      - ecommerce-network
-
-  config-server:
-    build: ./config-server
-    container_name: config-server
-    ports:
-      - "8888:8888"
-    depends_on:
-      - eureka-server
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    networks:
-      - ecommerce-network
-
-  gateway-service:
-    build: ./gateway-service
-    container_name: gateway-service
-    ports:
-      - "8080:8080"
-    depends_on:
-      - config-server
-      - eureka-server
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
     networks:
       - ecommerce-network
 
@@ -40,12 +15,12 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - config-server
       - eureka-server
-      - gateway-service
       - postgres-db
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/ecommerce_db
     networks:
       - ecommerce-network
 

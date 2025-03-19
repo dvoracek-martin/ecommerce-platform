@@ -11,7 +11,7 @@
     <modules>
         <module>config-server</module>
         <module>eureka-server</module>
-        <module>gateway-service</module>
+        <module>api-gateway-service</module>
         <module>catalog-service</module>
         <module>customer-service</module>
         <module>inventory-service</module>
