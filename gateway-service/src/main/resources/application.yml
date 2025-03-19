@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: catalog-service
+          uri: lb://catalog-service
+          predicates:
+            - Path=/catalog/**
+
+        - id: customer-service
+          uri: lb://customer-service
+          predicates:
+            - Path=/customer/**
+
+        - id: inventory-service
+          uri: lb://inventory-service
+          predicates:
+            - Path=/inventory/**
+
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/order/**
+
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/payment/**
+
+        - id: shipping-service
+          uri: lb://shipping-service
+          predicates:
+            - Path=/shipping/**

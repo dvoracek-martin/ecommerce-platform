@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    image: eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - ecommerce-network
+
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - ecommerce-network
+
+  gateway-service:
+    build: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - config-server
+      - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - ecommerce-network
+
+  inventory-service:
+    build: ./inventory-service
+    container_name: inventory-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - config-server
+      - eureka-server
+      - gateway-service
+      - postgres-db
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - ecommerce-network
+
+  postgres-db:
+    image: postgres:15
+    container_name: postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ecommerce_db
+    networks:
+      - ecommerce-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+networks:
+  ecommerce-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
