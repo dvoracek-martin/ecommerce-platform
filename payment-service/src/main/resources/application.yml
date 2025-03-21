@@ -2,7 +2,9 @@ spring:
   application:
     name: payment-service
   config:
-    import: "configserver:http://config-server:8888"
+    activate:
+      on-profile: default
+    import: "configserver:http://localhost:8888"
   cloud:
     config:
       fail-fast: true

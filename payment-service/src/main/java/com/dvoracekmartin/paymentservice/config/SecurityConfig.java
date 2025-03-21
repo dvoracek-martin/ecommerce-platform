@@ -1,4 +1,4 @@
-package com.dvoracekmartin.inventoryservice.config;
+package com.dvoracekmartin.paymentservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
