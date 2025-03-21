@@ -2,14 +2,7 @@ spring:
   application:
     name: inventory-service
   config:
-    import: "configserver:"
+    import: "configserver:http://localhost:8888"
   cloud:
     config:
-      uri: http://localhost:8888
-      fail-fast: true  # Fail startup if config server is unavailable
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    preferIpAddress: true
+      fail-fast: true

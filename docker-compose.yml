@@ -8,21 +8,64 @@ services:
       - "8761:8761"
     networks:
       - ecommerce-network
+    depends_on:
+      - config-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - ecommerce-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+  api-gateway-service:
+    build: ./api-gateway-service
+    container_name: api-gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+      - config-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - ecommerce-network
 
   inventory-service:
     build: ./inventory-service
     container_name: inventory-service
     ports:
-      - "8082:8082"
+      - "80:80"
     depends_on:
       - eureka-server
       - postgres-db
+      - config-server
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/ecommerce_db
+#      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8888
+#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/ecommerce_db
     networks:
       - ecommerce-network
+
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    ports:
+      - "8089:8089"
+      - "8090:8090"
+    networks:
+      - ecommerce-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
 
   postgres-db:
     image: postgres:15

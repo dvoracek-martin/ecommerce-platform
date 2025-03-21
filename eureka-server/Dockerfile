@@ -1,7 +1,10 @@
 FROM openjdk:21-jdk-slim
 
-VOLUME /tmp
+WORKDIR /app
 
-COPY target/eureka-server-*.jar /app/eureka-server.jar
+COPY target/eureka-server-*.jar app.jar
 
-ENTRYPOINT ["java", "-jar", "/app/eureka-server.jar"]
+EXPOSE 8761
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+

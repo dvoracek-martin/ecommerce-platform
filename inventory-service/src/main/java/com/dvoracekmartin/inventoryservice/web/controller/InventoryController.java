@@ -1,4 +1,4 @@
-package com.dvoracekmartin.inventoryservice.presentation.controller;
+package com.dvoracekmartin.inventoryservice.web.controller;
 
 import com.dvoracekmartin.inventoryservice.application.dto.InventoryResponseDTO;
 import com.dvoracekmartin.inventoryservice.application.dto.UpdateStockDTO;
