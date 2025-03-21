@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class InventoryResponseDTO {
+public class ResponseInventoryItemDTO {
     private String productCode;
     private int quantity;
 }

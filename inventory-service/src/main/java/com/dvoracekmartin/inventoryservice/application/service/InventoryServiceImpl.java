@@ -1,7 +1,7 @@
 package com.dvoracekmartin.inventoryservice.application.service;
 
-import com.dvoracekmartin.inventoryservice.application.dto.InventoryResponseDTO;
-import com.dvoracekmartin.inventoryservice.application.dto.UpdateStockDTO;
+import com.dvoracekmartin.inventoryservice.application.dto.ResponseInventoryItemDTO;
+import com.dvoracekmartin.inventoryservice.application.dto.UpdateInventoryItemDTO;
 import com.dvoracekmartin.inventoryservice.domain.model.InventoryItem;
 import com.dvoracekmartin.inventoryservice.domain.repository.InventoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,40 +22,40 @@ public class InventoryServiceImpl implements InventoryService {
     InventoryRepository inventoryRepository;
 
     @Override
-    public List<InventoryResponseDTO> getAllItems() {
+    public List<ResponseInventoryItemDTO> getAllItems() {
         return inventoryRepository.findAll().stream()
-                .map(item -> new InventoryResponseDTO(item.getProductCode(), item.getQuantity()))
+                .map(item -> new ResponseInventoryItemDTO(item.getProductCode(), item.getQuantity()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public InventoryResponseDTO getInventoryItemByProductCode(String productCode) {
+    public ResponseInventoryItemDTO getInventoryItemByProductCode(String productCode) {
         InventoryItem item = inventoryRepository.findByProductCode(productCode)
                 .orElseThrow(() -> new RuntimeException("Inventory item not found for product code: " + productCode));
-        return new InventoryResponseDTO(item.getProductCode(), item.getQuantity());
+        return new ResponseInventoryItemDTO(item.getProductCode(), item.getQuantity());
     }
 
     @Override
-    public void addInventoryItem(UpdateStockDTO updateStockDTO) {
-        Optional<InventoryItem> existingItem = inventoryRepository.findByProductCode(updateStockDTO.getProductCode());
+    public void addInventoryItem(UpdateInventoryItemDTO updateInventoryItemDTO) {
+        Optional<InventoryItem> existingItem = inventoryRepository.findByProductCode(updateInventoryItemDTO.getProductCode());
         if (existingItem.isPresent()) {
             InventoryItem item = existingItem.get();
-            item.increaseQuantity(updateStockDTO.getQuantity());
+            item.increaseQuantity(updateInventoryItemDTO.getQuantity());
             inventoryRepository.save(item);
         } else {
-            InventoryItem newItem = new InventoryItem(updateStockDTO.getProductCode(), updateStockDTO.getQuantity());
+            InventoryItem newItem = new InventoryItem(updateInventoryItemDTO.getProductCode(), updateInventoryItemDTO.getQuantity());
             inventoryRepository.save(newItem);
         }
     }
 
     @Override
-    public void deductInventoryItem(UpdateStockDTO updateStockDTO) {
-        InventoryItem item = inventoryRepository.findByProductCode(updateStockDTO.getProductCode())
-                .orElseThrow(() -> new RuntimeException("Inventory item not found for product code: " + updateStockDTO.getProductCode()));
-        if (item.getQuantity() < updateStockDTO.getQuantity()) {
-            throw new RuntimeException("Not enough stock available for product: " + updateStockDTO.getProductCode());
+    public void deductInventoryItem(UpdateInventoryItemDTO updateInventoryItemDTO) {
+        InventoryItem item = inventoryRepository.findByProductCode(updateInventoryItemDTO.getProductCode())
+                .orElseThrow(() -> new RuntimeException("Inventory item not found for product code: " + updateInventoryItemDTO.getProductCode()));
+        if (item.getQuantity() < updateInventoryItemDTO.getQuantity()) {
+            throw new RuntimeException("Not enough stock available for product: " + updateInventoryItemDTO.getProductCode());
         }
-        item.decreaseQuantity(updateStockDTO.getQuantity());
+        item.decreaseQuantity(updateInventoryItemDTO.getQuantity());
         inventoryRepository.save(item);
     }
 
@@ -67,9 +67,9 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public InventoryResponseDTO checkInventoryItemAvailability(String productCode) {
+    public ResponseInventoryItemDTO checkInventoryItemAvailability(String productCode) {
         InventoryItem item = inventoryRepository.findByProductCode(productCode)
                 .orElseThrow(() -> new RuntimeException("Inventory item not found for product code: " + productCode));
-        return new InventoryResponseDTO(item.getProductCode(), item.getQuantity());
+        return new ResponseInventoryItemDTO(item.getProductCode(), item.getQuantity());
     }
 }

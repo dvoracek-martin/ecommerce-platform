@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 public class InventoryDomainService {
     private static final int MIN_STOCK_FOR_ORDER = 5;
 
-    public boolean canPlaceOrder(InventoryItem item) {
-        return item.getQuantity() >= MIN_STOCK_FOR_ORDER;
+    public boolean canPlaceOrder(InventoryItem inventoryItem) {
+        return inventoryItem.getQuantity() >= MIN_STOCK_FOR_ORDER;
     }
 }
