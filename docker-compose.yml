@@ -22,15 +22,12 @@ services:
       - ecommerce-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
 
   api-gateway-service:
     build: ./api-gateway-service
     container_name: api-gateway-service
     ports:
-      - "8080:8080"
+      - "80:8080"
     depends_on:
       - eureka-server
       - config-server
@@ -42,8 +39,6 @@ services:
   inventory-service:
     build: ./inventory-service
     container_name: inventory-service
-    ports:
-      - "80:80"
     depends_on:
       - eureka-server
       - postgres-db

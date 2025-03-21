@@ -11,4 +11,3 @@ spring:
           uri: https://github.com/dvoracek-martin/ecommerce-config-repo
           default-label: main
           clone-on-start: true
-          search-paths: docker
