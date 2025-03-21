@@ -1,5 +1,6 @@
 package com.dvoracekmartin.inventoryservice.application.service;
 
+import com.dvoracekmartin.inventoryservice.application.dto.CreateInventoryItemDTO;
 import com.dvoracekmartin.inventoryservice.application.dto.ResponseInventoryItemDTO;
 import com.dvoracekmartin.inventoryservice.application.dto.UpdateInventoryItemDTO;
 import com.dvoracekmartin.inventoryservice.domain.model.InventoryItem;
@@ -53,20 +54,20 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public void deductInventoryItem(UpdateInventoryItemDTO updateInventoryItemDTO) {
-        InventoryItem item = inventoryRepository.findByProductCode(updateInventoryItemDTO.getProductCode())
+        InventoryItem inventoryItem = inventoryRepository.findByProductCode(updateInventoryItemDTO.getProductCode())
                 .orElseThrow(() -> new RuntimeException("Inventory item not found for product code: " + updateInventoryItemDTO.getProductCode()));
-        if (item.getQuantity() < updateInventoryItemDTO.getQuantity()) {
+        if (inventoryItem.getQuantity() < updateInventoryItemDTO.getQuantity()) {
             throw new RuntimeException("Not enough stock available for product: " + updateInventoryItemDTO.getProductCode());
         }
-        item.decreaseQuantity(updateInventoryItemDTO.getQuantity());
-        inventoryRepository.save(item);
+        inventoryItem.decreaseQuantity(updateInventoryItemDTO.getQuantity());
+        inventoryRepository.save(inventoryItem);
     }
 
     @Override
     public void deleteInventoryItem(String productCode) {
-        InventoryItem item = inventoryRepository.findByProductCode(productCode)
+        InventoryItem inventoryItem = inventoryRepository.findByProductCode(productCode)
                 .orElseThrow(() -> new RuntimeException("Inventory item not found for product code: " + productCode));
-        inventoryRepository.delete(item);
+        inventoryRepository.delete(inventoryItem);
     }
 
     @Override
@@ -74,5 +75,19 @@ public class InventoryServiceImpl implements InventoryService {
         InventoryItem item = inventoryRepository.findByProductCode(productCode)
                 .orElseThrow(() -> new IllegalArgumentException("Item not found"));
         return inventoryDomainService.canPlaceOrder(item);
+    }
+
+    @Override
+    public void createInventoryItem(CreateInventoryItemDTO createInventoryItemDTO) {
+        Optional<InventoryItem> existingItem = inventoryRepository.findByProductCode(createInventoryItemDTO.getProductCode());
+        if (existingItem.isPresent()) {
+           // do something
+        } else {
+            InventoryItem newInventoryItem = InventoryItem.InventoryItemBuilder()
+                    .productCode(createInventoryItemDTO.getProductCode())
+                    .quantity(createInventoryItemDTO.getQuantity())
+                    .build();
+            inventoryRepository.save(newInventoryItem);
+        }
     }
 }

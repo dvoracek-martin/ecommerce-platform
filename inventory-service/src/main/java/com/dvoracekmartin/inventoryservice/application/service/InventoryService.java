@@ -1,5 +1,6 @@
 package com.dvoracekmartin.inventoryservice.application.service;
 
+import com.dvoracekmartin.inventoryservice.application.dto.CreateInventoryItemDTO;
 import com.dvoracekmartin.inventoryservice.application.dto.ResponseInventoryItemDTO;
 import com.dvoracekmartin.inventoryservice.application.dto.UpdateInventoryItemDTO;
 
@@ -18,4 +19,6 @@ public interface InventoryService {
     void deleteInventoryItem(String productCode);
 
     boolean checkInventoryItemAvailability(String productCode);
+
+    void createInventoryItem(CreateInventoryItemDTO createInventoryItemDTO);
 }

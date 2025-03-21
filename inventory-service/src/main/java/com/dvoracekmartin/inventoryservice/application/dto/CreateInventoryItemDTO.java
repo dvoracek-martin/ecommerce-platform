@@ -5,8 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateInventoryItemDTO {
-    private String id;
+public class CreateInventoryItemDTO {
     private String productCode;
     private int quantity;
 }

@@ -1,5 +1,6 @@
 package com.dvoracekmartin.inventoryservice.web.controller;
 
+import com.dvoracekmartin.inventoryservice.application.dto.CreateInventoryItemDTO;
 import com.dvoracekmartin.inventoryservice.application.dto.ResponseInventoryItemDTO;
 import com.dvoracekmartin.inventoryservice.application.dto.UpdateInventoryItemDTO;
 import com.dvoracekmartin.inventoryservice.application.service.InventoryService;
@@ -24,6 +25,11 @@ public class InventoryController {
     @PostMapping("/add")
     public void addInvetoryItem(@RequestBody UpdateInventoryItemDTO updateInventoryItemDTO) {
         inventoryService.addInventoryItem(updateInventoryItemDTO);
+    }
+
+    @PostMapping("/")
+    public void createInvetoryItem(@RequestBody CreateInventoryItemDTO createInventoryItemDTO) {
+        inventoryService.createInventoryItem(createInventoryItemDTO);
     }
 
     @PostMapping("/deduct")

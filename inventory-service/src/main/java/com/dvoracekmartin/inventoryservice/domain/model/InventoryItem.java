@@ -3,6 +3,7 @@ package com.dvoracekmartin.inventoryservice.domain.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "inventory")
@@ -25,6 +26,30 @@ public class InventoryItem {
     public InventoryItem(String productCode, int quantity) {
         this.productCode = productCode;
         this.quantity = quantity;
+    }
+
+    public static InventoryItemBuilder InventoryItemBuilder() {
+        return new InventoryItemBuilder();
+    }
+
+    @Setter
+    public static class InventoryItemBuilder {
+        private String productCode;
+        private int quantity;
+
+        public InventoryItemBuilder productCode(String productCode) {
+            this.productCode = productCode;
+            return this;
+        }
+
+        public InventoryItemBuilder quantity(int quantity) {
+            this.quantity = quantity;
+            return this;
+        }
+
+        public InventoryItem build() {
+            return new InventoryItem(this.productCode, this.quantity);
+        }
     }
 
     public void increaseQuantity(int amount) {
