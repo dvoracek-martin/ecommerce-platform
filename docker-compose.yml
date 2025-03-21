@@ -42,7 +42,6 @@ services:
     depends_on:
       - config-server
       - eureka-server
-      - api-gateway-service
       - postgres-db
     environment:
       - SPRING_PROFILES_ACTIVE=docker
