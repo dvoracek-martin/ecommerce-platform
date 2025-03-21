@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/inventory")
+@RequestMapping("/api/inventory")
 public class InventoryController {
     private final InventoryService inventoryService;
 
@@ -17,28 +17,23 @@ public class InventoryController {
     }
 
     @GetMapping("/{productCode}")
-    public ResponseInventoryItemDTO checkStock(@PathVariable String productCode) {
-        return inventoryService.checkInventoryItemAvailability(productCode);
-    }
-
-    @GetMapping("/{productCode}")
     public ResponseInventoryItemDTO getInventoryItemByProductCode(@PathVariable String productCode) {
         return inventoryService.getInventoryItemByProductCode(productCode);
     }
 
     @PostMapping("/add")
-    public void addStock(@RequestBody UpdateInventoryItemDTO updateInventoryItemDTO) {
+    public void addInvetoryItem(@RequestBody UpdateInventoryItemDTO updateInventoryItemDTO) {
         inventoryService.addInventoryItem(updateInventoryItemDTO);
     }
 
     @PostMapping("/deduct")
-    public void deductStock(@RequestBody UpdateInventoryItemDTO updateInventoryItemDTO) {
+    public void deductInvetoryItem(@RequestBody UpdateInventoryItemDTO updateInventoryItemDTO) {
         inventoryService.deductInventoryItem(updateInventoryItemDTO);
     }
 
     @GetMapping("/all")
-    public List<ResponseInventoryItemDTO> getAllStock() {
-        return inventoryService.getAllItems();
+    public List<ResponseInventoryItemDTO> getAllInvetoryItems() {
+        return inventoryService.getAllInvetoryItem();
     }
 
     @DeleteMapping("/{productCode}")
@@ -47,7 +42,7 @@ public class InventoryController {
     }
 
     @GetMapping("/check-availability/{productCode}")
-    public ResponseInventoryItemDTO checkInventoryItemAvailability(@PathVariable String productCode) {
+    public boolean checkInventoryItemAvailability(@PathVariable String productCode) {
         return inventoryService.checkInventoryItemAvailability(productCode);
     }
 }

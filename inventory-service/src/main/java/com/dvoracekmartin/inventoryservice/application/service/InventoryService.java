@@ -6,7 +6,8 @@ import com.dvoracekmartin.inventoryservice.application.dto.UpdateInventoryItemDT
 import java.util.List;
 
 public interface InventoryService {
-    List<ResponseInventoryItemDTO> getAllItems();
+
+    List<ResponseInventoryItemDTO> getAllInvetoryItem();
 
     ResponseInventoryItemDTO getInventoryItemByProductCode(String productCode);
 
@@ -16,5 +17,5 @@ public interface InventoryService {
 
     void deleteInventoryItem(String productCode);
 
-    ResponseInventoryItemDTO checkInventoryItemAvailability(String productCode);
+    boolean checkInventoryItemAvailability(String productCode);
 }

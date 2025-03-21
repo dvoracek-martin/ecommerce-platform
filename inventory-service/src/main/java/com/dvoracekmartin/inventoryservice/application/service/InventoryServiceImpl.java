@@ -4,8 +4,7 @@ import com.dvoracekmartin.inventoryservice.application.dto.ResponseInventoryItem
 import com.dvoracekmartin.inventoryservice.application.dto.UpdateInventoryItemDTO;
 import com.dvoracekmartin.inventoryservice.domain.model.InventoryItem;
 import com.dvoracekmartin.inventoryservice.domain.repository.InventoryRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.dvoracekmartin.inventoryservice.domain.service.InventoryDomainService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,15 +13,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class InventoryServiceImpl implements InventoryService {
 
-    @Autowired
-    InventoryRepository inventoryRepository;
+    private final InventoryDomainService inventoryDomainService;
+    private final InventoryRepository inventoryRepository;
+
+    public InventoryServiceImpl(InventoryDomainService inventoryDomainService, InventoryRepository inventoryRepository) {
+        this.inventoryDomainService = inventoryDomainService;
+        this.inventoryRepository = inventoryRepository;
+    }
 
     @Override
-    public List<ResponseInventoryItemDTO> getAllItems() {
+    public List<ResponseInventoryItemDTO> getAllInvetoryItem() {
         return inventoryRepository.findAll().stream()
                 .map(item -> new ResponseInventoryItemDTO(item.getProductCode(), item.getQuantity()))
                 .collect(Collectors.toList());
@@ -67,9 +70,9 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public ResponseInventoryItemDTO checkInventoryItemAvailability(String productCode) {
+    public boolean checkInventoryItemAvailability(String productCode) {
         InventoryItem item = inventoryRepository.findByProductCode(productCode)
-                .orElseThrow(() -> new RuntimeException("Inventory item not found for product code: " + productCode));
-        return new ResponseInventoryItemDTO(item.getProductCode(), item.getQuantity());
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+        return inventoryDomainService.canPlaceOrder(item);
     }
 }
