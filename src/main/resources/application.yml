@@ -2,6 +2,8 @@ spring:
   application:
     name: api-gateway-service
   config:
+    activate:
+      on-profile: default
     import: "configserver:http://localhost:8888"
   cloud:
     config:
