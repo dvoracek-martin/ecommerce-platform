@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: config-server
+  config:
+    activate:
+      on-profile: default
   cloud:
     config:
       server:
@@ -11,3 +14,4 @@ spring:
           uri: https://github.com/dvoracek-martin/ecommerce-config-repo
           default-label: main
           clone-on-start: true
+          search-paths: local
