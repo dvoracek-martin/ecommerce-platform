@@ -42,11 +42,25 @@ services:
     depends_on:
       - config-server
       - eureka-server
-      - postgres-db
+      - inventory-service-postgres-db
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     networks:
       - ecommerce-network
+
+  inventory-service-postgres-db:
+    image: postgres:16
+    container_name: inventory-service-postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: inventory_db
+    networks:
+      - ecommerce-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   payment-service:
     build: ./payment-service
@@ -58,20 +72,6 @@ services:
       - ecommerce-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-
-  postgres-db:
-    image: postgres:15
-    container_name: postgres-db
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: ecommerce_db
-    networks:
-      - ecommerce-network
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
 networks:
   ecommerce-network:

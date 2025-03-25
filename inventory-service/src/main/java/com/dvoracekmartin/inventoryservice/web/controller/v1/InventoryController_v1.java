@@ -1,4 +1,4 @@
-package com.dvoracekmartin.inventoryservice.web.controller;
+package com.dvoracekmartin.inventoryservice.web.controller.v1;
 
 import com.dvoracekmartin.inventoryservice.application.dto.CreateInventoryItemDTO;
 import com.dvoracekmartin.inventoryservice.application.dto.ResponseInventoryItemDTO;
@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/inventory")
-public class InventoryController {
+@RequestMapping("/api/inventory/v1")
+public class InventoryController_v1 {
     private final InventoryService inventoryService;
 
-    public InventoryController(InventoryService inventoryService) {
+    public InventoryController_v1(InventoryService inventoryService) {
         this.inventoryService = inventoryService;
     }
 
