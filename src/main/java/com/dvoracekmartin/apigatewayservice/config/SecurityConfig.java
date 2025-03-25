@@ -13,6 +13,26 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
+    private final JwtAuthConverter jwtAuthConverter;
+    private static final String API_VERSION = "v1";
+
+    public SecurityConfig(JwtAuthConverter jwtAuthConverter) {
+        this.jwtAuthConverter = jwtAuthConverter;
+    }
+
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        return http
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .authorizeExchange(exchange -> exchange
+                        .pathMatchers("/api/user/" + API_VERSION + "/admin").hasRole("client_admin")
+                        .anyExchange().permitAll()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter))
+                ).build();
+    }
+
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
@@ -25,12 +45,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
 
         return new CorsWebFilter(source);
-    }
-
-    @Bean
-    public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
-        return http
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .build();
     }
 }
