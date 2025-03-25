@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   config-server:
-    build: ./config-server
+    build: ../config-server
     container_name: config-server
     ports:
       - "8888:8888"
@@ -12,7 +12,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
 
   eureka-server:
-    build: ./eureka-server
+    build: ../eureka-server
     container_name: eureka-server
     ports:
       - "8761:8761"
@@ -24,7 +24,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
 
   api-gateway-service:
-    build: ./api-gateway-service
+    build: ../api-gateway-service
     container_name: api-gateway-service
     ports:
       - "80:8080"
@@ -37,7 +37,7 @@ services:
       - ecommerce-network
 
   inventory-service:
-    build: ./inventory-service
+    build: ../inventory-service
     container_name: inventory-service
     depends_on:
       - config-server
@@ -63,7 +63,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   payment-service:
-    build: ./payment-service
+    build: ../payment-service
     container_name: payment-service
     ports:
       - "8089:8089"

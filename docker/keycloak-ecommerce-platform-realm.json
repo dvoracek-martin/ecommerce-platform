@@ -1,0 +1,61 @@
+{
+  "realm": "ecommerce-platform",
+  "enabled": true,
+
+  "roles": {
+    "realm": [
+      {
+        "name": "user_admin",
+        "description": "A custom admin role"
+      },
+      {
+        "name": "user_client",
+        "description": "A custom client role"
+      }
+    ]
+  },
+
+  "users": [
+    {
+      "username": "ecommerce-platform-rest-api",
+      "email": "placeholder@email.com",
+      "firstName": "Ecommerce",
+      "lastName": "Platform",
+      "enabled": true,
+      "emailVerified": true,
+      "notBefore": 0,
+      "requiredActions": [],
+      "attributes": {},
+      "credentials": [
+        {
+          "type": "password",
+          "value": "secret",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user_admin", "user_client"],
+      "clientRoles": {
+        "realm-management": [
+          "manage-users"
+        ]
+      }
+    }
+  ],
+
+  "clients": [
+    {
+      "clientId": "ecommerce-platform-client",
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "baseUrl": "http://localhost:8080",
+      "adminUrl": "http://localhost:8080",
+      "rootUrl": "http://localhost:8080",
+      "redirectUris": [
+        "http://localhost:8080/*"
+      ],
+      "webOrigins": [
+        "*"
+      ]
+    }
+  ]
+}
