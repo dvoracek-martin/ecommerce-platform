@@ -36,7 +36,9 @@
       "realmRoles": ["user_admin", "user_client"],
       "clientRoles": {
         "realm-management": [
-          "manage-users"
+          "manage-users",
+          "manage-realm",
+          "manage-roles"
         ]
       }
     }
