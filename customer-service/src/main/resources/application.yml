@@ -1,3 +1,9 @@
+server:
+  port: 8083
 spring:
   application:
     name: customer-service
+  config:
+    activate:
+      on-profile: default
+    import: "configserver:http://localhost:8888"

@@ -23,6 +23,7 @@ import java.util.Collections;
 public class KeycloakUserService {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeycloakUserService.class);
+    private static final String USER_CLIENT_ROLE = "user_client";
 
     @Value("${keycloak.admin.realm}")
     private String realm;
@@ -45,7 +46,7 @@ public class KeycloakUserService {
      */
     public Response createUser(CreateUserDTO dto) {
         RealmResource realmResource = buildKeycloakClient().realm(realm);
-        UsersResource usersResource = realmResource.users();
+            UsersResource usersResource = realmResource.users();
 
         UserRepresentation userRep = toUserRepresentation(dto);
 
@@ -66,7 +67,7 @@ public class KeycloakUserService {
         if (response.getStatus() == Response.Status.CREATED.getStatusCode()) {
             String location = response.getHeaderString("Location");
             String userId = parseUserIdFromLocation(location);
-            assignUserClientRole(realmResource, userId, "user_client");
+            assignUserClientRole(realmResource, userId, USER_CLIENT_ROLE);
             LOG.info("Assigned 'user_client' role to userId:{}", userId);
         } else {
             LOG.warn("User creation failed with status:{}", response.getStatus());
@@ -138,8 +139,6 @@ public class KeycloakUserService {
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
         user.setUsername(dto.username());
-        user.setFirstName(dto.firstName());
-        user.setLastName(dto.lastName());
         user.setEmail(dto.email());
         user.setRequiredActions(Collections.emptyList());
 
@@ -159,8 +158,6 @@ public class KeycloakUserService {
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
         user.setUsername(dto.username());
-        user.setFirstName(dto.firstName());
-        user.setLastName(dto.lastName());
         user.setEmail(dto.email());
         user.setRequiredActions(Collections.emptyList());
 
@@ -175,7 +172,6 @@ public class KeycloakUserService {
 
     /**
      * Extracts userId from the 'Location' header string.
-     * e.g. http://localhost:8080/auth/admin/realms/<realm>/users/<userId>
      */
     private static String parseUserIdFromLocation(String location) {
         return location.substring(location.lastIndexOf('/') + 1);

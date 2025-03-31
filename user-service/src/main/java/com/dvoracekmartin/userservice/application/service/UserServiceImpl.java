@@ -1,6 +1,10 @@
 package com.dvoracekmartin.userservice.application.service;
 
-import com.dvoracekmartin.userservice.application.dto.*;
+import com.dvoracekmartin.userservice.application.dto.CreateUserDTO;
+import com.dvoracekmartin.userservice.application.dto.ResponseUserDTO;
+import com.dvoracekmartin.userservice.application.dto.UpdateUserDTO;
+import com.dvoracekmartin.userservice.application.dto.UserMapper;
+import com.dvoracekmartin.userservice.application.events.UserEventPublisher;
 import com.dvoracekmartin.userservice.domain.model.User;
 import com.dvoracekmartin.userservice.domain.repository.UserRepository;
 import jakarta.ws.rs.core.Response;
@@ -17,13 +21,15 @@ public class UserServiceImpl implements UserService {
     private final KeycloakUserService keycloakUserService;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final UserEventPublisher userEventPublisher;
 
     public UserServiceImpl(KeycloakUserService keycloakUserService,
                            UserMapper userMapper,
-                           UserRepository userRepository) {
+                           UserRepository userRepository, UserEventPublisher userEventPublisher) {
         this.keycloakUserService = keycloakUserService;
         this.userMapper = userMapper;
         this.userRepository = userRepository;
+        this.userEventPublisher = userEventPublisher;
     }
 
     @Override
@@ -49,10 +55,12 @@ public class UserServiceImpl implements UserService {
             User userEntity = userMapper.createUserDTOToUser(createUserDTO, newUserId);
             User savedUser = userRepository.save(userEntity);
 
+            // 5) Publish user created event
+            userEventPublisher.publishUserCreatedEvent(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail());
+
             return userMapper.userToResponseUserDTO(savedUser, status);
         }
-
-        // 5) Otherwise, return a DTO with the error status
+        // 6) Otherwise, return a DTO with the error status
         return userMapper.createUserDTOToResponseUserDTO(createUserDTO, status);
     }
 
@@ -90,8 +98,6 @@ public class UserServiceImpl implements UserService {
                     userId,
                     null,
                     null,
-                    null,
-                    null,
                     Response.Status.NOT_FOUND.getStatusCode()
             );
         }
@@ -112,8 +118,6 @@ public class UserServiceImpl implements UserService {
         // 4) Otherwise, return a 404
         return new ResponseUserDTO(
                 userId,
-                null,
-                null,
                 null,
                 null,
                 Response.Status.NOT_FOUND.getStatusCode()
