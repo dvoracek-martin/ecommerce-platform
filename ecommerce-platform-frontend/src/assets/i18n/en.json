@@ -1,0 +1,31 @@
+{
+  "APP": {
+    "TITLE": "E-Commerce Platform"
+  },
+  "USER_REGISTRATION": {
+    "TITLE": "User Registration",
+    "USERNAME": "Username",
+    "EMAIL": "Email",
+    "FIRST_NAME": "First Name",
+    "LAST_NAME": "Last Name",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "Confirm Password",
+    "REGISTER": "Register",
+    "USERNAME_REQUIRED": "Username is required.",
+    "EMAIL_REQUIRED": "Email is required.",
+    "EMAIL_INVALID": "Please enter a valid email.",
+    "FIRST_NAME_REQUIRED": "First name is required.",
+    "LAST_NAME_REQUIRED": "Last name is required.",
+    "PASSWORD_REQUIRED": "Password is required.",
+    "PASSWORD_MINLENGTH": "Password must be at least 8 characters.",
+    "PASSWORD_PATTERN": "Password cannot contain spaces.",
+    "PASSWORDS_MISMATCH": "Passwords do not match."
+  },
+  "ERRORS": {
+    "FIX_FORM": "Please fix the errors in the form.",
+    "REGISTRATION_FAILED": "Registration failed: "
+  },
+  "SUCCESS": {
+    "REGISTRATION_SUCCESS": "Registration successful!"
+  }
+}

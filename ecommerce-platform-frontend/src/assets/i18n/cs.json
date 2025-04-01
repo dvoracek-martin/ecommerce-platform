@@ -1,0 +1,31 @@
+{
+  "APP": {
+    "TITLE": "E-Commerce Platform"
+  },
+  "USER_REGISTRATION": {
+    "TITLE": "Registrace uživatele",
+    "USERNAME": "Uživatelské jméno",
+    "EMAIL": "Email",
+    "FIRST_NAME": "Křestní jméno",
+    "LAST_NAME": "Příjmení",
+    "PASSWORD": "Heslo",
+    "CONFIRM_PASSWORD": "Potvrdit heslo",
+    "REGISTER": "Registrovat",
+    "USERNAME_REQUIRED": "Uživatelské jméno je povinné.",
+    "EMAIL_REQUIRED": "Email je povinný.",
+    "EMAIL_INVALID": "Zadejte prosím platný email.",
+    "FIRST_NAME_REQUIRED": "Křestní jméno je povinné.",
+    "LAST_NAME_REQUIRED": "Příjmení je povinné.",
+    "PASSWORD_REQUIRED": "Heslo je povinné.",
+    "PASSWORD_MINLENGTH": "Heslo musí mít alespoň 8 znaků.",
+    "PASSWORD_PATTERN": "Heslo nesmí obsahovat mezery.",
+    "PASSWORDS_MISMATCH": "Hesla se neshodují."
+  },
+  "ERRORS": {
+    "FIX_FORM": "Prosím opravte chyby ve formuláři.",
+    "REGISTRATION_FAILED": "Registrace selhala: "
+  },
+  "SUCCESS": {
+    "REGISTRATION_SUCCESS": "Registrace byla úspěšná!"
+  }
+}

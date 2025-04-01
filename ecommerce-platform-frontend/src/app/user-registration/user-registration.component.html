@@ -1,0 +1,54 @@
+<div class="registration-container">
+  <h2>{{ 'USER_REGISTRATION.TITLE' | translate }}</h2>
+  <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+    <!-- Username Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'USER_REGISTRATION.USERNAME' | translate }}</mat-label>
+      <input matInput formControlName="username" type="text" placeholder="{{ 'USER_REGISTRATION.USERNAME' | translate }}">
+      <mat-error *ngIf="registrationForm.get('username')?.hasError('required')">
+        {{ 'USER_REGISTRATION.USERNAME_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Email Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'USER_REGISTRATION.EMAIL' | translate }}</mat-label>
+      <input matInput formControlName="email" type="email" placeholder="{{ 'USER_REGISTRATION.EMAIL' | translate }}">
+      <mat-error *ngIf="registrationForm.get('email')?.hasError('required')">
+        {{ 'USER_REGISTRATION.EMAIL_REQUIRED' | translate }}
+      </mat-error>
+      <mat-error *ngIf="registrationForm.get('email')?.hasError('email') || registrationForm.get('email')?.hasError('pattern')">
+        {{ 'USER_REGISTRATION.EMAIL_INVALID' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Password Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'USER_REGISTRATION.PASSWORD' | translate }}</mat-label>
+      <input matInput formControlName="password" type="password" placeholder="{{ 'USER_REGISTRATION.PASSWORD' | translate }}">
+      <mat-error *ngIf="registrationForm.get('password')?.hasError('required')">
+        {{ 'USER_REGISTRATION.PASSWORD_REQUIRED' | translate }}
+      </mat-error>
+      <mat-error *ngIf="registrationForm.get('password')?.hasError('minlength')">
+        {{ 'USER_REGISTRATION.PASSWORD_MINLENGTH' | translate }}
+      </mat-error>
+      <mat-error *ngIf="registrationForm.get('password')?.hasError('pattern')">
+        {{ 'USER_REGISTRATION.PASSWORD_PATTERN' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Confirm Password Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'USER_REGISTRATION.CONFIRM_PASSWORD' | translate }}</mat-label>
+      <input matInput formControlName="confirmPassword" type="password" placeholder="{{ 'USER_REGISTRATION.CONFIRM_PASSWORD' | translate }}">
+      <mat-error *ngIf="passwordMismatch && (registrationForm.get('confirmPassword')?.dirty || registrationForm.get('confirmPassword')?.dirty)">
+        {{ 'USER_REGISTRATION.PASSWORDS_MISMATCH' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Submit Button -->
+    <button mat-raised-button color="primary" type="submit" [disabled]="registrationForm.invalid">
+      {{ loading ? ('USER_REGISTRATION.REGISTER' | translate) + '...' : ('USER_REGISTRATION.REGISTER' | translate) }}
+    </button>
+  </form>
+</div>

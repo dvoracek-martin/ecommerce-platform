@@ -1,0 +1,15 @@
+/* src/app/app.component.scss */
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-icon {
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+/* Optional: Style the button for a modern look */
+button.mat-button {
+  display: flex;
+  align-items: center;
+}

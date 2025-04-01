@@ -1,0 +1,23 @@
+<mat-toolbar color="primary">
+  <span>{{ 'APP.TITLE' | translate }}</span>
+  <span class="spacer"></span>
+
+  <!-- Dropdown menu for language selection -->
+  <mat-menu #langMenu="matMenu">
+    <button mat-menu-item *ngFor="let lang of languages" (click)="changeLanguage(lang.code)">
+      <!-- Use our custom icon name -->
+      <mat-icon svgIcon="{{ lang.icon }}"></mat-icon>
+      <span>{{ lang.name }}</span>
+    </button>
+  </mat-menu>
+
+  <!-- Button that triggers the language dropdown -->
+  <button mat-button [matMenuTriggerFor]="langMenu">
+    <!-- Show the selected language's custom icon -->
+    <mat-icon svgIcon="{{ selectedLanguage.icon }}"></mat-icon>
+    <span>{{ selectedLanguage.name }}</span>
+    <mat-icon>arrow_drop_down</mat-icon>
+  </button>
+</mat-toolbar>
+
+<router-outlet></router-outlet>
