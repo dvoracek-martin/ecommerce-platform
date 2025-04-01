@@ -1,15 +1,6 @@
 <div class="registration-container">
   <h2>{{ 'USER_REGISTRATION.TITLE' | translate }}</h2>
   <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
-    <!-- Username Field -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>{{ 'USER_REGISTRATION.USERNAME' | translate }}</mat-label>
-      <input matInput formControlName="username" type="text" placeholder="{{ 'USER_REGISTRATION.USERNAME' | translate }}">
-      <mat-error *ngIf="registrationForm.get('username')?.hasError('required')">
-        {{ 'USER_REGISTRATION.USERNAME_REQUIRED' | translate }}
-      </mat-error>
-    </mat-form-field>
-
     <!-- Email Field -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'USER_REGISTRATION.EMAIL' | translate }}</mat-label>

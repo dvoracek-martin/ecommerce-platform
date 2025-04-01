@@ -1,20 +1,16 @@
 package com.dvoracekmartin.userservice.web.controller.v1;
 
-import com.dvoracekmartin.commonevents.events.UserCreatedEvent;
 import com.dvoracekmartin.userservice.application.dto.CreateUserDTO;
 import com.dvoracekmartin.userservice.application.dto.ResponseUserDTO;
 import com.dvoracekmartin.userservice.application.dto.UpdateUserDTO;
 import com.dvoracekmartin.userservice.application.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user/v1")
@@ -22,9 +18,8 @@ public class UserControllerV1 {
 
     private final UserService userService;
 
-    public UserControllerV1(UserService userService, KafkaTemplate<String, Object> kafkaTemplate) {
+    public UserControllerV1(UserService userService) {
         this.userService = userService;
-        this.kafkaTemplate = kafkaTemplate;
     }
 
     // -------------------------------------------------------------
@@ -39,15 +34,10 @@ public class UserControllerV1 {
         return ResponseEntity.ok(dto);
     }
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
-
-    @GetMapping("/")
-    public void test() {
-
-        UserCreatedEvent event = new UserCreatedEvent(
-                UUID.randomUUID().toString(), "testUser", "test@email.com", Instant.now()
-        );
-        kafkaTemplate.send("user_created_topic", event);
+    @PostMapping("/")
+    public ResponseEntity<ResponseUserDTO> createUser(@RequestBody CreateUserDTO createUserDTO) {
+        ResponseUserDTO response = userService.createUser(createUserDTO);
+        return ResponseEntity.status(response.statusCode()).body(response);
     }
 
     // -------------------------------------------------------------

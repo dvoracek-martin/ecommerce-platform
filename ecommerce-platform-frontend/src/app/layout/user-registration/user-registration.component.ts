@@ -24,12 +24,6 @@ export class UserRegistrationComponent implements OnInit {
 
   ngOnInit(): void {
     this.registrationForm = this.fb.group({
-      username: ['', [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(20),
-        Validators.pattern(/^\S+$/) // no whitespace
-      ]],
       email: ['', [
         Validators.required,
         Validators.email,
@@ -71,9 +65,14 @@ export class UserRegistrationComponent implements OnInit {
 
     this.loading = true;
     const payload = {
-      username: this.registrationForm.get('username')?.value.trim(),
+      username: this.registrationForm.get('email')?.value.trim(),
       email: this.registrationForm.get('email')?.value.trim(),
-      password: this.registrationForm.get('password')?.value
+      credentials: [
+        {
+          type: 'password',
+          value: this.registrationForm.get('password')?.value
+        }
+      ]
     };
 
     this.http.post(this.registrationUrl, payload).subscribe({
