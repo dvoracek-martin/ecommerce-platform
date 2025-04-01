@@ -1,15 +1,20 @@
-/* src/app/app.component.scss */
 .spacer {
   flex: 1 1 auto;
 }
 
-mat-icon {
-  vertical-align: middle;
-  margin-right: 4px;
-}
-
-/* Optional: Style the button for a modern look */
-button.mat-button {
+.user-menu {
+  margin-left: 15px;
   display: flex;
   align-items: center;
+}
+
+mat-toolbar {
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+}
+
+router-outlet {
+  margin-top: 64px; /* Height of toolbar */
+  display: block;
 }

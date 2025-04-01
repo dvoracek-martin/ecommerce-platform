@@ -139,6 +139,8 @@ public class KeycloakUserService {
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
         user.setUsername(dto.username());
+        user.setFirstName(dto.username());
+        user.setLastName(dto.username());
         user.setEmail(dto.email());
         user.setRequiredActions(Collections.emptyList());
 
@@ -158,6 +160,8 @@ public class KeycloakUserService {
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
         user.setUsername(dto.username());
+        user.setFirstName(dto.username());
+        user.setLastName(dto.username());
         user.setEmail(dto.email());
         user.setRequiredActions(Collections.emptyList());
 

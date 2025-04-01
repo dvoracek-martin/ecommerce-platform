@@ -1,0 +1,32 @@
+<div class="login-container">
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <!-- Email Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'USER_REGISTRATION.EMAIL' | translate }}</mat-label>
+      <input matInput formControlName="email" type="email"
+             [placeholder]="'LOGIN.ENTER_EMAIL' | translate">
+      <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+        {{ 'USER_REGISTRATION.EMAIL_REQUIRED' | translate }}
+      </mat-error>
+      <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+        {{ 'USER_REGISTRATION.EMAIL_INVALID' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Password Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'USER_REGISTRATION.PASSWORD' | translate }}</mat-label>
+      <input matInput formControlName="password" type="password"
+             [placeholder]="'LOGIN.ENTER_PASSWORD' | translate">
+      <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+        {{ 'USER_REGISTRATION.PASSWORD_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Submit Button -->
+    <button mat-raised-button color="primary" type="submit" class="full-width"
+            [disabled]="loading || loginForm.invalid">
+      {{ loading ? ('LOGIN.LOGGING_IN' | translate) : ('LOGIN.LOGIN' | translate) }}
+    </button>
+  </form>
+</div>

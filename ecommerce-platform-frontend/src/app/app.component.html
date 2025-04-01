@@ -2,22 +2,43 @@
   <span>{{ 'APP.TITLE' | translate }}</span>
   <span class="spacer"></span>
 
-  <!-- Dropdown menu for language selection -->
+  <!-- Language Dropdown -->
   <mat-menu #langMenu="matMenu">
     <button mat-menu-item *ngFor="let lang of languages" (click)="changeLanguage(lang.code)">
-      <!-- Use our custom icon name -->
       <mat-icon svgIcon="{{ lang.icon }}"></mat-icon>
       <span>{{ lang.name }}</span>
     </button>
   </mat-menu>
 
-  <!-- Button that triggers the language dropdown -->
   <button mat-button [matMenuTriggerFor]="langMenu">
-    <!-- Show the selected language's custom icon -->
     <mat-icon svgIcon="{{ selectedLanguage.icon }}"></mat-icon>
     <span>{{ selectedLanguage.name }}</span>
     <mat-icon>arrow_drop_down</mat-icon>
   </button>
+
+  <!-- User Menu -->
+  <div class="user-menu">
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>{{ 'AUTH.LOGOUT' | translate }}</span>
+      </button>
+    </mat-menu>
+
+    <button mat-icon-button
+            [matMenuTriggerFor]="userMenu"
+            *ngIf="authService.isAuthenticated$ | async; else loginBtn">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+
+    <ng-template #loginBtn>
+      <button mat-icon-button (click)="onUserIconClick()">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+    </ng-template>
+  </div>
 </mat-toolbar>
 
 <router-outlet></router-outlet>
+
+<app-auth-popup *ngIf="isPopupOpen" (closePopup)="closeAuthPopup()"></app-auth-popup>

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-user-registration',
@@ -10,16 +11,17 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./user-registration.component.scss']
 })
 export class UserRegistrationComponent implements OnInit {
+  @Output() registerSuccess = new EventEmitter<void>();
   registrationForm!: FormGroup;
   loading = false;
-  // This flag is true if the password and confirmPassword fields do not match.
   passwordMismatch = false;
   private registrationUrl = 'http://localhost:8080/api/user/v1/';
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -32,12 +34,11 @@ export class UserRegistrationComponent implements OnInit {
       password: ['', [
         Validators.required,
         Validators.minLength(8),
-        Validators.pattern(/^\S+$/) // no whitespace
+        Validators.pattern(/^\S+$/)
       ]],
       confirmPassword: ['', Validators.required]
     });
 
-    // Subscribe to changes on both password fields to update the mismatch flag.
     this.registrationForm.get('password')?.valueChanges.subscribe(() => {
       this.checkPasswordMismatch();
     });
@@ -53,7 +54,6 @@ export class UserRegistrationComponent implements OnInit {
   }
 
   onSubmit(): void {
-    // Even if the form is valid individually, we prevent submission if passwords don't match.
     if (this.passwordMismatch) {
       this.snackBar.open('Passwords do not match.', 'Close', { duration: 3000 });
       return;
@@ -78,13 +78,48 @@ export class UserRegistrationComponent implements OnInit {
     this.http.post(this.registrationUrl, payload).subscribe({
       next: () => {
         this.snackBar.open('Registration successful!', 'Close', { duration: 3000 });
+        this.authenticateUserAfterRegistration();
+      },
+      error: (err) => {
+        this.handleRegistrationError(err);
+      }
+    });
+  }
+
+  private authenticateUserAfterRegistration(): void {
+    const username = this.registrationForm.get('email')?.value.trim();
+    const password = this.registrationForm.get('password')?.value;
+
+    const body = new URLSearchParams();
+    body.set('grant_type', 'password');
+    body.set('client_id', 'ecommerce-platform-client');
+    body.set('username', username);
+    body.set('password', password);
+
+    this.http.post(
+      'http://localhost:9090/realms/ecommerce-platform/protocol/openid-connect/token',
+      body.toString(),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    ).subscribe({
+      next: (response: any) => {
+        this.authService.storeToken(response);
+        this.registerSuccess.emit();
         this.registrationForm.reset();
         this.loading = false;
       },
       error: (err) => {
-        this.snackBar.open('Registration failed: ' + (err.error?.message || err.statusText), 'Close', { duration: 3000 });
-        this.loading = false;
+        this.handleTokenError(err);
       }
     });
+  }
+
+  private handleRegistrationError(err: any): void {
+    this.snackBar.open('Registration failed: ' + (err.error?.message || err.statusText), 'Close', { duration: 3000 });
+    this.loading = false;
+  }
+
+  private handleTokenError(err: any): void {
+    this.snackBar.open('Failed to retrieve access token: ' + (err.error?.message || err.statusText), 'Close', { duration: 3000 });
+    this.loading = false;
   }
 }

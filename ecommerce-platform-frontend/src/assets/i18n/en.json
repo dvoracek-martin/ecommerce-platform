@@ -2,6 +2,18 @@
   "APP": {
     "TITLE": "E-Commerce Platform"
   },
+  "AUTH": {
+    "LOGOUT": "Logout",
+    "LOGIN": "Login",
+    "REGISTER": "Register"
+  },
+  "LOGIN": {
+    "TITLE": "Login",
+    "ENTER_EMAIL": "Enter your email",
+    "ENTER_PASSWORD": "Enter your password",
+    "LOGIN": "Login",
+    "LOGGING_IN": "Logging in..."
+  },
   "USER_REGISTRATION": {
     "TITLE": "User Registration",
     "USERNAME": "Username",
@@ -23,9 +35,11 @@
   },
   "ERRORS": {
     "FIX_FORM": "Please fix the errors in the form.",
-    "REGISTRATION_FAILED": "Registration failed: "
+    "REGISTRATION_FAILED": "Registration failed: ",
+    "LOGIN_FAILED": "Login failed: "
   },
   "SUCCESS": {
-    "REGISTRATION_SUCCESS": "Registration successful!"
+    "REGISTRATION_SUCCESS": "Registration successful!",
+    "LOGIN_SUCCESS": "Login successful!"
   }
 }

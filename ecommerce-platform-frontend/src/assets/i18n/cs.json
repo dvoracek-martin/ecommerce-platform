@@ -1,6 +1,13 @@
 {
   "APP": {
-    "TITLE": "E-Commerce Platform"
+    "TITLE": "E-shop Platforma"
+  },
+  "LOGIN": {
+    "TITLE": "Přihlášení",
+    "ENTER_EMAIL": "Zadejte svůj email",
+    "ENTER_PASSWORD": "Zadejte své heslo",
+    "LOGIN": "Přihlásit se",
+    "LOGGING_IN": "Probíhá přihlašování..."
   },
   "USER_REGISTRATION": {
     "TITLE": "Registrace uživatele",
@@ -9,11 +16,11 @@
     "FIRST_NAME": "Křestní jméno",
     "LAST_NAME": "Příjmení",
     "PASSWORD": "Heslo",
-    "CONFIRM_PASSWORD": "Potvrdit heslo",
+    "CONFIRM_PASSWORD": "Potvrďte heslo",
     "REGISTER": "Registrovat",
     "USERNAME_REQUIRED": "Uživatelské jméno je povinné.",
     "EMAIL_REQUIRED": "Email je povinný.",
-    "EMAIL_INVALID": "Zadejte prosím platný email.",
+    "EMAIL_INVALID": "Zadejte platný email.",
     "FIRST_NAME_REQUIRED": "Křestní jméno je povinné.",
     "LAST_NAME_REQUIRED": "Příjmení je povinné.",
     "PASSWORD_REQUIRED": "Heslo je povinné.",
@@ -22,10 +29,12 @@
     "PASSWORDS_MISMATCH": "Hesla se neshodují."
   },
   "ERRORS": {
-    "FIX_FORM": "Prosím opravte chyby ve formuláři.",
-    "REGISTRATION_FAILED": "Registrace selhala: "
+    "FIX_FORM": "Opravte chyby ve formuláři.",
+    "REGISTRATION_FAILED": "Registrace selhala: ",
+    "LOGIN_FAILED": "Přihlášení selhalo: "
   },
   "SUCCESS": {
-    "REGISTRATION_SUCCESS": "Registrace byla úspěšná!"
+    "REGISTRATION_SUCCESS": "Registrace úspěšná!",
+    "LOGIN_SUCCESS": "Přihlášení úspěšné!"
   }
 }

@@ -1,0 +1,17 @@
+<div class="auth-popup-overlay">
+  <div class="auth-popup-container">
+    <button class="close-btn" (click)="closePopup.emit()">×</button>
+
+    <ng-container *ngIf="!isRegisterMode; else registerTemplate">
+      <h2>Login</h2>
+      <app-user-login (loginSuccess)="onSuccess()"></app-user-login>
+      <p class="switch-mode">Don't have an account? <a href="#" (click)="switchToRegister()">Register now</a></p>
+    </ng-container>
+
+    <ng-template #registerTemplate>
+      <h2>Register</h2>
+      <app-user-registration (registerSuccess)="onSuccess()"></app-user-registration>
+      <p class="switch-mode">Already have an account? <a href="#" (click)="switchToLogin()">Login now</a></p>
+    </ng-template>
+  </div>
+</div>
