@@ -4,8 +4,10 @@ import com.dvoracekmartin.userservice.application.dto.*;
 import com.dvoracekmartin.userservice.application.events.UserEventPublisher;
 import com.dvoracekmartin.userservice.domain.model.User;
 import com.dvoracekmartin.userservice.domain.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.dvoracekmartin.userservice.domain.service.PasswordResetService;
 import jakarta.ws.rs.core.Response;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,14 +22,18 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final UserEventPublisher userEventPublisher;
+    private final JavaMailSender mailSender;
+    private final PasswordResetService passwordResetService;
 
     public UserServiceImpl(KeycloakUserService keycloakUserService,
                            UserMapper userMapper,
-                           UserRepository userRepository, UserEventPublisher userEventPublisher) {
+                           UserRepository userRepository, UserEventPublisher userEventPublisher, JavaMailSender mailSender, PasswordResetService passwordResetService) {
         this.keycloakUserService = keycloakUserService;
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.userEventPublisher = userEventPublisher;
+        this.mailSender = mailSender;
+        this.passwordResetService = passwordResetService;
     }
 
     @Override
@@ -128,12 +134,55 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findById(userId).isEmpty()) {
             return userMapper.updateUserDTOToResponseUserDTO(
                     null, //TODO
-                    Response.Status.CONFLICT.getStatusCode()
+                    Response.Status.NOT_FOUND.getStatusCode()
             );
         }
 
         // 2) Update user in Keycloak
         Response keycloakResponse = keycloakUserService.updateUserPassword(userId, updateUserPasswordDTO);
+        int status = keycloakResponse.getStatus();
+
+        // 3) If Keycloak update succeeded, update local DB
+        if (status == Response.Status.NO_CONTENT.getStatusCode()) {
+            return userMapper.userToResponseUserDTO(null, status); //TODO
+        }
+
+        // 4) Otherwise, return a DTO with the error status
+        return userMapper.updateUserDTOToResponseUserDTO(null, status);// TODO
+    }
+
+    @Override
+    public ResponseUserDTO forgotUserPassword(ForgotPasswordDTO updateUserPasswordDTO) {
+        // Generate a reset token for the provided email
+        String token = passwordResetService.generateResetToken(updateUserPasswordDTO.email());
+
+        // Build a reset link; adjust the host/port as needed for your front end
+        String resetLink = "http://localhost:4200/reset-password?token=" + token;
+
+        // Compose the email
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(updateUserPasswordDTO.email());
+        message.setSubject("Password Reset Request");
+        message.setText("To reset your password, please click the following link:\n" + resetLink);
+
+        // Send the email using MailHog SMTP settings
+        mailSender.send(message);
+
+        return null; //TODO
+    }
+
+    @Override
+    public ResponseUserDTO resetUserPassword(String email, String newPassword) {
+        if (userRepository.findByUsername(email) != null) {
+            return userMapper.updateUserDTOToResponseUserDTO(
+                    null, //TODO
+                    Response.Status.NOT_FOUND.getStatusCode()
+            );
+        }
+
+        // 2) Update user in Keycloak
+        String userId = keycloakUserService.getUserIdByUsername(email);
+        Response keycloakResponse = keycloakUserService.resetPassword(userId, newPassword);
         int status = keycloakResponse.getStatus();
 
         // 3) If Keycloak update succeeded, update local DB

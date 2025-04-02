@@ -70,6 +70,12 @@ services:
     volumes:
       - kafka_data:/bitnami/kafka
 
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"  # SMTP port
+      - "7999:8025"  # Web UI
+
   kafdrop:
     image: obsidiandynamics/kafdrop:3.30.0
     container_name: kafdrop

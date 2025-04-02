@@ -18,6 +18,7 @@ import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {HttpLoaderFactory} from './translate-http-loader.factory';
 import {RouterModule} from '@angular/router';
 import {ForgotPasswordComponent} from './auth/forgot-password/forgot-password.component';
+import {ResetPasswordComponent} from './auth/reset-password/reset-password.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import {ForgotPasswordComponent} from './auth/forgot-password/forgot-password.co
     AuthPopupComponent,
     CustomerDetailComponent,
     ForgotPasswordComponent,
+    ResetPasswordComponent,
   ],
   imports: [
     BrowserModule,

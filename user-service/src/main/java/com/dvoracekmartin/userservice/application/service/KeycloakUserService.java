@@ -115,6 +115,19 @@ public class KeycloakUserService {
         }
     }
 
+    public String getUserIdByUsername(String username) {
+        RealmResource realmResource = buildKeycloakClient().realm(realm);
+        UsersResource usersResource = realmResource.users();
+
+        try {
+            UserRepresentation userRep = usersResource.search(username).get(0);
+            return userRep.getId();
+        } catch (Exception ex) {
+            LOG.error("User with username {} not found: {}", username, ex.getMessage());
+            return null;
+        }
+    }
+
     public Response updateUserPassword(String userId, UpdateUserPasswordDTO updateUserPasswordDTO) {
         RealmResource realmResource = buildKeycloakClient().realm(realm);
         UsersResource usersResource = realmResource.users();
@@ -148,6 +161,31 @@ public class KeycloakUserService {
         }
     }
 
+    public Response resetPassword(String userId, String newPassword) {
+        RealmResource realmResource = buildKeycloakClient().realm(realm);
+        UsersResource usersResource = realmResource.users();
+
+        try {
+            UserResource userResource = usersResource.get(userId);
+
+
+            // Set the new password
+            CredentialRepresentation newCredential = new CredentialRepresentation();
+            newCredential.setType(CredentialRepresentation.PASSWORD);
+            newCredential.setValue(newPassword);
+            newCredential.setTemporary(false);
+
+            userResource.resetPassword(newCredential);
+
+            LOG.info("Password updated successfully for user {}", userId);
+            return Response.ok().build();
+        } catch (Exception ex) {
+            LOG.error("Password update failed for user {}: {}", userId, ex.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Failed to update password")
+                    .build();
+        }
+    }
     /**
      * Verifies the current password by attempting to authenticate with it.
      */

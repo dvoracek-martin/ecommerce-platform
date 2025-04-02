@@ -1,10 +1,7 @@
 package com.dvoracekmartin.userservice.application.service;
 
 
-import com.dvoracekmartin.userservice.application.dto.CreateUserDTO;
-import com.dvoracekmartin.userservice.application.dto.ResponseUserDTO;
-import com.dvoracekmartin.userservice.application.dto.UpdateUserDTO;
-import com.dvoracekmartin.userservice.application.dto.UpdateUserPasswordDTO;
+import com.dvoracekmartin.userservice.application.dto.*;
 
 import java.util.List;
 
@@ -22,4 +19,8 @@ public interface UserService {
     ResponseUserDTO deleteUser(String userId);
 
     ResponseUserDTO updateUserPassword(String userId, UpdateUserPasswordDTO updateUserPasswordDTO);
+
+    ResponseUserDTO forgotUserPassword(ForgotPasswordDTO updateUserPasswordDTO);
+
+    ResponseUserDTO resetUserPassword(String email, String newPassword);
 }

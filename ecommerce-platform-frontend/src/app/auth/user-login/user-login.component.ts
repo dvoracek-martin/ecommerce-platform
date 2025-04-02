@@ -42,7 +42,7 @@ export class UserLoginComponent {
     const body = new URLSearchParams();
     body.set('grant_type', 'password');
     body.set('client_id', this.clientId);
-    body.set('username', email.trim());
+    body.set('username', email.trim().toLowerCase());
     body.set('password', password);
 
     this.http.post(this.keycloakTokenUrl, body.toString(), {

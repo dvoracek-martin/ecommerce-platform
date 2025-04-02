@@ -60,6 +60,7 @@ export class AppComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+    this.router.navigate(['/']);
   }
 
   changeLanguage(langCode: string): void {

@@ -15,7 +15,6 @@ import { TranslateService } from '@ngx-translate/core';
 export class UserRegistrationComponent implements OnInit {
   @Output() registerSuccess = new EventEmitter<void>();
   registrationForm: FormGroup;
-  loading = false;
   saving = false;
 
   constructor(
@@ -63,8 +62,8 @@ export class UserRegistrationComponent implements OnInit {
 
     this.saving = true;
     const payload = {
-      username: this.registrationForm.get('email')?.value.trim(),
-      email: this.registrationForm.get('email')?.value.trim(),
+      username: this.registrationForm.get('email')?.value.trim().toLowerCase(),
+      email: this.registrationForm.get('email')?.value.trim().toLowerCase(),
       credentials: [
         {
           type: 'password',
@@ -94,7 +93,7 @@ export class UserRegistrationComponent implements OnInit {
   }
 
   private authenticateUserAfterRegistration(): void {
-    const username = this.registrationForm.get('email')?.value.trim();
+    const username = this.registrationForm.get('email')?.value.trim().toLowerCase();
     const password = this.registrationForm.get('password')?.value;
 
     const body = new URLSearchParams();

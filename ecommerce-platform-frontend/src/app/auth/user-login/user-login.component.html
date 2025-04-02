@@ -28,5 +28,6 @@
             [disabled]="loading || loginForm.invalid">
       {{ loading ? ('LOGIN.LOGGING_IN' | translate) : ('LOGIN.LOGIN' | translate) }}
     </button>
+    <mat-progress-bar *ngIf="loading" mode="indeterminate" class="save-progress"></mat-progress-bar>
   </form>
 </div>

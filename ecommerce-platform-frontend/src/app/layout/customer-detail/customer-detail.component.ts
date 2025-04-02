@@ -134,7 +134,7 @@ export class CustomerDetailComponent implements OnInit {
 
     if (userId && token) {
       const payload = {
-        email: this.authService.getEmail(),
+        email: this.authService.getEmail().trim().toLowerCase(),
         firstName: this.customerForm.value.firstName,
         lastName: this.customerForm.value.lastName,
         address: {

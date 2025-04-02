@@ -10,6 +10,9 @@
   },
   "LOGIN": {
     "TITLE": "Login",
+    "LOGIN": "Login",
+    "ENTER_EMAIL": "Enter email",
+    "ENTER_PASSWORD": "Enter password",
     "FORGOT_PASSWORD": "Forgot password",
     "FORGOT_PASSWORD_TITLE": "Reset Password",
     "SEND_RESET_LINK": "Send Reset Link",
@@ -17,6 +20,12 @@
     "NO_ACCOUNT": "Don't have an account?",
     "HAVE_ACCOUNT": "Already have an account?",
     "REMEMBER_PASSWORD": "Remember your password?"
+  },
+  "RESET_PASSWORD": {
+    "TITLE": "Reset Your Password",
+    "BUTTON": "Reset Password",
+    "SUCCESS": "Password reset successfully!",
+    "ERROR": "Failed to reset password. Please try again."
   },
   "USER_REGISTRATION": {
     "TITLE": "User Registration",

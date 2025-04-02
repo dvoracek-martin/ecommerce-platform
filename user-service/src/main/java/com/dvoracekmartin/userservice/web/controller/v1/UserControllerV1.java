@@ -1,10 +1,8 @@
 package com.dvoracekmartin.userservice.web.controller.v1;
 
-import com.dvoracekmartin.userservice.application.dto.CreateUserDTO;
-import com.dvoracekmartin.userservice.application.dto.ResponseUserDTO;
-import com.dvoracekmartin.userservice.application.dto.UpdateUserDTO;
-import com.dvoracekmartin.userservice.application.dto.UpdateUserPasswordDTO;
+import com.dvoracekmartin.userservice.application.dto.*;
 import com.dvoracekmartin.userservice.application.service.UserService;
+import com.dvoracekmartin.userservice.domain.service.PasswordResetService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,9 +16,11 @@ import java.util.List;
 public class UserControllerV1 {
 
     private final UserService userService;
+    private final PasswordResetService passwordResetService;
 
-    public UserControllerV1(UserService userService) {
+    public UserControllerV1(UserService userService, PasswordResetService passwordResetService) {
         this.userService = userService;
+        this.passwordResetService = passwordResetService;
     }
 
     // -------------------------------------------------------------
@@ -67,6 +67,34 @@ public class UserControllerV1 {
         }
         ResponseUserDTO response = userService.updateUserPassword(userId, updateUserPasswordDTO);
         return ResponseEntity.status(response.statusCode()).body(response);
+    }
+
+    // -------------------------------------------------------------
+    // forgotten user's password (self-service)
+    // -------------------------------------------------------------
+    @PostMapping("/forgot-password")
+    @PreAuthorize("hasRole('user_client')")
+    public ResponseEntity<ResponseUserDTO> forgotUserPassword(@RequestBody ForgotPasswordDTO updateUserPasswordDTO) {
+        ResponseUserDTO response = userService.forgotUserPassword(updateUserPasswordDTO);
+        return ResponseEntity.status(response.statusCode()).body(response);
+    }
+
+    // Endpoint to reset the password
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO dto) {
+        String token = dto.token();
+        if (!passwordResetService.isTokenValid(token)) {
+            return ResponseEntity.badRequest().body("Token is invalid or has expired.");
+        }
+
+        String email = passwordResetService.getEmailByToken(token);
+        // Here, update the user's password in your database based on the email.
+        userService.resetUserPassword(email, dto.newPassword());
+
+        // Invalidate the token after use
+        passwordResetService.invalidateToken(token);
+
+        return ResponseEntity.ok().body("Password has been reset successfully.");
     }
 
     // -------------------------------------------------------------

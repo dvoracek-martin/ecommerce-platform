@@ -33,7 +33,7 @@ export class ForgotPasswordComponent {
     if (this.forgotForm.invalid) return;
 
     this.loading = true;
-    const email = this.forgotForm.value.email;
+    const email = this.forgotForm.value.email.trim().toLowerCase();
 
     this.http.post('http://localhost:8080/api/user/v1/forgot-password', { email })
       .subscribe({
