@@ -1,0 +1,98 @@
+.customer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: #f9f9f9;
+}
+
+.customer-card {
+  width: 100%;
+  max-width: 700px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.customer-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.title-icon {
+  font-size: 1.5rem;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+}
+
+.form-section {
+  margin-bottom: 1rem;
+  .section-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #555;
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.form-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-field-wide {
+  width: 100%;
+}
+
+.password-container {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 2rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+button[mat-flat-button] {
+  text-transform: none;
+  font-weight: 500;
+}
+
+.actions {
+  position: relative;
+  margin-top: 16px;
+
+  .save-progress {
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+}

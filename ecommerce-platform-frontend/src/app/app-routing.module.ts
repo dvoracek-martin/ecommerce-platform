@@ -2,12 +2,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { WelcomeComponent } from './layout/welcome/welcome.component';
 import { UserRegistrationComponent } from './auth/user-registration/user-registration.component';
-import { AuthPopupComponent } from './auth/auth-popup/auth-popup.component';
+import { CustomerDetailComponent } from './layout/customer-detail/customer-detail.component';
+import { AuthGuard } from './auth/auth.guard';
 
 const routes: Routes = [
-  { path: '', component: WelcomeComponent }, // Výchozí welcome page
+  { path: 'customer', component: CustomerDetailComponent, canActivate: [AuthGuard] },  // Moved up
   { path: 'register', component: UserRegistrationComponent },
-  // Pokud potřebujete samostatnou routu pro auth-popup, můžete ji mít, ale v našem případě ji ovládáme přímo v AppComponent
+  { path: '', component: WelcomeComponent },
   { path: '**', redirectTo: '' }
 ];
 
@@ -15,4 +16,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

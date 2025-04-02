@@ -1,5 +1,5 @@
 <div class="login-container">
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-grid">
     <!-- Email Field -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'USER_REGISTRATION.EMAIL' | translate }}</mat-label>

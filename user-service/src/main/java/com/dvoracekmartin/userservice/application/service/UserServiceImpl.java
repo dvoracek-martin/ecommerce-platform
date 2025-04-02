@@ -1,12 +1,10 @@
 package com.dvoracekmartin.userservice.application.service;
 
-import com.dvoracekmartin.userservice.application.dto.CreateUserDTO;
-import com.dvoracekmartin.userservice.application.dto.ResponseUserDTO;
-import com.dvoracekmartin.userservice.application.dto.UpdateUserDTO;
-import com.dvoracekmartin.userservice.application.dto.UserMapper;
+import com.dvoracekmartin.userservice.application.dto.*;
 import com.dvoracekmartin.userservice.application.events.UserEventPublisher;
 import com.dvoracekmartin.userservice.domain.model.User;
 import com.dvoracekmartin.userservice.domain.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.ws.rs.core.Response;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -122,6 +120,29 @@ public class UserServiceImpl implements UserService {
                 null,
                 Response.Status.NOT_FOUND.getStatusCode()
         );
+    }
+
+    @Override
+    public ResponseUserDTO updateUserPassword(String userId, UpdateUserPasswordDTO updateUserPasswordDTO) {
+        // 1) Check if user to be updated exists in local DB or by username
+        if (userRepository.findById(userId).isEmpty()) {
+            return userMapper.updateUserDTOToResponseUserDTO(
+                    null, //TODO
+                    Response.Status.CONFLICT.getStatusCode()
+            );
+        }
+
+        // 2) Update user in Keycloak
+        Response keycloakResponse = keycloakUserService.updateUserPassword(userId, updateUserPasswordDTO);
+        int status = keycloakResponse.getStatus();
+
+        // 3) If Keycloak update succeeded, update local DB
+        if (status == Response.Status.NO_CONTENT.getStatusCode()) {
+            return userMapper.userToResponseUserDTO(null, status); //TODO
+        }
+
+        // 4) Otherwise, return a DTO with the error status
+        return userMapper.updateUserDTOToResponseUserDTO(null, status);// TODO
     }
 
     @Override

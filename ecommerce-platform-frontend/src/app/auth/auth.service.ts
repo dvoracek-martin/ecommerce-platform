@@ -4,6 +4,8 @@ import { tap, catchError } from 'rxjs/operators'; // Add operators
 import { isPlatformBrowser } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
+import { jwtDecode } from 'jwt-decode';
+
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -108,5 +110,32 @@ export class AuthService {
       return expiration ? new Date().getTime() < parseInt(expiration, 10) : false;
     }
     return false;
+  }
+
+  getUserId(): string | null {
+    const token = this.token;
+    if (!token) return null;
+
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.sub || decoded.userId; // Adjust based on your JWT structure
+    } catch (e) {
+      console.error('Error decoding token:', e);
+      return null;
+    }
+  }
+
+  getUsername(): string {
+    const token = this.token;
+    if (!token) return '';
+    const decoded: any = jwtDecode(token);
+    return decoded.preferred_username; // Adjust based on your token claims
+  }
+
+  getEmail(): string {
+    const token = this.token;
+    if (!token) return '';
+    const decoded: any = jwtDecode(token);
+    return decoded.email; // Adjust based on your token claims
   }
 }

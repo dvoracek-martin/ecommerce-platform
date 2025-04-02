@@ -3,6 +3,7 @@ package com.dvoracekmartin.userservice.web.controller.v1;
 import com.dvoracekmartin.userservice.application.dto.CreateUserDTO;
 import com.dvoracekmartin.userservice.application.dto.ResponseUserDTO;
 import com.dvoracekmartin.userservice.application.dto.UpdateUserDTO;
+import com.dvoracekmartin.userservice.application.dto.UpdateUserPasswordDTO;
 import com.dvoracekmartin.userservice.application.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -51,6 +52,20 @@ public class UserControllerV1 {
             throw new AccessDeniedException("You are not allowed to update this user");
         }
         ResponseUserDTO response = userService.updateUser(userId, updateUserDTO);
+        return ResponseEntity.status(response.statusCode()).body(response);
+    }
+
+    // -------------------------------------------------------------
+    // UPDATE user's password (self-service)
+    // -------------------------------------------------------------
+    @PutMapping("/{userId}/password")
+    @PreAuthorize("hasRole('user_client')")
+    public ResponseEntity<ResponseUserDTO> updateUserPassword(@PathVariable String userId,
+                                                              @RequestBody UpdateUserPasswordDTO updateUserPasswordDTO) {
+        if (currentUserDoesntMatch(userId)) {
+            throw new AccessDeniedException("You are not allowed to update this user");
+        }
+        ResponseUserDTO response = userService.updateUserPassword(userId, updateUserPasswordDTO);
         return ResponseEntity.status(response.statusCode()).body(response);
     }
 

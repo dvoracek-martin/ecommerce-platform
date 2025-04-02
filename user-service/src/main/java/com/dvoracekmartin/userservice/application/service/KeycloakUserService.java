@@ -2,6 +2,7 @@ package com.dvoracekmartin.userservice.application.service;
 
 import com.dvoracekmartin.userservice.application.dto.CreateUserDTO;
 import com.dvoracekmartin.userservice.application.dto.UpdateUserDTO;
+import com.dvoracekmartin.userservice.application.dto.UpdateUserPasswordDTO;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
@@ -46,7 +47,7 @@ public class KeycloakUserService {
      */
     public Response createUser(CreateUserDTO dto) {
         RealmResource realmResource = buildKeycloakClient().realm(realm);
-            UsersResource usersResource = realmResource.users();
+        UsersResource usersResource = realmResource.users();
 
         UserRepresentation userRep = toUserRepresentation(dto);
 
@@ -111,6 +112,67 @@ public class KeycloakUserService {
         } catch (Exception ex) {
             LOG.error("User with ID:{} couldn't be deleted: {}", userId, ex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    public Response updateUserPassword(String userId, UpdateUserPasswordDTO updateUserPasswordDTO) {
+        RealmResource realmResource = buildKeycloakClient().realm(realm);
+        UsersResource usersResource = realmResource.users();
+
+        try {
+            UserResource userResource = usersResource.get(userId);
+
+            // First verify the current password is correct
+            if (!verifyCurrentPassword(userId, updateUserPasswordDTO.currentPassword())) {
+                LOG.warn("Password update failed for user {} - current password incorrect", userId);
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Current password is incorrect")
+                        .build();
+            }
+
+            // Set the new password
+            CredentialRepresentation newCredential = new CredentialRepresentation();
+            newCredential.setType(CredentialRepresentation.PASSWORD);
+            newCredential.setValue(updateUserPasswordDTO.newPassword());
+            newCredential.setTemporary(false);
+
+            userResource.resetPassword(newCredential);
+
+            LOG.info("Password updated successfully for user {}", userId);
+            return Response.ok().build();
+        } catch (Exception ex) {
+            LOG.error("Password update failed for user {}: {}", userId, ex.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Failed to update password")
+                    .build();
+        }
+    }
+
+    /**
+     * Verifies the current password by attempting to authenticate with it.
+     */
+    private boolean verifyCurrentPassword(String userId, String currentPassword) {
+        try {
+            // Get the username for this user ID
+            UserRepresentation user = buildKeycloakClient().realm(realm).users().get(userId).toRepresentation();
+            String username = user.getUsername();
+
+            // Try to authenticate with current credentials
+            Keycloak keycloak = KeycloakBuilder.builder()
+                    .serverUrl(serverUrl)
+                    .realm(realm)
+                    .clientId(clientId)
+                    .username(username)
+                    .password(currentPassword)
+                    .grantType(OAuth2Constants.PASSWORD)
+                    .build();
+
+            // If we can get a token, the password is correct
+            keycloak.tokenManager().getAccessToken();
+            return true;
+        } catch (Exception ex) {
+            LOG.debug("Current password verification failed: {}", ex.getMessage());
+            return false;
         }
     }
 

@@ -19,6 +19,10 @@
   <!-- User Menu -->
   <div class="user-menu">
     <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="navigateToProfile()">
+        <mat-icon>account_circle</mat-icon>
+        <span>{{ 'AUTH.PROFILE' | translate }}</span>
+      </button>
       <button mat-menu-item (click)="logout()">
         <mat-icon>logout</mat-icon>
         <span>{{ 'AUTH.LOGOUT' | translate }}</span>

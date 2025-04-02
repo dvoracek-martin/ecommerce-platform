@@ -1,8 +1,10 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-user-registration',
@@ -12,16 +14,17 @@ import { AuthService } from '../auth.service';
 })
 export class UserRegistrationComponent implements OnInit {
   @Output() registerSuccess = new EventEmitter<void>();
-  registrationForm!: FormGroup;
+  registrationForm: FormGroup;
   loading = false;
-  passwordMismatch = false;
-  private registrationUrl = 'http://localhost:8080/api/user/v1/';
+  saving = false;
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
     private snackBar: MatSnackBar,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -37,33 +40,28 @@ export class UserRegistrationComponent implements OnInit {
         Validators.pattern(/^\S+$/)
       ]],
       confirmPassword: ['', Validators.required]
-    });
-
-    this.registrationForm.get('password')?.valueChanges.subscribe(() => {
-      this.checkPasswordMismatch();
-    });
-    this.registrationForm.get('confirmPassword')?.valueChanges.subscribe(() => {
-      this.checkPasswordMismatch();
-    });
+    }, { validators: this.passwordMatchValidator() });
   }
 
-  private checkPasswordMismatch(): void {
-    const password = this.registrationForm.get('password')?.value;
-    const confirmPassword = this.registrationForm.get('confirmPassword')?.value;
-    this.passwordMismatch = password && confirmPassword && password !== confirmPassword;
+  private passwordMatchValidator(): ValidatorFn {
+    return (group: AbstractControl): { [key: string]: any } | null => {
+      const password = group.get('password')?.value;
+      const confirmPassword = group.get('confirmPassword')?.value;
+      return password && confirmPassword && password !== confirmPassword ? { mismatch: true } : null;
+    };
   }
 
   onSubmit(): void {
-    if (this.passwordMismatch) {
-      this.snackBar.open('Passwords do not match.', 'Close', { duration: 3000 });
-      return;
-    }
     if (this.registrationForm.invalid) {
-      this.snackBar.open('Please fix the errors in the form.', 'Close', { duration: 3000 });
+      this.snackBar.open(
+        this.translate.instant('ERRORS.FIX_FORM'),
+        this.translate.instant('COMMON.CLOSE'),
+        { duration: 3000 }
+      );
       return;
     }
 
-    this.loading = true;
+    this.saving = true;
     const payload = {
       username: this.registrationForm.get('email')?.value.trim(),
       email: this.registrationForm.get('email')?.value.trim(),
@@ -75,13 +73,22 @@ export class UserRegistrationComponent implements OnInit {
       ]
     };
 
-    this.http.post(this.registrationUrl, payload).subscribe({
+    this.http.post('http://localhost:8080/api/user/v1/', payload).subscribe({
       next: () => {
-        this.snackBar.open('Registration successful!', 'Close', { duration: 3000 });
+        this.snackBar.open(
+          this.translate.instant('SUCCESS.REGISTRATION_SUCCESS'),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 3000 }
+        );
         this.authenticateUserAfterRegistration();
       },
       error: (err) => {
-        this.handleRegistrationError(err);
+        this.snackBar.open(
+          this.translate.instant('ERRORS.REGISTRATION_FAILED') + (err.error?.message || err.statusText),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 5000 }
+        );
+        this.saving = false;
       }
     });
   }
@@ -104,22 +111,19 @@ export class UserRegistrationComponent implements OnInit {
       next: (response: any) => {
         this.authService.storeToken(response);
         this.registerSuccess.emit();
+        this.router.navigate(['/customer']);
         this.registrationForm.reset();
-        this.loading = false;
+        this.saving = false;
       },
       error: (err) => {
-        this.handleTokenError(err);
+        this.snackBar.open(
+          this.translate.instant('ERRORS.LOGIN_FAILED') + (err.error?.message || err.statusText),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 5000 }
+        );
+        this.saving = false;
+        this.router.navigate(['/']);
       }
     });
-  }
-
-  private handleRegistrationError(err: any): void {
-    this.snackBar.open('Registration failed: ' + (err.error?.message || err.statusText), 'Close', { duration: 3000 });
-    this.loading = false;
-  }
-
-  private handleTokenError(err: any): void {
-    this.snackBar.open('Failed to retrieve access token: ' + (err.error?.message || err.statusText), 'Close', { duration: 3000 });
-    this.loading = false;
   }
 }

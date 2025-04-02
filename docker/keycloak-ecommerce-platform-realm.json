@@ -19,6 +19,8 @@
     {
       "username": "ecommerce-platform-rest-api",
       "email": "placeholder@email.com",
+      "firstName": "Ecommerce",
+      "lastName": "Platform",
       "enabled": true,
       "emailVerified": true,
       "notBefore": 0,

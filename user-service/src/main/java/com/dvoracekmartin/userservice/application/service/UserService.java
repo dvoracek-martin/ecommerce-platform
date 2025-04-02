@@ -4,6 +4,7 @@ package com.dvoracekmartin.userservice.application.service;
 import com.dvoracekmartin.userservice.application.dto.CreateUserDTO;
 import com.dvoracekmartin.userservice.application.dto.ResponseUserDTO;
 import com.dvoracekmartin.userservice.application.dto.UpdateUserDTO;
+import com.dvoracekmartin.userservice.application.dto.UpdateUserPasswordDTO;
 
 import java.util.List;
 
@@ -19,4 +20,6 @@ public interface UserService {
     ResponseUserDTO updateUser(String userId, UpdateUserDTO updateUserDTO);
 
     ResponseUserDTO deleteUser(String userId);
+
+    ResponseUserDTO updateUserPassword(String userId, UpdateUserPasswordDTO updateUserPasswordDTO);
 }

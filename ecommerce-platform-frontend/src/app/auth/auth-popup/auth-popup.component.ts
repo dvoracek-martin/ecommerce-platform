@@ -9,17 +9,32 @@ import { Component, EventEmitter, Output } from '@angular/core';
 export class AuthPopupComponent {
   @Output() closePopup = new EventEmitter<void>();
   isRegisterMode = false;
+  showForgotPassword = false;
 
-  switchToRegister(): void {
+  switchToRegister(event: Event): void {
+    event.preventDefault();
     this.isRegisterMode = true;
+    this.showForgotPassword = false;
   }
 
-  switchToLogin(): void {
+  switchToLogin(event?: Event): void {
+    if (event) event.preventDefault();
+    this.isRegisterMode = false;
+    this.showForgotPassword = false;
+  }
+
+  onSuccess(): void {
+    this.closePopup.emit();
+  }
+
+  openForgotPassword(event?: Event): void {
+    if (event) event.preventDefault();
+    this.showForgotPassword = true;
     this.isRegisterMode = false;
   }
 
-  // Tato metoda se volá po úspěšném loginu nebo registraci a zavře popup.
-  onSuccess(): void {
+  closeForgotPassword(): void {
+    this.showForgotPassword = false;
     this.closePopup.emit();
   }
 }

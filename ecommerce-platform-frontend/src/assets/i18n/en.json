@@ -5,14 +5,18 @@
   "AUTH": {
     "LOGOUT": "Logout",
     "LOGIN": "Login",
-    "REGISTER": "Register"
+    "REGISTER": "Register",
+    "PROFILE": "Profile"
   },
   "LOGIN": {
     "TITLE": "Login",
-    "ENTER_EMAIL": "Enter your email",
-    "ENTER_PASSWORD": "Enter your password",
-    "LOGIN": "Login",
-    "LOGGING_IN": "Logging in..."
+    "FORGOT_PASSWORD": "Forgot password",
+    "FORGOT_PASSWORD_TITLE": "Reset Password",
+    "SEND_RESET_LINK": "Send Reset Link",
+    "RESET_PASSWORD": "Reset it",
+    "NO_ACCOUNT": "Don't have an account?",
+    "HAVE_ACCOUNT": "Already have an account?",
+    "REMEMBER_PASSWORD": "Remember your password?"
   },
   "USER_REGISTRATION": {
     "TITLE": "User Registration",
@@ -33,13 +37,64 @@
     "PASSWORD_PATTERN": "Password cannot contain spaces.",
     "PASSWORDS_MISMATCH": "Passwords do not match."
   },
+  "CUSTOMER": {
+    "TITLE": "Customer Details",
+    "BASIC_INFO": "Basic Information",
+    "FIRST_NAME": "First Name",
+    "LAST_NAME": "Last Name",
+    "EMAIL": "Email",
+    "ADDRESS": "Address",
+    "STREET": "Street",
+    "HOUSE_NUMBER": "House Number",
+    "CITY": "City",
+    "ZIP_CODE": "ZIP Code",
+    "COUNTRY": "Country",
+    "STREET_REQUIRED": "Street is required.",
+    "HOUSE_NUMBER_REQUIRED": "House Number is required.",
+    "CITY_REQUIRED": "City is required.",
+    "ZIP_CODE_REQUIRED": "ZIP Code is required.",
+    "ZIP_CODE_NUMBERS_ONLY": "ZIP Code must contain numbers only.",
+    "COUNTRY_REQUIRED": "Country is required.",
+    "CHANGE_PASSWORD": "Change Password",
+    "CURRENT_PASSWORD": "Current Password",
+    "CURRENT_PASSWORD_REQUIRED": "Current Password is required.",
+    "NEW_PASSWORD": "New Password",
+    "CONFIRM_NEW_PASSWORD": "Confirm New Password",
+    "PASSWORD_CHANGE_SUCCESS": "Password changed successfully!",
+    "SAVE_SUCCESS": "Changes saved successfully!",
+    "SAVE_ERROR": "Failed to save changes. Please try again."
+  },
+  "COMMON": {
+    "SAVE": "Save Changes",
+    "SAVING": "Saving...",
+    "CHANGE_PASSWORD": "Change Password",
+    "CLOSE": "Close",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Confirm",
+    "YES": "Yes",
+    "NO": "No"
+  },
   "ERRORS": {
     "FIX_FORM": "Please fix the errors in the form.",
     "REGISTRATION_FAILED": "Registration failed: ",
-    "LOGIN_FAILED": "Login failed: "
+    "LOGIN_FAILED": "Login failed: ",
+    "UNAUTHORIZED": "Unauthorized access",
+    "SERVER_ERROR": "Server error occurred",
+    "FORM_VALIDATION": "Form validation failed",
+    "PASSWORD_CHANGE_FAILED": "Password change failed"
   },
   "SUCCESS": {
     "REGISTRATION_SUCCESS": "Registration successful!",
-    "LOGIN_SUCCESS": "Login successful!"
+    "LOGIN_SUCCESS": "Login successful!",
+    "PROFILE_UPDATE_SUCCESS": "Profile updated successfully!",
+    "PASSWORD_CHANGE_SUCCESS": "Password changed successfully!"
+  },
+  "VALIDATION": {
+    "REQUIRED": "This field is required",
+    "EMAIL": "Please enter a valid email address",
+    "MIN_LENGTH": "Minimum length is {min} characters",
+    "MAX_LENGTH": "Maximum length is {max} characters",
+    "PATTERN": "Invalid format",
+    "MATCH": "Fields must match"
   }
 }

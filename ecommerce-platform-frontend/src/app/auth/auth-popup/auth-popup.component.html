@@ -2,16 +2,42 @@
   <div class="auth-popup-container">
     <button class="close-btn" (click)="closePopup.emit()">×</button>
 
-    <ng-container *ngIf="!isRegisterMode; else registerTemplate">
-      <h2>Login</h2>
-      <app-user-login (loginSuccess)="onSuccess()"></app-user-login>
-      <p class="switch-mode">Don't have an account? <a href="#" (click)="switchToRegister()">Register now</a></p>
+    <ng-container *ngIf="showForgotPassword; else authTemplate">
+      <h2>{{ 'LOGIN.FORGOT_PASSWORD_TITLE' | translate }}</h2>
+      <app-forgot-password (close)="closeForgotPassword()">
+      </app-forgot-password>
     </ng-container>
 
-    <ng-template #registerTemplate>
-      <h2>Register</h2>
-      <app-user-registration (registerSuccess)="onSuccess()"></app-user-registration>
-      <p class="switch-mode">Already have an account? <a href="#" (click)="switchToLogin()">Login now</a></p>
+    <!-- Login/Register View -->
+    <ng-template #authTemplate>
+      <ng-container *ngIf="!isRegisterMode; else registerTemplate">
+        <h2>{{ 'LOGIN.TITLE' | translate }}</h2>
+        <app-user-login (loginSuccess)="onSuccess()"></app-user-login>
+        <p class="switch-mode">
+          <button mat-button color="primary" (click)="openForgotPassword()">
+            {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
+          </button>
+        </p>
+        <p class="switch-mode">
+          {{ 'LOGIN.NO_ACCOUNT' | translate }}
+          <button mat-button color="primary" (click)="switchToRegister($event)">
+            {{ 'AUTH.REGISTER' | translate }}
+          </button>
+        </p>
+      </ng-container>
+
+      <ng-template #registerTemplate>
+        <ng-container *ngIf="isRegisterMode; else authTemplate">
+          <h2>{{ 'USER_REGISTRATION.TITLE' | translate }}</h2>
+          <app-user-registration (registerSuccess)="onSuccess()"></app-user-registration>
+          <p class="switch-mode">
+            {{ 'LOGIN.HAVE_ACCOUNT' | translate }}
+            <button mat-button color="primary" (click)="switchToLogin($event)">
+              {{ 'AUTH.LOGIN' | translate }}
+            </button>
+          </p>
+        </ng-container>
+      </ng-template>
     </ng-template>
   </div>
 </div>

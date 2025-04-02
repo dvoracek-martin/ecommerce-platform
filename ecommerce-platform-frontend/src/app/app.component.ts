@@ -3,6 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AuthService } from './auth/auth.service';
+import { Router } from '@angular/router'; // Add this import
 
 @Component({
   selector: 'app-root',
@@ -23,7 +24,8 @@ export class AppComponent implements OnInit {
     public translate: TranslateService,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
-    public authService: AuthService
+    public authService: AuthService,
+    private router: Router // Add this
   ) {
     this.matIconRegistry.addSvgIcon(
       'flag_us',
@@ -50,6 +52,10 @@ export class AppComponent implements OnInit {
     } else {
       this.isPopupOpen = true;
     }
+  }
+
+  navigateToProfile(): void {
+    this.router.navigate(['/customer']);
   }
 
   logout(): void {

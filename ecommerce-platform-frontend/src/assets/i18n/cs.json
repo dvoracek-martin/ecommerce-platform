@@ -28,6 +28,25 @@
     "PASSWORD_PATTERN": "Heslo nesmí obsahovat mezery.",
     "PASSWORDS_MISMATCH": "Hesla se neshodují."
   },
+  "CUSTOMER": {
+    "TITLE": "Detaily zákazníka",
+    "FIRST_NAME": "Křestní jméno",
+    "LAST_NAME": "Příjmení",
+    "EMAIL": "Email",
+    "ADDRESS": "Adresa",
+    "STREET": "Ulice",
+    "HOUSE_NUMBER": "Číslo popisné",
+    "CITY": "Město",
+    "ZIP_CODE": "PSČ",
+    "COUNTRY": "Země",
+    "SAVE_SUCCESS": "Detaily zákazníka úspěšně aktualizovány!",
+    "SAVE_ERROR": "Chyba při ukládání detailů"
+  },
+  "COMMON": {
+    "SAVE": "Uložit změny",
+    "SAVING": "Ukládání...",
+    "CLOSE": "Zavřít"
+  },
   "ERRORS": {
     "FIX_FORM": "Opravte chyby ve formuláři.",
     "REGISTRATION_FAILED": "Registrace selhala: ",

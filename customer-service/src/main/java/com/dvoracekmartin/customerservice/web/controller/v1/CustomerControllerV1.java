@@ -24,13 +24,13 @@ public class CustomerControllerV1 {
     // -------------------------------------------------------------
     // GET a customer by ID
     // -------------------------------------------------------------
-    @GetMapping("/{userId}")
-    public ResponseEntity<ResponseCustomerDTO> getCustomerById(@PathVariable String userId) {
-        ResponseCustomerDTO dto = customerService.getCustomerById(userId);
+    @GetMapping("/{customerId}")
+    public ResponseEntity<ResponseCustomerDTO> getCustomerById(@PathVariable String customerId) {
+        ResponseCustomerDTO dto = customerService.getCustomerById(customerId);
         if (dto == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(dto);
+            return ResponseEntity.ok(dto);
     }
 
     // -------------------------------------------------------------
