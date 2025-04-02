@@ -55,7 +55,7 @@ export class UserRegistrationComponent implements OnInit {
       this.snackBar.open(
         this.translate.instant('ERRORS.FIX_FORM'),
         this.translate.instant('COMMON.CLOSE'),
-        { duration: 3000 }
+        { duration: 5000 }
       );
       return;
     }
@@ -77,7 +77,7 @@ export class UserRegistrationComponent implements OnInit {
         this.snackBar.open(
           this.translate.instant('SUCCESS.REGISTRATION_SUCCESS'),
           this.translate.instant('COMMON.CLOSE'),
-          { duration: 3000 }
+          { duration: 5000 }
         );
         this.authenticateUserAfterRegistration();
       },

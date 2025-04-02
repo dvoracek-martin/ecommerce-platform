@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ValidatorFn, AbstractControl, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../../auth/auth.service';
-import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { TranslateService } from '@ngx-translate/core';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, ValidatorFn, AbstractControl, Validators} from '@angular/forms';
+import {HttpClient} from '@angular/common/http';
+import {AuthService} from '../../auth/auth.service';
+import {Router} from '@angular/router';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {TranslateService} from '@ngx-translate/core';
+import {MatIconRegistry} from '@angular/material/icon';
+import {DomSanitizer} from '@angular/platform-browser';
 
 interface Customer {
   id: string;
@@ -68,7 +68,7 @@ export class CustomerDetailComponent implements OnInit {
         currentPassword: ['', Validators.required],
         newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^\S+$/)]],
         confirmNewPassword: ['', Validators.required]
-      }, { validators: this.passwordMatchValidator() })
+      }, {validators: this.passwordMatchValidator()})
     });
   }
 
@@ -83,7 +83,7 @@ export class CustomerDetailComponent implements OnInit {
 
     if (userId && token) {
       this.http.get<Customer>(`http://localhost:8080/api/customer/v1/${userId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {'Authorization': `Bearer ${token}`}
       }).subscribe({
         next: (customer) => {
           this.patchFormValues(customer);
@@ -114,7 +114,7 @@ export class CustomerDetailComponent implements OnInit {
     return (group: AbstractControl): { [key: string]: any } | null => {
       const newPassword = group.get('newPassword')?.value;
       const confirmNewPassword = group.get('confirmNewPassword')?.value;
-      return newPassword && confirmNewPassword && newPassword !== confirmNewPassword ? { mismatch: true } : null;
+      return newPassword && confirmNewPassword && newPassword !== confirmNewPassword ? {mismatch: true} : null;
     };
   }
 
@@ -123,7 +123,7 @@ export class CustomerDetailComponent implements OnInit {
       this.snackBar.open(
         this.translate.instant('ERRORS.FIX_FORM'),
         this.translate.instant('COMMON.CLOSE'),
-        { duration: 3000 }
+        {duration: 5000}
       );
       return;
     }
@@ -148,13 +148,13 @@ export class CustomerDetailComponent implements OnInit {
 
       this.http.put(`http://localhost:8080/api/customer/v1/${userId}`,
         payload,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        {headers: {'Authorization': `Bearer ${token}`}}
       ).subscribe({
         next: () => {
           this.snackBar.open(
             this.translate.instant('CUSTOMER.SAVE_SUCCESS'),
             this.translate.instant('COMMON.CLOSE'),
-            { duration: 3000 }
+            {duration: 5000}
           );
           this.saving = false; // Reset saving state
         },
@@ -162,7 +162,7 @@ export class CustomerDetailComponent implements OnInit {
           this.snackBar.open(
             this.translate.instant('CUSTOMER.SAVE_ERROR'),
             this.translate.instant('COMMON.CLOSE'),
-            { duration: 5000 }
+            {duration: 5000}
           );
           this.saving = false; // Reset saving state even on error
         }
@@ -178,7 +178,7 @@ export class CustomerDetailComponent implements OnInit {
       this.snackBar.open(
         this.translate.instant('ERRORS.FIX_FORM'),
         this.translate.instant('COMMON.CLOSE'),
-        { duration: 3000 }
+        {duration: 5000}
       );
       return;
     }
@@ -193,29 +193,56 @@ export class CustomerDetailComponent implements OnInit {
         newPassword: passwordGroup.get('newPassword')?.value
       };
 
-      this.http.put(`http://localhost:8080/api/user/v1/${userId}/password`,
+      this.http.put(
+        `http://localhost:8080/api/user/v1/${userId}/password`,
         payload,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        {headers: {'Authorization': `Bearer ${token}`}}
       ).subscribe({
         next: () => {
           this.snackBar.open(
             this.translate.instant('CUSTOMER.PASSWORD_CHANGE_SUCCESS'),
             this.translate.instant('COMMON.CLOSE'),
-            { duration: 3000 }
+            {duration: 5000}
           );
-          passwordGroup.reset();
+          const passwordGroup = this.passwordForm.get('passwordChange');
+          if (passwordGroup) {
+            passwordGroup.reset({}, { emitEvent: false });
+            passwordGroup.markAsPristine();
+            passwordGroup.markAsUntouched();
+
+            // Clear individual control states
+            ['currentPassword', 'newPassword', 'confirmNewPassword'].forEach(controlName => {
+              const control = passwordGroup.get(controlName);
+              control?.setErrors(null);
+              control?.markAsUntouched();
+              control?.markAsPristine();
+            });
+
+            this.passwordForm.updateValueAndValidity();
+          }
           this.savingPassword = false;
         },
         error: (err) => {
-          const errorMessage = err.error?.message ||
-            this.translate.instant('CUSTOMER.PASSWORD_CHANGE_ERROR');
+          let errorMessage;
+
+          // Handle specific 401 case
+          if (err.status === 401) {
+            errorMessage = this.translate.instant('CUSTOMER.INCORRECT_PASSWORD');
+          }
+          // Handle other errors with message or fallback
+          else {
+            errorMessage = err.error?.message ||
+              this.translate.instant('CUSTOMER.PASSWORD_CHANGE_ERROR');
+          }
+
           this.snackBar.open(
             errorMessage,
             this.translate.instant('COMMON.CLOSE'),
-            { duration: 5000 }
+            {duration: 5000}
           );
-          this.savingPassword = false;
         }
+      }).add(() => {
+        this.savingPassword = false;
       });
     }
   }

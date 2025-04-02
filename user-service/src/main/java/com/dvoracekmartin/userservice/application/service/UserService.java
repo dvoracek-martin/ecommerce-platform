@@ -2,6 +2,7 @@ package com.dvoracekmartin.userservice.application.service;
 
 
 import com.dvoracekmartin.userservice.application.dto.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -22,5 +23,5 @@ public interface UserService {
 
     ResponseUserDTO forgotUserPassword(ForgotPasswordDTO updateUserPasswordDTO);
 
-    ResponseUserDTO resetUserPassword(String email, String newPassword);
+    ResponseEntity<String> resetUserPassword(String email, String newPassword);
 }

@@ -82,19 +82,7 @@ public class UserControllerV1 {
     // Endpoint to reset the password
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO dto) {
-        String token = dto.token();
-        if (!passwordResetService.isTokenValid(token)) {
-            return ResponseEntity.badRequest().body("Token is invalid or has expired.");
-        }
-
-        String email = passwordResetService.getEmailByToken(token);
-        // Here, update the user's password in your database based on the email.
-        userService.resetUserPassword(email, dto.newPassword());
-
-        // Invalidate the token after use
-        passwordResetService.invalidateToken(token);
-
-        return ResponseEntity.ok().body("Password has been reset successfully.");
+        return userService.resetUserPassword(dto.token(), dto.newPassword());
     }
 
     // -------------------------------------------------------------

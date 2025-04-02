@@ -178,7 +178,7 @@ public class KeycloakUserService {
             userResource.resetPassword(newCredential);
 
             LOG.info("Password updated successfully for user {}", userId);
-            return Response.ok().build();
+            return Response.ok().build(); // Empty 200 response
         } catch (Exception ex) {
             LOG.error("Password update failed for user {}: {}", userId, ex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

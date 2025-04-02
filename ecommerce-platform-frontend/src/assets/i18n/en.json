@@ -23,9 +23,12 @@
   },
   "RESET_PASSWORD": {
     "TITLE": "Reset Your Password",
+    "PASSWORD": "Password",
+    "ENTER_PASSWORD": "Enter new password",
     "BUTTON": "Reset Password",
     "SUCCESS": "Password reset successfully!",
-    "ERROR": "Failed to reset password. Please try again."
+    "ERROR": "Failed to reset password. Please try again.",
+    "TOKEN_INVALID_OR_EXPIRED": "Password couldn't be changed! The token is invalid or expired."
   },
   "USER_REGISTRATION": {
     "TITLE": "User Registration",
@@ -69,6 +72,8 @@
     "CURRENT_PASSWORD_REQUIRED": "Current Password is required.",
     "NEW_PASSWORD": "New Password",
     "CONFIRM_NEW_PASSWORD": "Confirm New Password",
+    "INCORRECT_PASSWORD": "Incorrect password!",
+    "PASSWORD_CHANGE_ERROR": "Password couldn't be changed!",
     "PASSWORD_CHANGE_SUCCESS": "Password changed successfully!",
     "SAVE_SUCCESS": "Changes saved successfully!",
     "SAVE_ERROR": "Failed to save changes. Please try again."
@@ -76,6 +81,7 @@
   "COMMON": {
     "SAVE": "Save Changes",
     "SAVING": "Saving...",
+    "SENDING": "Sending...",
     "CHANGE_PASSWORD": "Change Password",
     "CLOSE": "Close",
     "CANCEL": "Cancel",

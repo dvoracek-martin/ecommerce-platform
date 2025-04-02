@@ -32,7 +32,7 @@ export class UserLoginComponent {
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
-      this.snackBar.open('Please fix validation errors.', 'Close', { duration: 3000 });
+      this.snackBar.open('Please fix validation errors.', 'Close', { duration: 5000 });
       return;
     }
 
@@ -50,12 +50,12 @@ export class UserLoginComponent {
     }).subscribe({
       next: (response: any) => {
         this.authService.storeToken(response);
-        this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
+        this.snackBar.open('Login successful!', 'Close', { duration: 5000 });
         this.loginSuccess.emit();
       },
       error: (err) => {
         const errorMessage = err.error?.error_description || err.statusText;
-        this.snackBar.open(`Login failed: ${errorMessage}`, 'Close', { duration: 3000 });
+        this.snackBar.open(`Login failed: ${errorMessage}`, 'Close', { duration: 5000 });
       }
     }).add(() => this.loading = false);
   }

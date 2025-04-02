@@ -92,7 +92,7 @@ export class AuthService {
       localStorage.removeItem(this.refreshTokenKey);
       localStorage.removeItem(this.tokenExpirationKey);
       clearTimeout(this.refreshTimeout);
-      this.snackBar.open('Logout successful!', 'Close', { duration: 3000 });
+      this.snackBar.open('Logout successful!', 'Close', { duration: 5000 });
     }
     this.isAuthenticatedSubject.next(false);
   }
