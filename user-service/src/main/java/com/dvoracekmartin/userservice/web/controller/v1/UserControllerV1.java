@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class UserControllerV1 {
 
-    private static final Logger log = LoggerFactory.getLogger(UserControllerV1.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserControllerV1.class);
     private final UserService userService;
 
     public UserControllerV1(UserService userService) {
@@ -26,10 +26,10 @@ public class UserControllerV1 {
 
     @GetMapping("/{userId}")
     public ResponseEntity<ResponseUserDTO> getUserById(@PathVariable String userId) {
-        log.debug("Fetching user: {}", userId);
+        LOG.debug("Fetching user: {}", userId);
         ResponseUserDTO dto = userService.getUserById(userId);
         if (dto == null) {
-            log.warn("User not found: {}", userId);
+            LOG.warn("User not found: {}", userId);
             return ResponseEntity.notFound().build();
         }
         return toResponse(dto);
@@ -37,7 +37,7 @@ public class UserControllerV1 {
 
     @PostMapping
     public ResponseEntity<ResponseUserDTO> createUser(@Valid @RequestBody CreateUserDTO createUserDTO) {
-        log.info("Creating new user");
+        LOG.info("Creating new user");
         return toResponse(userService.createUser(createUserDTO));
     }
 
@@ -46,7 +46,7 @@ public class UserControllerV1 {
     public ResponseEntity<ResponseUserDTO> updateUser(@PathVariable String userId,
                                                       @Valid @RequestBody UpdateUserDTO updateUserDTO) {
         checkAccessOrThrow(userId);
-        log.info("Updating user: {}", userId);
+        LOG.info("Updating user: {}", userId);
         return toResponse(userService.updateUser(userId, updateUserDTO));
     }
 
@@ -55,27 +55,27 @@ public class UserControllerV1 {
     public ResponseEntity<ResponseUserDTO> updateUserPassword(@PathVariable String userId,
                                                               @Valid @RequestBody UpdateUserPasswordDTO updateUserPasswordDTO) {
         checkAccessOrThrow(userId);
-        log.info("Updating password for user: {}", userId);
+        LOG.info("Updating password for user: {}", userId);
         return toResponse(userService.updateUserPassword(userId, updateUserPasswordDTO));
     }
 
     @PostMapping("/forgot-password")
     @PreAuthorize("hasRole('user_client')")
     public ResponseEntity<ResponseUserDTO> forgotUserPassword(@Valid @RequestBody ForgotPasswordDTO dto) {
-        log.info("User forgot password: {}", dto.email());
+        LOG.info("User forgot password: {}", dto.email());
         return toResponse(userService.forgotUserPassword(dto));
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordDTO dto) {
-        log.info("Resetting password with token (truncated): {}...", dto.token().substring(0, 6));
+        LOG.info("Resetting password with token (truncated): {}...", dto.token().substring(0, 6));
         return userService.resetUserPassword(dto.token(), dto.newPassword());
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
         checkAccessOrThrow(userId);
-        log.info("Deleting user: {}", userId);
+        LOG.info("Deleting user: {}", userId);
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
@@ -86,14 +86,14 @@ public class UserControllerV1 {
         String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
         boolean mismatch = !currentUserId.equals(userId);
         if (mismatch) {
-            log.debug("ID mismatch: path={} vs auth={}", userId, currentUserId);
+            LOG.debug("ID mismatch: path={} vs auth={}", userId, currentUserId);
         }
         return mismatch;
     }
 
     private void checkAccessOrThrow(String userId) {
         if (currentUserDoesntMatch(userId)) {
-            log.warn("Access denied for user: {}", userId);
+            LOG.warn("Access denied for user: {}", userId);
             throw new AccessDeniedException("You are not allowed to access this user");
         }
     }

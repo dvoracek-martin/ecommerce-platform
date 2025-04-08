@@ -17,7 +17,7 @@ import java.util.List;
 @PreAuthorize("hasRole('user_admin')")
 public class UserAdminControllerV1 {
 
-    private static final Logger log = LoggerFactory.getLogger(UserAdminControllerV1.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserAdminControllerV1.class);
     private final UserService userService;
 
     public UserAdminControllerV1(UserService userService) {
@@ -26,20 +26,20 @@ public class UserAdminControllerV1 {
 
     @GetMapping("/all")
     public List<ResponseUserDTO> getAllUsers() {
-        log.info("Admin fetching all users");
+        LOG.info("Admin fetching all users");
         return userService.getAllUsers();
     }
 
     @PostMapping("/create")
     public ResponseEntity<ResponseUserDTO> createUser(@Valid @RequestBody CreateUserDTO createUserDTO) {
-        log.info("Admin creating user");
+        LOG.info("Admin creating user");
         ResponseUserDTO response = userService.createUser(createUserDTO);
         return ResponseEntity.status(response.statusCode()).body(response);
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
-        log.info("Admin deleting user: {}", userId);
+        LOG.info("Admin deleting user: {}", userId);
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }

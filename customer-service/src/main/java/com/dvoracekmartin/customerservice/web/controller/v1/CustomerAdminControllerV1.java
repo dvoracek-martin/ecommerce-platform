@@ -18,7 +18,7 @@ import java.util.List;
 @Validated
 public class CustomerAdminControllerV1 {
 
-    private static final Logger log = LoggerFactory.getLogger(CustomerAdminControllerV1.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CustomerAdminControllerV1.class);
     private final CustomerService customerService;
 
     public CustomerAdminControllerV1(CustomerService customerService) {
@@ -27,13 +27,13 @@ public class CustomerAdminControllerV1 {
 
     @GetMapping("/all")
     public List<ResponseCustomerDTO> getAllCustomers() {
-        log.info("Admin fetching all customers");
+        LOG.info("Admin fetching all customers");
         return customerService.getAllCustomers();
     }
 
     @DeleteMapping("/{customerId}")
     public ResponseEntity<Void> deleteCustomerAdmin(@PathVariable @NotBlank String customerId) {
-        log.info("Admin deleting customer: {}", customerId);
+        LOG.info("Admin deleting customer: {}", customerId);
         customerService.deleteCustomer(customerId);
         return ResponseEntity.noContent().build();
     }

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class CustomerControllerV1 {
 
-    private static final Logger log = LoggerFactory.getLogger(CustomerControllerV1.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CustomerControllerV1.class);
     private final CustomerService customerService;
 
     public CustomerControllerV1(CustomerService customerService) {
@@ -28,7 +28,7 @@ public class CustomerControllerV1 {
 
     @GetMapping("/{customerId}")
     public ResponseEntity<ResponseCustomerDTO> getCustomerById(@PathVariable @NotBlank String customerId) {
-        log.debug("Fetching customer: {}", customerId);
+        LOG.debug("Fetching customer: {}", customerId);
         ResponseCustomerDTO dto = customerService.getCustomerById(customerId);
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
@@ -38,7 +38,7 @@ public class CustomerControllerV1 {
     public ResponseEntity<ResponseCustomerDTO> updateCustomer(@PathVariable @NotBlank String customerId,
                                                               @Valid @RequestBody UpdateCustomerDTO updateCustomerDTO) {
         checkOwnership(customerId);
-        log.info("Updating customer: {}", customerId);
+        LOG.info("Updating customer: {}", customerId);
         ResponseCustomerDTO updated = customerService.updateCustomer(customerId, updateCustomerDTO);
         return ResponseEntity.status(updated.statusCode()).body(updated);
     }
@@ -46,7 +46,7 @@ public class CustomerControllerV1 {
     @DeleteMapping("/{customerId}")
     public ResponseEntity<Void> deleteCustomer(@PathVariable @NotBlank String customerId) {
         checkOwnership(customerId);
-        log.info("Deleting customer: {}", customerId);
+        LOG.info("Deleting customer: {}", customerId);
         customerService.deleteCustomer(customerId);
         return ResponseEntity.noContent().build();
     }
@@ -54,7 +54,7 @@ public class CustomerControllerV1 {
     private static void checkOwnership(String customerId) {
         String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!currentUserId.equals(customerId)) {
-            log.warn("Access denied for customer: {}", customerId);
+            LOG.warn("Access denied for customer: {}", customerId);
             throw new AccessDeniedException("You are not allowed to access this customer.");
         }
     }
