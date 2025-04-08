@@ -20,85 +20,93 @@ Welcome to my personal e-commerce platform project — a fully modular microserv
 
 ## 🧱 Architecture Overview
 TO BE ADDED
+```mermaid  
+flowchart LR
+    FE["Frontend<br>(Angular)"]
+    APIGW["API Gateway<br>(Spring Cloud Gateway)"]
+    Keycloak["Keycloak<br>(OAuth2 / JWT)"]
+    Eureka["Eureka Server"]
+    Config["Config Server"]
+    Kafka["Kafka Broker<br>(KRaft)"]
+    Kafdrop["Kafdrop"]
+    CatalogSvc["Catalog Service"]
+    UserSvc["User Service"]
+    CustomerSvc["Customer Service"]
+    InventorySvc["Inventory Service"]
+    OrderSvc["Order Service"]
+    PaymentSvc["Payment Service"]
+    ShippingSvc["Shipping Service"]
+    DB_Catalog[(Catalog DB)]
+    DB_User[(User DB)]
+    DB_Customer[(Customer DB)]
+    DB_Inventory[(Inventory DB)]
+    DB_Order[(Order DB)]
+    DB_Payment[(Payment DB)]
+    DB_Shipping[(Shipping DB)]
 
-```mermaid
-flowchart TB
-%% Clients
-    subgraph CLIENT[Client]
-        User[User]
-        Frontend[Angular Frontend]
-        User -->|Browses| Frontend
+    FE <--> APIGW
+    APIGW -->|Validate JWT| Keycloak
+    APIGW -->|Service Discovery| Eureka
+    APIGW <--> CatalogSvc
+    APIGW <--> UserSvc
+    APIGW <--> CustomerSvc
+    APIGW <--> InventorySvc
+    APIGW <--> OrderSvc
+    APIGW <--> PaymentSvc
+    APIGW <--> ShippingSvc
+
+    subgraph "Core Infrastructure"
+        Config
+        Eureka
     end
 
-%% Gateway
-    subgraph GATEWAY[Gateway]
-        APIGateway[API Gateway]
-        Frontend -->|Sends Requests| APIGateway
+    CatalogSvc -->|fetch config| Config
+    UserSvc --> Config
+    CustomerSvc --> Config
+    InventorySvc --> Config
+    OrderSvc --> Config
+    PaymentSvc --> Config
+    ShippingSvc --> Config
+
+    CatalogSvc -->|register| Eureka
+    UserSvc --> Eureka
+    CustomerSvc --> Eureka
+    InventorySvc --> Eureka
+    OrderSvc --> Eureka
+    PaymentSvc --> Eureka
+    ShippingSvc --> Eureka
+
+    CatalogSvc --> DB_Catalog
+    UserSvc --> DB_User
+    CustomerSvc --> DB_Customer
+    InventorySvc --> DB_Inventory
+    OrderSvc --> DB_Order
+    PaymentSvc --> DB_Payment
+    ShippingSvc --> DB_Shipping
+
+    subgraph "Event Bus"
+        Kafka
+        Kafdrop
     end
 
-%% Auth
-    subgraph AUTH[Authentication]
-        Keycloak[Keycloak Auth Server]
-        Frontend -->|Login / Token Request| Keycloak
-        APIGateway -->|Validate JWT| Keycloak
-        Keycloak --> DB_Keycloak[(PostgreSQL)]
-    end
+    UserSvc -->|produce events| Kafka
+    Kafka -->|consume events| CustomerSvc
+    Kafka --> Kafdrop
 
-%% Infrastructure
-    subgraph INFRA[Infrastructure]
-        Eureka[Eureka Server]
-        Config[Config Server]
-        Kafka[Kafka Broker]
-    end
+subgraph "Utilities"
+Mailhog
+Prometheus
+Grafana
+end
 
-%% Services
-    subgraph SERVICES[Microservices]
-        UserService[User Service]
-        CatalogService[Catalog Service]
-        CustomerService[Customer Service]
-        OrderService[Order Service]
-        PaymentService[Payment Service]
-        ShippingService[Shipping Service]
-        InventoryService[Inventory Service]
+Config --> Mailhog
+Config --> Prometheus
+Config --> Grafana
+Eureka --> Prometheus
+Eureka --> Grafana
+Kafka --> Prometheus
+Kafka --> Grafana
 
-        APIGateway --> UserService
-        APIGateway --> CatalogService
-        APIGateway --> CustomerService
-        APIGateway --> OrderService
-        APIGateway --> PaymentService
-        APIGateway --> ShippingService
-        APIGateway --> InventoryService
-
-    %% Kafka comms
-        UserService -->|Publishes Events| Kafka
-        Kafka -->|Consumes Events| CustomerService
-    end
-
-%% Databases
-    subgraph DB[Databases]
-        DB_User[(User DB)]
-        DB_Catalog[(Catalog DB)]
-        DB_Customer[(Customer DB)]
-        DB_Order[(Order DB)]
-        DB_Payment[(Payment DB)]
-        DB_Shipping[(Shipping DB)]
-        DB_Inventory[(Inventory DB)]
-    end
-
-%% Config & Eureka
-    SERVICES -->|Register| Eureka
-    GATEWAY -->|Register| Eureka
-    SERVICES -->|Fetch Config| Config
-    GATEWAY -->|Fetch Config| Config
-
-%% DB bindings
-    UserService --> DB_User
-    CatalogService --> DB_Catalog
-    CustomerService --> DB_Customer
-    OrderService --> DB_Order
-    PaymentService --> DB_Payment
-    ShippingService --> DB_Shipping
-    InventoryService --> DB_Inventory
 
 ```
 
