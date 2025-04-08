@@ -18,6 +18,9 @@ public class Address {
     private Long id;
 
     @Column
+    private String phone;
+
+    @Column
     private String country;
 
     @Column

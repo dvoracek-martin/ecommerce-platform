@@ -19,8 +19,10 @@ public class Customer {
     @Column(nullable = false, unique = true)
     private String email;
 
-    private String phone;
+    @Column
     private String firstName;
+
+    @Column
     private String lastName;
 
     @OneToOne(cascade = CascadeType.ALL)
