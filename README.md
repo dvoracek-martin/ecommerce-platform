@@ -19,7 +19,6 @@ Welcome to my personal e-commerce platform project — a fully modular microserv
 ---
 
 ## 🧱 Architecture Overview
-TO BE ADDED
 ```mermaid  
 flowchart LR
     FE["Frontend<br>(Angular)"]
