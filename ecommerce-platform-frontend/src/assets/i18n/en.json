@@ -61,7 +61,7 @@
     "ZIP_CODE_NUMBERS_ONLY": "ZIP code must contain numbers only",
     "ZIP_CODE_REQUIRED": "ZIP code is required",
     "PHONE_INVALID": "Invalid phone number",
-    "TAX_ID_INVALID":"Invalid Tax ID"
+    "TAX_ID_INVALID": "Invalid Tax ID"
   },
   "ERRORS": {
     "FIX_FORM": "Please fix form errors",

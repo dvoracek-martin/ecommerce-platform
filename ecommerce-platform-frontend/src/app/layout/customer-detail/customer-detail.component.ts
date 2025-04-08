@@ -1,43 +1,14 @@
-import {Component, OnInit} from '@angular/core';
-import {AbstractControl, FormBuilder, FormGroup, FormGroupDirective, ValidatorFn, Validators} from '@angular/forms';
-import {HttpClient} from '@angular/common/http';
-import {AuthService} from '../../auth/auth.service';
-import {Router} from '@angular/router';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {TranslateService} from '@ngx-translate/core';
-import {MatIconRegistry} from '@angular/material/icon';
-import {DomSanitizer} from '@angular/platform-browser';
-import {animate, state, style, transition, trigger} from '@angular/animations';
-
-interface Customer {
-  id: string;
-  firstName: string | null;
-  lastName: string | null;
-  address?: Address | null;
-  billingAddress?: BillingAddress | null;
-}
-
-interface Address {
-  street: string | null;
-  houseNumber: string | null;
-  city: string | null;
-  zipCode: string | null;
-  country: string | null;
-}
-
-interface BillingAddress {
-  firstName: string | null;
-  lastName: string | null;
-  companyName: string | null;
-  taxId: string | null;
-  phone: string | null;
-  street: string | null;
-  houseNumber: string | null;
-  city: string | null;
-  zipCode: string | null;
-  country: string | null;
-}
-
+import { Component, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroup, FormGroupDirective, ValidatorFn, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../auth/auth.service';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import {CustomerDTO} from './dto/customer-dto';
 
 @Component({
   selector: 'app-customer-detail',
@@ -46,8 +17,8 @@ interface BillingAddress {
   standalone: false,
   animations: [
     trigger('slideDown', [
-      state('void', style({height: '0', opacity: 0, overflow: 'hidden'})),
-      state('*', style({height: '*', opacity: 1})),
+      state('void', style({ height: '0', opacity: 0, overflow: 'hidden' })),
+      state('*', style({ height: '*', opacity: 1 })),
       transition('void <=> *', animate('300ms ease-in-out'))
     ])
   ]
@@ -123,12 +94,11 @@ export class CustomerDetailComponent implements OnInit {
           Validators.pattern(/^\S+$/)
         ]],
         confirmNewPassword: ['', Validators.required]
-      }, {validators: this.passwordMatchValidator()})
+      }, { validators: this.passwordMatchValidator() })
     });
 
     this.setupBillingAddressValidation();
   }
-
 
   private setupBillingAddressValidation(): void {
     this.customerForm.get('sameBillingAddress')?.valueChanges.subscribe(checked => {
@@ -136,14 +106,12 @@ export class CustomerDetailComponent implements OnInit {
       const billingAddress = this.customerForm.get('billingAddress') as FormGroup;
 
       if (checked) {
-        // Clear validators and reset all billing address fields when checkbox is checked
         Object.keys(billingAddress.controls).forEach(controlName => {
           const control = billingAddress.get(controlName);
           control?.clearValidators();
           control?.reset();
         });
       } else {
-        // Reset billing address to initial state (empty fields + default country)
         billingAddress.reset({
           firstName: '',
           lastName: '',
@@ -157,7 +125,6 @@ export class CustomerDetailComponent implements OnInit {
           phone: ''
         });
 
-        // Re-apply validators as defined in the initial form setup
         billingAddress.get('street')?.setValidators(Validators.required);
         billingAddress.get('houseNumber')?.setValidators(Validators.required);
         billingAddress.get('city')?.setValidators(Validators.required);
@@ -166,7 +133,7 @@ export class CustomerDetailComponent implements OnInit {
         billingAddress.get('phone')?.setValidators([Validators.pattern(/^\+?[0-9\s-]+$/)]);
         billingAddress.get('taxId')?.setValidators([Validators.pattern(/^[A-Za-z0-9]+$/)]);
 
-        billingAddress.updateValueAndValidity(); // Update validity after changes
+        billingAddress.updateValueAndValidity();
       }
     });
   }
@@ -176,8 +143,8 @@ export class CustomerDetailComponent implements OnInit {
     const token = this.authService.token;
 
     if (userId && token) {
-      this.http.get<Customer>(`http://localhost:8080/api/customer/v1/${userId}`, {
-        headers: {'Authorization': `Bearer ${token}`}
+      this.http.get<CustomerDTO>(`http://localhost:8080/api/customer/v1/${userId}`, { // Change to CustomerDTO
+        headers: { 'Authorization': `Bearer ${token}` }
       }).subscribe({
         next: (customer) => this.handleCustomerDataSuccess(customer),
         error: (err) => this.handleError(err)
@@ -185,12 +152,12 @@ export class CustomerDetailComponent implements OnInit {
     }
   }
 
-  private handleCustomerDataSuccess(customer: Customer): void {
+  private handleCustomerDataSuccess(customer: CustomerDTO): void { // Change parameter type
     this.patchFormValues(customer);
     this.loading = false;
   }
 
-  private patchFormValues(customer: Customer): void {
+  private patchFormValues(customer: CustomerDTO): void { // Change parameter type
     this.customerForm.patchValue({
       firstName: customer.firstName || '',
       lastName: customer.lastName || '',
@@ -222,7 +189,7 @@ export class CustomerDetailComponent implements OnInit {
       const newPassword = group.get('newPassword')?.value;
       const confirmNewPassword = group.get('confirmNewPassword')?.value;
       return newPassword && confirmNewPassword && newPassword !== confirmNewPassword
-        ? {mismatch: true}
+        ? { mismatch: true }
         : null;
     };
   }
@@ -241,7 +208,7 @@ export class CustomerDetailComponent implements OnInit {
       const payload = this.createCustomerPayload();
 
       this.http.put(`http://localhost:8080/api/customer/v1/${userId}`, payload, {
-        headers: {'Authorization': `Bearer ${token}`}
+        headers: { 'Authorization': `Bearer ${token}` }
       }).subscribe({
         next: () => this.handleSaveSuccess(),
         error: (err) => this.handleSaveError(err)
@@ -262,7 +229,7 @@ export class CustomerDetailComponent implements OnInit {
       phone: formValue.phone,
       address: {...formValue.address},
       billingAddress: useShippingAddress
-        ? {  // When checked, construct from shipping address + main names
+        ? {
           firstName: formValue.firstName,
           lastName: formValue.lastName,
           phone: formValue.phone,
@@ -274,7 +241,7 @@ export class CustomerDetailComponent implements OnInit {
           houseNumber: formValue.address.houseNumber,
           zipCode: formValue.address.zipCode
         }
-        : {  // When unchecked, use billing address form values
+        : {
           firstName: formValue.billingAddress.firstName,
           lastName: formValue.billingAddress.lastName,
           phone: formValue.billingAddress.phone,
@@ -330,7 +297,7 @@ export class CustomerDetailComponent implements OnInit {
 
   private handlePasswordChangeSuccess(formDirective: FormGroupDirective): void {
     this.showSnackbar('CUSTOMER.PASSWORD_CHANGE_SUCCESS');
-    formDirective.resetForm(); // Resets form values and submitted state
+    formDirective.resetForm();
   }
 
   private handlePasswordChangeError(err: any, userId: string): void {
@@ -346,7 +313,7 @@ export class CustomerDetailComponent implements OnInit {
     this.snackBar.open(
       this.translate.instant(translationKey),
       this.translate.instant('COMMON.CLOSE'),
-      {duration: 5000}
+      { duration: 5000 }
     );
   }
 

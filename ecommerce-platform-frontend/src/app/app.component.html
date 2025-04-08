@@ -1,8 +1,10 @@
 <mat-toolbar color="primary">
+  <button mat-icon-button (click)="navigateToRoot()">
+    <mat-icon>home</mat-icon>
+  </button>
   <span>{{ 'APP.TITLE' | translate }}</span>
   <span class="spacer"></span>
 
-  <!-- Language Dropdown -->
   <mat-menu #langMenu="matMenu">
     <button mat-menu-item *ngFor="let lang of languages" (click)="changeLanguage(lang.code)">
       <mat-icon svgIcon="{{ lang.icon }}"></mat-icon>
@@ -16,7 +18,6 @@
     <mat-icon>arrow_drop_down</mat-icon>
   </button>
 
-  <!-- User Menu -->
   <div class="user-menu">
     <mat-menu #userMenu="matMenu">
       <button mat-menu-item (click)="navigateToProfile()">

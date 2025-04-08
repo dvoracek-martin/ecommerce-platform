@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
-import { AuthService } from './auth/auth.service';
-import { Router } from '@angular/router'; // Add this import
+import {Component, OnInit} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
+import {MatIconRegistry} from '@angular/material/icon';
+import {DomSanitizer} from '@angular/platform-browser';
+import {AuthService} from './auth/auth.service';
+import {Router} from '@angular/router'; // Add this import
 
 @Component({
   selector: 'app-root',
@@ -14,8 +14,8 @@ import { Router } from '@angular/router'; // Add this import
 export class AppComponent implements OnInit {
   title = 'ecommerce-platform-frontend';
   languages = [
-    { code: 'en', name: 'English', icon: 'flag_us' },
-    { code: 'cs', name: 'Česky', icon: 'flag_cz' }
+    {code: 'en', name: 'English', icon: 'flag_us'},
+    {code: 'cs', name: 'Česky', icon: 'flag_cz'}
   ];
   selectedLanguage = this.languages[0];
   isPopupOpen = false;
@@ -74,5 +74,11 @@ export class AppComponent implements OnInit {
 
   closeAuthPopup(): void {
     this.isPopupOpen = false;
+  }
+
+  navigateToRoot() {
+    this.router.navigateByUrl('/')
+      .then(() => {
+      });
   }
 }

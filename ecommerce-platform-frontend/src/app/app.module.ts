@@ -19,6 +19,8 @@ import {HttpLoaderFactory} from './translate-http-loader.factory';
 import {RouterModule} from '@angular/router';
 import {ForgotPasswordComponent} from './auth/forgot-password/forgot-password.component';
 import {ResetPasswordComponent} from './auth/reset-password/reset-password.component';
+import {MixingComponent} from './layout/mixing/mixing.component';
+import {ProductsComponent} from './layout/products/products.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +32,8 @@ import {ResetPasswordComponent} from './auth/reset-password/reset-password.compo
     CustomerDetailComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
+    MixingComponent,
+    ProductsComponent
   ],
   imports: [
     BrowserModule,
