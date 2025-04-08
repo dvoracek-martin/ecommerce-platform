@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
   selector: 'app-mixing',
   standalone: false,
   templateUrl: './mixing.component.html',
-  styleUrl: './mixing.component.css'
+  styleUrl: './mixing.component.scss'
 })
 export class MixingComponent {
 
