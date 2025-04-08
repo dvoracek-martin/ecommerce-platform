@@ -2,136 +2,103 @@ package com.dvoracekmartin.userservice.web.controller.v1;
 
 import com.dvoracekmartin.userservice.application.dto.*;
 import com.dvoracekmartin.userservice.application.service.UserService;
-import com.dvoracekmartin.userservice.domain.service.PasswordResetService;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/user/v1")
+@Validated
 public class UserControllerV1 {
 
+    private static final Logger log = LoggerFactory.getLogger(UserControllerV1.class);
     private final UserService userService;
-    private final PasswordResetService passwordResetService;
 
-    public UserControllerV1(UserService userService, PasswordResetService passwordResetService) {
+    public UserControllerV1(UserService userService) {
         this.userService = userService;
-        this.passwordResetService = passwordResetService;
     }
 
-    // -------------------------------------------------------------
-    // GET a user by ID
-    // -------------------------------------------------------------
     @GetMapping("/{userId}")
     public ResponseEntity<ResponseUserDTO> getUserById(@PathVariable String userId) {
+        log.debug("Fetching user: {}", userId);
         ResponseUserDTO dto = userService.getUserById(userId);
         if (dto == null) {
+            log.warn("User not found: {}", userId);
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(dto);
+        return toResponse(dto);
     }
 
-    @PostMapping("/")
-    public ResponseEntity<ResponseUserDTO> createUser(@RequestBody CreateUserDTO createUserDTO) {
-        ResponseUserDTO response = userService.createUser(createUserDTO);
-        return ResponseEntity.status(response.statusCode()).body(response);
+    @PostMapping
+    public ResponseEntity<ResponseUserDTO> createUser(@Valid @RequestBody CreateUserDTO createUserDTO) {
+        log.info("Creating new user");
+        return toResponse(userService.createUser(createUserDTO));
     }
 
-    // -------------------------------------------------------------
-    // UPDATE user (self-service)
-    // -------------------------------------------------------------
     @PutMapping("/{userId}")
     @PreAuthorize("hasRole('user_client')")
     public ResponseEntity<ResponseUserDTO> updateUser(@PathVariable String userId,
-                                                      @RequestBody UpdateUserDTO updateUserDTO) {
-        if (currentUserDoesntMatch(userId)) {
-            throw new AccessDeniedException("You are not allowed to update this user");
-        }
-        ResponseUserDTO response = userService.updateUser(userId, updateUserDTO);
-        return ResponseEntity.status(response.statusCode()).body(response);
+                                                      @Valid @RequestBody UpdateUserDTO updateUserDTO) {
+        checkAccessOrThrow(userId);
+        log.info("Updating user: {}", userId);
+        return toResponse(userService.updateUser(userId, updateUserDTO));
     }
 
-    // -------------------------------------------------------------
-    // UPDATE user's password (self-service)
-    // -------------------------------------------------------------
     @PutMapping("/{userId}/password")
     @PreAuthorize("hasRole('user_client')")
     public ResponseEntity<ResponseUserDTO> updateUserPassword(@PathVariable String userId,
-                                                              @RequestBody UpdateUserPasswordDTO updateUserPasswordDTO) {
-        if (currentUserDoesntMatch(userId)) {
-            throw new AccessDeniedException("You are not allowed to update this user");
-        }
-        ResponseUserDTO response = userService.updateUserPassword(userId, updateUserPasswordDTO);
-        return ResponseEntity.status(response.statusCode()).body(response);
+                                                              @Valid @RequestBody UpdateUserPasswordDTO updateUserPasswordDTO) {
+        checkAccessOrThrow(userId);
+        log.info("Updating password for user: {}", userId);
+        return toResponse(userService.updateUserPassword(userId, updateUserPasswordDTO));
     }
 
-    // -------------------------------------------------------------
-    // forgotten user's password (self-service)
-    // -------------------------------------------------------------
     @PostMapping("/forgot-password")
     @PreAuthorize("hasRole('user_client')")
-    public ResponseEntity<ResponseUserDTO> forgotUserPassword(@RequestBody ForgotPasswordDTO updateUserPasswordDTO) {
-        ResponseUserDTO response = userService.forgotUserPassword(updateUserPasswordDTO);
-        return ResponseEntity.status(response.statusCode()).body(response);
+    public ResponseEntity<ResponseUserDTO> forgotUserPassword(@Valid @RequestBody ForgotPasswordDTO dto) {
+        log.info("User forgot password: {}", dto.email());
+        return toResponse(userService.forgotUserPassword(dto));
     }
 
-    // Endpoint to reset the password
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO dto) {
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordDTO dto) {
+        log.info("Resetting password with token (truncated): {}...", dto.token().substring(0, 6));
         return userService.resetUserPassword(dto.token(), dto.newPassword());
     }
 
-    // -------------------------------------------------------------
-    // DELETE user (self-service)
-    // -------------------------------------------------------------
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
-        if (currentUserDoesntMatch(userId)) {
-            throw new AccessDeniedException("You are not allowed to delete this user");
-        }
+        checkAccessOrThrow(userId);
+        log.info("Deleting user: {}", userId);
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
 
-    // -------------------------------------------------------------
-    // GET ALL users (admin)
-    // -------------------------------------------------------------
-    @GetMapping("/admin/all")
-    @PreAuthorize("hasRole('user_admin')")
-    public List<ResponseUserDTO> getAllUsers() {
-        return userService.getAllUsers();
-    }
+    // --- Private Utility Methods ---
 
-    // -------------------------------------------------------------
-    // CREATE user (admin)
-    // -------------------------------------------------------------
-    @PostMapping("/admin/create")
-    @PreAuthorize("hasRole('user_admin')")
-    public ResponseEntity<ResponseUserDTO> createUserAdmin(@RequestBody CreateUserDTO createUserDTO) {
-        ResponseUserDTO response = userService.createUser(createUserDTO);
-        return ResponseEntity.status(response.statusCode()).body(response);
-    }
-
-    // -------------------------------------------------------------
-    // DELETE user (admin)
-    // -------------------------------------------------------------
-    @DeleteMapping("/admin/{userId}")
-    @PreAuthorize("hasRole('user_admin')")
-    public ResponseEntity<Void> deleteUserAdmin(@PathVariable String userId) {
-        userService.deleteUser(userId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // -------------------------------------------------------------
-    // Helper to compare path userId with the ID from the token
-    // -------------------------------------------------------------
     private static boolean currentUserDoesntMatch(String userId) {
-        String currentUserId = SecurityContextHolder.getContext()
-                .getAuthentication().getName();
-        return !currentUserId.equals(userId);
+        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean mismatch = !currentUserId.equals(userId);
+        if (mismatch) {
+            log.debug("ID mismatch: path={} vs auth={}", userId, currentUserId);
+        }
+        return mismatch;
+    }
+
+    private void checkAccessOrThrow(String userId) {
+        if (currentUserDoesntMatch(userId)) {
+            log.warn("Access denied for user: {}", userId);
+            throw new AccessDeniedException("You are not allowed to access this user");
+        }
+    }
+
+    private ResponseEntity<ResponseUserDTO> toResponse(ResponseUserDTO response) {
+        return ResponseEntity.status(response.statusCode()).body(response);
     }
 }

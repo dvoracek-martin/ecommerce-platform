@@ -4,8 +4,10 @@ public record CreateCustomerDTO(
         String id,
         String username,
         String email,
+        String phone,
         String firstName,
         String lastName,
-        CustomerAddressDTO address
+        CustomerAddressDTO address,
+        CustomerBillingAddressDTO billingAddress
 ) {
 }

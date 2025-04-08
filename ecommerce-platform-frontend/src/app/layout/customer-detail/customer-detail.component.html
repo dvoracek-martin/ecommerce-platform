@@ -38,11 +38,11 @@
           </div>
         </div>
 
-        <!-- Address Section -->
+        <!-- Shipping Address Section -->
         <div class="form-section" formGroupName="address">
           <h3 class="section-subtitle">
             <mat-icon>location_on</mat-icon>
-            {{ 'CUSTOMER.ADDRESS' | translate }}
+            {{ 'CUSTOMER.SHIPPING_ADDRESS' | translate }}
           </h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
@@ -94,6 +94,112 @@
                 {{ 'CUSTOMER.COUNTRY_REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <mat-checkbox formControlName="sameBillingAddress">
+            {{ 'CUSTOMER.SAME_BILLING_ADDRESS' | translate }}
+          </mat-checkbox>
+        </div>
+
+        <div *ngIf="showBillingAddress" @slideDown class="billing-address-section">
+          <h3 class="section-subtitle">
+            <mat-icon>business</mat-icon>
+            {{ 'CUSTOMER.BILLING_ADDRESS' | translate }}
+          </h3>
+
+          <div formGroupName="billingAddress" class="form-grid">
+            <!-- New Company Fields -->
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.FIRST_NAME' | translate }}</mat-label>
+                <input matInput formControlName="firstName" [placeholder]="'CUSTOMER.ENTER_FIRST_NAME' | translate">
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.LAST_NAME' | translate }}</mat-label>
+                <input matInput formControlName="lastName" [placeholder]="'CUSTOMER.LAST_NAME' | translate">
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.PHONE' | translate }}</mat-label>
+                <input matInput formControlName="phone"  [placeholder]="'CUSTOMER.ENTER_PHONE' | translate">
+                <mat-error *ngIf="customerForm.get('billingAddress.phone')?.hasError('pattern')">
+                  {{ 'CUSTOMER.PHONE_INVALID' | translate }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.COMPANY_NAME' | translate }}</mat-label>
+                <input matInput formControlName="companyName" [placeholder]="'CUSTOMER.COMPANY_NAME' | translate">
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.TAX_ID' | translate }}</mat-label>
+                <input matInput formControlName="taxId" [placeholder]="'CUSTOMER.ENTER_TAX_ID' | translate">
+                <mat-error *ngIf="customerForm.get('billingAddress.taxId')?.hasError('pattern')">
+                  {{ 'CUSTOMER.TAX_ID_INVALID' | translate }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Address Fields -->
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.STREET' | translate }}</mat-label>
+                <input matInput formControlName="street">
+                <mat-error *ngIf="customerForm.get('billingAddress.street')?.hasError('required')">
+                  {{ 'CUSTOMER.STREET_REQUIRED' | translate }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.HOUSE_NUMBER' | translate }}</mat-label>
+                <input matInput formControlName="houseNumber">
+                <mat-error *ngIf="customerForm.get('billingAddress.houseNumber')?.hasError('required')">
+                  {{ 'CUSTOMER.HOUSE_NUMBER_REQUIRED' | translate }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.CITY' | translate }}</mat-label>
+                <input matInput formControlName="city">
+                <mat-error *ngIf="customerForm.get('billingAddress.city')?.hasError('required')">
+                  {{ 'CUSTOMER.CITY_REQUIRED' | translate }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.ZIP_CODE' | translate }}</mat-label>
+                <input matInput formControlName="zipCode">
+                <mat-error *ngIf="customerForm.get('billingAddress.zipCode')?.hasError('required')">
+                  {{ 'CUSTOMER.ZIP_CODE_REQUIRED' | translate }}
+                </mat-error>
+                <mat-error *ngIf="customerForm.get('billingAddress.zipCode')?.hasError('pattern')">
+                  {{ 'CUSTOMER.ZIP_CODE_NUMBERS_ONLY' | translate }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.COUNTRY' | translate }}</mat-label>
+                <mat-select formControlName="country">
+                  <mat-option value="Switzerland">
+                    <mat-icon svgIcon="flag_ch" class="flag-icon"></mat-icon>
+                    Switzerland
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="customerForm.get('address.country')?.hasError('required')">
+                  {{ 'CUSTOMER.COUNTRY_REQUIRED' | translate }}
+                </mat-error>
+              </mat-form-field>
+            </div>
           </div>
         </div>
 

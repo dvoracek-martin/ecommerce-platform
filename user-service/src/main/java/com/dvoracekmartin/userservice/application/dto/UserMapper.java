@@ -17,4 +17,8 @@ public interface UserMapper {
     User createUserDTOToUser(CreateUserDTO createUserDTO, String id);
 
     User updateUserDTOToUser(UpdateUserDTO updateUserDTO, String id);
+
+    ResponseUserDTO updateUserDTOToResponseUserDTO(ForgotPasswordDTO updateUserPasswordDTO, int statusCode);
+
+    ResponseUserDTO updateUserPasswordDTOToResponseUserDTO(UpdateUserPasswordDTO updateUserPasswordDTO, int statusCode);
 }

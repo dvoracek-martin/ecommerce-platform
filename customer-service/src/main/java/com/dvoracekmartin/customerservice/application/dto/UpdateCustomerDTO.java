@@ -4,6 +4,7 @@ public record UpdateCustomerDTO(
         String email,
         String firstName,
         String lastName,
-        CustomerAddressDTO address
+        CustomerAddressDTO address,
+        CustomerBillingAddressDTO billingAddress
 ) {
 }

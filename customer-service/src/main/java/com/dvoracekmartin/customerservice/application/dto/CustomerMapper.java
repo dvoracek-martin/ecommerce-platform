@@ -1,6 +1,7 @@
 package com.dvoracekmartin.customerservice.application.dto;
 
 import com.dvoracekmartin.customerservice.domain.model.Address;
+import com.dvoracekmartin.customerservice.domain.model.BillingAddress;
 import com.dvoracekmartin.customerservice.domain.model.Customer;
 import org.mapstruct.Mapper;
 
@@ -9,15 +10,15 @@ public interface CustomerMapper {
 
     ResponseCustomerDTO customerToResponseCustomerDTO(Customer customer);
 
-    ResponseCustomerDTO customerToResponseCustomerDTO(Customer customer, int statusCode);
-
     ResponseCustomerDTO createCustomerDTOToResponseCustomerDTO(CreateCustomerDTO createCustomerDTO, int statusCode);
-
-    ResponseCustomerDTO updateCustomerDTOToResponseCustomerDTO(UpdateCustomerDTO updateCustomerDTO, int status);
 
     CustomerAddressDTO addressToCustomerAddressDTO(Address address);
 
     Customer createCustomerDTOToCustomer(CreateCustomerDTO createCustomerDTO);
 
-    Customer updateCustomerDTOToCustomer(UpdateCustomerDTO updateCustomerDTO, String id);
+    CustomerBillingAddressDTO billingAaddressToCustomerBillingAddressDTO(BillingAddress billingAddress);
+
+    Address customerAddressDTOToAddress(CustomerAddressDTO address);
+
+    BillingAddress customerBillingAddressDTOToAddress(CustomerBillingAddressDTO customerBillingAddressDTO);
 }

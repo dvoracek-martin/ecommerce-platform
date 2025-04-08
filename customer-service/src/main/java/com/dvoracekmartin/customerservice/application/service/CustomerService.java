@@ -18,6 +18,6 @@ public interface CustomerService {
 
     ResponseCustomerDTO updateCustomer(String customerId, UpdateCustomerDTO updateCustomerDTO);
 
-    ResponseCustomerDTO deleteCustomer(String customerId);
+    void deleteCustomer(String customerId);
 
 }

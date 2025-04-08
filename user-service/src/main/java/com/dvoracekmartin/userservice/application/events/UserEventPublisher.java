@@ -25,7 +25,6 @@ public class UserEventPublisher {
     }
 
     public void publishUserCreatedEvent(String userId, String username, String email) {
-        // Build the event
         UserCreatedEvent event = new UserCreatedEvent(
                 userId,
                 username,
@@ -33,7 +32,7 @@ public class UserEventPublisher {
                 Instant.now()
         );
 
-        LOG.info("Publishing event: {}", event);
+        LOG.debug("Publishing event: {}", event);
         Mono.fromRunnable(() -> kafkaTemplate.send(userCreatedTopic, userId, event))
                 .subscribe();
     }

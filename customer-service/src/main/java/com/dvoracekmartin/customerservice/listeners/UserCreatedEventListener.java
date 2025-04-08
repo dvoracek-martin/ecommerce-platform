@@ -29,10 +29,10 @@ public class UserCreatedEventListener {
                 event.email(),
                 null,
                 null,
+                null,
+                null,
                 null
         );
         customerService.createCustomer(createCustomerDTO);
-
-        // For example, create or update a customer record based on the event data.
     }
 }

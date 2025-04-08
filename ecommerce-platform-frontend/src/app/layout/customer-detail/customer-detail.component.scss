@@ -37,6 +37,7 @@
 
 .form-section {
   margin-bottom: 1rem;
+
   .section-subtitle {
     display: flex;
     align-items: center;
@@ -59,10 +60,6 @@
   min-width: 0;
 }
 
-.form-field-wide {
-  width: 100%;
-}
-
 .password-container {
   border-top: 1px solid #e0e0e0;
   padding-top: 1rem;
@@ -73,6 +70,15 @@
   display: flex;
   justify-content: center;
   padding: 1rem 2rem;
+  position: relative;
+
+  .save-progress {
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
 }
 
 mat-form-field {
@@ -84,15 +90,41 @@ button[mat-flat-button] {
   font-weight: 500;
 }
 
-.actions {
-  position: relative;
-  margin-top: 16px;
+.billing-address-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  // Add these styles to match shipping address
+  .billing-address-section {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1rem;
 
-  .save-progress {
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    right: 0;
-    height: 2px;
+    .form-grid {
+      padding: 0;
+    }
+
+    .form-row {
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
   }
+
+  // Make checkbox more prominent
+  mat-checkbox {
+    margin: 1rem 0;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  ::ng-deep .mat-checkbox-label {
+    font-weight: 500;
+  }
+}
+
+.flag-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
 }

@@ -13,6 +13,7 @@ import {MatListModule} from '@angular/material/list';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatOptionModule} from '@angular/material/core';
 import {MatSelectModule} from '@angular/material/select';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 @NgModule({
   exports: [
@@ -30,6 +31,7 @@ import {MatSelectModule} from '@angular/material/select';
     MatToolbarModule,
     MatOptionModule,
     MatSelectModule,
+    MatCheckboxModule,
   ]
 })
 export class MaterialModule {
