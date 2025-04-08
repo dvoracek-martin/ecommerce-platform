@@ -1,9 +1,11 @@
 package com.dvoracekmartin.customerservice.application.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record CreateCustomerDTO(
-        String id,
+        @NotBlank String id,
         String username,
-        String email,
+        @NotBlank String email,
         String phone,
         String firstName,
         String lastName,

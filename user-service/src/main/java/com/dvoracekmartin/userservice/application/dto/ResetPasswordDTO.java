@@ -1,7 +1,9 @@
 package com.dvoracekmartin.userservice.application.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record ResetPasswordDTO(
-        String token,
-        String newPassword
+        @NotBlank String token,
+        @NotBlank String newPassword
 ) {
 }

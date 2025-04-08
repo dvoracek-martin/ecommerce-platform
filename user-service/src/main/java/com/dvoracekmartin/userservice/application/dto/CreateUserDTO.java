@@ -1,11 +1,14 @@
 package com.dvoracekmartin.userservice.application.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+
 import java.util.List;
 
 public record CreateUserDTO(
-        String username,
-        String email,
-        List<CredentialDTO> credentials
+        @NotBlank String username,
+        @NotBlank String email,
+        @NotEmpty List<CredentialDTO> credentials
 ) {
     public record CredentialDTO(String type, String value, boolean temporary) {
     }
