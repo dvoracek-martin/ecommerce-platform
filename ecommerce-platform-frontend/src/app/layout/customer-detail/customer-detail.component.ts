@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators} from '@angular/forms';
+import {AbstractControl, FormBuilder, FormGroup, FormGroupDirective, ValidatorFn, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {AuthService} from '../../auth/auth.service';
 import {Router} from '@angular/router';
@@ -300,7 +300,7 @@ export class CustomerDetailComponent implements OnInit {
     console.error('Error saving customer details:', err);
   }
 
-  onChangePassword(): void {
+  onChangePassword(formDirective: FormGroupDirective): void {
     const passwordGroup = this.passwordForm.get('passwordChange');
 
     if (!passwordGroup || passwordGroup.invalid) {
@@ -313,14 +313,14 @@ export class CustomerDetailComponent implements OnInit {
     const token = this.authService.token;
 
     if (userId && token) {
-      const {currentPassword, newPassword} = passwordGroup.value;
+      const { currentPassword, newPassword } = passwordGroup.value;
 
       this.http.put(
         `http://localhost:8080/api/user/v1/${userId}/password`,
-        {currentPassword, newPassword},
-        {headers: {'Authorization': `Bearer ${token}`}}
+        { currentPassword, newPassword },
+        { headers: { 'Authorization': `Bearer ${token}` } }
       ).subscribe({
-        next: () => this.handlePasswordChangeSuccess(passwordGroup),
+        next: () => this.handlePasswordChangeSuccess(formDirective),
         error: (err) => this.handlePasswordChangeError(err, userId)
       }).add(() => {
         this.savingPassword = false;
@@ -328,16 +328,9 @@ export class CustomerDetailComponent implements OnInit {
     }
   }
 
-  private handlePasswordChangeSuccess(passwordGroup: AbstractControl): void {
+  private handlePasswordChangeSuccess(formDirective: FormGroupDirective): void {
     this.showSnackbar('CUSTOMER.PASSWORD_CHANGE_SUCCESS');
-
-    passwordGroup.reset({
-      currentPassword: '',
-      newPassword: '',
-      confirmNewPassword: ''
-    }, {emitEvent: false});
-
-    this.passwordForm.updateValueAndValidity();
+    formDirective.resetForm(); // Resets form values and submitted state
   }
 
   private handlePasswordChangeError(err: any, userId: string): void {

@@ -59,14 +59,16 @@
     "TITLE": "Customer Details",
     "ZIP_CODE": "ZIP Code",
     "ZIP_CODE_NUMBERS_ONLY": "ZIP code must contain numbers only",
-    "ZIP_CODE_REQUIRED": "ZIP code is required"
+    "ZIP_CODE_REQUIRED": "ZIP code is required",
+    "PHONE_INVALID": "Invalid phone number",
+    "TAX_ID_INVALID":"Invalid Tax ID"
   },
   "ERRORS": {
     "FIX_FORM": "Please fix form errors",
     "FORM_VALIDATION": "Form validation failed",
     "LOGIN_FAILED": "Login failed",
     "PASSWORD_CHANGE_FAILED": "Password change failed",
-    "REGISTRATION_FAILED": "Registration failed",
+    "REGISTRATION_FAILED": "Registration failed:",
     "SERVER_ERROR": "Server error occurred",
     "UNAUTHORIZED": "Unauthorized access"
   },

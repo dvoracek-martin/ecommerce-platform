@@ -27,6 +27,15 @@
                 {{ 'USER_REGISTRATION.FIRST_NAME_REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.PHONE' | translate }}</mat-label>
+                <input matInput formControlName="phone"  [placeholder]="'CUSTOMER.ENTER_PHONE' | translate">
+                <mat-error *ngIf="customerForm.get('billingAddress.phone')?.hasError('pattern')">
+                  {{ 'CUSTOMER.PHONE_INVALID' | translate }}
+                </mat-error>
+              </mat-form-field>
+            </div>
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'CUSTOMER.LAST_NAME' | translate }}</mat-label>
               <input matInput formControlName="lastName">
@@ -213,7 +222,7 @@
       </form>
 
       <!-- Password Change Form -->
-      <form [formGroup]="passwordForm" class="form-grid" (ngSubmit)="onChangePassword()">
+      <form [formGroup]="passwordForm" #passwordFormDirective="ngForm" class="form-grid" (ngSubmit)="onChangePassword(passwordFormDirective)">
         <div class="password-container">
           <div formGroupName="passwordChange">
             <h3 class="section-subtitle">
