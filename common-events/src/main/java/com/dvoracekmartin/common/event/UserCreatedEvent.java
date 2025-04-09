@@ -1,4 +1,4 @@
-package com.dvoracekmartin.commonevents.events;
+package com.dvoracekmartin.common.event;
 
 import java.time.Instant;
 

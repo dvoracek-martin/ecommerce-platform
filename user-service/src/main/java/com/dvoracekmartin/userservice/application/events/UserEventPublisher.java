@@ -1,6 +1,6 @@
 package com.dvoracekmartin.userservice.application.events;
 
-import com.dvoracekmartin.commonevents.events.UserCreatedEvent;
+import com.dvoracekmartin.common.event.UserCreatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

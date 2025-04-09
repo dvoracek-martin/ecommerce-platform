@@ -13,6 +13,18 @@ services:
     volumes:
       - keycloak_postgres_data
 
+  postgres-strapi:
+    image: postgres:16
+    container_name: strapi-postgres-db
+    environment:
+      POSTGRES_DB: strapi
+      POSTGRES_USER: strapi_user
+      POSTGRES_PASSWORD: strapi_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - strapi_postgres_data
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.2
     container_name: keycloak-service
@@ -70,11 +82,39 @@ services:
     volumes:
       - kafka_data:/bitnami/kafka
 
+  redis:
+    image: redis:latest
+    container_name: redis-service
+    ports:
+      - "6379:6379"
+
   mailhog:
     image: mailhog/mailhog
     ports:
       - "1025:1025"  # SMTP port
       - "7999:8025"  # Web UI
+
+  strapi:
+    image: strapi/strapi:latest
+    container_name: strapi-service
+    ports:
+      - "1337:1337"
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: strapi
+      DATABASE_USERNAME: strapi_user
+      DATABASE_PASSWORD: strapi_password
+      JWT_SECRET: some-random-jwt-secret
+      ADMIN_JWT_SECRET: some-random-admin-jwt-secret
+      APP_KEYS: some-random-app-keys
+    volumes:
+      - strapi_data:/srv/strapi
+    depends_on:
+      - postgres
+    networks:
+      - default
 
   kafdrop:
     image: obsidiandynamics/kafdrop:3.30.0
@@ -110,6 +150,8 @@ volumes:
   keycloak_postgres_data:
   keycloak_data:
   kafka_data:
+  strapi_postgres_data:
+  strapi_data:
 
 networks:
   kafka-network:

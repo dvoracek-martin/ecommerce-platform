@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -19,8 +21,13 @@ public class Category {
     private String name;
 
     @Column(columnDefinition = "TEXT")
-    private String description; // Description of the category
+    private String description;
 
     @Column(nullable = false)
-    private String categoryType; // e.g., "Essential Oils", "Carrier Oils", "Blends"
+    private String categoryType;
+
+    @ElementCollection
+    @CollectionTable(name = "category_images", joinColumns = @JoinColumn(name = "category_id"))
+    @Column(name = "image_url")
+    private List<String> images;
 }

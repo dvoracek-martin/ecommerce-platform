@@ -1,24 +1,11 @@
 package com.dvoracekmartin.inventoryservice.application.service;
 
-import com.dvoracekmartin.inventoryservice.application.dto.CreateInventoryItemDTO;
-import com.dvoracekmartin.inventoryservice.application.dto.ResponseInventoryItemDTO;
-import com.dvoracekmartin.inventoryservice.application.dto.UpdateInventoryItemDTO;
-
-import java.util.List;
+import com.dvoracekmartin.common.dto.ResponseProductStockDTO;
+import com.dvoracekmartin.common.event.UpdateProductStockEvent;
 
 public interface InventoryService {
 
-    List<ResponseInventoryItemDTO> getAllInvetoryItem();
+    ResponseProductStockDTO updateInventory(Long productId, UpdateProductStockEvent dto);
 
-    ResponseInventoryItemDTO getInventoryItemByProductCode(String productCode);
-
-    void addInventoryItem(UpdateInventoryItemDTO updateInventoryItemDTO);
-
-    void deductInventoryItem(UpdateInventoryItemDTO updateInventoryItemDTO);
-
-    void deleteInventoryItem(String productCode);
-
-    boolean checkInventoryItemAvailability(String productCode);
-
-    void createInventoryItem(CreateInventoryItemDTO createInventoryItemDTO);
+    ResponseProductStockDTO getInventory(Long productId);
 }

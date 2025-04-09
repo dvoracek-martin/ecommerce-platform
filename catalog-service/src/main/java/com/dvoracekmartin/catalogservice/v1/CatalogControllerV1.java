@@ -5,6 +5,7 @@ import com.dvoracekmartin.catalogservice.application.dto.ResponseCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +18,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/catalog/v1/")
 @Validated
+@RequiredArgsConstructor
 public class CatalogControllerV1 {
 
     private final CatalogService catalogService;
-
-    public CatalogControllerV1(CatalogService catalogService) {
-        this.catalogService = catalogService;
-    }
 
     @GetMapping("/all-products-and-mixtures")
     public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
@@ -47,19 +45,16 @@ public class CatalogControllerV1 {
 
     @GetMapping("/products/{id}")
     public ResponseEntity<ResponseProductDTO> getProductById(@PathVariable Long id) {
-        ResponseProductDTO productDTO = catalogService.getProductById(id);
-        return ResponseEntity.ok(productDTO);
+        return ResponseEntity.ok(catalogService.getProductById(id));
     }
 
     @GetMapping("/mixtures/{id}")
     public ResponseEntity<ResponseMixtureDTO> getMixtureById(@PathVariable Long id) {
-        ResponseMixtureDTO mixtureDTO = catalogService.getMixtureById(id);
-        return ResponseEntity.ok(mixtureDTO);
+        return ResponseEntity.ok(catalogService.getMixtureById(id));
     }
 
     @GetMapping("/categories/{id}")
     public ResponseEntity<ResponseCategoryDTO> getCategoryById(@PathVariable Long id) {
-        ResponseCategoryDTO categoryDTO = catalogService.getCategoryById(id);
-        return ResponseEntity.ok(categoryDTO);
+        return ResponseEntity.ok(catalogService.getCategoryById(id));
     }
 }

@@ -1,7 +1,7 @@
 package com.dvoracekmartin.inventoryservice.domain.service;
 
-import com.dvoracekmartin.inventoryservice.domain.model.InventoryItem;
+import com.dvoracekmartin.inventoryservice.domain.model.Inventory;
 
 public interface InventoryDomainService {
-    boolean canPlaceOrder(InventoryItem inventoryItem);
+    boolean canPlaceOrder(Inventory inventoryItem);
 }

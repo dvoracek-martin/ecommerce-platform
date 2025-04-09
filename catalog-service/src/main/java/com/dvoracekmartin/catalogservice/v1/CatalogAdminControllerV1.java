@@ -2,9 +2,10 @@ package com.dvoracekmartin.catalogservice.v1;
 
 import com.dvoracekmartin.catalogservice.application.dto.*;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
+import com.dvoracekmartin.common.dto.ResponseProductStockDTO;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,119 +18,120 @@ import java.util.List;
 @RequestMapping("/api/catalog/v1/admin/")
 @PreAuthorize("hasRole('user_admin')")
 @Validated
+@RequiredArgsConstructor
+@Slf4j
 public class CatalogAdminControllerV1 {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CatalogAdminControllerV1.class);
     private final CatalogService catalogService;
-
-    public CatalogAdminControllerV1(CatalogService catalogService) {
-        this.catalogService = catalogService;
-    }
 
     @GetMapping("/all-products-and-mixtures")
     public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
-        LOG.info("Admin fetching all products and mixtures");
+        log.info("Admin fetching all products and mixtures");
         return catalogService.getAllProductsAndMixtures();
     }
 
     @GetMapping("/all-products")
     public List<ResponseProductDTO> getAllProducts() {
-        LOG.info("Admin fetching all products");
+        log.info("Admin fetching all products");
         return catalogService.getAllProducts();
     }
 
     @GetMapping("/all-mixtures")
     public List<ResponseMixtureDTO> getAllMixtures() {
-        LOG.info("Admin fetching all mixtures");
+        log.info("Admin fetching all mixtures");
         return catalogService.getAllMixtures();
     }
 
     @GetMapping("/all-categories")
     public List<ResponseCategoryDTO> getAllCategories() {
-        LOG.info("Admin fetching all categories");
+        log.info("Admin fetching all categories");
         return catalogService.getAllCategories();
     }
 
     @GetMapping("/products/{id}")
     public ResponseEntity<ResponseProductDTO> getProductById(@PathVariable Long id) {
-        LOG.info("Admin fetching product by id: {}", id);
-        ResponseProductDTO productDTO = catalogService.getProductById(id);
-        return ResponseEntity.ok(productDTO);
+        log.info("Admin fetching product by id: {}", id);
+        return ResponseEntity.ok(catalogService.getProductById(id));
     }
 
     @GetMapping("/mixtures/{id}")
     public ResponseEntity<ResponseMixtureDTO> getMixtureById(@PathVariable Long id) {
-        LOG.info("Admin fetching mixture by id: {}", id);
-        ResponseMixtureDTO mixtureDTO = catalogService.getMixtureById(id);
-        return ResponseEntity.ok(mixtureDTO);
+        log.info("Admin fetching mixture by id: {}", id);
+        return ResponseEntity.ok(catalogService.getMixtureById(id));
     }
 
     @GetMapping("/categories/{id}")
     public ResponseEntity<ResponseCategoryDTO> getCategoryById(@PathVariable Long id) {
-        LOG.info("Admin fetching category by id: {}", id);
-        ResponseCategoryDTO categoryDTO = catalogService.getCategoryById(id);
-        return ResponseEntity.ok(categoryDTO);
+        log.info("Admin fetching category by id: {}", id);
+        return ResponseEntity.ok(catalogService.getCategoryById(id));
     }
 
     @PostMapping("/products")
     public ResponseEntity<List<ResponseProductDTO>> createProduct(@Valid @RequestBody List<CreateProductDTO> createProductDTO) {
-        LOG.info("Admin creating products: {}", createProductDTO);
-        List<ResponseProductDTO> createdProducts = catalogService.createProduct(createProductDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProducts);
+        log.info("Admin creating products: {}", createProductDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(catalogService.createProduct(createProductDTO));
     }
 
     @PutMapping("/products/{id}")
     public ResponseEntity<ResponseProductDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody UpdateProductDTO updateProductDTO) {
-        LOG.info("Admin updating product with id {}: {}", id, updateProductDTO);
-        ResponseProductDTO updatedProduct = catalogService.updateProduct(id, updateProductDTO);
-        return ResponseEntity.ok(updatedProduct);
+        log.info("Admin updating product with id {}: {}", id, updateProductDTO);
+        return ResponseEntity.ok(catalogService.updateProduct(id, updateProductDTO));
+    }
+
+    @PutMapping("/products/{id}/stock")
+    public ResponseEntity<ResponseProductStockDTO> updateProductStock(@PathVariable Long id, @Valid @RequestBody UpdateProductStockDTO updateProductStockDTO) {
+        log.info("Admin updating product stock with id {}: {}", id, updateProductStockDTO);
+        return ResponseEntity.ok(catalogService.updateProductStockDTO(id, updateProductStockDTO));
+    }
+
+    @GetMapping("/products/{id}/stock")
+    public ResponseEntity<ResponseProductStockDTO> getProductStock(@PathVariable Long id) {
+        log.info("Getting stock for product ID: {}", id);
+        ResponseProductStockDTO productStock = catalogService.getProductStock(id);
+        return productStock != null ? ResponseEntity.ok(productStock) : ResponseEntity.notFound().build();
     }
 
     @PostMapping("/mixtures")
     public ResponseEntity<List<ResponseMixtureDTO>> createMixture(@Valid @RequestBody List<CreateMixtureDTO> createMixtureDTO) {
-        LOG.info("Admin creating mixtures: {}", createMixtureDTO);
-        List<ResponseMixtureDTO> createdMixtures = catalogService.createMixture(createMixtureDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdMixtures);
+        log.info("Admin creating mixtures: {}", createMixtureDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(catalogService.createMixture(createMixtureDTO));
     }
 
     @PutMapping("/mixtures/{id}")
     public ResponseEntity<ResponseMixtureDTO> updateMixture(@PathVariable Long id, @Valid @RequestBody UpdateMixtureDTO updateMixtureDTO) {
-        LOG.info("Admin updating mixture with id {}: {}", id, updateMixtureDTO);
-        ResponseMixtureDTO updatedMixture = catalogService.updateMixture(id, updateMixtureDTO);
-        return ResponseEntity.ok(updatedMixture);
+        log.info("Admin updating mixture with id {}: {}", id, updateMixtureDTO);
+        return ResponseEntity.ok(catalogService.updateMixture(id, updateMixtureDTO));
     }
 
     @PostMapping("/categories")
     public ResponseEntity<List<ResponseCategoryDTO>> createCategory(@Valid @RequestBody List<CreateCategoryDTO> createCategoryDTO) {
-        LOG.info("Admin creating categories: {}", createCategoryDTO);
-        List<ResponseCategoryDTO> createdCategories = catalogService.createCategory(createCategoryDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdCategories);
+        log.info("Admin creating categories: {}", createCategoryDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(catalogService.createCategory(createCategoryDTO));
     }
 
     @PutMapping("/categories/{id}")
     public ResponseEntity<ResponseCategoryDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody UpdateCategoryDTO updateCategoryDTO) {
-        LOG.info("Admin updating category with id {}: {}", id, updateCategoryDTO);
-        ResponseCategoryDTO updatedCategory = catalogService.updateCategory(id, updateCategoryDTO);
-        return ResponseEntity.ok(updatedCategory);
+        log.info("Admin updating category with id {}: {}", id, updateCategoryDTO);
+        return ResponseEntity.ok(catalogService.updateCategory(id, updateCategoryDTO));
     }
 
     @DeleteMapping("/products/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        LOG.info("Admin deleting product with id: {}", id);
+        log.info("Admin deleting product with id: {}", id);
         catalogService.deleteProductById(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/mixtures/{id}")
     public ResponseEntity<Void> deleteMixture(@PathVariable Long id) {
-        LOG.info("Admin deleting mixture with id: {}", id);
+        log.info("Admin deleting mixture with id: {}", id);
         catalogService.deleteMixtureById(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        LOG.info("Admin deleting category with id: {}", id);
+        log.info("Admin deleting category with id: {}", id);
         catalogService.deleteCategoryById(id);
         return ResponseEntity.noContent().build();
     }

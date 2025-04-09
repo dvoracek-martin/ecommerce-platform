@@ -7,195 +7,211 @@ import com.dvoracekmartin.catalogservice.domain.model.Product;
 import com.dvoracekmartin.catalogservice.domain.repository.CategoryRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.MixtureRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.ProductRepository;
+import com.dvoracekmartin.catalogservice.domain.service.CatalogDomainService;
+import com.dvoracekmartin.common.dto.ResponseProductStockDTO;
+import com.dvoracekmartin.common.event.UpdateProductStockEvent;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Function;
+
+import static java.util.Objects.nonNull;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
+@Slf4j
 public class CatalogServiceImpl implements CatalogService {
 
+    private static final String INVENTORY_UPDATE_TOPIC = "inventory-update-topic";
+
+    private final KafkaTemplate<String, UpdateProductStockEvent> kafkaTemplate;
     private final ProductRepository productRepository;
     private final MixtureRepository mixtureRepository;
     private final CategoryRepository categoryRepository;
     private final CatalogMapper catalogMapper;
-
-    private static final Logger LOG = LoggerFactory.getLogger(CatalogServiceImpl.class);
-
-    public CatalogServiceImpl(ProductRepository productRepository, MixtureRepository mixtureRepository, CategoryRepository categoryRepository, CatalogMapper catalogMapper) {
-        this.productRepository = productRepository;
-        this.mixtureRepository = mixtureRepository;
-        this.categoryRepository = categoryRepository;
-        this.catalogMapper = catalogMapper;
-    }
+    private final CatalogDomainService catalogDomainService;
 
     @Override
     public List<ResponseProductDTO> getAllProducts() {
-        LOG.info("Fetching all products");
-        List<Product> products = productRepository.findAll();
-        return products.stream().map(catalogMapper::mapProductToResponseProductDTO).collect(Collectors.toList());
+        log.info("Fetching all products");
+        return productRepository.findAll().stream()
+                .map(catalogMapper::mapProductToResponseProductDTO)
+                .toList();
     }
 
     @Override
     public List<ResponseMixtureDTO> getAllMixtures() {
-        LOG.info("Fetching all mixtures");
-        List<Mixture> mixtures = mixtureRepository.findAll();
-        return mixtures.stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).collect(Collectors.toList());
+        log.info("Fetching all mixtures");
+        return mixtureRepository.findAll().stream()
+                .map(catalogMapper::mapMixtureToResponseMixtureDTO)
+                .toList();
     }
 
     @Override
     public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
-        LOG.info("Fetching all products and mixtures");
-        List<ResponseCatalogItemDTO> responseList = new ArrayList<>();
+        log.info("Fetching all products and mixtures");
+        List<ResponseCatalogItemDTO> products = productRepository.findAll().stream()
+                .map(catalogMapper::mapProductToResponseCatalogItemDTO)
+                .toList();
 
-        // 1) Fetch products and map to DTOs
-        List<Product> products = productRepository.findAll();
-        for (Product product : products) {
-            ResponseCatalogItemDTO dto = catalogMapper.mapProductToResponseCatalogItemDTO(product);
-            responseList.add(dto);
-        }
+        List<ResponseCatalogItemDTO> mixtures = mixtureRepository.findAll().stream()
+                .map(catalogMapper::mapMixtureToResponseCatalogItemDTO)
+                .toList();
 
-        // 2) Fetch mixtures and map to DTOs
-        List<Mixture> mixtures = mixtureRepository.findAll();
-        for (Mixture mixture : mixtures) {
-            ResponseCatalogItemDTO dto = catalogMapper.mapMixtureToResponseCatalogItemDTO(mixture);
-            responseList.add(dto);
-        }
-
-        // 3) Return the combined list
-        return responseList;
+        products.addAll(mixtures);
+        return products;
     }
 
     @Override
     public List<ResponseCategoryDTO> getAllCategories() {
-        LOG.info("Fetching all categories");
-        List<Category> categories = categoryRepository.findAll();
-        return categories.stream().map(catalogMapper::mapCategoryToResponseCategoryDTO).collect(Collectors.toList());
+        log.info("Fetching all categories");
+        return categoryRepository.findAll().stream()
+                .map(catalogMapper::mapCategoryToResponseCategoryDTO)
+                .toList();
     }
 
     @Override
     public List<ResponseProductDTO> createProduct(@Valid List<CreateProductDTO> createProductDTOList) {
-        LOG.info("Creating products: {}", createProductDTOList);
-
-        List<Product> products = createProductDTOList.stream()
-                .map(catalogMapper::mapCreateProductDTOToProduct)
-                .collect(Collectors.toList());
-
-        List<Product> savedProducts = productRepository.saveAll(products);
-
-        return savedProducts.stream()
+        log.info("Creating products: {}", createProductDTOList);
+        return productRepository.saveAll(createProductDTOList.stream()
+                        .map(catalogMapper::mapCreateProductDTOToProduct)
+                        .toList())
+                .stream()
                 .map(catalogMapper::mapProductToResponseProductDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public ResponseProductDTO updateProduct(Long id, UpdateProductDTO updateProductDTO) {
-        LOG.info("Updating product with id {}: {}", id, updateProductDTO);
-        Product existingProduct = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        log.info("Updating product with id {}: {}", id, updateProductDTO);
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        // Update the existing product with data from the DTO
         catalogMapper.mapUpdateProductDTOToProduct(updateProductDTO);
 
-        Product updatedProduct = productRepository.save(existingProduct);
-        return catalogMapper.mapProductToResponseProductDTO(updatedProduct);
+        return catalogMapper.mapProductToResponseProductDTO(productRepository.save(existingProduct));
+    }
+
+    @Override
+    public ResponseProductStockDTO updateProductStockDTO(Long id, UpdateProductStockDTO updateProductStockDTO) {
+        if (!id.equals(updateProductStockDTO.productId())) {
+            throw new IllegalArgumentException("Product ID in the path does not match the ID in the message");
+        }
+
+        UpdateProductStockEvent updateProductStockEvent = new UpdateProductStockEvent(
+                updateProductStockDTO.productId(),
+                updateProductStockDTO.stock()
+        );
+
+        kafkaTemplate.send(INVENTORY_UPDATE_TOPIC, updateProductStockEvent);
+
+        return new ResponseProductStockDTO(updateProductStockEvent.productId(), updateProductStockEvent.stock());
+    }
+
+    @Override
+    @Cacheable(value = "productStock", key = "#productId")
+    public ResponseProductStockDTO getProductStock(Long productId) {
+        log.info("Requesting stock for product ID: {}", productId);
+
+        Integer stock = catalogDomainService.getProductStockFromInventory(productId);
+
+        if (nonNull(stock)) {
+            log.info("Received stock for product ID {}: {}", productId, stock);
+            return new ResponseProductStockDTO(productId, stock);
+        }
+
+        log.warn("Failed to retrieve stock for product ID: {}", productId);
+        return null;
     }
 
     @Override
     public List<ResponseMixtureDTO> createMixture(@Valid List<CreateMixtureDTO> createMixtureDTOList) {
-        LOG.info("Creating mixtures: {}", createMixtureDTOList);
-
-        List<Mixture> mixtures = createMixtureDTOList.stream()
-                .map(catalogMapper::mapCreateMixtureDTOToMixture)
-                .collect(Collectors.toList());
-
-        List<Mixture> savedMixtures = mixtureRepository.saveAll(mixtures);
-
-        return savedMixtures.stream()
+        log.info("Creating mixtures: {}", createMixtureDTOList);
+        return mixtureRepository.saveAll(createMixtureDTOList.stream()
+                        .map(catalogMapper::mapCreateMixtureDTOToMixture)
+                        .toList())
+                .stream()
                 .map(catalogMapper::mapMixtureToResponseMixtureDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public ResponseMixtureDTO updateMixture(Long id, UpdateMixtureDTO updateMixtureDTO) {
-        LOG.info("Updating mixture with id {}: {}", id, updateMixtureDTO);
-        Mixture existingMixture = mixtureRepository.findById(id).orElseThrow(() -> new RuntimeException("Mixture not found with id: " + id));
+        log.info("Updating mixture with id {}: {}", id, updateMixtureDTO);
+        Mixture existingMixture = mixtureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Mixture not found with id: " + id));
 
-        // Update the existing mixture with data from the DTO
         catalogMapper.mapUpdateMixtureDTOToMixture(updateMixtureDTO);
 
-        Mixture updatedMixture = mixtureRepository.save(existingMixture);
-        return catalogMapper.mapMixtureToResponseMixtureDTO(updatedMixture);
+        return catalogMapper.mapMixtureToResponseMixtureDTO(mixtureRepository.save(existingMixture));
     }
 
     @Override
     public List<ResponseCategoryDTO> createCategory(@Valid List<CreateCategoryDTO> createCategoryDTOList) {
-        LOG.info("Creating categories: {}", createCategoryDTOList);
-
-        List<Category> categories = createCategoryDTOList.stream()
-                .map(catalogMapper::mapCreateCategoryDTOToCategory)
-                .collect(Collectors.toList());
-
-        List<Category> savedCategories = categoryRepository.saveAll(categories);
-
-        return savedCategories.stream()
+        log.info("Creating categories: {}", createCategoryDTOList);
+        return categoryRepository.saveAll(createCategoryDTOList.stream()
+                        .map(catalogMapper::mapCreateCategoryDTOToCategory)
+                        .toList())
+                .stream()
                 .map(catalogMapper::mapCategoryToResponseCategoryDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public ResponseCategoryDTO updateCategory(Long id, UpdateCategoryDTO updateCategoryDTO) {
-        LOG.info("Updating category with id {}: {}", id, updateCategoryDTO);
-        Category existingCategory = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+        log.info("Updating category with id {}: {}", id, updateCategoryDTO);
+        Category existingCategory = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
 
-        // Update the existing category with data from the DTO
         catalogMapper.mapUpdateCategoryDTOToCategory(updateCategoryDTO);
 
-        Category updatedCategory = categoryRepository.save(existingCategory);
-        return catalogMapper.mapCategoryToResponseCategoryDTO(updatedCategory);
+        return catalogMapper.mapCategoryToResponseCategoryDTO(categoryRepository.save(existingCategory));
     }
 
     @Override
     public ResponseProductDTO getProductById(Long id) {
-        LOG.info("Fetching product with id: {}", id);
-        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
-        return catalogMapper.mapProductToResponseProductDTO(product);
+        return getEntityById(id, productRepository::findById, catalogMapper::mapProductToResponseProductDTO, "Product");
     }
 
     @Override
     public ResponseMixtureDTO getMixtureById(Long id) {
-        LOG.info("Fetching mixture with id: {}", id);
-        Mixture mixture = mixtureRepository.findById(id).orElseThrow(() -> new RuntimeException("Mixture not found with id: " + id));
-        return catalogMapper.mapMixtureToResponseMixtureDTO(mixture);
+        return getEntityById(id, mixtureRepository::findById, catalogMapper::mapMixtureToResponseMixtureDTO, "Mixture");
     }
 
     @Override
     public ResponseCategoryDTO getCategoryById(Long id) {
-        LOG.info("Fetching category with id: {}", id);
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
-        return catalogMapper.mapCategoryToResponseCategoryDTO(category);
+        return getEntityById(id, categoryRepository::findById, catalogMapper::mapCategoryToResponseCategoryDTO, "Category");
     }
 
     @Override
     public void deleteProductById(Long id) {
-        LOG.info("Deleting product with id: {}", id);
+        log.info("Deleting product with id: {}", id);
         productRepository.deleteById(id);
     }
 
     @Override
     public void deleteMixtureById(Long id) {
-        LOG.info("Deleting mixture with id: {}", id);
+        log.info("Deleting mixture with id: {}", id);
         mixtureRepository.deleteById(id);
     }
 
     @Override
     public void deleteCategoryById(Long id) {
-        LOG.info("Deleting category with id: {}", id);
+        log.info("Deleting category with id: {}", id);
         categoryRepository.deleteById(id);
+    }
+
+    private <T, R> R getEntityById(Long id, Function<Long, java.util.Optional<T>> findById, Function<T, R> mapper, String entityName) {
+        log.info("Fetching {} with id: {}", entityName, id);
+        return findById.apply(id)
+                .map(mapper)
+                .orElseThrow(() -> new RuntimeException(entityName + " not found with id: " + id));
     }
 }

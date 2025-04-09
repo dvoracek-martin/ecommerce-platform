@@ -1,21 +1,21 @@
 package com.dvoracekmartin.customerservice.listeners;
 
-import com.dvoracekmartin.commonevents.events.UserCreatedEvent;
+import com.dvoracekmartin.common.event.UserCreatedEvent;
 import com.dvoracekmartin.customerservice.application.dto.CreateCustomerDTO;
 import com.dvoracekmartin.customerservice.application.service.CustomerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-public class UserCreatedEventListener {
+@Service
+public class CustomerConsumer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserCreatedEventListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CustomerConsumer.class);
 
     private final CustomerService customerService;
 
-    public UserCreatedEventListener(CustomerService customerService) {
+    public CustomerConsumer(CustomerService customerService) {
         this.customerService = customerService;
     }
 
