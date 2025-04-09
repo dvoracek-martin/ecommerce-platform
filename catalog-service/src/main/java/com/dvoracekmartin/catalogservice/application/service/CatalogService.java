@@ -1,6 +1,7 @@
 package com.dvoracekmartin.catalogservice.application.service;
 
 import com.dvoracekmartin.catalogservice.application.dto.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -14,15 +15,15 @@ public interface CatalogService {
 
     List<ResponseCategoryDTO> getAllCategories();
 
-    ResponseProductDTO createProduct(CreateProductDTO createProductDTO);
+    List<ResponseProductDTO> createProduct(@Valid List<CreateProductDTO> createProductDTO);
 
     ResponseProductDTO updateProduct(Long id, UpdateProductDTO updateProductDTO);
 
-    ResponseMixtureDTO createMixture(CreateMixtureDTO createMixtureDTO);
+    List<ResponseMixtureDTO> createMixture(@Valid List<CreateMixtureDTO> createMixtureDTO);
 
     ResponseMixtureDTO updateMixture(Long id, UpdateMixtureDTO updateMixtureDTO);
 
-    ResponseCategoryDTO createCategory(CreateCategoryDTO createCategoryDTO);
+    List<ResponseCategoryDTO> createCategory(@Valid List<CreateCategoryDTO> createCategoryDTO);
 
     ResponseCategoryDTO updateCategory(Long id, UpdateCategoryDTO updateCategoryDTO);
 

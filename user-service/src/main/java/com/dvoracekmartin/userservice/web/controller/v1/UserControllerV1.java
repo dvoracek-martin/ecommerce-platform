@@ -13,7 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/user/v1")
+@RequestMapping("/api/users/v1")
 @Validated
 public class UserControllerV1 {
 

@@ -7,6 +7,7 @@ import com.dvoracekmartin.catalogservice.domain.model.Product;
 import com.dvoracekmartin.catalogservice.domain.repository.CategoryRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.MixtureRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.ProductRepository;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -79,11 +80,18 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     @Override
-    public ResponseProductDTO createProduct(CreateProductDTO createProductDTO) {
-        LOG.info("Creating product: {}", createProductDTO);
-        Product product = catalogMapper.mapCreateProductDTOToProduct(createProductDTO);
-        Product savedProduct = productRepository.save(product);
-        return catalogMapper.mapProductToResponseProductDTO(savedProduct);
+    public List<ResponseProductDTO> createProduct(@Valid List<CreateProductDTO> createProductDTOList) {
+        LOG.info("Creating products: {}", createProductDTOList);
+
+        List<Product> products = createProductDTOList.stream()
+                .map(catalogMapper::mapCreateProductDTOToProduct)
+                .collect(Collectors.toList());
+
+        List<Product> savedProducts = productRepository.saveAll(products);
+
+        return savedProducts.stream()
+                .map(catalogMapper::mapProductToResponseProductDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -99,11 +107,18 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     @Override
-    public ResponseMixtureDTO createMixture(CreateMixtureDTO createMixtureDTO) {
-        LOG.info("Creating mixture: {}", createMixtureDTO);
-        Mixture mixture = catalogMapper.mapCreateMixtureDTOToMixture(createMixtureDTO);
-        Mixture savedMixture = mixtureRepository.save(mixture);
-        return catalogMapper.mapMixtureToResponseMixtureDTO(savedMixture);
+    public List<ResponseMixtureDTO> createMixture(@Valid List<CreateMixtureDTO> createMixtureDTOList) {
+        LOG.info("Creating mixtures: {}", createMixtureDTOList);
+
+        List<Mixture> mixtures = createMixtureDTOList.stream()
+                .map(catalogMapper::mapCreateMixtureDTOToMixture)
+                .collect(Collectors.toList());
+
+        List<Mixture> savedMixtures = mixtureRepository.saveAll(mixtures);
+
+        return savedMixtures.stream()
+                .map(catalogMapper::mapMixtureToResponseMixtureDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -119,11 +134,18 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     @Override
-    public ResponseCategoryDTO createCategory(CreateCategoryDTO createCategoryDTO) {
-        LOG.info("Creating category: {}", createCategoryDTO);
-        Category category = catalogMapper.mapCreateCategoryDTOToCategory(createCategoryDTO);
-        Category savedCategory = categoryRepository.save(category);
-        return catalogMapper.mapCategoryToResponseCategoryDTO(savedCategory);
+    public List<ResponseCategoryDTO> createCategory(@Valid List<CreateCategoryDTO> createCategoryDTOList) {
+        LOG.info("Creating categories: {}", createCategoryDTOList);
+
+        List<Category> categories = createCategoryDTOList.stream()
+                .map(catalogMapper::mapCreateCategoryDTOToCategory)
+                .collect(Collectors.toList());
+
+        List<Category> savedCategories = categoryRepository.saveAll(categories);
+
+        return savedCategories.stream()
+                .map(catalogMapper::mapCategoryToResponseCategoryDTO)
+                .collect(Collectors.toList());
     }
 
     @Override

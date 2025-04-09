@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/catalog/v1/admin")
+@RequestMapping("/api/catalog/v1/admin/")
 @PreAuthorize("hasRole('user_admin')")
 @Validated
 public class CatalogAdminControllerV1 {
@@ -72,10 +72,10 @@ public class CatalogAdminControllerV1 {
     }
 
     @PostMapping("/products")
-    public ResponseEntity<ResponseProductDTO> createProduct(@Valid @RequestBody CreateProductDTO createProductDTO) {
-        LOG.info("Admin creating product: {}", createProductDTO);
-        ResponseProductDTO createdProduct = catalogService.createProduct(createProductDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
+    public ResponseEntity<List<ResponseProductDTO>> createProduct(@Valid @RequestBody List<CreateProductDTO> createProductDTO) {
+        LOG.info("Admin creating products: {}", createProductDTO);
+        List<ResponseProductDTO> createdProducts = catalogService.createProduct(createProductDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProducts);
     }
 
     @PutMapping("/products/{id}")
@@ -86,10 +86,10 @@ public class CatalogAdminControllerV1 {
     }
 
     @PostMapping("/mixtures")
-    public ResponseEntity<ResponseMixtureDTO> createMixture(@Valid @RequestBody CreateMixtureDTO createMixtureDTO) {
-        LOG.info("Admin creating mixture: {}", createMixtureDTO);
-        ResponseMixtureDTO createdMixture = catalogService.createMixture(createMixtureDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdMixture);
+    public ResponseEntity<List<ResponseMixtureDTO>> createMixture(@Valid @RequestBody List<CreateMixtureDTO> createMixtureDTO) {
+        LOG.info("Admin creating mixtures: {}", createMixtureDTO);
+        List<ResponseMixtureDTO> createdMixtures = catalogService.createMixture(createMixtureDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdMixtures);
     }
 
     @PutMapping("/mixtures/{id}")
@@ -100,10 +100,10 @@ public class CatalogAdminControllerV1 {
     }
 
     @PostMapping("/categories")
-    public ResponseEntity<ResponseCategoryDTO> createCategory(@Valid @RequestBody CreateCategoryDTO createCategoryDTO) {
-        LOG.info("Admin creating category: {}", createCategoryDTO);
-        ResponseCategoryDTO createdCategory = catalogService.createCategory(createCategoryDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
+    public ResponseEntity<List<ResponseCategoryDTO>> createCategory(@Valid @RequestBody List<CreateCategoryDTO> createCategoryDTO) {
+        LOG.info("Admin creating categories: {}", createCategoryDTO);
+        List<ResponseCategoryDTO> createdCategories = catalogService.createCategory(createCategoryDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCategories);
     }
 
     @PutMapping("/categories/{id}")

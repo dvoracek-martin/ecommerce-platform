@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user/v1/admin")
+@RequestMapping("/api/users/v1/admin")
 @PreAuthorize("hasRole('user_admin')")
 public class UserAdminControllerV1 {
 
