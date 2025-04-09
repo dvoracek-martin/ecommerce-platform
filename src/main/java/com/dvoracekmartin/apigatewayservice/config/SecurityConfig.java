@@ -26,7 +26,10 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/api/user/" + API_VERSION + "/admin").hasRole("client_admin")
-                        .anyExchange().permitAll()
+                        .pathMatchers("/api/catalog/" + API_VERSION + "/all-products").permitAll()
+                        .pathMatchers("/api/catalog/" + API_VERSION + "/all-mixtures").permitAll()
+                        .pathMatchers("/api/catalog/" + API_VERSION + "/all-categories").permitAll()
+                        .anyExchange().authenticated() // All other endpoints require authentication
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter))
