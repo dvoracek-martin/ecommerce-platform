@@ -50,7 +50,7 @@ export class ResetPasswordComponent implements OnInit {
       newPassword: this.resetForm.value.newPassword
     };
 
-    this.http.post('http://localhost:8080/api/user/v1/reset-password', payload,
+    this.http.post('http://localhost:8080/api/users/v1/reset-password', payload,
       {responseType: 'text'} // Explicitly expect text to avoid JSON parsing errors
     ).subscribe({
       next: (response: any) => {

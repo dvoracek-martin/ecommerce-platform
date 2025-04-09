@@ -35,7 +35,7 @@ export class ForgotPasswordComponent {
     this.loading = true;
     const email = this.forgotForm.value.email.trim().toLowerCase();
 
-    this.http.post('http://localhost:8080/api/user/v1/forgot-password', { email })
+    this.http.post('http://localhost:8080/api/users/v1/forgot-password', { email })
       .subscribe({
         next: () => {
           this.snackBar.open('Password reset link sent to your email', 'Close', { duration: 5000 });

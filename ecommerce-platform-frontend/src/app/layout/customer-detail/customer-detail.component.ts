@@ -179,7 +179,7 @@ export class CustomerDetailComponent implements OnInit {
     const token = this.authService.token;
 
     if (userId && token) {
-      this.http.get<Customer>(`http://localhost:8080/api/customer/v1/${userId}`, {
+      this.http.get<Customer>(`http://localhost:8080/api/customers/v1/${userId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       }).subscribe({
         next: (customer) => this.handleCustomerDataSuccess(customer),
@@ -259,7 +259,7 @@ export class CustomerDetailComponent implements OnInit {
     if (userId && token) {
       const payload = this.createCustomerPayload();
 
-      this.http.put(`http://localhost:8080/api/customer/v1/${userId}`, payload, {
+      this.http.put(`http://localhost:8080/api/customers/v1/${userId}`, payload, {
         headers: { 'Authorization': `Bearer ${token}` }
       }).subscribe({
         next: () => this.handleSaveSuccess(),
@@ -335,7 +335,7 @@ export class CustomerDetailComponent implements OnInit {
       const { currentPassword, newPassword } = passwordGroup.value;
 
       this.http.put(
-        `http://localhost:8080/api/user/v1/${userId}/password`,
+        `http://localhost:8080/api/users/v1/${userId}/password`,
         { currentPassword, newPassword },
         { headers: { 'Authorization': `Bearer ${token}` } }
       ).subscribe({
