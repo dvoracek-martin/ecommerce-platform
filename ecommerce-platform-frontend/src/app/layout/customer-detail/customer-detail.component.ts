@@ -46,8 +46,8 @@ interface BillingAddress {
   standalone: false,
   animations: [
     trigger('slideDown', [
-      state('void', style({ height: '0', opacity: 0, overflow: 'hidden' })),
-      state('*', style({ height: '*', opacity: 1 })),
+      state('void', style({height: '0', opacity: 0, overflow: 'hidden'})),
+      state('*', style({height: '*', opacity: 1})),
       transition('void <=> *', animate('300ms ease-in-out'))
     ])
   ]
@@ -61,6 +61,7 @@ export class CustomerDetailComponent implements OnInit {
   readonly DEFAULT_COUNTRY = 'Switzerland';
   showBillingAddress = false;
   initialBillingAddress: BillingAddress | null = null;
+  initialAddress: Address | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -108,11 +109,11 @@ export class CustomerDetailComponent implements OnInit {
         lastName: [''],
         companyName: [''],
         taxId: ['', [Validators.pattern(/^[A-Za-z0-9]+$/)]],
-        street: ['', Validators.required],
-        houseNumber: ['', Validators.required],
-        city: ['', Validators.required],
-        zipCode: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
-        country: [this.DEFAULT_COUNTRY, Validators.required],
+        street: [''],
+        houseNumber: [''],
+        city: [''],
+        zipCode: [''],
+        country: [this.DEFAULT_COUNTRY],
         phone: ['', [Validators.pattern(/^\+?[0-9\s-]+$/)]]
       })
     });
@@ -190,6 +191,7 @@ export class CustomerDetailComponent implements OnInit {
 
   private handleCustomerDataSuccess(customer: Customer): void {
     this.initialBillingAddress = customer.billingAddress;
+    this.initialAddress = customer.address;
     this.patchFormValues(customer);
     this.loading = false;
   }
