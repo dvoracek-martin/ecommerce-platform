@@ -1,8 +1,7 @@
-package com.dvoracekmartin.userservice.application.events;
+package com.dvoracekmartin.userservice.application.event.publisher;
 
 import com.dvoracekmartin.common.event.UserCreatedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -11,13 +10,12 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 
 @Component
+@Slf4j
 public class UserEventPublisher {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserEventPublisher.class);
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${kafka.topic.userCreated}")
+    @Value("${global.kafka.topics.users.user-created}")
     private String userCreatedTopic;
 
     public UserEventPublisher(KafkaTemplate<String, Object> kafkaTemplate) {
@@ -32,7 +30,7 @@ public class UserEventPublisher {
                 Instant.now()
         );
 
-        LOG.debug("Publishing event: {}", event);
+        log.debug("Publishing event: {}", event);
         Mono.fromRunnable(() -> kafkaTemplate.send(userCreatedTopic, userId, event))
                 .subscribe();
     }

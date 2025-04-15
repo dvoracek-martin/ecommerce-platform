@@ -1,6 +1,6 @@
 <div class="auth-popup-overlay">
   <div class="auth-popup-container">
-    <button class="close-btn" (click)="closePopup.emit()">×</button>
+    <button (click)="closePopup.emit()" class="close-btn">×</button>
 
     <ng-container *ngIf="showForgotPassword; else authTemplate">
       <h2>{{ 'LOGIN.FORGOT_PASSWORD_TITLE' | translate }}</h2>
@@ -14,13 +14,13 @@
         <h2>{{ 'LOGIN.TITLE' | translate }}</h2>
         <app-user-login (loginSuccess)="onSuccess()"></app-user-login>
         <p class="switch-mode">
-          <button mat-button color="primary" (click)="openForgotPassword()">
+          <button (click)="openForgotPassword()" color="primary" mat-button>
             {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
           </button>
         </p>
         <p class="switch-mode">
           {{ 'LOGIN.NO_ACCOUNT' | translate }}
-          <button mat-button color="primary" (click)="switchToRegister($event)">
+          <button (click)="switchToRegister($event)" color="primary" mat-button>
             {{ 'AUTH.REGISTER' | translate }}
           </button>
         </p>
@@ -32,7 +32,7 @@
           <app-user-registration (registerSuccess)="onSuccess()"></app-user-registration>
           <p class="switch-mode">
             {{ 'LOGIN.HAVE_ACCOUNT' | translate }}
-            <button mat-button color="primary" (click)="switchToLogin($event)">
+            <button (click)="switchToLogin($event)" color="primary" mat-button>
               {{ 'AUTH.LOGIN' | translate }}
             </button>
           </p>

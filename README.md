@@ -1,6 +1,8 @@
 # 🛒 E-Commerce Platform – Microservices Architecture
 
-Welcome to my personal e-commerce platform project — a fully modular microservices-based system built with modern backend technologies and a responsive Angular frontend. This project is designed as a real-world showcase of enterprise architecture patterns and best practices, focusing on scalability, maintainability, and secure communication.
+Welcome to my personal e-commerce platform project — a fully modular microservices-based system built with modern
+backend technologies and a responsive Angular frontend. This project is designed as a real-world showcase of enterprise
+architecture patterns and best practices, focusing on scalability, maintainability, and secure communication.
 
 ---
 
@@ -19,6 +21,7 @@ Welcome to my personal e-commerce platform project — a fully modular microserv
 ---
 
 ## 🧱 Architecture Overview
+
 ```mermaid  
 flowchart LR
     FE["Frontend<br>(Angular)"]
@@ -113,25 +116,26 @@ Kafka --> Grafana
 
 ## 📦 Services
 
-| Service             | Description                                                       |
-|---------------------|-------------------------------------------------------------------|
-| `api-gateway`       | Routes requests and applies filters                               |
-| `user-service`      | Manages User-related operations, OAuth2 login, JWT token issuance |
-| `catalog-service`   | Handles product listing and search                                |
-| `customer-service`  | Manages customer data and profiles                                |
-| `order-service`     | Processes customer orders                                         |
-| `payment-service`   | Simulates payment transactions                                    |
-| `shipping-service`  | Handles shipping details                                          |
-| `inventory-service` | Tracks stock availability                                         |
-| `config-server`     | Externalized, centralized configuration                           |
-| `eureka-server`     | Service registry                                                  |
-| `ecommerce-platform-frontend`          | Angular SPA for customer interaction                              |
+| Service                       | Description                                                       |
+|-------------------------------|-------------------------------------------------------------------|
+| `api-gateway`                 | Routes requests and applies filters                               |
+| `user-service`                | Manages User-related operations, OAuth2 login, JWT token issuance |
+| `catalog-service`             | Handles product listing and search                                |
+| `customer-service`            | Manages customer data and profiles                                |
+| `order-service`               | Processes customer orders                                         |
+| `payment-service`             | Simulates payment transactions                                    |
+| `shipping-service`            | Handles shipping details                                          |
+| `inventory-service`           | Tracks stock availability                                         |
+| `config-server`               | Externalized, centralized configuration                           |
+| `eureka-server`               | Service registry                                                  |
+| `ecommerce-platform-frontend` | Angular SPA for customer interaction                              |
 
 ---
 
 ## 🛠️ Tech Stack
 
 **Backend**
+
 - Java 21
 - Spring Boot 3.4+
 - Spring Cloud Gateway
@@ -144,6 +148,7 @@ Kafka --> Grafana
 - Docker
 
 **Frontend**
+
 - Angular 19+
 - Angular Material
 - RxJS
@@ -154,6 +159,7 @@ Kafka --> Grafana
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Java 21
 - Docker & Docker Compose
 - Node.js & Angular CLI (for frontend)
@@ -176,7 +182,9 @@ docker-compose -f docker/docker-compose.yml up -d
 
 ```
 
-> This will spin up all backend services, the API gateway, and PostgreSQL databases. Currently not fully optimized. It's advised to start the services one by one as a standard Java application.
+> This will spin up all backend services, the API gateway, and PostgreSQL databases. Currently not fully optimized. It's
+> advised to start the services one by one as a standard Java application.
+
 ### Run Frontend
 
 ```bash
@@ -192,7 +200,8 @@ Then go to [http://localhost:4200](http://localhost:4200) to access the Angular 
 
 ## 🔐 Security
 
-Authentication is implemented using OAuth2 and JWT. The User-service in cooperation with Keycloak handle login requests and issue JWT tokens, which are then validated by the API Gateway and microservices.
+Authentication is implemented using OAuth2 and JWT. The User-service in cooperation with Keycloak handle login requests
+and issue JWT tokens, which are then validated by the API Gateway and microservices.
 
 ---
 
@@ -219,17 +228,18 @@ ecommerce-platform/
 └── pom.xml
 ```
 
-
 ---
 
 ## 📈 Monitoring (Coming Soon)
+
 - Prometheus & Grafana integration for real-time metrics
 
 ---
 
 ## 🙌 Why This Project?
 
-This is a hands-on learning project to sharpen my architecture, backend, and cloud-native development skills. It mirrors common challenges found in real-world distributed systems.
+This is a hands-on learning project to sharpen my architecture, backend, and cloud-native development skills. It mirrors
+common challenges found in real-world distributed systems.
 
 ---
 

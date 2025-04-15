@@ -1,11 +1,11 @@
 package com.dvoracekmartin.inventoryservice.application.service;
 
-import com.dvoracekmartin.common.dto.ResponseProductStockDTO;
+import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import com.dvoracekmartin.common.event.UpdateProductStockEvent;
 
 public interface InventoryService {
 
-    ResponseProductStockDTO updateInventory(Long productId, UpdateProductStockEvent dto);
+    ResponseProductStockEvent updateInventory(Long productId, UpdateProductStockEvent dto);
 
-    ResponseProductStockDTO getInventory(Long productId);
+    ResponseProductStockEvent getInventory(Long productId);
 }

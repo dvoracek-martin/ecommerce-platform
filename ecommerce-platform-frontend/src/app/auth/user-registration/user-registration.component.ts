@@ -1,10 +1,10 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators} from '@angular/forms';
+import {HttpClient} from '@angular/common/http';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {AuthService} from '../auth.service';
+import {Router} from '@angular/router';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-user-registration',
@@ -24,7 +24,8 @@ export class UserRegistrationComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private translate: TranslateService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.registrationForm = this.fb.group({
@@ -39,15 +40,7 @@ export class UserRegistrationComponent implements OnInit {
         Validators.pattern(/^\S+$/)
       ]],
       confirmPassword: ['', Validators.required]
-    }, { validators: this.passwordMatchValidator() });
-  }
-
-  private passwordMatchValidator(): ValidatorFn {
-    return (group: AbstractControl): { [key: string]: any } | null => {
-      const password = group.get('password')?.value;
-      const confirmPassword = group.get('confirmPassword')?.value;
-      return password && confirmPassword && password !== confirmPassword ? { mismatch: true } : null;
-    };
+    }, {validators: this.passwordMatchValidator()});
   }
 
   onSubmit(): void {
@@ -55,7 +48,7 @@ export class UserRegistrationComponent implements OnInit {
       this.snackBar.open(
         this.translate.instant('ERRORS.FIX_FORM'),
         this.translate.instant('COMMON.CLOSE'),
-        { duration: 5000 }
+        {duration: 5000}
       );
       return;
     }
@@ -77,7 +70,7 @@ export class UserRegistrationComponent implements OnInit {
         this.snackBar.open(
           this.translate.instant('SUCCESS.REGISTRATION_SUCCESS'),
           this.translate.instant('COMMON.CLOSE'),
-          { duration: 5000 }
+          {duration: 5000}
         );
         this.authenticateUserAfterRegistration();
       },
@@ -85,11 +78,19 @@ export class UserRegistrationComponent implements OnInit {
         this.snackBar.open(
           this.translate.instant('ERRORS.REGISTRATION_FAILED') + (err.error?.message || err.statusText),
           this.translate.instant('COMMON.CLOSE'),
-          { duration: 5000 }
+          {duration: 5000}
         );
         this.saving = false;
       }
     });
+  }
+
+  private passwordMatchValidator(): ValidatorFn {
+    return (group: AbstractControl): { [key: string]: any } | null => {
+      const password = group.get('password')?.value;
+      const confirmPassword = group.get('confirmPassword')?.value;
+      return password && confirmPassword && password !== confirmPassword ? {mismatch: true} : null;
+    };
   }
 
   private authenticateUserAfterRegistration(): void {
@@ -105,7 +106,7 @@ export class UserRegistrationComponent implements OnInit {
     this.http.post(
       'http://localhost:9090/realms/ecommerce-platform/protocol/openid-connect/token',
       body.toString(),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}
     ).subscribe({
       next: (response: any) => {
         this.authService.storeToken(response);
@@ -118,7 +119,7 @@ export class UserRegistrationComponent implements OnInit {
         this.snackBar.open(
           this.translate.instant('ERRORS.LOGIN_FAILED') + (err.error?.message || err.statusText),
           this.translate.instant('COMMON.CLOSE'),
-          { duration: 5000 }
+          {duration: 5000}
         );
         this.saving = false;
         this.router.navigate(['/']);

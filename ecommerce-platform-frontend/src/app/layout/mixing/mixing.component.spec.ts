@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { MixingComponent } from './mixing.component';
+import {MixingComponent} from './mixing.component';
 
 describe('MixingComponent', () => {
   let component: MixingComponent;
@@ -10,7 +10,7 @@ describe('MixingComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [MixingComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(MixingComponent);
     component = fixture.componentInstance;

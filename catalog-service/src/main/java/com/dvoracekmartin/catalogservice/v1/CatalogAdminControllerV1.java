@@ -2,7 +2,7 @@ package com.dvoracekmartin.catalogservice.v1;
 
 import com.dvoracekmartin.catalogservice.application.dto.*;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
-import com.dvoracekmartin.common.dto.ResponseProductStockDTO;
+import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -79,15 +79,15 @@ public class CatalogAdminControllerV1 {
     }
 
     @PutMapping("/products/{id}/stock")
-    public ResponseEntity<ResponseProductStockDTO> updateProductStock(@PathVariable Long id, @Valid @RequestBody UpdateProductStockDTO updateProductStockDTO) {
+    public ResponseEntity<ResponseProductStockEvent> updateProductStock(@PathVariable Long id, @Valid @RequestBody UpdateProductStockDTO updateProductStockDTO) {
         log.info("Admin updating product stock with id {}: {}", id, updateProductStockDTO);
         return ResponseEntity.ok(catalogService.updateProductStockDTO(id, updateProductStockDTO));
     }
 
     @GetMapping("/products/{id}/stock")
-    public ResponseEntity<ResponseProductStockDTO> getProductStock(@PathVariable Long id) {
+    public ResponseEntity<ResponseProductStockEvent> getProductStock(@PathVariable Long id) {
         log.info("Getting stock for product ID: {}", id);
-        ResponseProductStockDTO productStock = catalogService.getProductStock(id);
+        ResponseProductStockEvent productStock = catalogService.getProductStock(id);
         return productStock != null ? ResponseEntity.ok(productStock) : ResponseEntity.notFound().build();
     }
 

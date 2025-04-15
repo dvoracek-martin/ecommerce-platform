@@ -1,6 +1,7 @@
 package com.dvoracekmartin.catalogservice.application.service;
 
 import com.dvoracekmartin.catalogservice.application.dto.*;
+import com.dvoracekmartin.catalogservice.application.event.publisher.CatalogEventPublisher;
 import com.dvoracekmartin.catalogservice.domain.model.Category;
 import com.dvoracekmartin.catalogservice.domain.model.Mixture;
 import com.dvoracekmartin.catalogservice.domain.model.Product;
@@ -8,16 +9,15 @@ import com.dvoracekmartin.catalogservice.domain.repository.CategoryRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.MixtureRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.ProductRepository;
 import com.dvoracekmartin.catalogservice.domain.service.CatalogDomainService;
-import com.dvoracekmartin.common.dto.ResponseProductStockDTO;
-import com.dvoracekmartin.common.event.UpdateProductStockEvent;
+import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -29,9 +29,7 @@ import static java.util.Objects.nonNull;
 @Slf4j
 public class CatalogServiceImpl implements CatalogService {
 
-    private static final String INVENTORY_UPDATE_TOPIC = "inventory-update-topic";
-
-    private final KafkaTemplate<String, UpdateProductStockEvent> kafkaTemplate;
+    private final CatalogEventPublisher catalogEventPublisher;
     private final ProductRepository productRepository;
     private final MixtureRepository mixtureRepository;
     private final CategoryRepository categoryRepository;
@@ -57,9 +55,9 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
         log.info("Fetching all products and mixtures");
-        List<ResponseCatalogItemDTO> products = productRepository.findAll().stream()
+        List<ResponseCatalogItemDTO> products = new ArrayList<>(productRepository.findAll().stream()
                 .map(catalogMapper::mapProductToResponseCatalogItemDTO)
-                .toList();
+                .toList());
 
         List<ResponseCatalogItemDTO> mixtures = mixtureRepository.findAll().stream()
                 .map(catalogMapper::mapMixtureToResponseCatalogItemDTO)
@@ -100,31 +98,26 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     @Override
-    public ResponseProductStockDTO updateProductStockDTO(Long id, UpdateProductStockDTO updateProductStockDTO) {
+    public ResponseProductStockEvent updateProductStockDTO(Long id, UpdateProductStockDTO updateProductStockDTO) {
         if (!id.equals(updateProductStockDTO.productId())) {
             throw new IllegalArgumentException("Product ID in the path does not match the ID in the message");
         }
 
-        UpdateProductStockEvent updateProductStockEvent = new UpdateProductStockEvent(
-                updateProductStockDTO.productId(),
-                updateProductStockDTO.stock()
-        );
+        catalogEventPublisher.publishInventoryUpdateTopic(updateProductStockDTO.productId(), updateProductStockDTO.stock());
 
-        kafkaTemplate.send(INVENTORY_UPDATE_TOPIC, updateProductStockEvent);
-
-        return new ResponseProductStockDTO(updateProductStockEvent.productId(), updateProductStockEvent.stock());
+        return new ResponseProductStockEvent(updateProductStockDTO.productId(), updateProductStockDTO.stock());
     }
 
     @Override
     @Cacheable(value = "productStock", key = "#productId")
-    public ResponseProductStockDTO getProductStock(Long productId) {
+    public ResponseProductStockEvent getProductStock(Long productId) {
         log.info("Requesting stock for product ID: {}", productId);
 
         Integer stock = catalogDomainService.getProductStockFromInventory(productId);
 
         if (nonNull(stock)) {
             log.info("Received stock for product ID {}: {}", productId, stock);
-            return new ResponseProductStockDTO(productId, stock);
+            return new ResponseProductStockEvent(productId, stock);
         }
 
         log.warn("Failed to retrieve stock for product ID: {}", productId);

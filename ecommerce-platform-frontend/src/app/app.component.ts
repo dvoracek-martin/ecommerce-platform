@@ -67,11 +67,6 @@ export class AppComponent implements OnInit {
     this.setLanguage(langCode);
   }
 
-  private setLanguage(langCode: string): void {
-    this.translate.use(langCode);
-    this.selectedLanguage = this.languages.find(lang => lang.code === langCode) || this.languages[0];
-  }
-
   closeAuthPopup(): void {
     this.isPopupOpen = false;
   }
@@ -80,5 +75,10 @@ export class AppComponent implements OnInit {
     this.router.navigateByUrl('/')
       .then(() => {
       });
+  }
+
+  private setLanguage(langCode: string): void {
+    this.translate.use(langCode);
+    this.selectedLanguage = this.languages.find(lang => lang.code === langCode) || this.languages[0];
   }
 }

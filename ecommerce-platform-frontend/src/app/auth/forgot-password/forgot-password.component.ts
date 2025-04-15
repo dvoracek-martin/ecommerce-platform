@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import {Component, EventEmitter, Output} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {HttpClient} from '@angular/common/http';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-forgot-password',
@@ -35,14 +35,14 @@ export class ForgotPasswordComponent {
     this.loading = true;
     const email = this.forgotForm.value.email.trim().toLowerCase();
 
-    this.http.post('http://localhost:8080/api/users/v1/forgot-password', { email })
+    this.http.post('http://localhost:8080/api/users/v1/forgot-password', {email})
       .subscribe({
         next: () => {
-          this.snackBar.open('Password reset link sent to your email', 'Close', { duration: 5000 });
+          this.snackBar.open('Password reset link sent to your email', 'Close', {duration: 5000});
           this.close.emit();
         },
-        error: (err) => {
-          this.snackBar.open('Failed to send reset link. Please try again.', 'Close', { duration: 5000 });
+        error: () => {
+          this.snackBar.open('Failed to send reset link. Please try again.', 'Close', {duration: 5000});
         }
       })
       .add(() => this.loading = false);

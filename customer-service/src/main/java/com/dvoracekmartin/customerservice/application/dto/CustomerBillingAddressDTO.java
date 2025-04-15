@@ -11,4 +11,5 @@ public record CustomerBillingAddressDTO(
         String street,
         String houseNumber,
         String zipCode
-) {}
+) {
+}

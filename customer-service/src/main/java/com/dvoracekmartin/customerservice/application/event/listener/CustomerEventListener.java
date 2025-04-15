@@ -1,27 +1,23 @@
-package com.dvoracekmartin.customerservice.listeners;
+package com.dvoracekmartin.customerservice.application.event.listener;
 
 import com.dvoracekmartin.common.event.UserCreatedEvent;
 import com.dvoracekmartin.customerservice.application.dto.CreateCustomerDTO;
 import com.dvoracekmartin.customerservice.application.service.CustomerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomerConsumer {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CustomerConsumer.class);
+@RequiredArgsConstructor
+@Slf4j
+public class CustomerEventListener {
 
     private final CustomerService customerService;
 
-    public CustomerConsumer(CustomerService customerService) {
-        this.customerService = customerService;
-    }
-
-    @KafkaListener(topics = "${kafka.topic.userCreated}", groupId = "customer-service-group")
+    @KafkaListener(topics = "${global.kafka.topics.users.user-created}", groupId = "customer-service-group")
     public void handleUserCreatedEvent(UserCreatedEvent event) {
-        LOG.info("Received UserCreatedEvent: {}", event);
+        log.info("Received UserCreatedEvent: {}", event);
 
         CreateCustomerDTO createCustomerDTO = new CreateCustomerDTO(
                 event.userId(),

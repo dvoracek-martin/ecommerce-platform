@@ -1,18 +1,18 @@
 <mat-toolbar color="primary">
-  <button mat-icon-button (click)="navigateToRoot()">
+  <button (click)="navigateToRoot()" mat-icon-button>
     <mat-icon>home</mat-icon>
   </button>
   <span>{{ 'APP.TITLE' | translate }}</span>
   <span class="spacer"></span>
 
   <mat-menu #langMenu="matMenu">
-    <button mat-menu-item *ngFor="let lang of languages" (click)="changeLanguage(lang.code)">
+    <button (click)="changeLanguage(lang.code)" *ngFor="let lang of languages" mat-menu-item>
       <mat-icon svgIcon="{{ lang.icon }}"></mat-icon>
       <span>{{ lang.name }}</span>
     </button>
   </mat-menu>
 
-  <button mat-button [matMenuTriggerFor]="langMenu">
+  <button [matMenuTriggerFor]="langMenu" mat-button>
     <mat-icon svgIcon="{{ selectedLanguage.icon }}"></mat-icon>
     <span>{{ selectedLanguage.name }}</span>
     <mat-icon>arrow_drop_down</mat-icon>
@@ -20,24 +20,24 @@
 
   <div class="user-menu">
     <mat-menu #userMenu="matMenu">
-      <button mat-menu-item (click)="navigateToProfile()">
+      <button (click)="navigateToProfile()" mat-menu-item>
         <mat-icon>account_circle</mat-icon>
         <span>{{ 'AUTH.PROFILE' | translate }}</span>
       </button>
-      <button mat-menu-item (click)="logout()">
+      <button (click)="logout()" mat-menu-item>
         <mat-icon>logout</mat-icon>
         <span>{{ 'AUTH.LOGOUT' | translate }}</span>
       </button>
     </mat-menu>
 
-    <button mat-icon-button
+    <button *ngIf="authService.isAuthenticated$ | async; else loginBtn"
             [matMenuTriggerFor]="userMenu"
-            *ngIf="authService.isAuthenticated$ | async; else loginBtn">
+            mat-icon-button>
       <mat-icon>account_circle</mat-icon>
     </button>
 
     <ng-template #loginBtn>
-      <button mat-icon-button (click)="onUserIconClick()">
+      <button (click)="onUserIconClick()" mat-icon-button>
         <mat-icon>account_circle</mat-icon>
       </button>
     </ng-template>
@@ -46,4 +46,4 @@
 
 <router-outlet></router-outlet>
 
-<app-auth-popup *ngIf="isPopupOpen" (closePopup)="closeAuthPopup()"></app-auth-popup>
+<app-auth-popup (closePopup)="closeAuthPopup()" *ngIf="isPopupOpen"></app-auth-popup>

@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, FormGroupDirective, ValidatorFn, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../../auth/auth.service';
-import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { TranslateService } from '@ngx-translate/core';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import {Component, OnInit} from '@angular/core';
+import {AbstractControl, FormBuilder, FormGroup, FormGroupDirective, ValidatorFn, Validators} from '@angular/forms';
+import {HttpClient} from '@angular/common/http';
+import {AuthService} from '../../auth/auth.service';
+import {Router} from '@angular/router';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {TranslateService} from '@ngx-translate/core';
+import {MatIconRegistry} from '@angular/material/icon';
+import {DomSanitizer} from '@angular/platform-browser';
+import {animate, state, style, transition, trigger} from '@angular/animations';
 
 interface Customer {
   id: string;
@@ -90,6 +90,58 @@ export class CustomerDetailComponent implements OnInit {
     this.loadCustomerData();
   }
 
+  onSave(): void {
+    if (this.customerForm.invalid) {
+      this.showSnackbar('ERRORS.FIX_FORM');
+      return;
+    }
+
+    this.saving = true;
+    const userId = this.authService.getUserId();
+    const token = this.authService.token;
+
+    if (userId && token) {
+      const payload = this.createCustomerPayload();
+
+      this.http.put(`http://localhost:8080/api/customers/v1/${userId}`, payload, {
+        headers: {'Authorization': `Bearer ${token}`}
+      }).subscribe({
+        next: () => this.handleSaveSuccess(),
+        error: (err) => this.handleSaveError(err)
+      });
+    } else {
+      this.saving = false;
+    }
+  }
+
+  onChangePassword(formDirective: FormGroupDirective): void {
+    const passwordGroup = this.passwordForm.get('passwordChange');
+
+    if (!passwordGroup || passwordGroup.invalid) {
+      this.showSnackbar('ERRORS.FIX_FORM');
+      return;
+    }
+
+    this.savingPassword = true;
+    const userId = this.authService.getUserId();
+    const token = this.authService.token;
+
+    if (userId && token) {
+      const {currentPassword, newPassword} = passwordGroup.value;
+
+      this.http.put(
+        `http://localhost:8080/api/users/v1/${userId}/password`,
+        {currentPassword, newPassword},
+        {headers: {'Authorization': `Bearer ${token}`}}
+      ).subscribe({
+        next: () => this.handlePasswordChangeSuccess(formDirective),
+        error: (err) => this.handlePasswordChangeError(err, userId)
+      }).add(() => {
+        this.savingPassword = false;
+      });
+    }
+  }
+
   private initializeForms(): void {
     this.customerForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -127,7 +179,7 @@ export class CustomerDetailComponent implements OnInit {
           Validators.pattern(/^\S+$/)
         ]],
         confirmNewPassword: ['', Validators.required]
-      }, { validators: this.passwordMatchValidator() })
+      }, {validators: this.passwordMatchValidator()})
     });
 
     this.setupBillingAddressValidation();
@@ -181,7 +233,7 @@ export class CustomerDetailComponent implements OnInit {
 
     if (userId && token) {
       this.http.get<Customer>(`http://localhost:8080/api/customers/v1/${userId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {'Authorization': `Bearer ${token}`}
       }).subscribe({
         next: (customer) => this.handleCustomerDataSuccess(customer),
         error: (err) => this.handleError(err)
@@ -243,33 +295,9 @@ export class CustomerDetailComponent implements OnInit {
       const newPassword = group.get('newPassword')?.value;
       const confirmNewPassword = group.get('confirmNewPassword')?.value;
       return newPassword && confirmNewPassword && newPassword !== confirmNewPassword
-        ? { mismatch: true }
+        ? {mismatch: true}
         : null;
     };
-  }
-
-  onSave(): void {
-    if (this.customerForm.invalid) {
-      this.showSnackbar('ERRORS.FIX_FORM');
-      return;
-    }
-
-    this.saving = true;
-    const userId = this.authService.getUserId();
-    const token = this.authService.token;
-
-    if (userId && token) {
-      const payload = this.createCustomerPayload();
-
-      this.http.put(`http://localhost:8080/api/customers/v1/${userId}`, payload, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }).subscribe({
-        next: () => this.handleSaveSuccess(),
-        error: (err) => this.handleSaveError(err)
-      });
-    } else {
-      this.saving = false;
-    }
   }
 
   private createCustomerPayload() {
@@ -281,7 +309,7 @@ export class CustomerDetailComponent implements OnInit {
       firstName: formValue.firstName,
       lastName: formValue.lastName,
       phone: formValue.phone,
-      address: { ...formValue.address },
+      address: {...formValue.address},
       billingAddress: useShippingAddress
         ? {
           firstName: formValue.firstName,
@@ -321,34 +349,6 @@ export class CustomerDetailComponent implements OnInit {
     console.error('Error saving customer details:', err);
   }
 
-  onChangePassword(formDirective: FormGroupDirective): void {
-    const passwordGroup = this.passwordForm.get('passwordChange');
-
-    if (!passwordGroup || passwordGroup.invalid) {
-      this.showSnackbar('ERRORS.FIX_FORM');
-      return;
-    }
-
-    this.savingPassword = true;
-    const userId = this.authService.getUserId();
-    const token = this.authService.token;
-
-    if (userId && token) {
-      const { currentPassword, newPassword } = passwordGroup.value;
-
-      this.http.put(
-        `http://localhost:8080/api/users/v1/${userId}/password`,
-        { currentPassword, newPassword },
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      ).subscribe({
-        next: () => this.handlePasswordChangeSuccess(formDirective),
-        error: (err) => this.handlePasswordChangeError(err, userId)
-      }).add(() => {
-        this.savingPassword = false;
-      });
-    }
-  }
-
   private handlePasswordChangeSuccess(formDirective: FormGroupDirective): void {
     this.showSnackbar('CUSTOMER.PASSWORD_CHANGE_SUCCESS');
     formDirective.resetForm();
@@ -367,7 +367,7 @@ export class CustomerDetailComponent implements OnInit {
     this.snackBar.open(
       this.translate.instant(translationKey),
       this.translate.instant('COMMON.CLOSE'),
-      { duration: 5000 }
+      {duration: 5000}
     );
   }
 

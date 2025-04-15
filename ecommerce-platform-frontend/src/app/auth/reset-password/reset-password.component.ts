@@ -1,4 +1,4 @@
-import {Component, OnInit, Output, EventEmitter} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {HttpClient} from '@angular/common/http';
@@ -53,7 +53,7 @@ export class ResetPasswordComponent implements OnInit {
     this.http.post('http://localhost:8080/api/users/v1/reset-password', payload,
       {responseType: 'text'} // Explicitly expect text to avoid JSON parsing errors
     ).subscribe({
-      next: (response: any) => {
+      next: () => {
         this.resetForm.reset();
         this.snackBar.open(
           this.translate.instant('RESET_PASSWORD.SUCCESS'),

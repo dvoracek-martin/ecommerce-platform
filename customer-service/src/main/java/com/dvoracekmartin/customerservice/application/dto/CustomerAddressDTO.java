@@ -7,4 +7,5 @@ public record CustomerAddressDTO(
         String phone,
         String houseNumber,
         String zipCode
-) {}
+) {
+}

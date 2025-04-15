@@ -1,7 +1,7 @@
 package com.dvoracekmartin.catalogservice.application.service;
 
 import com.dvoracekmartin.catalogservice.application.dto.*;
-import com.dvoracekmartin.common.dto.ResponseProductStockDTO;
+import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -20,9 +20,9 @@ public interface CatalogService {
 
     ResponseProductDTO updateProduct(Long id, UpdateProductDTO updateProductDTO);
 
-    ResponseProductStockDTO updateProductStockDTO(Long id, @Valid UpdateProductStockDTO updateProductStockDTO);
+    ResponseProductStockEvent updateProductStockDTO(Long id, @Valid UpdateProductStockDTO updateProductStockDTO);
 
-    ResponseProductStockDTO getProductStock(Long productId);
+    ResponseProductStockEvent getProductStock(Long productId);
 
     List<ResponseMixtureDTO> createMixture(@Valid List<CreateMixtureDTO> createMixtureDTO);
 
