@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record UpdateProductDTO(
+        Long id,
         String name,
         String description,
         BigDecimal price,
@@ -19,6 +20,7 @@ public record UpdateProductDTO(
         String medicinalUse,
         Double weightGrams,
         List<String> allergens,
-        List<String> tags
+        List<String> tags,
+        List<UploadMediaDTO> uploadMediaDTOs
 ) {
 }

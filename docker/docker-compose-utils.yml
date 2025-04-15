@@ -70,6 +70,7 @@ services:
 
   mailhog:
     image: mailhog/mailhog
+    container_name: mailhog-service
     ports:
       - "1025:1025"
       - "7999:8025"
@@ -89,7 +90,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: kafdrop-service
+    container_name: minio-service
     ports:
       - "1000:9000"
       - "1001:9001" # MinIO Console
@@ -98,7 +99,7 @@ services:
     environment:
       MINIO_ROOT_USER: your_access_key
       MINIO_ROOT_PASSWORD: your_secret_key
-    command: ["server", "/data", "--console-address", ":1001"]
+    command: ["server", "/data", "--console-address", ":9001"]
 
   prometheus:
     image: prom/prometheus

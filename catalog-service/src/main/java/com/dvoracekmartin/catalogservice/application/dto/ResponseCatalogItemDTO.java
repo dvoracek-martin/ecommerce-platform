@@ -10,7 +10,8 @@ public record ResponseCatalogItemDTO(
         BigDecimal price,
         List<String> images,
         String type, // "product" or "mixture"
-        List<ResponseCatalogItemDTO> products
+        List<ResponseProductDTO> productDTOs,
+        List<ResponseMediaDTO> responseMediaDTOs
         // TODO add other fields as needed
 ) {
 }

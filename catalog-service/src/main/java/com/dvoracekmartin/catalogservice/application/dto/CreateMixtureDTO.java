@@ -19,6 +19,7 @@ public record CreateMixtureDTO(
         @NotNull Double totalWeightGrams,
         List<String> tags,
         boolean isCustomizable,
-        String customizationOptions
+        String customizationOptions,
+        List<UploadMediaDTO> uploadMediaDTOs
 ) {
 }

@@ -1,10 +1,11 @@
-package com.dvoracekmartin.catalogservice.domain.service;
+package com.dvoracekmartin.catalogservice.application.service.media;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -12,15 +13,14 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
-import jakarta.annotation.PostConstruct;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
-public class MinIOMediaRetriever {
+@Service
+public class MinIOMediaRetriever implements MediaRetriever {
 
     @Value("${minio.endpoint}")
     private String minioEndpoint;
@@ -31,8 +31,6 @@ public class MinIOMediaRetriever {
     @Value("${minio.secret-key}")
     private String secretKey;
 
-    @Value("${minio.bucket-name}")
-    private String bucketName;
 
     private S3Client s3Client;
 
@@ -48,7 +46,7 @@ public class MinIOMediaRetriever {
     }
 
     @Cacheable(value = "mediaContent", key = "#objectKey")
-    public byte[] retrieveMedia(String objectKey) {
+    public byte[] retrieveMedia(String objectKey, String bucketName) {
         try {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucketName)
@@ -68,7 +66,7 @@ public class MinIOMediaRetriever {
     }
 
     @Cacheable(value = "folderContents", key = "#folderName")
-    public List<String> listMediaKeysInFolder(String folderName) {
+    public List<String> listMediaKeysInFolder(String folderName, String bucketName) {
         ListObjectsV2Request listObjectsRequest = ListObjectsV2Request.builder()
                 .bucket(bucketName)
                 .prefix(folderName.endsWith("/") ? folderName : folderName + "/")

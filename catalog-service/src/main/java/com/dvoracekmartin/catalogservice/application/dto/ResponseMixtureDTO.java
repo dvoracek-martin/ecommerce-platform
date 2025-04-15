@@ -17,6 +17,7 @@ public record ResponseMixtureDTO(
         Double totalWeightGrams,
         List<String> tags,
         boolean isCustomizable,
-        String customizationOptions
+        String customizationOptions,
+        List<ResponseMediaDTO> responseMediaDTOs
 ) {
 }

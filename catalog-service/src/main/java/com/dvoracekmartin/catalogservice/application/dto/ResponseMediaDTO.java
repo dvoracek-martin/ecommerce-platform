@@ -1,6 +1,6 @@
 package com.dvoracekmartin.catalogservice.application.dto;
 
-public record MediaUploadRequestDTO(
+public record ResponseMediaDTO(
         String base64Data, String objectKey, String contentType
 ) {
 }

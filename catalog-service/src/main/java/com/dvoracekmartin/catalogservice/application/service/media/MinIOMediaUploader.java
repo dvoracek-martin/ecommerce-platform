@@ -1,10 +1,10 @@
-package com.dvoracekmartin.catalogservice.domain.service;
+package com.dvoracekmartin.catalogservice.application.service.media;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -18,9 +18,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
-@Component
+@Service
 @RequiredArgsConstructor
-public class MinIOMediaUploader {
+public class MinIOMediaUploader implements MediaUploader {
 
     @Value("${minio.endpoint}")
     private String minioEndpoint;
@@ -31,13 +31,11 @@ public class MinIOMediaUploader {
     @Value("${minio.secret-key}")
     private String secretKey;
 
-    @Value("${minio.bucket-name}")
     private String bucketName;
 
     private S3Client s3Client;
 
-    private final MinIOMediaRetriever mediaRetriever;
-
+    private final MediaRetriever mediaRetriever;
 
     @PostConstruct
     private void initializeClient() {
@@ -48,11 +46,9 @@ public class MinIOMediaUploader {
                         AwsBasicCredentials.create(accessKey, secretKey)))
                 .forcePathStyle(true)
                 .build();
-
-        createBucketIfNotExists();
     }
 
-    public void createBucketIfNotExists() {
+    private void createBucketIfNotExists() {
         try {
             s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
             log.info("Bucket '{}' already exists", bucketName);
@@ -66,21 +62,12 @@ public class MinIOMediaUploader {
         }
     }
 
-    public String uploadBase64Image(String base64Image, String objectKey, String contentType) {
-        return uploadBase64(base64Image, objectKey, contentType);
-    }
-
-    public String uploadBase64Video(String base64Video, String objectKey, String contentType) {
-        return uploadBase64(base64Video, objectKey, contentType);
-    }
-
-    private String uploadBase64(String base64Data, String objectKey, String contentType) {
+    public String uploadBase64(String base64Data, String categoryName, String objectKey, String contentType, String bucketName, String objectName) {
+        this.bucketName = bucketName;
+        categoryName = categoryName.replaceAll("\\s", "-");
         createBucketIfNotExists();
-
-        String folderPath = bucketName + "/" + getBaseNameWithoutExtension(objectKey);
-        String baseName = getBaseNameWithoutExtension(objectKey);
         String extension = getExtension(objectKey);
-        String finalObjectKey = findUniqueObjectName(folderPath + "/" + baseName, extension);
+        String finalObjectKey = findUniqueObjectName(categoryName + "/" + categoryName, extension);
 
         try {
             byte[] dataBytes = Base64.getDecoder().decode(base64Data);
@@ -108,6 +95,27 @@ public class MinIOMediaUploader {
             log.error("Upload failed: {}", e.getMessage());
             return null;
         }
+    }
+
+    @Override
+    public void deleteMedia(String imageUrl) {
+        // Step 1: Remove base URL and get the path inside the bucket
+        String urlWithoutBase = imageUrl.substring(imageUrl.indexOf(minioEndpoint) + minioEndpoint.length() + 1);
+
+        // Step 2: Extract bucket name (first segment)
+        String bucketName = urlWithoutBase.substring(0, urlWithoutBase.indexOf('/'));
+
+        // Step 3: Extract the full key (everything after the first slash)
+        String key = urlWithoutBase.substring(bucketName.length() + 1);
+
+        key = key.replaceAll("\\s", "-");
+        // Step 4: Delete object
+        s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build());
+
+        System.out.println("Deleted from bucket: " + bucketName + ", key: " + key);
     }
 
     private void evictRelatedCaches(String finalObjectKey) {
@@ -172,12 +180,6 @@ public class MinIOMediaUploader {
         } catch (NoSuchKeyException e) {
             return false;
         }
-    }
-
-    private String getBaseNameWithoutExtension(String objectKey) {
-        String fileName = objectKey.substring(objectKey.lastIndexOf('/') + 1);
-        int dotIndex = fileName.lastIndexOf('.');
-        return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
     }
 
     private String getExtension(String objectKey) {

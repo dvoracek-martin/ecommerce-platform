@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record UpdateMixtureDTO(
+        Long id,
         String name,
         String description,
         BigDecimal price,
@@ -16,6 +17,7 @@ public record UpdateMixtureDTO(
         Double totalWeightGrams,
         List<String> tags,
         boolean isCustomizable,
-        String customizationOptions
+        String customizationOptions,
+        List<UploadMediaDTO> uploadMediaDTOs
 ) {
 }

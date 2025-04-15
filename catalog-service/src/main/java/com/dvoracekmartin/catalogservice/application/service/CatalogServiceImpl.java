@@ -2,6 +2,8 @@ package com.dvoracekmartin.catalogservice.application.service;
 
 import com.dvoracekmartin.catalogservice.application.dto.*;
 import com.dvoracekmartin.catalogservice.application.event.publisher.CatalogEventPublisher;
+import com.dvoracekmartin.catalogservice.application.service.media.MediaRetriever;
+import com.dvoracekmartin.catalogservice.application.service.media.MediaUploader;
 import com.dvoracekmartin.catalogservice.domain.model.Category;
 import com.dvoracekmartin.catalogservice.domain.model.Mixture;
 import com.dvoracekmartin.catalogservice.domain.model.Product;
@@ -18,8 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -29,12 +34,17 @@ import static java.util.Objects.nonNull;
 @Slf4j
 public class CatalogServiceImpl implements CatalogService {
 
+    private static final String CATEGORY_BUCKET = "categories";
+    private static final String PRODUCT_BUCKET = "products";
+    private static final String MIXTURE_BUCKET = "mixtures";
     private final CatalogEventPublisher catalogEventPublisher;
     private final ProductRepository productRepository;
     private final MixtureRepository mixtureRepository;
     private final CategoryRepository categoryRepository;
     private final CatalogMapper catalogMapper;
     private final CatalogDomainService catalogDomainService;
+    private final MediaUploader mediaUploader;
+    private final MediaRetriever mediaRetriever;
 
     @Override
     public List<ResponseProductDTO> getAllProducts() {
@@ -69,10 +79,45 @@ public class CatalogServiceImpl implements CatalogService {
 
     @Override
     public List<ResponseCategoryDTO> getAllCategories() {
-        log.info("Fetching all categories");
+        log.info("Fetching all categories with media");
         return categoryRepository.findAll().stream()
-                .map(catalogMapper::mapCategoryToResponseCategoryDTO)
+                .map(category -> {
+                    // 1) List all object keys in the folder named after the category
+                    List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), CATEGORY_BUCKET);
+
+                    // 2) For each key, download bytes, encode to Base64, and derive a contentType
+                    List<ResponseMediaDTO> mediaDTOs = keys.stream()
+                            .map(key -> {
+                                byte[] data = mediaRetriever.retrieveMedia(key,CATEGORY_BUCKET);
+                                String base64 = data != null
+                                        ? Base64.getEncoder().encodeToString(data)
+                                        : null;
+                                String contentType = deriveContentTypeFromKey(key);
+                                return new ResponseMediaDTO(base64, key, contentType);
+                            })
+                            .toList();
+
+                    // 3) Build the full DTO
+                    return new ResponseCategoryDTO(
+                            category.getId(),
+                            category.getName(),
+                            category.getDescription(),
+                            category.getCategoryType(),
+                            mediaDTOs
+                    );
+                })
                 .toList();
+    }
+
+    /** Simple helper to guess a MIME type from the file extension */
+    private String deriveContentTypeFromKey(String key) {
+        if (key.endsWith(".png"))       return "image/png";
+        if (key.endsWith(".jpg")
+                || key.endsWith(".jpeg"))      return "image/jpeg";
+        if (key.endsWith(".gif"))       return "image/gif";
+        if (key.endsWith(".mp4"))       return "video/mp4";
+        // …add more as you need…
+        return "application/octet-stream";
     }
 
     @Override
@@ -149,12 +194,56 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<ResponseCategoryDTO> createCategory(@Valid List<CreateCategoryDTO> createCategoryDTOList) {
         log.info("Creating categories: {}", createCategoryDTOList);
-        return categoryRepository.saveAll(createCategoryDTOList.stream()
-                        .map(catalogMapper::mapCreateCategoryDTOToCategory)
-                        .toList())
-                .stream()
-                .map(catalogMapper::mapCategoryToResponseCategoryDTO)
-                .toList();
+        // TODO error message if list is empty
+        return createCategoryDTOList.stream()
+                .filter(dto -> !categoryRepository.existsByName(dto.name()))
+                .map(createCategoryDTO -> {
+                    // Process media uploads and collect image URLs
+                    List<String> imageUrls = new ArrayList<>();
+                    List<ResponseMediaDTO> responseMedia = new ArrayList<>();
+                    if (createCategoryDTO.uploadMediaDTOs() != null) {
+                        for (UploadMediaDTO media : createCategoryDTO.uploadMediaDTOs()) {
+
+                            // Upload media and get public URL
+                            String publicUrl = mediaUploader.uploadBase64(
+                                    media.base64Data(),
+                                    createCategoryDTO.name(),
+                                    media.objectKey(),
+                                    media.contentType(),
+                                    CATEGORY_BUCKET,
+                                    createCategoryDTO.name()
+                            );
+                            if (publicUrl != null) {
+                                imageUrls.add(publicUrl);
+                            }
+                            // Store original base64 data for response
+                            responseMedia.add(new ResponseMediaDTO(
+                                    media.base64Data(),
+                                    createCategoryDTO.categoryType(),
+                                    media.contentType()
+                            ));
+                        }
+                    }
+
+                    // Create and save category
+                    Category category = new Category();
+                    category.setName(createCategoryDTO.name());
+                    category.setDescription(createCategoryDTO.description());
+                    category.setCategoryType(createCategoryDTO.categoryType());
+                    category.setImages(imageUrls);
+
+                    Category savedCategory = categoryRepository.save(category);
+
+                    // Build response with original base64 data
+                    return new ResponseCategoryDTO(
+                            savedCategory.getId(),
+                            savedCategory.getName(),
+                            savedCategory.getDescription(),
+                            savedCategory.getCategoryType(),
+                            responseMedia
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -163,9 +252,55 @@ public class CatalogServiceImpl implements CatalogService {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
 
-        catalogMapper.mapUpdateCategoryDTOToCategory(updateCategoryDTO);
+        // Remove old media
+        for (String imageUrl : existingCategory.getImages()) {
+            mediaUploader.deleteMedia(imageUrl);
+        }
 
-        return catalogMapper.mapCategoryToResponseCategoryDTO(categoryRepository.save(existingCategory));
+        // Process media uploads and collect results
+        List<String> newImageUrls = new ArrayList<>();
+        List<ResponseMediaDTO> responseMedia = new ArrayList<>();
+        if (updateCategoryDTO.uploadMediaDTOs() != null) {
+            for (UploadMediaDTO media : updateCategoryDTO.uploadMediaDTOs()) {
+
+                // Upload media and get public URL
+                String publicUrl = mediaUploader.uploadBase64(
+                        media.base64Data(),
+                        updateCategoryDTO.name(),
+                        media.objectKey(),
+                        media.contentType(),
+                        CATEGORY_BUCKET,
+                        updateCategoryDTO.name()
+                );
+
+                if (publicUrl != null) {
+                    newImageUrls.add(publicUrl);
+                }
+
+                // Store original base64 data for response
+                responseMedia.add(new ResponseMediaDTO(
+                        media.base64Data(),
+                        updateCategoryDTO.categoryType(),
+                        media.contentType()
+                ));
+            }
+        }
+
+        // Update existing category
+        existingCategory.setName(updateCategoryDTO.name());
+        existingCategory.setCategoryType(updateCategoryDTO.categoryType());
+        existingCategory.setDescription(updateCategoryDTO.description());
+        existingCategory.getImages().addAll(newImageUrls);
+        Category savedCategory = categoryRepository.save(existingCategory);
+
+        // Build response with updated data and new media
+        return new ResponseCategoryDTO(
+                savedCategory.getId(),
+                savedCategory.getName(),
+                savedCategory.getDescription(),
+                savedCategory.getCategoryType(),
+                responseMedia
+        );
     }
 
     @Override
@@ -180,7 +315,31 @@ public class CatalogServiceImpl implements CatalogService {
 
     @Override
     public ResponseCategoryDTO getCategoryById(Long id) {
-        return getEntityById(id, categoryRepository::findById, catalogMapper::mapCategoryToResponseCategoryDTO, "Category");
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+
+        // Get basic DTO without media content
+        ResponseCategoryDTO basicDto = catalogMapper.mapCategoryToResponseCategoryDTO(category);
+
+        // Enrich with media content
+        List<ResponseMediaDTO> enrichedMedia = basicDto.responseMediaDTOs().stream()
+                .map(media -> {
+                    byte[] mediaBytes = mediaRetriever.retrieveMedia(media.objectKey(),CATEGORY_BUCKET);
+                    return new ResponseMediaDTO(
+                            mediaBytes != null ? Base64.getEncoder().encodeToString(mediaBytes) : null,
+                            media.objectKey(),
+                            media.contentType()
+                    );
+                })
+                .toList();
+
+        return new ResponseCategoryDTO(
+                basicDto.id(),
+                basicDto.name(),
+                basicDto.description(),
+                basicDto.categoryType(),
+                enrichedMedia
+        );
     }
 
     @Override
@@ -198,6 +357,13 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public void deleteCategoryById(Long id) {
         log.info("Deleting category with id: {}", id);
+        Optional<Category> category = categoryRepository.findById(id);
+        if (category.isPresent()) {
+            // Delete associated media files
+            for (String imageUrl : category.get().getImages()) {
+                mediaUploader.deleteMedia(imageUrl);
+            }
+        }
         categoryRepository.deleteById(id);
     }
 
