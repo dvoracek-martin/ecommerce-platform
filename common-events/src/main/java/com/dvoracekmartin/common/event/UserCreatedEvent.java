@@ -7,4 +7,5 @@ public record UserCreatedEvent(
         String username,
         String email,
         Instant createdAt
-) {}
+) {
+}
