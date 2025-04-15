@@ -1,0 +1,49 @@
+<div class="categories-container">
+  <h1>Product Categories</h1>
+
+  <div *ngIf="isLoading" class="loading">Loading categories...</div>
+  <div *ngIf="error" class="error">Error loading categories: {{ error }}</div>
+
+  @if (!isLoading && !error) {
+    <div class="categories-grid">
+      @for (category of categories; track category.id; let catIndex = $index) {
+        <div class="category-card">
+          <div class="category-header">
+            <h2>{{ category.name }}</h2>
+            <span class="category-type">{{ category.categoryType }}</span>
+          </div>
+          <p class="category-description">{{ category.description }}</p>
+
+          @if (category.responseMediaDTOs?.length) {
+            <div class="media-carousel">
+              @for (media of category.responseMediaDTOs; track media.objectKey; let i = $index) {
+                <div class="slide" [class.active]="activeSlideIndices[catIndex] === i">
+                  @if (media.contentType.startsWith('image/')) {
+                    <img [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                         [alt]="media.objectKey"
+                         class="media-content">
+                  }
+                  @if (media.contentType.startsWith('video/')) {
+                    <video muted autoplay loop class="media-content">
+                      <source [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                              [type]="media.contentType">
+                    </video>
+                  }
+                </div>
+              }
+              <div class="carousel-controls">
+                @for (media of category.responseMediaDTOs; track media.objectKey; let i = $index) {
+                  <button class="dot"
+                          [class.active]="activeSlideIndices[catIndex] === i"
+                          (click)="setActiveSlide(catIndex, i)"></button>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="no-media">No media available for this category</div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

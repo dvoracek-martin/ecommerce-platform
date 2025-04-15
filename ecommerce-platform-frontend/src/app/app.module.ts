@@ -21,6 +21,7 @@ import {ForgotPasswordComponent} from './auth/forgot-password/forgot-password.co
 import {ResetPasswordComponent} from './auth/reset-password/reset-password.component';
 import {MixingComponent} from './layout/mixing/mixing.component';
 import {ProductsComponent} from './layout/products/products.component';
+import {CategoriesComponent} from './layout/categories/categories.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import {ProductsComponent} from './layout/products/products.component';
     ForgotPasswordComponent,
     ResetPasswordComponent,
     MixingComponent,
-    ProductsComponent
+    ProductsComponent,
+    CategoriesComponent,
   ],
   imports: [
     BrowserModule,

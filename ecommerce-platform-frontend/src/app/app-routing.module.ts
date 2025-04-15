@@ -7,12 +7,14 @@ import {AuthGuard} from './auth/auth.guard';
 import {ResetPasswordComponent} from './auth/reset-password/reset-password.component';
 import {ProductsComponent} from './layout/products/products.component';
 import {MixingComponent} from './layout/mixing/mixing.component';
+import {CategoriesComponent} from './layout/categories/categories.component';
 
 const routes: Routes = [
   {path: 'customer', component: CustomerDetailComponent, canActivate: [AuthGuard]},  // Moved up
   {path: 'register', component: UserRegistrationComponent},
   {path: 'reset-password', component: ResetPasswordComponent},
   {path: 'products', component: ProductsComponent},
+  {path: 'categories', component: CategoriesComponent},
   {path: 'mixing', component: MixingComponent},
   {path: '', component: WelcomeComponent},
   {path: '**', redirectTo: ''}

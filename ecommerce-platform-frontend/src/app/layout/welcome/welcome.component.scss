@@ -35,6 +35,14 @@
       }
     }
 
+    .category-button {
+      background-color: #ffa500;
+      color: white;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
     .mixing-button {
       background-color: #28a745;
       color: white;
