@@ -2,6 +2,7 @@ package com.dvoracekmartin.catalogservice.v1;
 
 import com.dvoracekmartin.catalogservice.application.dto.*;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
+import com.dvoracekmartin.catalogservice.domain.service.MinIOMediaUploader;
 import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -23,7 +25,95 @@ import java.util.List;
 public class CatalogAdminControllerV1 {
 
     private final CatalogService catalogService;
+    private final MinIOMediaUploader mediaUploader;
 
+    @PostMapping("/media/upload-images")
+    public ResponseEntity<List<MediaUploadResponseDTO>> uploadImages(
+            @Valid @RequestBody List<MediaUploadRequestDTO> requests) {
+
+        List<MediaUploadResponseDTO> responses = new ArrayList<>();
+
+        for (MediaUploadRequestDTO request : requests) {
+            if (!request.contentType().startsWith("image/")) {
+                responses.add(new MediaUploadResponseDTO(
+                        "error",
+                        null,
+                        "Invalid content type for image upload: " + request.contentType()
+                ));
+                continue;
+            }
+
+            try {
+                String url = mediaUploader.uploadBase64Image(
+                        request.base64Data(),
+                        request.objectKey(),
+                        request.contentType()
+                );
+
+                responses.add(new MediaUploadResponseDTO(
+                        "success",
+                        url,
+                        "Upload successful"
+                ));
+
+            } catch (Exception e) {
+                log.error("Failed to upload image: {}", e.getMessage());
+                responses.add(new MediaUploadResponseDTO(
+                        "error",
+                        null,
+                        "Upload failed: " + e.getMessage()
+                ));
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(responses);
+    }
+
+    @PostMapping("/media/upload-image")
+    public ResponseEntity<String> uploadImage(@Valid @RequestBody MediaUploadRequestDTO request) {
+        if (!request.contentType().startsWith("image/")) {
+            log.error("Invalid content type for image upload: {}", request.contentType());
+            return ResponseEntity.badRequest().body("Content type must be an image");
+        }
+
+        String url = mediaUploader.uploadBase64Image(
+                request.base64Data(),
+                request.objectKey(),
+                request.contentType()
+        );
+
+        if (url != null) {
+            log.info("Image uploaded successfully to: {}", url);
+            return ResponseEntity.ok(url);
+        } else {
+            log.error("Failed to upload image with key: {}", request.objectKey());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/media/upload-video")
+    public ResponseEntity<String> uploadVideo(@Valid @RequestBody MediaUploadRequestDTO request) {
+        if (!request.contentType().startsWith("video/")) {
+            log.error("Invalid content type for video upload: {}", request.contentType());
+            return ResponseEntity.badRequest().body("Content type must be a video");
+        }
+
+        String url = mediaUploader.uploadBase64Video(
+                request.base64Data(),
+                request.objectKey(),
+                request.contentType()
+        );
+
+        if (url != null) {
+            log.info("Video uploaded successfully to: {}", url);
+            return ResponseEntity.ok(url);
+        } else {
+            log.error("Failed to upload video with key: {}", request.objectKey());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    
     @GetMapping("/all-products-and-mixtures")
     public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
         log.info("Admin fetching all products and mixtures");

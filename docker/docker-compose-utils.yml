@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:16
+    image: postgres:latest
     container_name: keycloak-service-postgres-db
     environment:
       POSTGRES_DB: keycloak
@@ -12,18 +12,6 @@ services:
       - "5432:5432"
     volumes:
       - keycloak_postgres_data:/var/lib/postgresql/data
-
-  postgres-strapi:
-    image: postgres:16
-    container_name: strapi-postgres-db
-    environment:
-      POSTGRES_DB: strapi
-      POSTGRES_USER: strapi_user
-      POSTGRES_PASSWORD: strapi_password
-    ports:
-      - "5433:5432"
-    volumes:
-      - strapi_postgres_data:/var/lib/postgresql/data
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.2
@@ -45,7 +33,7 @@ services:
       --spi-import-file=/opt/keycloak/data/import/keycloak-ecommerce-platform-realm.json
     volumes:
       - keycloak_data:/opt/keycloak/data
-      - ./keycloak-ecommerce-platform-realm.json:/opt/keycloak/data/import/keycloak-ecommerce-platform-realm.json:ro
+      - ./config/keycloak/keycloak-ecommerce-platform-realm.json:/opt/keycloak/data/import/keycloak-ecommerce-platform-realm.json:ro
     depends_on:
       - postgres
     restart: always
@@ -86,30 +74,8 @@ services:
       - "1025:1025"
       - "7999:8025"
 
-  strapi:
-    image: strapi/strapi:latest
-    container_name: strapi-service
-    ports:
-      - "1337:1337"
-    environment:
-      DATABASE_CLIENT: postgres
-      DATABASE_HOST: postgres-strapi
-      DATABASE_PORT: 5432
-      DATABASE_NAME: strapi
-      DATABASE_USERNAME: strapi_user
-      DATABASE_PASSWORD: strapi_password
-      JWT_SECRET: some-random-jwt-secret
-      ADMIN_JWT_SECRET: some-random-admin-jwt-secret
-      APP_KEYS: some-random-app-keys
-    volumes:
-      - strapi_data:/srv/strapi
-    depends_on:
-      - postgres-strapi
-    networks:
-      - default
-
   kafdrop:
-    image: obsidiandynamics/kafdrop:3.30.0
+    image: obsidiandynamics/kafdrop:latest
     container_name: kafdrop
     depends_on:
       - kafka
@@ -121,12 +87,26 @@ services:
     networks:
       - kafka-network
 
+  minio:
+    image: minio/minio:latest
+    container_name: kafdrop-service
+    ports:
+      - "1000:9000"
+      - "1001:9001" # MinIO Console
+    volumes:
+      - ./data:/data
+    environment:
+      MINIO_ROOT_USER: your_access_key
+      MINIO_ROOT_PASSWORD: your_secret_key
+    command: ["server", "/data", "--console-address", ":1001"]
+
   prometheus:
     image: prom/prometheus
+    container_name: prometheus
     ports:
       - "9004:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
   grafana:
     image: grafana/grafana
@@ -141,8 +121,6 @@ volumes:
   keycloak_postgres_data:
   keycloak_data:
   kafka_data:
-  strapi_postgres_data:
-  strapi_data:
 
 networks:
   kafka-network:

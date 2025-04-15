@@ -7,6 +7,7 @@ import com.dvoracekmartin.inventoryservice.domain.model.Inventory;
 import com.dvoracekmartin.inventoryservice.domain.repository.InventoryRepository;
 import com.dvoracekmartin.inventoryservice.event.publisher.InventoryEventPublisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -39,10 +40,16 @@ public class InventoryEventListener {
 
             Optional<Inventory> productInventoryOptional = inventoryRepository.findByProductId(productId);
 
-            inventoryEventPublisher.sendInventoryResponse(productId, productInventoryOptional);
+            sendInventoryResponseWithCircuitBreaker(productId, productInventoryOptional);
+
         } catch (Exception e) {
             log.error("Error handling inventory request:", e);
         }
+    }
+
+    @CircuitBreaker(name = "inventoryEventPublisher", fallbackMethod = "sendInventoryResponseFallback")
+    public void sendInventoryResponseWithCircuitBreaker(Long productId, Optional<Inventory> productInventoryOptional) throws Exception {
+        inventoryEventPublisher.sendInventoryResponse(productId, productInventoryOptional);
     }
 
     private Long extractProductId(Map<String, Object> request, String message) {

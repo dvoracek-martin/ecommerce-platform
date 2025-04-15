@@ -2,6 +2,7 @@ package com.dvoracekmartin.inventoryservice.event.publisher;
 
 import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import com.dvoracekmartin.inventoryservice.domain.model.Inventory;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,10 +21,10 @@ public class InventoryEventPublisher {
     @Value("${global.kafka.topics.inventories.inventory-response}")
     private String inventoryResponseTopic;
 
-
-    public void sendInventoryResponse(Long productId, Optional<Inventory> productInventoryOptional) throws Exception {
+    @CircuitBreaker(name = "kafkaBroker", fallbackMethod = "sendInventoryResponseFallback")
+    public void sendInventoryResponse(Long productId, Optional<Inventory> productInventoryOptional) {
         int stock = productInventoryOptional.map(Inventory::getStock).orElse(0);
-        ResponseProductStockEvent response = new ResponseProductStockEvent(productId, stock); // Use your record
+        ResponseProductStockEvent response = new ResponseProductStockEvent(productId, stock);
 
         kafkaTemplate.send(inventoryResponseTopic, response);
 
