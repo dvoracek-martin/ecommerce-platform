@@ -35,7 +35,8 @@ public class UserControllerV1 {
     @PostMapping("/create")
     public ResponseEntity<ResponseUserDTO> createUser(@Valid @RequestBody CreateUserDTO createUserDTO) {
         log.info("Creating new user");
-        return ResponseEntity.status(userService.createUser(createUserDTO).statusCode()).body(userService.createUser(createUserDTO));
+        ResponseUserDTO response = userService.createUser(createUserDTO);
+        return ResponseEntity.status(response.statusCode()).body(response);
     }
 
     @PutMapping("/{userId}")
@@ -44,7 +45,8 @@ public class UserControllerV1 {
                                                       @Valid @RequestBody UpdateUserDTO updateUserDTO) {
         checkAccessOrThrow(userId);
         log.info("Updating user: {}", userId);
-        return ResponseEntity.status(userService.updateUser(userId, updateUserDTO).statusCode()).body(userService.updateUser(userId, updateUserDTO));
+        ResponseUserDTO response = userService.updateUser(userId, updateUserDTO);
+        return ResponseEntity.status(response.statusCode()).body(response);
     }
 
     @PutMapping("/{userId}/password")
@@ -53,14 +55,16 @@ public class UserControllerV1 {
                                                               @Valid @RequestBody UpdateUserPasswordDTO updateUserPasswordDTO) {
         checkAccessOrThrow(userId);
         log.info("Updating password for user: {}", userId);
-        return ResponseEntity.status(userService.updateUserPassword(userId, updateUserPasswordDTO).statusCode()).body(userService.updateUserPassword(userId, updateUserPasswordDTO));
+        ResponseUserDTO response = userService.updateUserPassword(userId, updateUserPasswordDTO);
+        return ResponseEntity.status(response.statusCode()).body(response);
     }
 
     @PostMapping("/forgot-password")
     @PreAuthorize("hasRole('user_client')")
     public ResponseEntity<ResponseUserDTO> forgotUserPassword(@Valid @RequestBody ForgotPasswordDTO dto) {
         log.info("User forgot password: {}", dto.email());
-        return ResponseEntity.status(userService.forgotUserPassword(dto).statusCode()).body(userService.forgotUserPassword(dto));
+        ResponseUserDTO response = userService.forgotUserPassword(dto);
+        return ResponseEntity.status(response.statusCode()).body(response);
     }
 
     @PostMapping("/reset-password")

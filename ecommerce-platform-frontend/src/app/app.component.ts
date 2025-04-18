@@ -1,9 +1,9 @@
-import {Component, OnInit} from '@angular/core';
-import {TranslateService} from '@ngx-translate/core';
-import {MatIconRegistry} from '@angular/material/icon';
-import {DomSanitizer} from '@angular/platform-browser';
-import {AuthService} from './auth/auth.service';
-import {Router} from '@angular/router'; // Add this import
+import { Component, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+import { AuthService } from './auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -14,8 +14,8 @@ import {Router} from '@angular/router'; // Add this import
 export class AppComponent implements OnInit {
   title = 'ecommerce-platform-frontend';
   languages = [
-    {code: 'en', name: 'English', icon: 'flag_us'},
-    {code: 'cs', name: 'Česky', icon: 'flag_cz'}
+    { code: 'en', name: 'English', icon: 'flag_us' },
+    { code: 'cs', name: 'Česky', icon: 'flag_cz' }
   ];
   selectedLanguage = this.languages[0];
   isPopupOpen = false;
@@ -25,7 +25,7 @@ export class AppComponent implements OnInit {
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
     public authService: AuthService,
-    private router: Router // Add this
+    private router: Router
   ) {
     this.matIconRegistry.addSvgIcon(
       'flag_us',
@@ -47,9 +47,7 @@ export class AppComponent implements OnInit {
   }
 
   onUserIconClick(): void {
-    if (this.authService.isTokenValid()) {
-      console.log('Show logout dropdown');
-    } else {
+    if (!this.authService.isTokenValid()) {
       this.isPopupOpen = true;
     }
   }
@@ -72,13 +70,36 @@ export class AppComponent implements OnInit {
   }
 
   navigateToRoot() {
-    this.router.navigateByUrl('/')
-      .then(() => {
-      });
+    this.router.navigate(['/']);
+  }
+
+  navigateToAdminCategories(): void {
+    this.router.navigate(['/admin/categories']);
+  }
+
+  navigateToAdminProducts(): void {
+    this.router.navigate(['/admin/products']);
+  }
+
+  navigateToAdminMixtures(): void {
+    this.router.navigate(['/admin/mixtures']);
+  }
+
+  navigateToAdminCustomers(): void {
+    this.router.navigate(['/admin/customers']);
+  }
+
+  navigateToAdminOrders(): void {
+    this.router.navigate(['/admin/orders']);
+  }
+
+  navigateToClientOrders(): void {
+    this.router.navigate(['/orders']);
   }
 
   private setLanguage(langCode: string): void {
     this.translate.use(langCode);
-    this.selectedLanguage = this.languages.find(lang => lang.code === langCode) || this.languages[0];
+    const foundLang = this.languages.find(lang => lang.code === langCode);
+    this.selectedLanguage = foundLang || this.languages[0];
   }
 }

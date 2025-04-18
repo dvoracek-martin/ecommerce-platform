@@ -22,6 +22,11 @@ import {ResetPasswordComponent} from './auth/reset-password/reset-password.compo
 import {MixingComponent} from './layout/mixing/mixing.component';
 import {ProductsComponent} from './layout/products/products.component';
 import {CategoriesComponent} from './layout/categories/categories.component';
+import {MixturesComponent} from './layout/mixtures/mixtures/mixtures.component';
+import {MixingAdminComponent} from './layout/mixing/admin/mixing-admin.component';
+import {MixturesAdminComponent} from './layout/mixtures/admin/mixtures-admin.component';
+import {ProductsAdminComponent} from './layout/products/admin/products-admin.component';
+import {CategoriesAdminComponent} from './layout/categories/admin/categories-admin.component';
 
 @NgModule({
   declarations: [
@@ -34,8 +39,13 @@ import {CategoriesComponent} from './layout/categories/categories.component';
     ForgotPasswordComponent,
     ResetPasswordComponent,
     MixingComponent,
+    MixturesComponent,
     ProductsComponent,
     CategoriesComponent,
+    MixingAdminComponent,
+    MixturesAdminComponent,
+    ProductsAdminComponent,
+    CategoriesAdminComponent,
   ],
   imports: [
     BrowserModule,

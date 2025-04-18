@@ -1,13 +1,12 @@
-import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
-import {BehaviorSubject, of, throwError} from 'rxjs'; // Add missing imports
-import {catchError, tap} from 'rxjs/operators'; // Add operators
-import {isPlatformBrowser} from '@angular/common';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {HttpClient} from '@angular/common/http';
-import {jwtDecode} from 'jwt-decode';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { BehaviorSubject, of, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { isPlatformBrowser } from '@angular/common';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpClient } from '@angular/common/http';
+import { jwtDecode } from 'jwt-decode';
 
-
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private accessTokenKey = 'access_token';
   private refreshTokenKey = 'refresh_token';
@@ -15,7 +14,6 @@ export class AuthService {
   private refreshTimeout: any;
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  // Keycloak configuration
   private readonly keycloakTokenUrl = 'http://localhost:9090/realms/ecommerce-platform/protocol/openid-connect/token';
   private readonly clientId = 'ecommerce-platform-client';
 
@@ -30,6 +28,24 @@ export class AuthService {
     }
   }
 
+  getRoles(): string[] {
+    const token = this.token;
+    if (!token) return [];
+
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.realm_access?.roles || [];
+    } catch (e) {
+      console.error('Error decoding roles:', e);
+      return [];
+    }
+  }
+
+  hasRole(role: string): boolean {
+    return this.getRoles().includes(role);
+  }
+
+  // Existing methods remain unchanged below
   get token(): string | null {
     if (isPlatformBrowser(this.platformId)) {
       return localStorage.getItem(this.accessTokenKey);
@@ -57,12 +73,12 @@ export class AuthService {
       localStorage.removeItem(this.refreshTokenKey);
       localStorage.removeItem(this.tokenExpirationKey);
       clearTimeout(this.refreshTimeout);
-      this.snackBar.open('Logout successful!', 'Close', {duration: 5000});
+      this.snackBar.open('Logout successful!', 'Close', { duration: 5000 });
     }
     this.isAuthenticatedSubject.next(false);
   }
 
-  public isTokenValid(): boolean {
+  isTokenValid(): boolean {
     if (isPlatformBrowser(this.platformId)) {
       const expiration = localStorage.getItem(this.tokenExpirationKey);
       return expiration ? new Date().getTime() < parseInt(expiration, 10) : false;
@@ -76,7 +92,7 @@ export class AuthService {
 
     try {
       const decoded: any = jwtDecode(token);
-      return decoded.sub || decoded.userId; // Adjust based on your JWT structure
+      return decoded.sub || decoded.userId;
     } catch (e) {
       console.error('Error decoding token:', e);
       return null;
@@ -87,14 +103,14 @@ export class AuthService {
     const token = this.token;
     if (!token) return '';
     const decoded: any = jwtDecode(token);
-    return decoded.preferred_username; // Adjust based on your token claims
+    return decoded.preferred_username;
   }
 
   getEmail(): string {
     const token = this.token;
     if (!token) return '';
     const decoded: any = jwtDecode(token);
-    return decoded.email; // Adjust based on your token claims
+    return decoded.email;
   }
 
   private scheduleTokenRefresh(): void {
@@ -104,7 +120,7 @@ export class AuthService {
     if (!expiration) return;
 
     const expiresIn = parseInt(expiration, 10) - Date.now();
-    const refreshThreshold = 30000; // 30 seconds before expiration
+    const refreshThreshold = 30000;
 
     if (expiresIn > refreshThreshold) {
       this.refreshTimeout = setTimeout(() => {
@@ -126,11 +142,11 @@ export class AuthService {
     body.set('refresh_token', refreshToken);
 
     return this.http.post(this.keycloakTokenUrl, body.toString(), {
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).pipe(
       tap(response => this.storeToken(response)),
       catchError(error => {
-        this.snackBar.open('Session expired. Please login again.', 'Close', {duration: 5000});
+        this.snackBar.open('Session expired. Please login again.', 'Close', { duration: 5000 });
         this.logout();
         return throwError(() => error);
       })

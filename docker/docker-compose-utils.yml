@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  postgres:
+  postgres-keycloak:
     image: postgres:latest
     container_name: keycloak-service-postgres-db
     environment:
@@ -22,7 +22,7 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_DB: postgres
-      KC_DB_URL_HOST: postgres
+      KC_DB_URL_HOST: postgres-keycloak
       KC_DB_URL_PORT: 5432
       KC_DB_URL_DATABASE: keycloak
       KC_DB_USERNAME: keycloak
@@ -35,7 +35,7 @@ services:
       - keycloak_data:/opt/keycloak/data
       - ./config/keycloak/keycloak-ecommerce-platform-realm.json:/opt/keycloak/data/import/keycloak-ecommerce-platform-realm.json:ro
     depends_on:
-      - postgres
+      - postgres-keycloak
     restart: always
 
   kafka:
