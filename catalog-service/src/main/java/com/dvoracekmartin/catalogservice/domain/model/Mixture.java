@@ -41,29 +41,43 @@ public class Mixture {
     private List<Product> products; // The products that make up the mixture
 
     @Column(nullable = false)
-    private String intendedUse; // e.g., "Relaxation", "Focus", "Sleep"
+    private String intendedUse;
 
     @Column(nullable = false)
-    private String blendingInstructions; // How the mixture is created
+    private String blendingInstructions;
 
     @Column(nullable = false)
-    private String benefits; // What the mixture is used for
+    private String benefits;
 
     @Column(columnDefinition = "TEXT")
-    private String medicinalUse; // e.g., "Pain Relief", "Stress Reduction", "Antiseptic"
+    private String medicinalUse;
 
     @Column(nullable = false)
-    private Double totalWeightGrams; // Total weight of the mixture in grams
+    private Double totalWeightGrams;
 
-    @ElementCollection
-    @CollectionTable(name = "mixture_tags", joinColumns = @JoinColumn(name = "mixture_id"))
-    @Column(name = "tag")
-    private List<String> tags; // e.g., "Pre-made", "Customizable", "Seasonal"
 
     @Column(nullable = false)
-    private boolean isCustomizable; // Indicates if the user can customize the mixture
+    private boolean isCustomizable;
 
     @Column(columnDefinition = "TEXT")
-    private String customizationOptions; // e.g., "Add 5ml of Lavender", "Remove 2ml of Peppermint"
+    private String customizationOptions;
 
+    @ManyToMany
+    @JoinTable(
+            name = "product_categories",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories;
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_tags",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags;
+
+    @ManyToMany(mappedBy = "products")
+    private List<Mixture> mixtures;
 }

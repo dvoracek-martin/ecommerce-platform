@@ -3,7 +3,11 @@ package com.dvoracekmartin.catalogservice.application.dto;
 import com.dvoracekmartin.catalogservice.domain.model.Category;
 import com.dvoracekmartin.catalogservice.domain.model.Mixture;
 import com.dvoracekmartin.catalogservice.domain.model.Product;
+import com.dvoracekmartin.catalogservice.domain.model.Tag;
 import org.mapstruct.Mapper;
+
+import javax.print.attribute.standard.Media;
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface CatalogMapper {
@@ -14,6 +18,8 @@ public interface CatalogMapper {
     ResponseCategoryDTO mapCategoryToResponseCategoryDTO(Category category);
 
     ResponseProductDTO mapProductToResponseProductDTO(Product product);
+
+    ResponseProductDTO mapProductToResponseProductDTO(Product product, List<ResponseMediaDTO> responseMedia);
 
     ResponseMixtureDTO mapMixtureToResponseMixtureDTO(Mixture mixture);
 
@@ -32,4 +38,10 @@ public interface CatalogMapper {
     Mixture mapUpdateMixtureDTOToMixture(UpdateMixtureDTO updateMixtureDTO);
 
     Category mapUpdateCategoryDTOToCategory(UpdateCategoryDTO updateCategoryDTO);
+
+    TagDTO mapTagToTagDTO(Tag tag);
+
+    Tag mapTagDTOToTag(TagDTO tagDTO);
+
+    ResponseMediaDTO mapMediaToResponseMediaDTO(Media media);
 }

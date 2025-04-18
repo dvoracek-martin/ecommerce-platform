@@ -20,7 +20,7 @@ public record UpdateProductDTO(
         String medicinalUse,
         Double weightGrams,
         List<String> allergens,
-        List<String> tags,
+        List<TagDTO> tags,
         List<UploadMediaDTO> uploadMediaDTOs
 ) {
 }

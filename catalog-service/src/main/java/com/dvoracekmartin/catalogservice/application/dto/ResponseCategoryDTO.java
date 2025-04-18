@@ -7,6 +7,7 @@ public record ResponseCategoryDTO(
         String name,
         String description,
         String categoryType,
-        List<ResponseMediaDTO> responseMediaDTOs
+        List<ResponseMediaDTO> responseMediaDTOs,
+        List<String> tagDTOs
 ) {
 }

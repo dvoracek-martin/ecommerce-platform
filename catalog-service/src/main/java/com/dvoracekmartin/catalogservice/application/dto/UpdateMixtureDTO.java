@@ -15,7 +15,7 @@ public record UpdateMixtureDTO(
         String benefits,
         String medicinalUse,
         Double totalWeightGrams,
-        List<String> tags,
+        List<String> tagDTOs,
         boolean isCustomizable,
         String customizationOptions,
         List<UploadMediaDTO> uploadMediaDTOs

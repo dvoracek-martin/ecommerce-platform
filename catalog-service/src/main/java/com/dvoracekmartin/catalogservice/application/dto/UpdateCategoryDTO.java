@@ -7,6 +7,7 @@ public record UpdateCategoryDTO(
         String name,
         String description,
         String categoryType,
-        List<UploadMediaDTO> uploadMediaDTOs
+        List<UploadMediaDTO> uploadMediaDTOs,
+        List<String> tagDTOs
 ) {
 }

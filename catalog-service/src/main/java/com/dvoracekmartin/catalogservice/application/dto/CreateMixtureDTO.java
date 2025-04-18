@@ -17,7 +17,7 @@ public record CreateMixtureDTO(
         @NotBlank String benefits,
         String medicinalUse,
         @NotNull Double totalWeightGrams,
-        List<String> tags,
+        List<TagDTO> tagDTOS,
         boolean isCustomizable,
         String customizationOptions,
         List<UploadMediaDTO> uploadMediaDTOs

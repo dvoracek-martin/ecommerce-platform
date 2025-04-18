@@ -22,7 +22,7 @@ public record CreateProductDTO(
         String medicinalUse,
         @NotNull Double weightGrams,
         List<String> allergens,
-        List<String> tags,
+        List<TagDTO> tagDTOS,
         List<UploadMediaDTO> uploadMediaDTOs
 ) {
 }

@@ -1,6 +1,7 @@
 package com.dvoracekmartin.catalogservice.domain.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,39 +38,52 @@ public class Product {
     private Category category;
 
     @Column(nullable = false)
-    private String scentProfile; // e.g., "Floral", "Citrus", "Woody"
+    private String scentProfile;
 
     @Column(nullable = false)
-    private String botanicalName; // e.g., "Lavandula angustifolia"
+    private String botanicalName;
 
     @Column(nullable = false)
-    private String extractionMethod; // e.g., "Steam Distillation", "Cold Pressed"
+    private String extractionMethod;
 
     @Column(nullable = false)
-    private String origin; // e.g., "France", "Italy"
+    private String origin;
 
     @Column(nullable = false)
-    private String usageInstructions; // e.g., "Diffuse", "Topical", "Massage"
+    private String usageInstructions;
+
 
     @Column(nullable = false)
-    private Integer volumeMl; // Volume in milliliters
-
-    @Column(nullable = false)
-    private String warnings; // Safety precautions
+    private String warnings;
 
     @Column(columnDefinition = "TEXT")
-    private String medicinalUse; // e.g., "Pain Relief", "Stress Reduction", "Antiseptic"
+    private String medicinalUse;
 
     @Column(nullable = false)
-    private Double weightGrams; // Weight in grams
+    private Double weightGrams;
+
+    @Column(nullable = false)
+    private Integer volumeMl;
 
     @ElementCollection
     @CollectionTable(name = "product_allergens", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "allergen")
-    private List<String> allergens; // List of potential allergens
+    private List<String> allergens;
 
-    @ElementCollection
-    @CollectionTable(name = "product_tags", joinColumns = @JoinColumn(name = "product_id"))
-    @Column(name = "tag")
-    private List<String> tags; // e.g., "Organic", "Pure", "Therapeutic"
+    @ManyToMany
+    @JoinTable(
+            name = "mixture_categories",
+            joinColumns = @JoinColumn(name = "mixture_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories;
+
+    @ManyToMany
+    @JoinTable(
+            name = "mixture_tags",
+            joinColumns = @JoinColumn(name = "mixture_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags;
+
 }

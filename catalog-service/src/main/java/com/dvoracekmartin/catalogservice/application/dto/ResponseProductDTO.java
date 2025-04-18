@@ -20,7 +20,7 @@ public record ResponseProductDTO(
         String medicinalUse,
         Double weightGrams,
         List<String> allergens,
-        List<String> tags,
+        List<TagDTO> tagsDTOs,
         List<ResponseMediaDTO> responseMediaDTOs
 ) {
 }

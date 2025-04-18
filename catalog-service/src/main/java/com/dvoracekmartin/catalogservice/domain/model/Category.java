@@ -30,4 +30,18 @@ public class Category {
     @CollectionTable(name = "category_images", joinColumns = @JoinColumn(name = "category_id"))
     @Column(name = "image_url")
     private List<String> images;
+
+    @ManyToMany(mappedBy = "categories")
+    private List<Product> products;
+
+    @ManyToMany(mappedBy = "categories")
+    private List<Mixture> mixtures;
+
+    @ManyToMany
+    @JoinTable(
+            name = "category_tags",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags;
 }

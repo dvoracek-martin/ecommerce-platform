@@ -11,7 +11,8 @@ public record ResponseCatalogItemDTO(
         List<String> images,
         String type, // "product" or "mixture"
         List<ResponseProductDTO> productDTOs,
-        List<ResponseMediaDTO> responseMediaDTOs
+        List<ResponseMediaDTO> responseMediaDTOs,
+        List<String> tagDTOs
         // TODO add other fields as needed
 ) {
 }
