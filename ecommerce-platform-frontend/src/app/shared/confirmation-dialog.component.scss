@@ -1,0 +1,23 @@
+mat-dialog-content {
+  padding: 16px 24px;
+  font-size: 16px;
+  color: #666;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid #eee;
+  gap: 8px;
+
+  button[mat-raised-button] {
+    min-width: 80px;
+  }
+}
+
+.mat-mdc-dialog-title {
+  margin: 0;
+  padding: 16px 24px;
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}

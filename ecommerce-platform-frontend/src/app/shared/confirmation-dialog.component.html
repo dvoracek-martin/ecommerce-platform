@@ -1,0 +1,26 @@
+<div class="dialog-container">
+  <h2 mat-dialog-title class="dialog-title" [class.warn]="data.type === 'warn'">
+    <mat-icon *ngIf="data.type" class="title-icon">{{ getTitleIcon() }}</mat-icon>
+    {{ data.title | translate }}
+  </h2>
+
+  <mat-dialog-content class="dialog-content" [innerHTML]="sanitizeHtml(data.message)">
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-stroked-button
+            mat-dialog-close
+            color="primary"
+            class="action-button"
+            aria-label="Cancel action">
+      {{ 'COMMON.CANCEL' | translate }}
+    </button>
+    <button mat-raised-button
+            [color]="data.type === 'warn' ? 'warn' : 'primary'"
+            [mat-dialog-close]="true"
+            class="action-button"
+            aria-label="Confirm action">
+      {{ 'COMMON.CONFIRM' | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>

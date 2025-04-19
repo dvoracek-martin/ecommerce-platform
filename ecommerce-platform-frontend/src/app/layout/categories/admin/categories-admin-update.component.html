@@ -1,0 +1,116 @@
+<div class="category-container">
+  <mat-card class="category-card">
+    <mat-card-header>
+      <mat-card-title class="category-title">
+        <mat-icon class="title-icon">edit</mat-icon>
+        {{ 'CATEGORIES.ADMIN.EDIT_TITLE' | translate }}
+      </mat-card-title>
+      <button mat-icon-button [routerLink]="['/admin/categories']">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-card-header>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content>
+      <form [formGroup]="categoryForm" (ngSubmit)="onSave()" class="form-grid">
+        <!-- Basic Info Section -->
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>label</mat-icon>
+            {{ 'CATEGORIES.ADMIN.BASIC_INFO' | translate }}
+          </h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CATEGORIES.ADMIN.NAME' | translate }}</mat-label>
+              <input matInput formControlName="name"
+                     placeholder="{{ 'CATEGORIES.ADMIN.NAME_PLACEHOLDER' | translate }}">
+              <mat-error *ngIf="categoryForm.get('name')?.hasError('required')">
+                {{ 'CATEGORIES.ADMIN.NAME_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CATEGORIES.ADMIN.TYPE' | translate }}</mat-label>
+              <input matInput formControlName="categoryType"
+                     placeholder="{{ 'CATEGORIES.ADMIN.TYPE_PLACEHOLDER' | translate }}">
+              <mat-error *ngIf="categoryForm.get('categoryType')?.hasError('required')">
+                {{ 'CATEGORIES.ADMIN.TYPE_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CATEGORIES.ADMIN.DESCRIPTION' | translate }}</mat-label>
+              <textarea matInput formControlName="description"
+                        placeholder="{{ 'CATEGORIES.ADMIN.DESCRIPTION_PLACEHOLDER' | translate }}"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Media Section -->
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>cloud_upload</mat-icon>
+            {{ 'CATEGORIES.ADMIN.MEDIA' | translate }}
+          </h3>
+
+          <input type="file" (change)="onFileSelected($event)" multiple accept="image/*, video/*" hidden #fileInput>
+          <button mat-stroked-button type="button" (click)="fileInput.click()" class="upload-button">
+            <mat-icon>file_upload</mat-icon>
+            {{ 'CATEGORIES.ADMIN.UPLOAD_MEDIA' | translate }}
+          </button>
+
+          <div cdkDropList formArrayName="uploadMediaDTOs" (cdkDropListDropped)="drop($event)"
+               class="media-list">
+            <div class="media-item" *ngFor="let ctrl of mediaControls.controls; let i = index"
+                 [formGroupName]="i" cdkDrag>
+              <div class="media-preview-container">
+                <img *ngIf="ctrl.get('contentType')?.value?.startsWith('image/')"
+                     [src]="ctrl.get('preview')?.value"
+                     class="media-preview"
+                     [alt]="ctrl.get('objectKey')?.value">
+                <video *ngIf="ctrl.get('contentType')?.value?.startsWith('video/')"
+                       class="media-preview"
+                       controls muted>
+                  <source [src]="ctrl.get('preview')?.value"
+                          [type]="ctrl.get('contentType')?.value">
+                </video>
+              </div>
+              <div class="media-actions">
+                <button mat-icon-button type="button" (click)="openMediaDeleteDialog(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+          <div class="primary-actions">
+            <button mat-flat-button color="warn" type="button"
+                    [routerLink]="['/admin/categories']">
+              {{ 'COMMON.CANCEL' | translate }}
+            </button>
+            <button mat-flat-button color="primary"
+                    [disabled]="categoryForm.invalid || saving"
+                    type="submit">
+              <mat-icon>save</mat-icon>
+              {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+            </button>
+          </div>
+
+          <button mat-flat-button color="accent" type="button"
+                  (click)="openDeleteDialog()" class="delete-category">
+            <mat-icon>delete_forever</mat-icon>
+            {{ 'COMMON.DELETE' | translate }}
+          </button>
+        </div>
+        <mat-progress-bar *ngIf="saving" mode="indeterminate" class="save-progress"></mat-progress-bar>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
