@@ -8,6 +8,7 @@ public record CreateCategoryDTO(
         @NotBlank String name,
         String description,
         @NotBlank String categoryType,
-        List<UploadMediaDTO> uploadMediaDTOs
+        List<UploadMediaDTO> uploadMediaDTOs,
+        List<TagDTO> tags
 ) {
 }

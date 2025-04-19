@@ -18,8 +18,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -44,7 +46,6 @@ public class CatalogServiceImpl implements CatalogService {
     private final MixtureRepository mixtureRepository;
     private final CategoryRepository categoryRepository;
     private final CatalogMapper catalogMapper;
-    private final ProductMapper productMapper;
     private final CatalogDomainService catalogDomainService;
     private final MediaUploader mediaUploader;
     private final MediaRetriever mediaRetriever;
@@ -52,29 +53,21 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<ResponseProductDTO> getAllProducts() {
         log.info("Fetching all products");
-        return productRepository.findAll().stream()
-                .map(product -> catalogMapper.mapProductToResponseProductDTO(product))
-                .toList();
+        return productRepository.findAll().stream().map(product -> catalogMapper.mapProductToResponseProductDTO(product)).toList();
     }
 
     @Override
     public List<ResponseMixtureDTO> getAllMixtures() {
         log.info("Fetching all mixtures");
-        return mixtureRepository.findAll().stream()
-                .map(catalogMapper::mapMixtureToResponseMixtureDTO)
-                .toList();
+        return mixtureRepository.findAll().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList();
     }
 
     @Override
     public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
         log.info("Fetching all products and mixtures");
-        List<ResponseCatalogItemDTO> products = new ArrayList<>(productRepository.findAll().stream()
-                .map(catalogMapper::mapProductToResponseCatalogItemDTO)
-                .toList());
+        List<ResponseCatalogItemDTO> products = new ArrayList<>(productRepository.findAll().stream().map(catalogMapper::mapProductToResponseCatalogItemDTO).toList());
 
-        List<ResponseCatalogItemDTO> mixtures = mixtureRepository.findAll().stream()
-                .map(catalogMapper::mapMixtureToResponseCatalogItemDTO)
-                .toList();
+        List<ResponseCatalogItemDTO> mixtures = mixtureRepository.findAll().stream().map(catalogMapper::mapMixtureToResponseCatalogItemDTO).toList();
 
         products.addAll(mixtures);
         return products;
@@ -83,98 +76,64 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<ResponseCategoryDTO> getAllCategories() {
         log.info("Fetching all categories with media");
-        return categoryRepository.findAll().stream()
-                .map(category -> {
-                    // 1) List all object keys in the folder named after the category
-                    List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), CATEGORY_BUCKET);
+        return categoryRepository.findAll().stream().map(category -> {
+            // 1) List all object keys in the folder named after the category
+            List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), CATEGORY_BUCKET);
 
-                    // 2) For each key, download bytes, encode to Base64, and derive a contentType
-                    List<ResponseMediaDTO> mediaDTOs = keys.stream()
-                            .map(key -> {
-                                byte[] data = mediaRetriever.retrieveMedia(key, CATEGORY_BUCKET);
-                                String base64 = data != null
-                                        ? Base64.getEncoder().encodeToString(data)
-                                        : null;
-                                String contentType = deriveContentTypeFromKey(key);
-                                return new ResponseMediaDTO(base64, key, contentType);
-                            })
-                            .toList();
+            // 2) For each key, download bytes, encode to Base64, and derive a contentType
+            List<ResponseMediaDTO> mediaDTOs = keys.stream().map(key -> {
+                byte[] data = mediaRetriever.retrieveMedia(key, CATEGORY_BUCKET);
+                String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
+                String contentType = deriveContentTypeFromKey(key);
+                return new ResponseMediaDTO(base64, key, contentType);
+            }).toList();
 
-                    // 3) Build the full DTO
-                    return new ResponseCategoryDTO(
-                            category.getId(),
-                            category.getName(),
-                            category.getDescription(),
-                            category.getCategoryType(),
-                            mediaDTOs,
-                            category.getTags().stream().map(Tag::getName).toList()
-                    );
-                })
-                .toList();
+            // 3) Build the full DTO
+            return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getCategoryType(), mediaDTOs, category.getTags().stream().map(Tag::getName).toList());
+        }).toList();
     }
 
     @Override
     public List<ResponseProductDTO> createProduct(@Valid List<CreateProductDTO> createProductDTOList) {
         log.info("Creating products: {}", createProductDTOList);
-        createProductDTOList.stream()
-                .filter(dto -> !categoryRepository.existsByName(dto.name()))
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toList(),
-                        list -> {
-                            if (list.isEmpty()) {
-                                throw new IllegalArgumentException("All products already exist!");
-                            }
-                            return list;
-                        }
-                ));
+        createProductDTOList.stream().filter(dto -> !categoryRepository.existsByName(dto.name())).collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+            if (list.isEmpty()) {
+                throw new IllegalArgumentException("All products already exist!");
+            }
+            return list;
+        }));
 
-        return createProductDTOList.stream()
-                .filter(dto -> !productRepository.existsByName(dto.name()))
-                .map(createProductDTO -> {
-                    // Process media uploads and collect image URLs
-                    List<String> imageUrls = new ArrayList<>();
-                    List<ResponseMediaDTO> responseMedia = new ArrayList<>();
-                    if (createProductDTO.uploadMediaDTOs() != null) {
-                        for (UploadMediaDTO media : createProductDTO.uploadMediaDTOs()) {
+        return createProductDTOList.stream().filter(dto -> !productRepository.existsByName(dto.name())).map(createProductDTO -> {
+            // Process media uploads and collect image URLs
+            List<String> imageUrls = new ArrayList<>();
+            List<ResponseMediaDTO> responseMedia = new ArrayList<>();
+            if (createProductDTO.uploadMediaDTOs() != null) {
+                for (UploadMediaDTO media : createProductDTO.uploadMediaDTOs()) {
 
-                            // Upload media and get public URL
-                            String publicUrl = mediaUploader.uploadBase64(
-                                    media.base64Data(),
-                                    createProductDTO.name(),
-                                    media.objectKey(),
-                                    media.contentType(),
-                                    PRODUCT_BUCKET,
-                                    createProductDTO.name()
-                            );
-                            if (publicUrl != null) {
-                                imageUrls.add(publicUrl);
-                            }
-
-                            Category category = categoryRepository.findById(createProductDTO.categoryId())
-                                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + createProductDTO.categoryId()));
-                            // Store original base64 data for response
-                            responseMedia.add(new ResponseMediaDTO(
-                                    media.base64Data(),
-                                    category.getCategoryType(),
-                                    media.contentType()
-                            ));
-                        }
+                    // Upload media and get public URL
+                    String publicUrl = mediaUploader.uploadBase64(media.base64Data(), createProductDTO.name(), media.objectKey(), media.contentType(), PRODUCT_BUCKET, createProductDTO.name());
+                    if (publicUrl != null) {
+                        imageUrls.add(publicUrl);
                     }
 
-                    // Create and save category
-                    Product product = new Product();
-                    product.setName(createProductDTO.name());
-                    product.setDescription(createProductDTO.description());
-                    product.setCategory(categoryRepository.findById(createProductDTO.categoryId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + createProductDTO.categoryId())));
-                    product.setImages(imageUrls);
+                    Category category = categoryRepository.findById(createProductDTO.categoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + createProductDTO.categoryId()));
+                    // Store original base64 data for response
+                    responseMedia.add(new ResponseMediaDTO(media.base64Data(), category.getCategoryType(), media.contentType()));
+                }
+            }
 
-                    Product savedProduct = productRepository.save(product);
+            // Create and save category
+            Product product = new Product();
+            product.setName(createProductDTO.name());
+            product.setDescription(createProductDTO.description());
+            product.setCategory(categoryRepository.findById(createProductDTO.categoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + createProductDTO.categoryId())));
+            product.setImages(imageUrls);
 
-                    // Build response with original base64 data
-                    return catalogMapper.mapProductToResponseProductDTO(savedProduct, responseMedia);
-                })
-                .collect(Collectors.toList());
+            Product savedProduct = productRepository.save(product);
+
+            // Build response with original base64 data
+            return catalogMapper.mapProductToResponseProductDTO(savedProduct, responseMedia);
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -182,8 +141,7 @@ public class CatalogServiceImpl implements CatalogService {
         log.info("Updating product with id {}: {}", id, updateProductDTO);
 
         // Get existing product
-        Product existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        Product existingProduct = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         // Validate name uniqueness if changing
         if (updateProductDTO.name() != null && !updateProductDTO.name().equals(existingProduct.getName())) {
@@ -197,36 +155,21 @@ public class CatalogServiceImpl implements CatalogService {
         List<ResponseMediaDTO> responseMedia = new ArrayList<>();
         if (updateProductDTO.uploadMediaDTOs() != null) {
             for (UploadMediaDTO media : updateProductDTO.uploadMediaDTOs()) {
-                String publicUrl = mediaUploader.uploadBase64(
-                        media.base64Data(),
-                        updateProductDTO.name() != null ? updateProductDTO.name() : existingProduct.getName(),
-                        media.objectKey(),
-                        media.contentType(),
-                        PRODUCT_BUCKET,
-                        updateProductDTO.name() != null ? updateProductDTO.name() : existingProduct.getName()
-                );
+                String publicUrl = mediaUploader.uploadBase64(media.base64Data(), updateProductDTO.name() != null ? updateProductDTO.name() : existingProduct.getName(), media.objectKey(), media.contentType(), PRODUCT_BUCKET, updateProductDTO.name() != null ? updateProductDTO.name() : existingProduct.getName());
                 if (publicUrl != null) {
                     imageUrls.add(publicUrl);
                 }
 
                 // Get category for media response
-                Category category = updateProductDTO.categoryId() != null ?
-                        categoryRepository.findById(updateProductDTO.categoryId())
-                                .orElse(existingProduct.getCategory()) :
-                        existingProduct.getCategory();
+                Category category = updateProductDTO.categoryId() != null ? categoryRepository.findById(updateProductDTO.categoryId()).orElse(existingProduct.getCategory()) : existingProduct.getCategory();
 
-                responseMedia.add(new ResponseMediaDTO(
-                        media.base64Data(),
-                        category != null ? category.getCategoryType() : null,
-                        media.contentType()
-                ));
+                responseMedia.add(new ResponseMediaDTO(media.base64Data(), category != null ? category.getCategoryType() : null, media.contentType()));
             }
         }
 
         // Update category if provided
         if (updateProductDTO.categoryId() != null) {
-            Category category = categoryRepository.findById(updateProductDTO.categoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + updateProductDTO.categoryId()));
+            Category category = categoryRepository.findById(updateProductDTO.categoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + updateProductDTO.categoryId()));
             existingProduct.setCategory(category);
         }
 
@@ -239,7 +182,7 @@ public class CatalogServiceImpl implements CatalogService {
         Product savedProduct = productRepository.save(existingProduct);
 
         // Build response
-        ResponseProductDTO responseDTO = productMapper.mapProductToResponseProductDTO(savedProduct, responseMedia);
+        ResponseProductDTO responseDTO = catalogMapper.mapProductToResponseProductDTO(savedProduct, responseMedia);
         return responseDTO;
     }
 
@@ -273,19 +216,13 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<ResponseMixtureDTO> createMixture(@Valid List<CreateMixtureDTO> createMixtureDTOList) {
         log.info("Creating mixtures: {}", createMixtureDTOList);
-        return mixtureRepository.saveAll(createMixtureDTOList.stream()
-                        .map(catalogMapper::mapCreateMixtureDTOToMixture)
-                        .toList())
-                .stream()
-                .map(catalogMapper::mapMixtureToResponseMixtureDTO)
-                .toList();
+        return mixtureRepository.saveAll(createMixtureDTOList.stream().map(catalogMapper::mapCreateMixtureDTOToMixture).toList()).stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList();
     }
 
     @Override
     public ResponseMixtureDTO updateMixture(Long id, UpdateMixtureDTO updateMixtureDTO) {
         log.info("Updating mixture with id {}: {}", id, updateMixtureDTO);
-        Mixture existingMixture = mixtureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Mixture not found with id: " + id));
+        Mixture existingMixture = mixtureRepository.findById(id).orElseThrow(() -> new RuntimeException("Mixture not found with id: " + id));
 
         catalogMapper.mapUpdateMixtureDTOToMixture(updateMixtureDTO);
 
@@ -295,74 +232,53 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<ResponseCategoryDTO> createCategory(@Valid List<CreateCategoryDTO> createCategoryDTOList) {
         log.info("Creating categories: {}", createCategoryDTOList);
-        createCategoryDTOList.stream()
-                .filter(dto -> !categoryRepository.existsByName(dto.name()))
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toList(),
-                        list -> {
-                            if (list.isEmpty()) {
-                                throw new IllegalArgumentException("All categories already exist!");
-                            }
-                            return list;
-                        }
-                ));
-        return createCategoryDTOList.stream()
-                .filter(dto -> !categoryRepository.existsByName(dto.name()))
-                .map(createCategoryDTO -> {
-                    // Process media uploads and collect image URLs
-                    List<String> imageUrls = new ArrayList<>();
-                    List<ResponseMediaDTO> responseMedia = new ArrayList<>();
-                    if (createCategoryDTO.uploadMediaDTOs() != null) {
-                        for (UploadMediaDTO media : createCategoryDTO.uploadMediaDTOs()) {
+        createCategoryDTOList.stream().filter(dto -> !categoryRepository.existsByName(dto.name())).collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+            if (list.isEmpty()) {
+                throw new IllegalArgumentException("All categories already exist!");
+            }
+            return list;
+        }));
+        return createCategoryDTOList.stream().filter(dto -> !categoryRepository.existsByName(dto.name())).map(createCategoryDTO -> {
+            // Process media uploads and collect image URLs
+            List<String> imageUrls = new ArrayList<>();
+            List<ResponseMediaDTO> responseMedia = new ArrayList<>();
+            if (createCategoryDTO.uploadMediaDTOs() != null) {
+                for (UploadMediaDTO media : createCategoryDTO.uploadMediaDTOs()) {
 
-                            // Upload media and get public URL
-                            String publicUrl = mediaUploader.uploadBase64(
-                                    media.base64Data(),
-                                    createCategoryDTO.name(),
-                                    media.objectKey(),
-                                    media.contentType(),
-                                    CATEGORY_BUCKET,
-                                    createCategoryDTO.name()
-                            );
-                            if (publicUrl != null) {
-                                imageUrls.add(publicUrl);
-                            }
-                            // Store original base64 data for response
-                            responseMedia.add(new ResponseMediaDTO(
-                                    media.base64Data(),
-                                    createCategoryDTO.categoryType(),
-                                    media.contentType()
-                            ));
-                        }
+                    // Upload media and get public URL
+                    String publicUrl = mediaUploader.uploadBase64(media.base64Data(), createCategoryDTO.name(), media.objectKey(), media.contentType(), CATEGORY_BUCKET, createCategoryDTO.name());
+                    if (publicUrl != null) {
+                        imageUrls.add(publicUrl);
                     }
+                    // Store original base64 data for response
+                    responseMedia.add(new ResponseMediaDTO(media.base64Data(), createCategoryDTO.categoryType(), media.contentType()));
+                }
+            }
 
-                    // Create and save category
-                    Category category = new Category();
-                    category.setName(createCategoryDTO.name());
-                    category.setDescription(createCategoryDTO.description());
-                    category.setCategoryType(createCategoryDTO.categoryType());
-                    category.setImages(imageUrls);
+            // Create and save category
+            Category category = new Category();
+            category.setName(createCategoryDTO.name());
+            category.setDescription(createCategoryDTO.description());
+            category.setCategoryType(createCategoryDTO.categoryType());
+            category.setImages(imageUrls);
 
-                    Category savedCategory = categoryRepository.save(category);
+            Category savedCategory = categoryRepository.save(category);
 
-                    // Build response with original base64 data
-                    return new ResponseCategoryDTO(
-                            savedCategory.getId(),
-                            savedCategory.getName(),
-                            savedCategory.getDescription(),
-                            savedCategory.getCategoryType(),
-                            responseMedia,
-                            category.getTags().stream().map(Tag::getName).toList()
-                    );
-                })
-                .collect(Collectors.toList());
+            // Build response with original base64 data
+            return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), savedCategory.getCategoryType(), responseMedia, category.getTags() == null ? null : category.getTags().stream().map(Tag::getName).toList());
+        }).collect(Collectors.toList());
     }
 
     @Override
     public ResponseCategoryDTO updateCategory(Long id, UpdateCategoryDTO updateCategoryDTO) {
         log.info("Updating category with id {}: {}", id, updateCategoryDTO);
-        Category existingCategory = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+        Category existingCategory = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+        categoryRepository.findByName(updateCategoryDTO.name())
+                .ifPresent(existingCategoryByName -> {
+                    if (!existingCategoryByName.getId().equals(id)) {
+                        throw new ResponseStatusException(HttpStatus.CONFLICT, "Category name already exists: " + updateCategoryDTO.name());
+                    }
+                });
 
         // Remove old media
         for (String imageUrl : existingCategory.getImages()) {
@@ -376,25 +292,14 @@ public class CatalogServiceImpl implements CatalogService {
             for (UploadMediaDTO media : updateCategoryDTO.uploadMediaDTOs()) {
 
                 // Upload media and get public URL
-                String publicUrl = mediaUploader.uploadBase64(
-                        media.base64Data(),
-                        updateCategoryDTO.name(),
-                        media.objectKey(),
-                        media.contentType(),
-                        CATEGORY_BUCKET,
-                        updateCategoryDTO.name()
-                );
+                String publicUrl = mediaUploader.uploadBase64(media.base64Data(), updateCategoryDTO.name(), media.objectKey(), media.contentType(), CATEGORY_BUCKET, updateCategoryDTO.name());
 
                 if (publicUrl != null) {
                     newImageUrls.add(publicUrl);
                 }
 
                 // Store original base64 data for response
-                responseMedia.add(new ResponseMediaDTO(
-                        media.base64Data(),
-                        updateCategoryDTO.categoryType(),
-                        media.contentType()
-                ));
+                responseMedia.add(new ResponseMediaDTO(media.base64Data(), updateCategoryDTO.categoryType(), media.contentType()));
             }
         }
 
@@ -406,19 +311,12 @@ public class CatalogServiceImpl implements CatalogService {
         Category savedCategory = categoryRepository.save(existingCategory);
 
         // Build response with updated data and new media
-        return new ResponseCategoryDTO(
-                savedCategory.getId(),
-                savedCategory.getName(),
-                savedCategory.getDescription(),
-                savedCategory.getCategoryType(),
-                responseMedia,
-                savedCategory.getTags().stream().map(Tag::getName).toList()
-        );
+        return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), savedCategory.getCategoryType(), responseMedia, savedCategory.getTags().stream().map(Tag::getName).toList());
     }
 
     @Override
     public ResponseProductDTO getProductById(Long id) {
-        return getEntityById(id, productRepository::findById, product -> catalogMapper.mapProductToResponseProductDTO(product), "Product");
+        return getEntityById(id, productRepository::findById, catalogMapper::mapProductToResponseProductDTO, "Product");
     }
 
     @Override
@@ -428,32 +326,22 @@ public class CatalogServiceImpl implements CatalogService {
 
     @Override
     public ResponseCategoryDTO getCategoryById(Long id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+        log.info("Fetching category with id {} including media", id);
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
 
-        // Get basic DTO without media content
-        ResponseCategoryDTO basicDto = catalogMapper.mapCategoryToResponseCategoryDTO(category);
+        // 1) List all object keys in the folder named after the category
+        List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), CATEGORY_BUCKET);
 
-        // Enrich with media content
-        List<ResponseMediaDTO> enrichedMedia = basicDto.responseMediaDTOs().stream()
-                .map(media -> {
-                    byte[] mediaBytes = mediaRetriever.retrieveMedia(media.objectKey(), CATEGORY_BUCKET);
-                    return new ResponseMediaDTO(
-                            mediaBytes != null ? Base64.getEncoder().encodeToString(mediaBytes) : null,
-                            media.objectKey(),
-                            media.contentType()
-                    );
-                })
-                .toList();
+        // 2) For each key, download bytes, encode to Base64, and derive a contentType
+        List<ResponseMediaDTO> mediaDTOs = keys.stream().map(key -> {
+            byte[] data = mediaRetriever.retrieveMedia(key, CATEGORY_BUCKET);
+            String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
+            String contentType = deriveContentTypeFromKey(key);
+            return new ResponseMediaDTO(base64, key, contentType);
+        }).toList();
 
-        return new ResponseCategoryDTO(
-                basicDto.id(),
-                basicDto.name(),
-                basicDto.description(),
-                basicDto.categoryType(),
-                enrichedMedia,
-                category.getTags().stream().map(Tag::getName).toList()
-        );
+        // 3) Build the full DTO
+        return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getCategoryType(), mediaDTOs, category.getTags().stream().map(Tag::getName).toList());
     }
 
     @Override
@@ -483,9 +371,7 @@ public class CatalogServiceImpl implements CatalogService {
 
     private <T, R> R getEntityById(Long id, Function<Long, java.util.Optional<T>> findById, Function<T, R> mapper, String entityName) {
         log.info("Fetching {} with id: {}", entityName, id);
-        return findById.apply(id)
-                .map(mapper)
-                .orElseThrow(() -> new RuntimeException(entityName + " not found with id: " + id));
+        return findById.apply(id).map(mapper).orElseThrow(() -> new RuntimeException(entityName + " not found with id: " + id));
     }
 
     /**
@@ -493,8 +379,7 @@ public class CatalogServiceImpl implements CatalogService {
      */
     private String deriveContentTypeFromKey(String key) {
         if (key.endsWith(".png")) return "image/png";
-        if (key.endsWith(".jpg")
-                || key.endsWith(".jpeg")) return "image/jpeg";
+        if (key.endsWith(".jpg") || key.endsWith(".jpeg")) return "image/jpeg";
         if (key.endsWith(".gif")) return "image/gif";
         if (key.endsWith(".mp4")) return "video/mp4";
         // …add more as you need…

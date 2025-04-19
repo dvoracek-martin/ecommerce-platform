@@ -77,7 +77,4 @@ public class Mixture {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<Tag> tags;
-
-    @ManyToMany(mappedBy = "products")
-    private List<Mixture> mixtures;
 }
