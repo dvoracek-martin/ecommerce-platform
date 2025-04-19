@@ -1,49 +1,79 @@
+<!-- src/app/components/categories/categories.component.html -->
 <div class="categories-container">
-  <h1>Product Categories</h1>
+  <h1>{{ 'CATEGORIES.TITLE' | translate }}</h1>
 
-  <div *ngIf="isLoading" class="loading">Loading categories...</div>
-  <div *ngIf="error" class="error">Error loading categories: {{ error }}</div>
+  <!-- Loading & Error States -->
+  <div *ngIf="isLoading" class="loading">
+    {{ 'CATEGORIES.LOADING' | translate }}
+  </div>
+  <div *ngIf="error" class="error">
+    {{ 'CATEGORIES.ERROR_LOADING' | translate:{ error: error } }}
+  </div>
 
-  @if (!isLoading && !error) {
-    <div class="categories-grid">
-      @for (category of categories; track category.id; let catIndex = $index) {
-        <div class="category-card">
-          <div class="category-header">
-            <h2>{{ category.name }}</h2>
-            <span class="category-type">{{ category.categoryType }}</span>
+  <!-- Categories Grid -->
+  <div *ngIf="!isLoading && !error" class="categories-grid">
+    <div
+      *ngFor="let category of categories; let catIndex = index; trackBy: trackById"
+      class="category-card"
+    >
+      <div class="category-header">
+        <h2>{{ category.name }}</h2>
+        <span class="category-type">{{ category.categoryType }}</span>
+      </div>
+      <p class="category-description">
+        {{ category.description }}
+      </p>
+
+      <!-- Media Carousel -->
+      <ng-container *ngIf="category.responseMediaDTOs?.length; else noMedia">
+        <div class="media-carousel">
+          <div
+            *ngFor="let media of category.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
+            class="slide"
+            [class.active]="activeSlideIndices[catIndex] === i"
+          >
+            <!-- Added ?. to contentType checks -->
+            <img
+              *ngIf="media.contentType?.startsWith('image/')"
+              [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+              [alt]="media.objectKey"
+              class="media-content"
+            />
+            <video
+              *ngIf="media.contentType?.startsWith('video/')"
+              class="media-content"
+              [attr.muted]="true"
+              [muted]="true"
+              autoplay
+              loop
+              preload="metadata"
+              playsinline
+            >
+              <source
+                [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                [type]="media.contentType"
+              />
+            </video>
           </div>
-          <p class="category-description">{{ category.description }}</p>
 
-          @if (category.responseMediaDTOs?.length) {
-            <div class="media-carousel">
-              @for (media of category.responseMediaDTOs; track media.objectKey; let i = $index) {
-                <div class="slide" [class.active]="activeSlideIndices[catIndex] === i">
-                  @if (media.contentType.startsWith('image/')) {
-                    <img [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                         [alt]="media.objectKey"
-                         class="media-content">
-                  }
-                  @if (media.contentType.startsWith('video/')) {
-                    <video muted autoplay loop class="media-content">
-                      <source [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                              [type]="media.contentType">
-                    </video>
-                  }
-                </div>
-              }
-              <div class="carousel-controls">
-                @for (media of category.responseMediaDTOs; track media.objectKey; let i = $index) {
-                  <button class="dot"
-                          [class.active]="activeSlideIndices[catIndex] === i"
-                          (click)="setActiveSlide(catIndex, i)"></button>
-                }
-              </div>
-            </div>
-          } @else {
-            <div class="no-media">No media available for this category</div>
-          }
+          <!-- Carousel Controls (only show if >1 media item) -->
+          <div *ngIf="category.responseMediaDTOs?.length > 1" class="carousel-controls">
+            <button
+              *ngFor="let media of category.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
+              class="dot"
+              [class.active]="activeSlideIndices[catIndex] === i"
+              (click)="setActiveSlide(catIndex, i)"
+            ></button>
+          </div>
         </div>
-      }
+      </ng-container>
+
+      <!-- Fallback for no media -->
+      <ng-template #noMedia>
+        <div class="no-media">
+          {{ 'CATEGORIES.NO_MEDIA' | translate }}
+        </div>
+      </ng-template>
     </div>
-  }
+  </div>
 </div>

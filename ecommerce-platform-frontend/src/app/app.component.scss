@@ -18,3 +18,80 @@ router-outlet {
   margin-top: 64px; /* Height of toolbar */
   display: block;
 }
+
+.cart-container {
+  position: relative;
+  margin-right: 1rem;
+
+  .cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #f44336;
+    color: white;
+    border-radius: 50%;
+    padding: 3px 8px;
+    font-size: 0.8em;
+  }
+
+  .cart-menu {
+    width: 350px;
+    padding: 1rem;
+
+    .cart-popup {
+      h4 {
+        margin: 0 0 1rem 0;
+        font-weight: 500;
+      }
+
+      .empty-cart {
+        padding: 1rem;
+        text-align: center;
+        color: #666;
+      }
+
+      .cart-item {
+        display: flex;
+        gap: 1rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+
+        .item-image {
+          width: 50px;
+          height: 50px;
+          object-fit: cover;
+        }
+
+        .item-info {
+          flex: 1;
+
+          .item-name {
+            font-weight: 500;
+          }
+
+          .item-price {
+            color: #666;
+            font-size: 0.9em;
+          }
+        }
+      }
+
+      .cart-footer {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+
+        .cart-total {
+          font-weight: 500;
+          margin-bottom: 1rem;
+        }
+
+        .cart-actions {
+          display: flex;
+          gap: 1rem;
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+}

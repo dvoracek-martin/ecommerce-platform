@@ -40,9 +40,9 @@ interface BillingAddress {
 }
 
 @Component({
-  selector: 'app-customer-detail',
-  templateUrl: './customer-detail.component.html',
-  styleUrls: ['./customer-detail.component.scss'],
+  selector: 'app-customers',
+  templateUrl: './customers.component.html',
+  styleUrls: ['./customers.component.scss'],
   standalone: false,
   animations: [
     trigger('slideDown', [
@@ -52,7 +52,7 @@ interface BillingAddress {
     ])
   ]
 })
-export class CustomerDetailComponent implements OnInit {
+export class CustomersComponent implements OnInit {
   customerForm: FormGroup;
   passwordForm: FormGroup;
   loading = true;

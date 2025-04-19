@@ -1,0 +1,168 @@
+{
+  "APP": {
+    "TITLE": "Plataforma de comercio electrónico"
+  },
+  "AUTH": {
+    "LOGIN": "Iniciar sesión",
+    "REGISTER": "Registrarse"
+  },
+  "CART": {
+    "TITLE": "Carrito de compra",
+    "EMPTY": "Tu carrito está vacío",
+    "ITEMS": "artículos",
+    "TOTAL": "Total",
+    "VIEW_CART": "Ver carrito",
+    "CHECKOUT": "Finalizar compra"
+  },
+  "CATEGORIES": {
+    "ADMIN": {
+      "BASIC_INFO": "Información básica",
+      "DESCRIPTION": "Descripción",
+      "DESCRIPTION_PLACEHOLDER": "Ingresar descripción de la categoría",
+      "MEDIA": "Subida de archivos multimedia",
+      "NAME": "Nombre de la categoría",
+      "NAME_PLACEHOLDER": "Ingresar nombre de la categoría",
+      "NAME_REQUIRED": "El nombre de la categoría es obligatorio",
+      "NEW_TITLE": "Crear nueva categoría",
+      "TYPE": "Tipo de categoría",
+      "TYPE_PLACEHOLDER": "Ingresar tipo de categoría",
+      "TYPE_REQUIRED": "El tipo de categoría es obligatorio",
+      "UPLOAD_MEDIA": "Subir archivo multimedia"
+    },
+    "ERROR_LOADING": "Error al cargar las categorías: {{error}}",
+    "LOADING": "Cargando categorías...",
+    "NO_MEDIA": "No hay multimedia disponible para esta categoría",
+    "TITLE": "Categorías de productos"
+  },
+  "COMMON": {
+    "CANCEL": "Cancelar",
+    "CHANGE_PASSWORD": "Cambiar contraseña",
+    "CLOSE": "Cerrar",
+    "CONFIRM": "Confirmar",
+    "NO": "No",
+    "SAVE": "Guardar cambios",
+    "SAVING": "Guardando...",
+    "SENDING": "Enviando...",
+    "YES": "Sí"
+  },
+  "CUSTOMER": {
+    "ADDRESS": "Dirección",
+    "BASIC_INFO": "Información básica",
+    "BILLING_ADDRESS": "Dirección de facturación",
+    "CHANGE_PASSWORD": "Cambiar contraseña",
+    "CITY": "Ciudad",
+    "COMPANY_NAME": "Nombre de la empresa",
+    "CONFIRM_NEW_PASSWORD": "Confirmar nueva contraseña",
+    "COUNTRY": "País",
+    "CURRENT_PASSWORD": "Contraseña actual",
+    "CURRENT_PASSWORD_REQUIRED": "La contraseña actual es obligatoria",
+    "EMAIL": "Correo electrónico",
+    "ENTER_CITY": "Ingresar ciudad",
+    "ENTER_COMPANY_NAME": "Ingresar nombre de la empresa",
+    "ENTER_FIRST_NAME": "Ingresar nombre",
+    "ENTER_HOUSE_NUMBER": "Ingresar número de casa",
+    "ENTER_LAST_NAME": "Ingresar apellido",
+    "ENTER_PHONE": "Ingresar teléfono",
+    "ENTER_STREET": "Ingresar calle",
+    "ENTER_TAX_ID": "Ingresar ID de impuesto",
+    "ENTER_ZIP_CODE": "Ingresar código postal",
+    "FIRST_NAME": "Nombre",
+    "HOUSE_NUMBER": "Número de casa",
+    "HOUSE_NUMBER_REQUIRED": "El número de casa es obligatorio",
+    "INCORRECT_PASSWORD": "Contraseña incorrecta",
+    "LAST_NAME": "Apellido",
+    "NEW_PASSWORD": "Nueva contraseña",
+    "PASSWORD_CHANGE_ERROR": "Error al cambiar la contraseña",
+    "PASSWORD_CHANGE_SUCCESS": "Contraseña cambiada exitosamente",
+    "PHONE": "Teléfono",
+    "PHONE_INVALID": "Número de teléfono inválido",
+    "SAVE_ERROR": "Error al guardar los cambios",
+    "SAVE_SUCCESS": "Cambios guardados exitosamente",
+    "SAME_BILLING_ADDRESS": "Dirección de facturación igual a la de envío",
+    "SHIPPING_ADDRESS": "Dirección de envío",
+    "STREET": "Calle",
+    "STREET_REQUIRED": "La calle es obligatoria",
+    "TAX_ID": "ID de impuesto",
+    "TAX_ID_INVALID": "ID de impuesto inválido",
+    "TITLE": "Detalles del cliente",
+    "ZIP_CODE": "Código postal",
+    "ZIP_CODE_NUMBERS_ONLY": "El código postal debe contener solo números",
+    "ZIP_CODE_REQUIRED": "El código postal es obligatorio"
+  },
+  "ERRORS": {
+    "FIX_FORM": "Por favor, corrige los errores del formulario",
+    "FORM_VALIDATION": "Falló la validación del formulario",
+    "LOGIN_FAILED": "Falló el inicio de sesión",
+    "PASSWORD_CHANGE_FAILED": "Falló el cambio de contraseña",
+    "REGISTRATION_FAILED": "Falló el registro:",
+    "SERVER_ERROR": "Ocurrió un error del servidor",
+    "UNAUTHORIZED": "Acceso no autorizado"
+  },
+  "LOGIN": {
+    "ENTER_EMAIL": "Ingresar correo electrónico",
+    "ENTER_PASSWORD": "Ingresar contraseña",
+    "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
+    "FORGOT_PASSWORD_TITLE": "Restablecer contraseña",
+    "HAVE_ACCOUNT": "¿Ya tienes una cuenta?",
+    "LOGIN": "Iniciar sesión",
+    "NO_ACCOUNT": "¿No tienes una cuenta?",
+    "REMEMBER_PASSWORD": "¿Recordar contraseña?",
+    "RESET_PASSWORD": "Restablecer contraseña",
+    "SEND_RESET_LINK": "Enviar enlace de restablecimiento",
+    "TITLE": "Iniciar sesión"
+  },
+  "MENU": {
+    "ADMIN": {
+      "CATEGORIES": "Categorías",
+      "CUSTOMERS": "Clientes",
+      "MIXTURES": "Mezclas",
+      "ORDERS": "Pedidos",
+      "PRODUCTS": "Productos",
+      "TAGS": "Etiquetas"
+    },
+    "CLIENT": {
+      "ORDERS": "Mis pedidos",
+      "PROFILE": "Mi perfil"
+    },
+    "LOGOUT": "Cerrar sesión"
+  },
+  "RESET_PASSWORD": {
+    "BUTTON": "Restablecer contraseña",
+    "ENTER_PASSWORD": "Ingresar nueva contraseña",
+    "ERROR": "Falló el restablecimiento de contraseña",
+    "PASSWORD": "Contraseña",
+    "SUCCESS": "Contraseña restablecida exitosamente",
+    "TITLE": "Restablecer contraseña",
+    "TOKEN_INVALID_OR_EXPIRED": "Token inválido o expirado"
+  },
+  "SUCCESS": {
+    "LOGIN_SUCCESS": "Inicio de sesión exitoso",
+    "PASSWORD_CHANGE_SUCCESS": "Contraseña cambiada exitosamente",
+    "PROFILE_UPDATE_SUCCESS": "Perfil actualizado exitosamente",
+    "REGISTRATION_SUCCESS": "Registro exitoso"
+  },
+  "USER_REGISTRATION": {
+    "CONFIRM_PASSWORD": "Confirmar contraseña",
+    "EMAIL": "Correo electrónico",
+    "EMAIL_INVALID": "Formato de correo electrónico inválido",
+    "EMAIL_REQUIRED": "El correo electrónico es obligatorio",
+    "ENTER_FIRST_NAME": "Ingresar nombre",
+    "ENTER_LAST_NAME": "Ingresar apellido",
+    "FIRST_NAME": "Nombre",
+    "FIRST_NAME_REQUIRED": "El nombre es obligatorio",
+    "LAST_NAME": "Apellido",
+    "LAST_NAME_REQUIRED": "El apellido es obligatorio",
+    "PASSWORD": "Contraseña",
+    "PASSWORD_REQUIRED": "La contraseña es obligatoria",
+    "REGISTER": "Registrarse",
+    "SUCCESS": "Cuenta creada exitosamente"
+  },
+  "VALIDATION": {
+    "EMAIL": "Formato de correo electrónico inválido",
+    "MATCH": "Los campos deben coincidir",
+    "MAX_LENGTH": "La longitud máxima es de {max} caracteres",
+    "MIN_LENGTH": "La longitud mínima es de {min} caracteres",
+    "PATTERN": "Formato inválido",
+    "REQUIRED": "Este campo es obligatorio"
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "APP": {
+    "TITLE": "Plateforme de commerce électronique"
+  },
+  "AUTH": {
+    "LOGIN": "Se connecter",
+    "REGISTER": "S'inscrire"
+  },
+  "CART": {
+    "TITLE": "Panier d'achat",
+    "EMPTY": "Votre panier est vide",
+    "ITEMS": "articles",
+    "TOTAL": "Total",
+    "VIEW_CART": "Voir le panier",
+    "CHECKOUT": "Commander"
+  },
+  "CATEGORIES": {
+    "ADMIN": {
+      "BASIC_INFO": "Informations de base",
+      "DESCRIPTION": "Description",
+      "DESCRIPTION_PLACEHOLDER": "Entrez la description de la catégorie",
+      "MEDIA": "Téléchargements de médias",
+      "NAME": "Nom de la catégorie",
+      "NAME_PLACEHOLDER": "Entrez le nom de la catégorie",
+      "NAME_REQUIRED": "Le nom de la catégorie est obligatoire",
+      "NEW_TITLE": "Créer une nouvelle catégorie",
+      "TYPE": "Type de catégorie",
+      "TYPE_PLACEHOLDER": "Entrez le type de catégorie",
+      "TYPE_REQUIRED": "Le type de catégorie est obligatoire",
+      "UPLOAD_MEDIA": "Télécharger des médias"
+    },
+    "ERROR_LOADING": "Erreur lors du chargement des catégories : {{error}}",
+    "LOADING": "Chargement des catégories...",
+    "NO_MEDIA": "Aucun média disponible pour cette catégorie",
+    "TITLE": "Catégories de produits"
+  },
+  "COMMON": {
+    "CANCEL": "Annuler",
+    "CHANGE_PASSWORD": "Changer le mot de passe",
+    "CLOSE": "Fermer",
+    "CONFIRM": "Confirmer",
+    "NO": "Non",
+    "SAVE": "Enregistrer les modifications",
+    "SAVING": "Enregistrement...",
+    "SENDING": "Envoi...",
+    "YES": "Oui"
+  },
+  "CUSTOMER": {
+    "ADDRESS": "Adresse",
+    "BASIC_INFO": "Informations de base",
+    "BILLING_ADDRESS": "Adresse de facturation",
+    "CHANGE_PASSWORD": "Changer le mot de passe",
+    "CITY": "Ville",
+    "COMPANY_NAME": "Nom de l'entreprise",
+    "CONFIRM_NEW_PASSWORD": "Confirmer le nouveau mot de passe",
+    "COUNTRY": "Pays",
+    "CURRENT_PASSWORD": "Mot de passe actuel",
+    "CURRENT_PASSWORD_REQUIRED": "Le mot de passe actuel est obligatoire",
+    "EMAIL": "E-mail",
+    "ENTER_CITY": "Entrez la ville",
+    "ENTER_COMPANY_NAME": "Entrez le nom de l'entreprise",
+    "ENTER_FIRST_NAME": "Entrez le prénom",
+    "ENTER_HOUSE_NUMBER": "Entrez le numéro de la maison",
+    "ENTER_LAST_NAME": "Entrez le nom de famille",
+    "ENTER_PHONE": "Entrez le téléphone",
+    "ENTER_STREET": "Entrez la rue",
+    "ENTER_TAX_ID": "Entrez le numéro de TVA",
+    "ENTER_ZIP_CODE": "Entrez le code postal",
+    "FIRST_NAME": "Prénom",
+    "HOUSE_NUMBER": "Numéro de maison",
+    "HOUSE_NUMBER_REQUIRED": "Le numéro de maison est obligatoire",
+    "INCORRECT_PASSWORD": "Mot de passe incorrect",
+    "LAST_NAME": "Nom de famille",
+    "NEW_PASSWORD": "Nouveau mot de passe",
+    "PASSWORD_CHANGE_ERROR": "Échec du changement de mot de passe",
+    "PASSWORD_CHANGE_SUCCESS": "Mot de passe changé avec succès",
+    "PHONE": "Téléphone",
+    "PHONE_INVALID": "Numéro de téléphone invalide",
+    "SAVE_ERROR": "Échec de l'enregistrement des modifications",
+    "SAVE_SUCCESS": "Modifications enregistrées avec succès",
+    "SAME_BILLING_ADDRESS": "Adresse de facturation identique à l'adresse de livraison",
+    "SHIPPING_ADDRESS": "Adresse de livraison",
+    "STREET": "Rue",
+    "STREET_REQUIRED": "La rue est obligatoire",
+    "TAX_ID": "Numéro de TVA",
+    "TAX_ID_INVALID": "Numéro de TVA invalide",
+    "TITLE": "Détails du client",
+    "ZIP_CODE": "Code postal",
+    "ZIP_CODE_NUMBERS_ONLY": "Le code postal ne doit contenir que des chiffres",
+    "ZIP_CODE_REQUIRED": "Le code postal est obligatoire"
+  },
+  "ERRORS": {
+    "FIX_FORM": "Veuillez corriger les erreurs du formulaire",
+    "FORM_VALIDATION": "La validation du formulaire a échoué",
+    "LOGIN_FAILED": "Échec de la connexion",
+    "PASSWORD_CHANGE_FAILED": "Échec du changement de mot de passe",
+    "REGISTRATION_FAILED": "Échec de l'inscription :",
+    "SERVER_ERROR": "Une erreur de serveur est survenue",
+    "UNAUTHORIZED": "Accès non autorisé"
+  },
+  "LOGIN": {
+    "ENTER_EMAIL": "Entrez l'e-mail",
+    "ENTER_PASSWORD": "Entrez le mot de passe",
+    "FORGOT_PASSWORD": "Mot de passe oublié ?",
+    "FORGOT_PASSWORD_TITLE": "Réinitialisation du mot de passe",
+    "HAVE_ACCOUNT": "Vous avez déjà un compte ?",
+    "LOGIN": "Se connecter",
+    "NO_ACCOUNT": "Vous n'avez pas de compte ?",
+    "REMEMBER_PASSWORD": "Se souvenir du mot de passe ?",
+    "RESET_PASSWORD": "Réinitialiser le mot de passe",
+    "SEND_RESET_LINK": "Envoyer le lien de réinitialisation",
+    "TITLE": "Se connecter"
+  },
+  "MENU": {
+    "ADMIN": {
+      "CATEGORIES": "Catégories",
+      "CUSTOMERS": "Clients",
+      "MIXTURES": "Mélanges",
+      "ORDERS": "Commandes",
+      "PRODUCTS": "Produits",
+      "TAGS": "Tags"
+    },
+    "CLIENT": {
+      "ORDERS": "Mes commandes",
+      "PROFILE": "Mon profil"
+    },
+    "LOGOUT": "Se déconnecter"
+  },
+  "RESET_PASSWORD": {
+    "BUTTON": "Réinitialiser le mot de passe",
+    "ENTER_PASSWORD": "Entrez le nouveau mot de passe",
+    "ERROR": "La réinitialisation du mot de passe a échoué",
+    "PASSWORD": "Mot de passe",
+    "SUCCESS": "Mot de passe réinitialisé avec succès",
+    "TITLE": "Réinitialiser le mot de passe",
+    "TOKEN_INVALID_OR_EXPIRED": "Jeton invalide ou expiré"
+  },
+  "SUCCESS": {
+    "LOGIN_SUCCESS": "Connexion réussie",
+    "PASSWORD_CHANGE_SUCCESS": "Mot de passe changé avec succès",
+    "PROFILE_UPDATE_SUCCESS": "Profil mis à jour avec succès",
+    "REGISTRATION_SUCCESS": "Inscription réussie"
+  },
+  "USER_REGISTRATION": {
+    "CONFIRM_PASSWORD": "Confirmer le mot de passe",
+    "EMAIL": "E-mail",
+    "EMAIL_INVALID": "Format d'e-mail invalide",
+    "EMAIL_REQUIRED": "L'e-mail est obligatoire",
+    "ENTER_FIRST_NAME": "Entrez le prénom",
+    "ENTER_LAST_NAME": "Entrez le nom de famille",
+    "FIRST_NAME": "Prénom",
+    "FIRST_NAME_REQUIRED": "Le prénom est obligatoire",
+    "LAST_NAME": "Nom de famille",
+    "LAST_NAME_REQUIRED": "Le nom de famille est obligatoire",
+    "PASSWORD": "Mot de passe",
+    "PASSWORD_REQUIRED": "Le mot de passe est obligatoire",
+    "REGISTER": "S'inscrire",
+    "SUCCESS": "Compte créé avec succès"
+  },
+  "VALIDATION": {
+    "EMAIL": "Format d'e-mail invalide",
+    "MATCH": "Les champs doivent correspondre",
+    "MAX_LENGTH": "La longueur maximale est de {max} caractères",
+    "MIN_LENGTH": "La longueur minimale est de {min} caractères",
+    "PATTERN": "Format invalide",
+    "REQUIRED": "Ce champ est obligatoire"
+  }
+}

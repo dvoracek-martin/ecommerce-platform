@@ -1,0 +1,168 @@
+{
+  "APP": {
+    "TITLE": "E-Commerce Plattform"
+  },
+  "AUTH": {
+    "LOGIN": "Anmelden",
+    "REGISTER": "Registrieren"
+  },
+  "CART": {
+    "TITLE": "Warenkorb",
+    "EMPTY": "Ihr Warenkorb ist leer",
+    "ITEMS": "Artikel",
+    "TOTAL": "Gesamtbetrag",
+    "VIEW_CART": "Warenkorb anzeigen",
+    "CHECKOUT": "Zur Kasse"
+  },
+  "CATEGORIES": {
+    "ADMIN": {
+      "BASIC_INFO": "Basisinformationen",
+      "DESCRIPTION": "Beschreibung",
+      "DESCRIPTION_PLACEHOLDER": "Geben Sie die Kategoriebeschreibung ein",
+      "MEDIA": "Medien-Uploads",
+      "NAME": "Kategoriename",
+      "NAME_PLACEHOLDER": "Geben Sie den Kategorienamen ein",
+      "NAME_REQUIRED": "Der Kategoriename ist erforderlich",
+      "NEW_TITLE": "Neue Kategorie erstellen",
+      "TYPE": "Kategorietyp",
+      "TYPE_PLACEHOLDER": "Geben Sie den Kategorietyp ein",
+      "TYPE_REQUIRED": "Der Kategorietyp ist erforderlich",
+      "UPLOAD_MEDIA": "Medien hochladen"
+    },
+    "ERROR_LOADING": "Fehler beim Laden der Kategorien: {{error}}",
+    "LOADING": "Kategorien werden geladen...",
+    "NO_MEDIA": "Keine Medien für diese Kategorie verfügbar",
+    "TITLE": "Produktkategorien"
+  },
+  "COMMON": {
+    "CANCEL": "Abbrechen",
+    "CHANGE_PASSWORD": "Passwort ändern",
+    "CLOSE": "Schließen",
+    "CONFIRM": "Bestätigen",
+    "NO": "Nein",
+    "SAVE": "Änderungen speichern",
+    "SAVING": "Speichern...",
+    "SENDING": "Senden...",
+    "YES": "Ja"
+  },
+  "CUSTOMER": {
+    "ADDRESS": "Adresse",
+    "BASIC_INFO": "Grundlegende Informationen",
+    "BILLING_ADDRESS": "Rechnungsadresse",
+    "CHANGE_PASSWORD": "Passwort ändern",
+    "CITY": "Stadt",
+    "COMPANY_NAME": "Firmenname",
+    "CONFIRM_NEW_PASSWORD": "Neues Passwort bestätigen",
+    "COUNTRY": "Land",
+    "CURRENT_PASSWORD": "Aktuelles Passwort",
+    "CURRENT_PASSWORD_REQUIRED": "Das aktuelle Passwort ist erforderlich",
+    "EMAIL": "E-Mail",
+    "ENTER_CITY": "Geben Sie die Stadt ein",
+    "ENTER_COMPANY_NAME": "Geben Sie den Firmennamen ein",
+    "ENTER_FIRST_NAME": "Geben Sie den Vornamen ein",
+    "ENTER_HOUSE_NUMBER": "Geben Sie die Hausnummer ein",
+    "ENTER_LAST_NAME": "Geben Sie den Nachnamen ein",
+    "ENTER_PHONE": "Geben Sie die Telefonnummer ein",
+    "ENTER_STREET": "Geben Sie die Straße ein",
+    "ENTER_TAX_ID": "Geben Sie die Steuernummer ein",
+    "ENTER_ZIP_CODE": "Geben Sie die Postleitzahl ein",
+    "FIRST_NAME": "Vorname",
+    "HOUSE_NUMBER": "Hausnummer",
+    "HOUSE_NUMBER_REQUIRED": "Die Hausnummer ist erforderlich",
+    "INCORRECT_PASSWORD": "Falsches Passwort",
+    "LAST_NAME": "Nachname",
+    "NEW_PASSWORD": "Neues Passwort",
+    "PASSWORD_CHANGE_ERROR": "Passwortänderung fehlgeschlagen",
+    "PASSWORD_CHANGE_SUCCESS": "Passwort erfolgreich geändert",
+    "PHONE": "Telefon",
+    "PHONE_INVALID": "Ungültige Telefonnummer",
+    "SAVE_ERROR": "Speichern der Änderungen fehlgeschlagen",
+    "SAVE_SUCCESS": "Änderungen erfolgreich gespeichert",
+    "SAME_BILLING_ADDRESS": "Rechnungsadresse ist gleich der Lieferadresse",
+    "SHIPPING_ADDRESS": "Lieferadresse",
+    "STREET": "Straße",
+    "STREET_REQUIRED": "Die Straße ist erforderlich",
+    "TAX_ID": "Steuernummer",
+    "TAX_ID_INVALID": "Ungültige Steuernummer",
+    "TITLE": "Kundendetails",
+    "ZIP_CODE": "Postleitzahl",
+    "ZIP_CODE_NUMBERS_ONLY": "Die Postleitzahl darf nur Zahlen enthalten",
+    "ZIP_CODE_REQUIRED": "Die Postleitzahl ist erforderlich"
+  },
+  "ERRORS": {
+    "FIX_FORM": "Bitte beheben Sie die Formularfehler",
+    "FORM_VALIDATION": "Formularvalidierung fehlgeschlagen",
+    "LOGIN_FAILED": "Anmeldung fehlgeschlagen",
+    "PASSWORD_CHANGE_FAILED": "Passwortänderung fehlgeschlagen",
+    "REGISTRATION_FAILED": "Registrierung fehlgeschlagen:",
+    "SERVER_ERROR": "Ein Serverfehler ist aufgetreten",
+    "UNAUTHORIZED": "Unbefugter Zugriff"
+  },
+  "LOGIN": {
+    "ENTER_EMAIL": "E-Mail eingeben",
+    "ENTER_PASSWORD": "Passwort eingeben",
+    "FORGOT_PASSWORD": "Passwort vergessen?",
+    "FORGOT_PASSWORD_TITLE": "Passwort zurücksetzen",
+    "HAVE_ACCOUNT": "Haben Sie bereits ein Konto?",
+    "LOGIN": "Anmelden",
+    "NO_ACCOUNT": "Sie haben kein Konto?",
+    "REMEMBER_PASSWORD": "Passwort speichern?",
+    "RESET_PASSWORD": "Passwort zurücksetzen",
+    "SEND_RESET_LINK": "Link zum Zurücksetzen senden",
+    "TITLE": "Anmelden"
+  },
+  "MENU": {
+    "ADMIN": {
+      "CATEGORIES": "Kategorien",
+      "CUSTOMERS": "Kunden",
+      "MIXTURES": "Mischungen",
+      "ORDERS": "Bestellungen",
+      "PRODUCTS": "Produkte",
+      "TAGS": "Tags"
+    },
+    "CLIENT": {
+      "ORDERS": "Meine Bestellungen",
+      "PROFILE": "Mein Profil"
+    },
+    "LOGOUT": "Abmelden"
+  },
+  "RESET_PASSWORD": {
+    "BUTTON": "Passwort zurücksetzen",
+    "ENTER_PASSWORD": "Neues Passwort eingeben",
+    "ERROR": "Passwortzurücksetzung fehlgeschlagen",
+    "PASSWORD": "Passwort",
+    "SUCCESS": "Passwort erfolgreich zurückgesetzt",
+    "TITLE": "Passwort zurücksetzen",
+    "TOKEN_INVALID_OR_EXPIRED": "Ungültiges oder abgelaufenes Token"
+  },
+  "SUCCESS": {
+    "LOGIN_SUCCESS": "Anmeldung erfolgreich",
+    "PASSWORD_CHANGE_SUCCESS": "Passwort erfolgreich geändert",
+    "PROFILE_UPDATE_SUCCESS": "Profil erfolgreich aktualisiert",
+    "REGISTRATION_SUCCESS": "Registrierung erfolgreich"
+  },
+  "USER_REGISTRATION": {
+    "CONFIRM_PASSWORD": "Passwort bestätigen",
+    "EMAIL": "E-Mail",
+    "EMAIL_INVALID": "Ungültiges E-Mail-Format",
+    "EMAIL_REQUIRED": "E-Mail ist erforderlich",
+    "ENTER_FIRST_NAME": "Geben Sie den Vornamen ein",
+    "ENTER_LAST_NAME": "Geben Sie den Nachnamen ein",
+    "FIRST_NAME": "Vorname",
+    "FIRST_NAME_REQUIRED": "Der Vorname ist erforderlich",
+    "LAST_NAME": "Nachname",
+    "LAST_NAME_REQUIRED": "Der Nachname ist erforderlich",
+    "PASSWORD": "Passwort",
+    "PASSWORD_REQUIRED": "Das Passwort ist erforderlich",
+    "REGISTER": "Registrieren",
+    "SUCCESS": "Konto erfolgreich erstellt"
+  },
+  "VALIDATION": {
+    "EMAIL": "Ungültiges E-Mail-Format",
+    "MATCH": "Felder müssen übereinstimmen",
+    "MAX_LENGTH": "Maximale Länge beträgt {max} Zeichen",
+    "MIN_LENGTH": "Minimale Länge beträgt {min} Zeichen",
+    "PATTERN": "Ungültiges Format",
+    "REQUIRED": "Dieses Feld ist erforderlich"
+  }
+}

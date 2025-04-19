@@ -23,41 +23,44 @@
       <div *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_admin')">
         <button (click)="navigateToAdminCategories()" mat-menu-item>
           <mat-icon>category</mat-icon>
-          <span>{{ 'ADMIN.CATEGORIES' | translate }}</span>
+          <span>{{ 'MENU.ADMIN.CATEGORIES' | translate }}</span>
         </button>
         <button (click)="navigateToAdminProducts()" mat-menu-item>
           <mat-icon>inventory</mat-icon>
-          <span>{{ 'ADMIN.PRODUCTS' | translate }}</span>
+          <span>{{ 'MENU.ADMIN.PRODUCTS' | translate }}</span>
         </button>
         <button (click)="navigateToAdminMixtures()" mat-menu-item>
           <mat-icon>science</mat-icon>
-          <span>{{ 'ADMIN.MIXTURES' | translate }}</span>
+          <span>{{ 'MENU.ADMIN.MIXTURES' | translate }}</span>
+        </button>
+        <button (click)="navigateToAdminTags()" mat-menu-item>
+          <mat-icon>label</mat-icon>
+          <span>{{ 'MENU.ADMIN.TAGS' | translate }}</span>
         </button>
         <button (click)="navigateToAdminCustomers()" mat-menu-item>
           <mat-icon>people</mat-icon>
-          <span>{{ 'ADMIN.CUSTOMERS' | translate }}</span>
+          <span>{{ 'MENU.ADMIN.CUSTOMERS' | translate }}</span>
         </button>
         <button (click)="navigateToAdminOrders()" mat-menu-item>
           <mat-icon>list_alt</mat-icon>
-          <span>{{ 'ADMIN.ORDERS' | translate }}</span>
+          <span>{{ 'MENU.ADMIN.ORDERS' | translate }}</span>
         </button>
       </div>
 
       <div *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_client')">
         <button (click)="navigateToProfile()" mat-menu-item>
           <mat-icon>account_circle</mat-icon>
-          <span>{{ 'AUTH.PROFILE' | translate }}</span>
+          <span>{{ 'MENU.CLIENT.PROFILE' | translate }}</span>
         </button>
-
         <button (click)="navigateToClientOrders()" mat-menu-item>
           <mat-icon>shopping_cart</mat-icon>
-          <span>{{ 'ORDERS.TITLE' | translate }}</span>
+          <span>{{ 'MENU.CLIENT.ORDERS' | translate }}</span>
         </button>
       </div>
 
       <button (click)="logout()" mat-menu-item>
         <mat-icon>logout</mat-icon>
-        <span>{{ 'AUTH.LOGOUT' | translate }}</span>
+        <span>{{ 'MENU.LOGOUT' | translate }}</span>
       </button>
     </mat-menu>
     <button *ngIf="authService.isAuthenticated$ | async; else loginBtn"

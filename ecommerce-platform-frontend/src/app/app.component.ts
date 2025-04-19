@@ -15,7 +15,10 @@ export class AppComponent implements OnInit {
   title = 'ecommerce-platform-frontend';
   languages = [
     { code: 'en', name: 'English', icon: 'flag_us' },
-    { code: 'cs', name: 'Česky', icon: 'flag_cz' }
+    { code: 'de', name: 'Deutsch', icon: 'flag_ch' }, // Corrected code and icon for German
+    { code: 'fr', name: 'Français', icon: 'flag_ch' }, // Corrected code and icon for French
+    { code: 'cs', name: 'Česky', icon: 'flag_cz' },
+    { code: 'es', name: 'Español', icon: 'flag_es' }  // Removed extra space in name
   ];
   selectedLanguage = this.languages[0];
   isPopupOpen = false;
@@ -32,14 +35,22 @@ export class AppComponent implements OnInit {
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/flags/us.svg')
     );
     this.matIconRegistry.addSvgIcon(
+      'flag_ch',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/flags/ch.svg')
+    );
+    this.matIconRegistry.addSvgIcon(
       'flag_cz',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/flags/cz.svg')
+    );
+    this.matIconRegistry.addSvgIcon(
+      'flag_es',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/flags/es.svg')
     );
 
     translate.addLangs(this.languages.map(lang => lang.code));
     translate.setDefaultLang('en');
     const browserLang = translate.getBrowserLang() || 'en';
-    this.setLanguage(browserLang.match(/en|cs/) ? browserLang : 'en');
+    this.setLanguage(browserLang.match(/en|de|fr|cs|es/) ? browserLang : 'en'); // Include all language codes
   }
 
   ngOnInit(): void {
@@ -97,6 +108,9 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/orders']);
   }
 
+  navigateToAdminTags() {
+    this.router.navigate(['/admin/tags']);
+  }
   private setLanguage(langCode: string): void {
     this.translate.use(langCode);
     const foundLang = this.languages.find(lang => lang.code === langCode);

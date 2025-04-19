@@ -4,15 +4,44 @@
   },
   "AUTH": {
     "LOGIN": "Login",
-    "LOGOUT": "Logout",
-    "PROFILE": "Profile",
     "REGISTER": "Register"
+  },
+  "CART": {
+    "TITLE": "Shopping Cart",
+    "EMPTY": "Your cart is empty",
+    "ITEMS": "items",
+    "TOTAL": "Total",
+    "VIEW_CART": "View Cart",
+    "CHECKOUT": "Checkout"
+  },
+  "CATEGORIES": {
+    "ADMIN": {
+      "BASIC_INFO": "Basic Information",
+      "DESCRIPTION": "Description",
+      "DESCRIPTION_PLACEHOLDER": "Enter category description",
+      "EDIT_TITLE": "Edit Category",
+      "MEDIA": "Media Uploads",
+      "NAME": "Category Name",
+      "NAME_PLACEHOLDER": "Enter category name",
+      "NAME_REQUIRED": "Category name is required",
+      "NEW_TITLE": "Create New Category",
+      "TITLE": "Categories",
+      "TYPE": "Category Type",
+      "TYPE_PLACEHOLDER": "Enter category type",
+      "TYPE_REQUIRED": "Category type is required",
+      "UPLOAD_MEDIA": "Upload Media"
+    },
+    "ERROR_LOADING": "Error loading categories: {{error}}",
+    "LOADING": "Loading categories...",
+    "NO_MEDIA": "No media available for this category",
+    "TITLE": "Product Categories"
   },
   "COMMON": {
     "CANCEL": "Cancel",
     "CHANGE_PASSWORD": "Change Password",
     "CLOSE": "Close",
     "CONFIRM": "Confirm",
+    "DELETE": "Delete",
     "NO": "No",
     "SAVE": "Save Changes",
     "SAVING": "Saving...",
@@ -31,13 +60,13 @@
     "CURRENT_PASSWORD": "Current Password",
     "CURRENT_PASSWORD_REQUIRED": "Current password is required",
     "EMAIL": "Email",
-    "ENTER_COMPANY_NAME": "Enter company name",
     "ENTER_CITY": "Enter city",
+    "ENTER_COMPANY_NAME": "Enter company name",
     "ENTER_FIRST_NAME": "Enter first name",
     "ENTER_HOUSE_NUMBER": "Enter house number",
     "ENTER_LAST_NAME": "Enter last name",
-    "ENTER_STREET": "Enter street",
     "ENTER_PHONE": "Enter phone",
+    "ENTER_STREET": "Enter street",
     "ENTER_TAX_ID": "Enter tax ID",
     "ENTER_ZIP_CODE": "Enter ZIP code",
     "FIRST_NAME": "First Name",
@@ -49,6 +78,7 @@
     "PASSWORD_CHANGE_ERROR": "Password change failed",
     "PASSWORD_CHANGE_SUCCESS": "Password changed successfully",
     "PHONE": "Phone",
+    "PHONE_INVALID": "Invalid phone number",
     "SAVE_ERROR": "Failed to save changes",
     "SAVE_SUCCESS": "Changes saved successfully",
     "SAME_BILLING_ADDRESS": "Billing address same as shipping",
@@ -56,12 +86,11 @@
     "STREET": "Street",
     "STREET_REQUIRED": "Street is required",
     "TAX_ID": "Tax ID",
+    "TAX_ID_INVALID": "Invalid Tax ID",
     "TITLE": "Customer Details",
     "ZIP_CODE": "ZIP Code",
     "ZIP_CODE_NUMBERS_ONLY": "ZIP code must contain numbers only",
-    "ZIP_CODE_REQUIRED": "ZIP code is required",
-    "PHONE_INVALID": "Invalid phone number",
-    "TAX_ID_INVALID": "Invalid Tax ID"
+    "ZIP_CODE_REQUIRED": "ZIP code is required"
   },
   "ERRORS": {
     "FIX_FORM": "Please fix form errors",
@@ -84,6 +113,21 @@
     "RESET_PASSWORD": "Reset password",
     "SEND_RESET_LINK": "Send reset link",
     "TITLE": "Login"
+  },
+  "MENU": {
+    "ADMIN": {
+      "CATEGORIES": "Categories",
+      "CUSTOMERS": "Customers",
+      "MIXTURES": "Mixtures",
+      "ORDERS": "Orders",
+      "PRODUCTS": "Products",
+      "TAGS": "Tags"
+    },
+    "CLIENT": {
+      "ORDERS": "My Orders",
+      "PROFILE": "My Profile"
+    },
+    "LOGOUT": "Logout"
   },
   "RESET_PASSWORD": {
     "BUTTON": "Reset Password",
@@ -112,14 +156,9 @@
     "LAST_NAME": "Last Name",
     "LAST_NAME_REQUIRED": "Last name is required",
     "PASSWORD": "Password",
-    "PASSWORD_MINLENGTH": "Password must be at least 8 characters",
-    "PASSWORD_PATTERN": "Password cannot contain spaces",
     "PASSWORD_REQUIRED": "Password is required",
-    "PASSWORDS_MISMATCH": "Passwords do not match",
     "REGISTER": "Register",
-    "TITLE": "Registration",
-    "USERNAME": "Username",
-    "USERNAME_REQUIRED": "Username is required"
+    "SUCCESS": "Account successfully created"
   },
   "VALIDATION": {
     "EMAIL": "Invalid email format",

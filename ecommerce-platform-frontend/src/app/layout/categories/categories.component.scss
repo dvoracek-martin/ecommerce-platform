@@ -14,16 +14,20 @@
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-  padding: 20px 0;
+  gap: 30px; /* Space between columns */
+  row-gap: 100px; /* Increased space between rows */
+  padding: 30px 0; /* Increased vertical padding around grid */
 
   @media (max-width: 1200px) {
     grid-template-columns: repeat(2, 1fr);
+    row-gap: 40px; /* Slightly less space on smaller screens */
   }
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 25px; /* Consistent spacing on mobile */
+    row-gap: 25px;
+    padding: 20px 0;
   }
 }
 
@@ -36,6 +40,11 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 30px;
+  }
 
   &:hover {
     transform: translateY(-5px);
@@ -74,6 +83,7 @@
     font-size: 0.95rem;
     flex-grow: 1;
   }
+
 }
 
 .media-carousel {
