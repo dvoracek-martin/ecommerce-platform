@@ -5,6 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -15,11 +20,13 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Service
+@Service("mediaRetriever") // Ensure the bean name matches the condition in @Cacheable
 public class MinIOMediaRetriever implements MediaRetriever {
 
     @Value("${minio.endpoint}")
@@ -45,7 +52,11 @@ public class MinIOMediaRetriever implements MediaRetriever {
                 .build();
     }
 
-    @Cacheable(value = "mediaContent", key = "#objectKey")
+    @Cacheable(
+            value = "mediaContent",
+            key = "#objectKey",
+            condition = "@mediaRetriever.isUserClient()"
+    )
     public byte[] retrieveMedia(String objectKey, String bucketName) {
         try {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
@@ -64,6 +75,7 @@ public class MinIOMediaRetriever implements MediaRetriever {
             return null;
         }
     }
+
 
     @Cacheable(value = "folderContents", key = "#folderName")
     public List<String> listMediaKeysInFolder(String folderName, String bucketName) {
@@ -98,5 +110,21 @@ public class MinIOMediaRetriever implements MediaRetriever {
     @CacheEvict(value = "mediaContent", key = "#objectKey")
     public void evictMediaCache(String objectKey) {
         log.info("Evicting cache for media: {}", objectKey);
+    }
+
+    public boolean isUserClient() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof JwtAuthenticationToken jwtAuthToken) {
+            Jwt jwt = jwtAuthToken.getToken();
+            Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+            if (realmAccess != null && realmAccess.containsKey("roles")) {
+                Collection<String> roles = (Collection<String>) realmAccess.get("roles");
+                if (roles.contains("user_client")) { // Adjust "user_client" as needed
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

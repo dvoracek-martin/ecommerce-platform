@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,93 +29,6 @@ public class CatalogAdminControllerV1 {
     private final CatalogService catalogService;
     private final MediaUploader mediaUploader;
 
-//    @PostMapping("/media/upload-images")
-//    public ResponseEntity<List<MediaUploadResponseDTO>> uploadImages(
-//            @Valid @RequestBody List<UploadMediaDTO> requests) {
-//
-//        List<MediaUploadResponseDTO> responses = new ArrayList<>();
-//
-//        for (UploadMediaDTO request : requests) {
-//            if (!request.contentType().startsWith("image/")) {
-//                responses.add(new MediaUploadResponseDTO(
-//                        "error",
-//                        null,
-//                        "Invalid content type for image upload: " + request.contentType()
-//                ));
-//                continue;
-//            }
-//
-//            try {
-//                String url = mediaUploader.uploadBase(
-//                        request.base64Data(),
-//                        request.objectKey(),
-//                        request.contentType()
-//                );
-//
-//                responses.add(new MediaUploadResponseDTO(
-//                        "success",
-//                        url,
-//                        "Upload successful"
-//                ));
-//
-//            } catch (Exception e) {
-//                log.error("Failed to upload image: {}", e.getMessage());
-//                responses.add(new MediaUploadResponseDTO(
-//                        "error",
-//                        null,
-//                        "Upload failed: " + e.getMessage()
-//                ));
-//            }
-//        }
-//
-//        return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(responses);
-//    }
-
-//    @PostMapping("/media/upload-image")
-//    public ResponseEntity<String> uploadImage(@Valid @RequestBody UploadMediaDTO request) {
-//        if (!request.contentType().startsWith("image/")) {
-//            log.error("Invalid content type for image upload: {}", request.contentType());
-//            return ResponseEntity.badRequest().body("Content type must be an image");
-//        }
-//
-//        String url = mediaUploader.uploadBase64Image(
-//                request.base64Data(),
-//                request.objectKey(),
-//                request.contentType()
-//        );
-//
-//        if (url != null) {
-//            log.info("Image uploaded successfully to: {}", url);
-//            return ResponseEntity.ok(url);
-//        } else {
-//            log.error("Failed to upload image with key: {}", request.objectKey());
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
-
-//    @PostMapping("/media/upload-video")
-//    public ResponseEntity<String> uploadVideo(@Valid @RequestBody UploadMediaDTO request) {
-//        if (!request.contentType().startsWith("video/")) {
-//            log.error("Invalid content type for video upload: {}", request.contentType());
-//            return ResponseEntity.badRequest().body("Content type must be a video");
-//        }
-//
-//        String url = mediaUploader.uploadBase64Video(
-//                request.base64Data(),
-//                request.objectKey(),
-//                request.contentType()
-//        );
-//
-//        if (url != null) {
-//            log.info("Video uploaded successfully to: {}", url);
-//            return ResponseEntity.ok(url);
-//        } else {
-//            log.error("Failed to upload video with key: {}", request.objectKey());
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
-//
-//
     @GetMapping("/all-products-and-mixtures")
     public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
         log.info("Admin fetching all products and mixtures");
@@ -122,7 +36,7 @@ public class CatalogAdminControllerV1 {
     }
 
     @GetMapping("/all-products")
-    public List<ResponseProductDTO> getAllProducts() {
+    public List<ResponseProductDTO> getAllProducts(Authentication auth) {
         log.info("Admin fetching all products");
         return catalogService.getAllProducts();
     }

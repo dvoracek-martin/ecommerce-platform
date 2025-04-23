@@ -48,6 +48,12 @@ public class MinIOMediaUploader implements MediaUploader {
                 .build();
     }
 
+    @Override
+    public void createBucketIfNotExists(String productBucket) {
+        this.bucketName = productBucket;
+        createBucketIfNotExists();
+    }
+
     private void createBucketIfNotExists() {
         try {
             s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
@@ -117,6 +123,7 @@ public class MinIOMediaUploader implements MediaUploader {
 
         System.out.println("Deleted from bucket: " + bucketName + ", key: " + key);
     }
+
 
     private void evictRelatedCaches(String finalObjectKey) {
         // 1. Evict individual media cache

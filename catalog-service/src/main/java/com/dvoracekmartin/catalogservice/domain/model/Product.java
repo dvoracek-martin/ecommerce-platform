@@ -37,32 +37,32 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @Column(nullable = false)
+    @Column
     private String scentProfile;
 
-    @Column(nullable = false)
+    @Column
     private String botanicalName;
 
-    @Column(nullable = false)
+    @Column
     private String extractionMethod;
 
-    @Column(nullable = false)
+    @Column
     private String origin;
 
-    @Column(nullable = false)
+    @Column
     private String usageInstructions;
 
 
-    @Column(nullable = false)
+    @Column
     private String warnings;
 
     @Column(columnDefinition = "TEXT")
     private String medicinalUse;
 
-    @Column(nullable = false)
+    @Column
     private Double weightGrams;
 
-    @Column(nullable = false)
+    @Column
     private Integer volumeMl;
 
     @ElementCollection

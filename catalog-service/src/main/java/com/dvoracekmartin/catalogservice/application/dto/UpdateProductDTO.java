@@ -1,13 +1,15 @@
 package com.dvoracekmartin.catalogservice.application.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 import java.util.List;
 
 public record UpdateProductDTO(
         Long id,
-        String name,
+        @NotNull String name,
         String description,
-        BigDecimal price,
+        @NotNull BigDecimal price,
         List<String> images,
         Long categoryId,
         String scentProfile,
