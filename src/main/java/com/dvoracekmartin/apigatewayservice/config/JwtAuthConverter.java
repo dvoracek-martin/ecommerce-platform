@@ -35,7 +35,7 @@ public class JwtAuthConverter implements Converter<Jwt, Mono<AbstractAuthenticat
     public Mono<AbstractAuthenticationToken> convert(@NonNull Jwt jwt) {
         Collection<GrantedAuthority> authorities = Stream.concat(
                 Optional.of(jwtGrantedAuthoritiesConverter.convert(jwt)).stream().flatMap(Collection::stream),
-                extractResourceRoles(jwt).stream()
+                Stream.concat(extractResourceRoles(jwt).stream(), extractRealmRoles(jwt).stream()) // Combine resource and realm roles
         ).collect(Collectors.toSet());
 
         return Mono.just(new JwtAuthenticationToken(jwt, authorities, getPrincipleClaimName(jwt)));
@@ -70,6 +70,23 @@ public class JwtAuthConverter implements Converter<Jwt, Mono<AbstractAuthenticat
         Collection<String> resourceRoles = (Collection<String>) rolesObj;
 
         return resourceRoles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .collect(Collectors.toSet());
+    }
+
+    private Collection<? extends GrantedAuthority> extractRealmRoles(Jwt jwt) {
+        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+        if (realmAccess == null) {
+            return Set.of();
+        }
+        Object rolesObj = realmAccess.get("roles");
+        if (!(rolesObj instanceof Collection<?>)) {
+            return Set.of();
+        }
+        @SuppressWarnings("unchecked")
+        Collection<String> realmRoles = (Collection<String>) rolesObj;
+
+        return realmRoles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toSet());
     }
