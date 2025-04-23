@@ -2,7 +2,7 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import {AppComponent} from './app.component';
@@ -24,7 +24,7 @@ import {ProductsComponent} from './layout/products/products.component';
 import {CategoriesComponent} from './layout/categories/categories.component';
 import {MixturesComponent} from './layout/mixtures/mixtures/mixtures.component';
 import {MixturesAdminComponent} from './layout/mixtures/admin/mixtures-admin.component';
-import {ProductsAdminComponent} from './layout/products/admin/products-admin.component';
+import {ProductsAdminListComponent} from './layout/products/admin/products-admin-list.component';
 import {CategoriesAdminCreateComponent} from './layout/categories/admin/categories-admin-create.component';
 import {MixingAdminComponent} from './layout/mixing/admin/mixing-admin.component';
 import {OrdersComponent} from './layout/orders/client/orders.component';
@@ -41,6 +41,9 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {ConfirmationDialogComponent} from './shared/confirmation-dialog.component';
 import {MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle} from '@angular/material/dialog';
 import {CategoriesAdminUpdateComponent} from './layout/categories/admin/categories-admin-update.component';
+import {ProductsAdminCreateComponent} from './layout/products/admin/products-admin-create.component';
+import {ProductsAdminUpdateComponent} from './layout/products/admin/products-admin-update.component';
+import {AuthInterceptor} from './auth/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -59,7 +62,9 @@ import {CategoriesAdminUpdateComponent} from './layout/categories/admin/categori
     CategoriesComponent,
     MixingAdminComponent,
     MixturesAdminComponent,
-    ProductsAdminComponent,
+    ProductsAdminListComponent,
+    ProductsAdminCreateComponent,
+    ProductsAdminUpdateComponent,
     CategoriesAdminCreateComponent,
     OrdersComponent,
     OrdersAdminComponent,
@@ -96,7 +101,13 @@ import {CategoriesAdminUpdateComponent} from './layout/categories/admin/categori
     TranslatePipe,
     DragDropModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

@@ -42,6 +42,7 @@
     "CLOSE": "Close",
     "CONFIRM": "Confirm",
     "DELETE": "Delete",
+    "DRAG_HANDLE": "Drag to reorder",
     "NO": "No",
     "SAVE": "Save Changes",
     "SAVING": "Saving...",
@@ -129,6 +130,44 @@
     },
     "LOGOUT": "Logout"
   },
+  "PRODUCTS": {
+    "ADMIN": {
+      "ADD_ALLERGEN": "Add Allergen",
+      "ADD_TAG": "Add Tag",
+      "ALLERGENS": "Allergens",
+      "BASIC_INFO": "Basic Information",
+      "DETAILS": "Product Details",
+      "MEDIA": "Product Media",
+      "NEW_TITLE": "Create New Product",
+      "NO_MEDIA_UPLOADED": "No media has been uploaded for this product.",
+      "TAGS": "Product Tags",
+      "TITLE": "Products",
+      "UPLOAD_MEDIA": "Upload Media"
+    },
+    "ALLERGEN": "Allergen",
+    "BOTANICAL_NAME": "Botanical Name",
+    "CATEGORY": "Category",
+    "DESCRIPTION": "Description",
+    "ERROR_LOADING": "Error loading products: {{ error }}",
+    "EXTRACTION_METHOD": "Extraction Method",
+    "LOADING": "Loading products...",
+    "MEDICINAL_USE": "Medicinal Use",
+    "NAME": "Product Name",
+    "NO_MEDIA": "No media available for this product",
+    "ORIGIN": "Origin",
+    "PRICE": "Price",
+    "SCENT_PROFILE": "Scent Profile",
+    "TAG_COLOR": "Color",
+    "TAG_DESCRIPTION": "Description",
+    "TAG_ICON": "Icon",
+    "TAG_IMAGE_URL": "Image URL",
+    "TAG_NAME": "Tag Name",
+    "USAGE_INSTRUCTIONS": "Usage Instructions",
+    "VOLUME": "Volume",
+    "VOLUME_ML": "Volume (ml)",
+    "WARNINGS": "Warnings",
+    "WEIGHT_GRAMS": "Weight (grams)"
+  },
   "RESET_PASSWORD": {
     "BUTTON": "Reset Password",
     "ENTER_PASSWORD": "Enter new password",
@@ -163,9 +202,10 @@
   "VALIDATION": {
     "EMAIL": "Invalid email format",
     "MATCH": "Fields must match",
-    "MAX_LENGTH": "Maximum length is {max} characters",
-    "MIN_LENGTH": "Minimum length is {min} characters",
+    "MAX_LENGTH": "Maximum length is {{max}}characters",
+    "MIN_LENGTH": "Minimum length is {{min}} characters",
     "PATTERN": "Invalid format",
-    "REQUIRED": "This field is required"
+    "REQUIRED": "This field is required",
+    "MIN": "Value must be at least"
   }
 }

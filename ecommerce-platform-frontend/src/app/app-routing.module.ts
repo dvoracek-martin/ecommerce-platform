@@ -17,7 +17,7 @@ import { CartComponent }                from './layout/cart/client/cart.componen
 
 // Admin pages
 import { CustomersAdminComponent } from './layout/customers/admin/customers-admin.component';
-import { ProductsAdminComponent }  from './layout/products/admin/products-admin.component';
+import { ProductsAdminListComponent }  from './layout/products/admin/products-admin-list.component';
 import { MixingAdminComponent }    from './layout/mixing/admin/mixing-admin.component';
 import { CategoriesAdminCreateComponent }from './layout/categories/admin/categories-admin-create.component';
 import { MixturesAdminComponent }  from './layout/mixtures/admin/mixtures-admin.component';
@@ -26,6 +26,12 @@ import { OrdersAdminComponent }    from './layout/orders/admin/orders-admin.comp
 import {UnauthorizedComponent} from './layout/unauthorized/client/unauthorized.component';
 import {CategoriesAdminListComponent} from './layout/categories/admin/categories-admin-list.component';
 import {CategoriesAdminUpdateComponent} from './layout/categories/admin/categories-admin-update.component';
+import {
+  ProductsAdminCreateComponent
+} from './layout/products/admin/products-admin-create.component';
+import {
+  ProductsAdminUpdateComponent
+} from './layout/products/admin/products-admin-update.component';
 
 const routes: Routes = [
   // Public / authenticated client routes
@@ -51,7 +57,9 @@ const routes: Routes = [
     children: [
       { path: '',           redirectTo: 'customers', pathMatch: 'full' },
       { path: 'customers',  component: CustomersAdminComponent },
-      { path: 'products',   component: ProductsAdminComponent },
+      { path: 'products',   component: ProductsAdminListComponent },
+      { path: 'products/create', component: ProductsAdminCreateComponent },
+      { path: 'products/update/:id', component: ProductsAdminUpdateComponent },
       { path: 'mixing',     component: MixingAdminComponent },
       { path: 'categories', component: CategoriesAdminListComponent },
       { path: 'categories/create', component: CategoriesAdminCreateComponent },

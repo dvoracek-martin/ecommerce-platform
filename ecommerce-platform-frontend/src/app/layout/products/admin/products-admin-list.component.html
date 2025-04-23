@@ -1,0 +1,91 @@
+<div class="product-container">
+  <div class="header">
+    <h1>{{ 'PRODUCTS.ADMIN.TITLE' | translate }}</h1>
+    <button mat-raised-button color="primary" (click)="navigateToCreate()">
+      <mat-icon>add</mat-icon>
+      {{ 'PRODUCTS.ADMIN.NEW_TITLE' | translate }}
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    {{ 'PRODUCTS.LOADING' | translate }}
+  </div>
+  <div *ngIf="error" class="error">
+    {{ 'PRODUCTS.ERROR_LOADING' | translate : { error: error } }}
+  </div>
+
+  <div *ngIf="!isLoading && !error" class="products-grid">
+    <div
+      *ngFor="let product of products; let prodIndex = index; trackBy: trackById"
+      class="product-card"
+      (click)="navigateToUpdate(product.id)"
+    >
+      <div class="card-content">
+        <div class="product-header">
+          <h2>{{ product.name }}</h2>
+          <div class="actions">
+            <span class="product-price">{{ product.price | currency }}</span>
+            <button mat-icon-button (click)="$event.stopPropagation(); openDeleteDialog(product.id)">
+              <mat-icon class="delete-icon">delete</mat-icon>
+            </button>
+          </div>
+        </div>
+        <p class="product-description">
+          {{ product.description }}
+        </p>
+
+        <ng-container *ngIf="product.responseMediaDTOs?.length; else noMedia">
+          <div class="media-carousel">
+            <div
+              *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
+              class="slide"
+              [class.active]="activeSlideIndices[prodIndex] === i"
+            >
+              <img
+                *ngIf="media.contentType?.startsWith('image/')"
+                [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                [alt]="media.objectKey"
+                class="media-content"
+              />
+              <video
+                *ngIf="media.contentType?.startsWith('video/')"
+                class="media-content"
+                [attr.muted]="true"
+                [muted]="true"
+                autoplay
+                loop
+                preload="metadata"
+                playsinline
+              >
+                <source
+                  [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                  [type]="media.contentType"
+                />
+              </video>
+            </div>
+
+            <div *ngIf="product.responseMediaDTOs?.length > 1" class="carousel-controls">
+              <button
+                *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
+                class="dot"
+                [class.active]="activeSlideIndices[prodIndex] === i"
+                (click)="setActiveSlide(prodIndex, i)"
+              ></button>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noMedia>
+          <div class="no-media">
+            {{ 'PRODUCTS.NO_MEDIA' | translate }}
+          </div>
+        </ng-template>
+
+        <div class="product-details">
+          <span *ngIf="product.scentProfile">{{ 'PRODUCTS.SCENT_PROFILE' | translate }}: {{ product.scentProfile }}</span>
+          <span *ngIf="product.volumeMl">{{ 'PRODUCTS.VOLUME' | translate }}: {{ product.volumeMl }} ml</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

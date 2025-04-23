@@ -90,7 +90,8 @@
   aspect-ratio: 1;
   background: #f5f5f5;
 
-  img, video {
+  img,
+  video {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -103,24 +104,36 @@
   right: 8px;
   display: flex;
   gap: 4px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 4px;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.95); /* Even more opaque background */
+  padding: 6px 8px; /* Slightly larger padding */
+  border-radius: 6px; /* Slightly more rounded corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* More pronounced shadow */
+  align-items: center; /* Vertically align items within the actions */
+}
 
-  button {
-    width: 32px;
-    height: 32px;
-    line-height: 32px;
+.media-actions button {
+  width: 36px; /* Slightly larger button */
+  height: 36px; /* Slightly larger button */
+  line-height: 36px;
+  color: rgba(0, 0, 0, 0.8); /* Even darker icon color */
+  display: flex; /* Use flexbox for icon centering */
+  justify-content: center; /* Center icon horizontally */
+  align-items: center; /* Center icon vertically */
 
-    mat-icon {
-      font-size: 18px;
-    }
+  &:hover {
+    background-color: rgba(255, 255, 255, 1);
+    color: #3f51b5;
+  }
+
+  mat-icon {
+    font-size: 20px; /* Slightly larger icon */
   }
 }
 
 .drag-handle {
   cursor: grab;
-  color: #757575;
+  color: rgba(0, 0, 0, 0.8); /* Even darker drag handle color */
+  font-size: 20px; /* Slightly larger icon */
 }
 
 .actions {
