@@ -1,5 +1,6 @@
 package com.dvoracekmartin.catalogservice.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,6 +34,7 @@ public class Mixture {
     private List<String> images;
 
     @ManyToMany
+    @JsonManagedReference
     @JoinTable(
             name = "mixture_products",
             joinColumns = @JoinColumn(name = "mixture_id"),
@@ -63,17 +65,19 @@ public class Mixture {
     private String customizationOptions;
 
     @ManyToMany
+    @JsonManagedReference
     @JoinTable(
-            name = "product_categories",
-            joinColumns = @JoinColumn(name = "product_id"),
+            name = "mixture_categories",
+            joinColumns = @JoinColumn(name = "mixture_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private List<Category> categories;
 
     @ManyToMany
+    @JsonManagedReference
     @JoinTable(
-            name = "product_tags",
-            joinColumns = @JoinColumn(name = "product_id"),
+            name = "mixture_tags",
+            joinColumns = @JoinColumn(name = "mixture_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<Tag> tags;

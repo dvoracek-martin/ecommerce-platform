@@ -1,15 +1,16 @@
-package com.dvoracekmartin.catalogservice.application.dto;
+package com.dvoracekmartin.catalogservice.application.dto.product;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import com.dvoracekmartin.catalogservice.application.dto.media.ResponseMediaDTO;
+import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-public record CreateProductDTO(
-        @NotBlank String name,
+public record ResponseProductDTO(
+        Long id,
+        String name,
         String description,
-        @NotNull BigDecimal price,
+        BigDecimal price,
         List<String> images,
         Long categoryId,
         String scentProfile,
@@ -22,7 +23,7 @@ public record CreateProductDTO(
         String medicinalUse,
         Double weightGrams,
         List<String> allergens,
-        List<TagDTO> tagDTOS,
-        List<UploadMediaDTO> uploadMediaDTOs
+        List<ResponseTagDTO> tagsDTOs,
+        List<ResponseMediaDTO> responseMediaDTOs
 ) {
 }

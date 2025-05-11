@@ -1,4 +1,4 @@
-package com.dvoracekmartin.catalogservice.application.dto;
+package com.dvoracekmartin.catalogservice.application.dto.media;
 
 public record MediaUploadResponseDTO(
         String status,

@@ -1,7 +1,7 @@
 package com.dvoracekmartin.catalogservice.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,7 +29,6 @@ public class Product {
     private BigDecimal price;
 
     @ElementCollection
-    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
     private List<String> images;
 
@@ -71,17 +70,19 @@ public class Product {
     private List<String> allergens;
 
     @ManyToMany
+    @JsonManagedReference
     @JoinTable(
-            name = "mixture_categories",
-            joinColumns = @JoinColumn(name = "mixture_id"),
+            name = "product_categories",
+            joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private List<Category> categories;
 
     @ManyToMany
+    @JsonManagedReference
     @JoinTable(
-            name = "mixture_tags",
-            joinColumns = @JoinColumn(name = "mixture_id"),
+            name = "product_tags",
+            joinColumns = @JoinColumn(name = "product_tags"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<Tag> tags;

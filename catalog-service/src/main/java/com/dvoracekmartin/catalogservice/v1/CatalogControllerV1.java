@@ -1,9 +1,9 @@
 package com.dvoracekmartin.catalogservice.v1;
 
-import com.dvoracekmartin.catalogservice.application.dto.ResponseCatalogItemDTO;
-import com.dvoracekmartin.catalogservice.application.dto.ResponseCategoryDTO;
-import com.dvoracekmartin.catalogservice.application.dto.ResponseMixtureDTO;
-import com.dvoracekmartin.catalogservice.application.dto.ResponseProductDTO;
+import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatalogItemDTO;
+import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
 import com.dvoracekmartin.catalogservice.application.service.media.MinIOMediaRetriever;
 import lombok.RequiredArgsConstructor;

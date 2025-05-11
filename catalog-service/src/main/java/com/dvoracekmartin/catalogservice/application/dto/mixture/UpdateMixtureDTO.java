@@ -1,4 +1,6 @@
-package com.dvoracekmartin.catalogservice.application.dto;
+package com.dvoracekmartin.catalogservice.application.dto.mixture;
+
+import com.dvoracekmartin.catalogservice.application.dto.media.UploadMediaDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,7 +17,7 @@ public record UpdateMixtureDTO(
         String benefits,
         String medicinalUse,
         Double totalWeightGrams,
-        List<String> tagDTOs,
+        List<Long> tagIds,
         boolean isCustomizable,
         String customizationOptions,
         List<UploadMediaDTO> uploadMediaDTOs

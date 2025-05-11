@@ -1,4 +1,7 @@
-package com.dvoracekmartin.catalogservice.application.dto;
+package com.dvoracekmartin.catalogservice.application.dto.mixture;
+
+import com.dvoracekmartin.catalogservice.application.dto.media.ResponseMediaDTO;
+import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
 
 import java.math.BigDecimal;
 import java.util.List;

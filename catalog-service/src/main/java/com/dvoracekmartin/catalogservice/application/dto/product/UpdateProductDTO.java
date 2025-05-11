@@ -1,5 +1,6 @@
-package com.dvoracekmartin.catalogservice.application.dto;
+package com.dvoracekmartin.catalogservice.application.dto.product;
 
+import com.dvoracekmartin.catalogservice.application.dto.media.UploadMediaDTO;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
@@ -22,7 +23,7 @@ public record UpdateProductDTO(
         String medicinalUse,
         Double weightGrams,
         List<String> allergens,
-        List<TagDTO> tags,
+        List<Long> tagIds,
         List<UploadMediaDTO> uploadMediaDTOs
 ) {
 }

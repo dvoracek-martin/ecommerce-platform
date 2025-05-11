@@ -1,13 +1,27 @@
 package com.dvoracekmartin.catalogservice.application.dto;
 
+import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategoryDTO;
+import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatalogItemDTO;
+import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.catalogservice.application.dto.category.UpdateCategoryDTO;
+import com.dvoracekmartin.catalogservice.application.dto.media.ResponseMediaDTO;
+import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
+import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.catalogservice.application.dto.mixture.UpdateMixtureDTO;
+import com.dvoracekmartin.catalogservice.application.dto.product.CreateProductDTO;
+import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductDTO;
+import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
+import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.domain.model.Category;
 import com.dvoracekmartin.catalogservice.domain.model.Mixture;
 import com.dvoracekmartin.catalogservice.domain.model.Product;
 import com.dvoracekmartin.catalogservice.domain.model.Tag;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import javax.print.attribute.standard.Media;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface CatalogMapper {
@@ -37,7 +51,7 @@ public interface CatalogMapper {
                 product.getMedicinalUse(),
                 product.getWeightGrams(),
                 product.getAllergens(),
-                product.getTags().stream().map(this::mapTagToTagDTO).toList(),
+                product.getTags().stream().map(this::mapTagToResponseTagDTO).toList(),
                 responseMedia);
     }
 
@@ -59,9 +73,27 @@ public interface CatalogMapper {
 
     Category mapUpdateCategoryDTOToCategory(UpdateCategoryDTO updateCategoryDTO);
 
-    TagDTO mapTagToTagDTO(Tag tag);
+    @Mapping(target = "products", ignore = true)
+    @Mapping(target = "categories", ignore = true)
+    @Mapping(target = "mixtures", ignore = true)
+    Tag mapTagToTagDTO(Tag tag);
 
-    Tag mapTagDTOToTag(TagDTO tagDTO);
+    @Mapping(target = "products", ignore = true)
+    @Mapping(target = "categories", ignore = true)
+    @Mapping(target = "mixtures", ignore = true)
+    default Tag mapCreateTagDTOToTag(CreateTagDTO createTagDTO) {
+        return new Tag(
+                null,
+                createTagDTO.name(),
+                createTagDTO.description(),
+                createTagDTO.products().stream().map(this::mapCreateProductDTOToProduct).collect(Collectors.toList()),
+                createTagDTO.categories().stream().map(this::mapCreateCategoryDTOToCategory).collect(Collectors.toList()),
+                createTagDTO.mixtures().stream().map(this::mapCreateMixtureDTOToMixture).collect(Collectors.toList())
+        );
+    }
 
-    ResponseMediaDTO mapMediaToResponseMediaDTO(Media media);
+    @Mapping(target = "products", ignore = true)
+    @Mapping(target = "categories", ignore = true)
+    @Mapping(target = "mixtures", ignore = true)
+    ResponseTagDTO mapTagToResponseTagDTO(Tag tag);
 }

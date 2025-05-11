@@ -1,5 +1,6 @@
-package com.dvoracekmartin.catalogservice.application.dto;
+package com.dvoracekmartin.catalogservice.application.dto.mixture;
 
+import com.dvoracekmartin.catalogservice.application.dto.media.UploadMediaDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -17,7 +18,7 @@ public record CreateMixtureDTO(
         @NotBlank String benefits,
         String medicinalUse,
         @NotNull Double totalWeightGrams,
-        List<TagDTO> tagDTOS,
+        List<Long> tagIds,
         boolean isCustomizable,
         String customizationOptions,
         List<UploadMediaDTO> uploadMediaDTOs

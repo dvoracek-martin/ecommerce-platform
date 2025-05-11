@@ -1,4 +1,7 @@
-package com.dvoracekmartin.catalogservice.application.dto;
+package com.dvoracekmartin.catalogservice.application.dto.category;
+
+import com.dvoracekmartin.catalogservice.application.dto.media.ResponseMediaDTO;
+import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,7 +15,7 @@ public record ResponseCatalogItemDTO(
         String type, // "product" or "mixture"
         List<ResponseProductDTO> productDTOs,
         List<ResponseMediaDTO> responseMediaDTOs,
-        List<String> tagDTOs
+        List<Long> tagIds
         // TODO add other fields as needed
 ) {
 }

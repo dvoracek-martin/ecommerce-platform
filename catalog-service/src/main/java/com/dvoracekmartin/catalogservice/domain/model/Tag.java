@@ -1,9 +1,8 @@
 package com.dvoracekmartin.catalogservice.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -20,12 +19,21 @@ public class Tag {
     @Column(nullable = false, unique = true)
     private String name;
 
+    private String description;
+
+    @JsonBackReference
     @ManyToMany(mappedBy = "tags")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Product> products;
 
+    @JsonBackReference
+    @EqualsAndHashCode.Exclude
     @ManyToMany(mappedBy = "tags")
     private List<Category> categories;
 
+    @JsonBackReference
+    @EqualsAndHashCode.Exclude
     @ManyToMany(mappedBy = "tags")
     private List<Mixture> mixtures;
 }

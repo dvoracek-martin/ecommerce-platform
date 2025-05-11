@@ -1,6 +1,22 @@
 package com.dvoracekmartin.catalogservice.application.service;
 
-import com.dvoracekmartin.catalogservice.application.dto.*;
+import com.dvoracekmartin.catalogservice.application.dto.CatalogMapper;
+import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategoryDTO;
+import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatalogItemDTO;
+import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.catalogservice.application.dto.category.UpdateCategoryDTO;
+import com.dvoracekmartin.catalogservice.application.dto.media.ResponseMediaDTO;
+import com.dvoracekmartin.catalogservice.application.dto.media.UploadMediaDTO;
+import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
+import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.catalogservice.application.dto.mixture.UpdateMixtureDTO;
+import com.dvoracekmartin.catalogservice.application.dto.product.CreateProductDTO;
+import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductDTO;
+import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductStockDTO;
+import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
+import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
+import com.dvoracekmartin.catalogservice.application.dto.tag.UpdateTagDTO;
 import com.dvoracekmartin.catalogservice.application.event.publisher.CatalogEventPublisher;
 import com.dvoracekmartin.catalogservice.application.service.media.MediaRetriever;
 import com.dvoracekmartin.catalogservice.application.service.media.MediaUploader;
@@ -11,8 +27,10 @@ import com.dvoracekmartin.catalogservice.domain.model.Tag;
 import com.dvoracekmartin.catalogservice.domain.repository.CategoryRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.MixtureRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.ProductRepository;
+import com.dvoracekmartin.catalogservice.domain.repository.TagRepository;
 import com.dvoracekmartin.catalogservice.domain.service.CatalogDomainService;
 import com.dvoracekmartin.common.event.ResponseProductStockEvent;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +49,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Transactional
@@ -45,6 +64,7 @@ public class CatalogServiceImpl implements CatalogService {
     private final ProductRepository productRepository;
     private final MixtureRepository mixtureRepository;
     private final CategoryRepository categoryRepository;
+    private final TagRepository tagRepository;
     private final CatalogMapper catalogMapper;
     private final CatalogDomainService catalogDomainService;
     private final MediaUploader mediaUploader;
@@ -55,10 +75,7 @@ public class CatalogServiceImpl implements CatalogService {
         mediaUploader.createBucketIfNotExists(PRODUCT_BUCKET);
         log.info("Fetching all products with media");
         return productRepository.findAll().stream().map(product -> {
-            // 1) Construct the folder name based on the product ID
-            String productFolderName = String.valueOf(product.getId());
-
-            // 2) List all object keys in the folder named after the product ID
+            // 1) List all object keys in the folder named after the product ID
             List<String> keys = mediaRetriever.listMediaKeysInFolder(product.getName().replaceAll("\\s", "-"), PRODUCT_BUCKET);
 
             List<ResponseMediaDTO> mediaDTOs = keys.stream().map(key -> {
@@ -68,26 +85,7 @@ public class CatalogServiceImpl implements CatalogService {
                 return new ResponseMediaDTO(base64, key, contentType);
             }).toList();
 
-            return new ResponseProductDTO(
-                    product.getId(),
-                    product.getName(),
-                    product.getDescription(),
-                    product.getPrice(),
-                    product.getImages(),
-                    product.getCategory().getId(),
-                    product.getScentProfile(),
-                    product.getBotanicalName(),
-                    product.getExtractionMethod(),
-                    product.getOrigin(),
-                    product.getUsageInstructions(),
-                    product.getVolumeMl(),
-                    product.getWarnings(),
-                    product.getMedicinalUse(),
-                    product.getWeightGrams(),
-                    product.getAllergens(),
-                    product.getTags().stream().map(catalogMapper::mapTagToTagDTO).toList(),
-                    mediaDTOs
-            );
+            return new ResponseProductDTO(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getImages(), product.getCategory().getId(), product.getScentProfile(), product.getBotanicalName(), product.getExtractionMethod(), product.getOrigin(), product.getUsageInstructions(), product.getVolumeMl(), product.getWarnings(), product.getMedicinalUse(), product.getWeightGrams(), product.getAllergens(), product.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList(), mediaDTOs);
         }).toList();
     }
 
@@ -126,14 +124,14 @@ public class CatalogServiceImpl implements CatalogService {
             }).toList();
 
             // 3) Build the full DTO
-            return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getCategoryType(), mediaDTOs, category.getTags().stream().map(Tag::getName).toList());
+            return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
         }).toList();
     }
 
     @Override
     public List<ResponseProductDTO> createProduct(@Valid List<CreateProductDTO> createProductDTOList) {
         log.info("Creating products: {}", createProductDTOList);
-        createProductDTOList.stream().filter(dto -> !productRepository.existsByName(dto.name())).collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+        createProductDTOList.stream().filter(dto -> !productRepository.existsByName(dto.name())).collect(Collectors.collectingAndThen(toList(), list -> {
             if (list.isEmpty()) {
                 throw new IllegalArgumentException("All products already exist!");
             }
@@ -166,105 +164,108 @@ public class CatalogServiceImpl implements CatalogService {
             product.setCategory(categoryRepository.findById(createProductDTO.categoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + createProductDTO.categoryId())));
             product.setImages(imageUrls);
             List<Tag> tags = new ArrayList<>();
-            if (createProductDTO.tagDTOS() != null) {
-                tags = createProductDTO.tagDTOS().stream().map(catalogMapper::mapTagDTOToTag).toList();
+            if (createProductDTO.tagIds() != null) {
+                tags = createProductDTO.tagIds().stream().map(tagRepository::findById).toList()
+                        .stream().filter(Optional::isPresent).map(Optional::get).toList();
             }
             product.setTags(tags);
             Product savedProduct = productRepository.save(product);
 
             // Build response with original base64 data
             return catalogMapper.mapProductToResponseProductDTO(savedProduct, responseMedia);
-        }).collect(Collectors.toList());
+        }).collect(toList());
     }
 
     @Override
-    public ResponseProductDTO updateProduct(Long id, UpdateProductDTO updateProductDTO) {
-        log.info("Updating product with id {}: {}", id, updateProductDTO);
+    public ResponseProductDTO updateProduct(Long id, UpdateProductDTO dto) {
+        log.info("Updating product with id {}: {}", id, dto);
 
-        // Get existing product
-        Product existingProduct = productRepository.findById(id)
+        // 1) Fetch existing product
+        Product existing = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
-        // Validate name uniqueness if changing
-        if (!updateProductDTO.name().equals(existingProduct.getName())) {
-            if (productRepository.existsByName(updateProductDTO.name())) {
-                throw new IllegalArgumentException("Product name already exists: " + updateProductDTO.name());
-            }
+        // 2) Validate name uniqueness if changed
+        if (!dto.name().equals(existing.getName()) && productRepository.existsByName(dto.name())) {
+            throw new IllegalArgumentException("Product name already exists: " + dto.name());
         }
 
-        // Update all fields from DTO to existing product
-        existingProduct.setName(updateProductDTO.name());
-        existingProduct.setDescription(updateProductDTO.description());
-        existingProduct.setPrice(updateProductDTO.price());
-        existingProduct.setScentProfile(updateProductDTO.scentProfile());
-        existingProduct.setBotanicalName(updateProductDTO.botanicalName());
-        existingProduct.setExtractionMethod(updateProductDTO.extractionMethod());
-        existingProduct.setOrigin(updateProductDTO.origin());
-        existingProduct.setUsageInstructions(updateProductDTO.usageInstructions());
-        existingProduct.setVolumeMl(updateProductDTO.volumeMl());
-        existingProduct.setWarnings(updateProductDTO.warnings());
-        existingProduct.setMedicinalUse(updateProductDTO.medicinalUse());
-        existingProduct.setWeightGrams(updateProductDTO.weightGrams());
-        existingProduct.setAllergens(updateProductDTO.allergens());
+        // 3) Update basic fields
+        existing.setName(dto.name());
+        existing.setDescription(dto.description());
+        existing.setPrice(dto.price());
+        existing.setScentProfile(dto.scentProfile());
+        existing.setBotanicalName(dto.botanicalName());
+        existing.setExtractionMethod(dto.extractionMethod());
+        existing.setOrigin(dto.origin());
+        existing.setUsageInstructions(dto.usageInstructions());
+        existing.setVolumeMl(dto.volumeMl());
+        existing.setWarnings(dto.warnings());
+        existing.setMedicinalUse(dto.medicinalUse());
+        existing.setWeightGrams(dto.weightGrams());
 
-        // Update tags
-        List<Tag> updatedTags = new ArrayList<>();
-        if (updateProductDTO.tags() != null) {
-            updatedTags = updateProductDTO.tags().stream().map(catalogMapper::mapTagDTOToTag).toList();
-        }
-        existingProduct.setTags(updatedTags);
-
-        // Remove old media
-        for (String imageUrl : existingProduct.getImages()) {
-            mediaUploader.deleteMedia(imageUrl);
+        // 4) Update allergens in-place
+        if (dto.allergens() != null) {
+            existing.getAllergens().clear();
+            existing.getAllergens().addAll(dto.allergens());
         }
 
-        // Process media uploads
+        // 5) Update tags in-place
+        if (dto.tagIds() != null) {
+            // load all Tag entities by id
+            List<Tag> tags = tagRepository.findAllById(dto.tagIds());
+            existing.getTags().clear();
+            existing.getTags().addAll(tags);
+        }
+
+        // === Media handling (same as category update logic) ===
+
+        // 6) Delete *all* old images
+        for (String url : existing.getImages()) {
+            mediaUploader.deleteMedia(url);
+        }
+
+        // 7) Upload new images
         List<String> newImageUrls = new ArrayList<>();
-        List<ResponseMediaDTO> responseMedia = new ArrayList<>();
-        if (updateProductDTO.uploadMediaDTOs() != null) {
-            for (UploadMediaDTO media : updateProductDTO.uploadMediaDTOs()) {
+        List<ResponseMediaDTO> mediaResponses = new ArrayList<>();
+        if (dto.uploadMediaDTOs() != null) {
+            for (UploadMediaDTO m : dto.uploadMediaDTOs()) {
                 String publicUrl = mediaUploader.uploadBase64(
-                        media.base64Data(),
-                        updateProductDTO.name(),
-                        media.objectKey(),
-                        media.contentType(),
+                        m.base64Data(),
+                        dto.name(),
+                        m.objectKey(),
+                        m.contentType(),
                         PRODUCT_BUCKET,
-                        updateProductDTO.name()
+                        dto.name()
                 );
                 if (publicUrl != null) {
                     newImageUrls.add(publicUrl);
                 }
-                Category category = updateProductDTO.categoryId() != null
-                        ? categoryRepository.findById(updateProductDTO.categoryId()).orElse(existingProduct.getCategory())
-                        : existingProduct.getCategory();
-                responseMedia.add(new ResponseMediaDTO(media.base64Data(), category.getCategoryType(), media.contentType()));
+                mediaResponses.add(new ResponseMediaDTO(
+                        m.base64Data(),
+                        existing.getName(),
+                        m.contentType()
+                ));
             }
         }
 
-        // Determine base images: use DTO's images if provided, else existing images
-        List<String> baseImages = (updateProductDTO.images() != null)
-                ? new ArrayList<>(updateProductDTO.images())
-                : new ArrayList<>(existingProduct.getImages());
+        // 8) Replace the image list
+        existing.getImages().clear();
+        existing.getImages().addAll(newImageUrls);
 
-        // Combine base images with new uploads
-        List<String> finalImages = new ArrayList<>(baseImages);
-        finalImages.addAll(newImageUrls);
-        existingProduct.setImages(finalImages);
-
-        // Update category if provided
-        if (updateProductDTO.categoryId() != null) {
-            Category category = categoryRepository.findById(updateProductDTO.categoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + updateProductDTO.categoryId()));
-            existingProduct.setCategory(category);
+        // 9) Update category if changed
+        if (dto.categoryId() != null) {
+            Category cat = categoryRepository.findById(dto.categoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + dto.categoryId()));
+            existing.setCategory(cat);
         }
 
-        // Save updated product
-        Product savedProduct = productRepository.save(existingProduct);
+        // 10) Persist
+        Product saved = productRepository.save(existing);
 
-        // Build response
-        return catalogMapper.mapProductToResponseProductDTO(savedProduct, responseMedia);
+        // 11) Map to response
+        return catalogMapper.mapProductToResponseProductDTO(saved, mediaResponses);
     }
+
 
     @Override
     public ResponseProductStockEvent updateProductStockDTO(Long id, UpdateProductStockDTO updateProductStockDTO) {
@@ -312,7 +313,7 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<ResponseCategoryDTO> createCategory(@Valid List<CreateCategoryDTO> createCategoryDTOList) {
         log.info("Creating categories: {}", createCategoryDTOList);
-        createCategoryDTOList.stream().filter(dto -> !categoryRepository.existsByName(dto.name())).collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+        createCategoryDTOList.stream().filter(dto -> !categoryRepository.existsByName(dto.name())).collect(Collectors.collectingAndThen(toList(), list -> {
             if (list.isEmpty()) {
                 throw new IllegalArgumentException("All categories already exist!");
             }
@@ -331,7 +332,7 @@ public class CatalogServiceImpl implements CatalogService {
                         imageUrls.add(publicUrl);
                     }
                     // Store original base64 data for response
-                    responseMedia.add(new ResponseMediaDTO(media.base64Data(), createCategoryDTO.categoryType(), media.contentType()));
+                    responseMedia.add(new ResponseMediaDTO(media.base64Data(), createCategoryDTO.name(), media.contentType()));
                 }
             }
 
@@ -339,26 +340,25 @@ public class CatalogServiceImpl implements CatalogService {
             Category category = new Category();
             category.setName(createCategoryDTO.name());
             category.setDescription(createCategoryDTO.description());
-            category.setCategoryType(createCategoryDTO.categoryType());
+            category.setTags(createCategoryDTO.tagIds().stream().map(tagRepository::findById).filter(Optional::isPresent).map(Optional::get).toList());
             category.setImages(imageUrls);
 
             Category savedCategory = categoryRepository.save(category);
 
             // Build response with original base64 data
-            return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), savedCategory.getCategoryType(), responseMedia, category.getTags() == null ? null : category.getTags().stream().map(Tag::getName).toList());
-        }).collect(Collectors.toList());
+            return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), responseMedia, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
+        }).collect(toList());
     }
 
     @Override
     public ResponseCategoryDTO updateCategory(Long id, UpdateCategoryDTO updateCategoryDTO) {
         log.info("Updating category with id {}: {}", id, updateCategoryDTO);
         Category existingCategory = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
-        categoryRepository.findByName(updateCategoryDTO.name())
-                .ifPresent(existingCategoryByName -> {
-                    if (!existingCategoryByName.getId().equals(id)) {
-                        throw new ResponseStatusException(HttpStatus.CONFLICT, "Category name already exists: " + updateCategoryDTO.name());
-                    }
-                });
+        categoryRepository.findByName(updateCategoryDTO.name()).ifPresent(existingCategoryByName -> {
+            if (!existingCategoryByName.getId().equals(id)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Category name already exists: " + updateCategoryDTO.name());
+            }
+        });
 
         // Remove old media
         for (String imageUrl : existingCategory.getImages()) {
@@ -385,13 +385,13 @@ public class CatalogServiceImpl implements CatalogService {
 
         // Update existing category
         existingCategory.setName(updateCategoryDTO.name());
-        existingCategory.setCategoryType(updateCategoryDTO.categoryType());
         existingCategory.setDescription(updateCategoryDTO.description());
         existingCategory.getImages().addAll(newImageUrls);
+        existingCategory.setTags(updateCategoryDTO.tagIds().stream().map(tagRepository::findById).filter(Optional::isPresent).map(Optional::get).toList());
         Category savedCategory = categoryRepository.save(existingCategory);
 
         // Build response with updated data and new media
-        return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), savedCategory.getCategoryType(), responseMedia, savedCategory.getTags().stream().map(Tag::getName).toList());
+        return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), responseMedia, savedCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
     }
 
     @Override
@@ -411,26 +411,7 @@ public class CatalogServiceImpl implements CatalogService {
         }).toList();
 
         // 3) Build the full DTO
-        return new ResponseProductDTO(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getImages(),
-                product.getCategory().getId(),
-                product.getScentProfile(),
-                product.getBotanicalName(),
-                product.getExtractionMethod(),
-                product.getOrigin(),
-                product.getUsageInstructions(),
-                product.getVolumeMl(),
-                product.getWarnings(),
-                product.getMedicinalUse(),
-                product.getWeightGrams(),
-                product.getAllergens(),
-                product.getTags().stream().map(catalogMapper::mapTagToTagDTO).toList(),
-                mediaDTOs
-        );
+        return new ResponseProductDTO(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getImages(), product.getCategory().getId(), product.getScentProfile(), product.getBotanicalName(), product.getExtractionMethod(), product.getOrigin(), product.getUsageInstructions(), product.getVolumeMl(), product.getWarnings(), product.getMedicinalUse(), product.getWeightGrams(), product.getAllergens(), product.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList(), mediaDTOs);
     }
 
     @Override
@@ -455,7 +436,7 @@ public class CatalogServiceImpl implements CatalogService {
         }).toList();
 
         // 3) Build the full DTO
-        return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getCategoryType(), mediaDTOs, category.getTags().stream().map(Tag::getName).toList());
+        return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
     }
 
     @Override
@@ -488,6 +469,62 @@ public class CatalogServiceImpl implements CatalogService {
             }
         }
         categoryRepository.deleteById(id);
+    }
+
+    @Override
+    public List<ResponseTagDTO> getAllTags() {
+        List<Tag> tags = tagRepository.findAll();
+
+        return tags.stream()
+                .map(tag -> new ResponseTagDTO(
+                        tag.getId(),
+                        tag.getName(),
+                        tag.getDescription(),
+                        tag.getProducts().stream()
+                                .map(catalogMapper::mapProductToResponseProductDTO)
+                                .toList(),
+                        tag.getCategories().stream()
+                                .map(catalogMapper::mapCategoryToResponseCategoryDTO)
+                                .toList(),
+                        tag.getMixtures().stream()
+                                .map(catalogMapper::mapMixtureToResponseMixtureDTO)
+                                .toList()
+                ))
+                .toList();
+    }
+
+
+    @Override
+    public ResponseTagDTO getTagById(Long id) {
+        return tagRepository.findById(id).map(catalogMapper::mapTagToResponseTagDTO).orElseThrow(() -> new EntityNotFoundException("Tag not found with id: " + id));
+    }
+
+    @Override
+    @Transactional
+    public List<ResponseTagDTO> createTags(List<CreateTagDTO> createTagDTOs) {
+        List<Tag> newTags = createTagDTOs.stream().map(createTagDTO -> catalogMapper.mapCreateTagDTOToTag(createTagDTO)).toList();
+
+        List<Tag> savedTags = tagRepository.saveAll(newTags);
+        return savedTags.stream().map(catalogMapper::mapTagToResponseTagDTO).toList();
+    }
+
+    @Override
+    @Transactional
+    public ResponseTagDTO updateTag(Long id, UpdateTagDTO updateTagDTO) {
+        Tag existingTag = tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Tag not found with id: " + id));
+
+        existingTag.setName(updateTagDTO.name());
+        Tag updatedTag = tagRepository.save(existingTag);
+        return catalogMapper.mapTagToResponseTagDTO(updatedTag);
+    }
+
+    @Override
+    @Transactional
+    public void deleteTagById(Long id) {
+        if (!tagRepository.existsById(id)) {
+            throw new EntityNotFoundException("Tag not found with id: " + id);
+        }
+        tagRepository.deleteById(id);
     }
 
     private <T, R> R getEntityById(Long id, Function<Long, java.util.Optional<T>> findById, Function<T, R> mapper, String entityName) {
