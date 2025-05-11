@@ -1,12 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { CategoryService } from '../../../services/category.service';
+import { TagService } from '../../../services/tag.service';
 import { CreateCategoryDTO } from '../../../dto/category/create-category-dto';
+import { ResponseTagDTO } from '../../../dto/tag/response-tag-dto';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
-import {ResponseMediaDTO} from '../../../dto/category/response-media-dto';
+import { Subject, takeUntil } from 'rxjs';
+import { ResponseMediaDTO } from '../../../dto/category/response-media-dto';
 
 @Component({
   selector: 'app-categories-admin-create',
@@ -17,34 +20,41 @@ import {ResponseMediaDTO} from '../../../dto/category/response-media-dto';
 export class CategoriesAdminCreateComponent implements OnInit {
   categoryForm!: FormGroup;
   saving = false;
+  allTags: ResponseTagDTO[] = [];
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
     private categoryService: CategoryService,
+    private tagService: TagService,
     private router: Router,
     private dialog: MatDialog
   ) {}
 
   ngOnInit() {
     this.initForm();
+    this.loadTags();
   }
 
-  initForm(): void {
+  private initForm(): void {
     this.categoryForm = this.fb.group({
       name: ['', Validators.required],
-      categoryType: ['', Validators.required],
       description: [''],
+      // new multi-select of tag IDs
+      tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])
     });
   }
 
-  private createMediaGroup(media?: ResponseMediaDTO): FormGroup {
-    return this.fb.group({
-      base64Data: [media?.base64Data || ''],
-      objectKey: [media?.objectKey || ''],
-      contentType: [media?.contentType || ''],
-      preview: [media ? `data:${media.contentType};base64,${media.base64Data}` : '']
-    });
+  private loadTags() {
+    this.tagService.getAllTags()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: tags => this.allTags = tags,
+        error: () => this.dialog.open(ConfirmationDialogComponent, {
+          data: { title: 'Error', message: 'Could not load tags.', warn: true }
+        })
+      });
   }
 
   get mediaControls(): FormArray {
@@ -55,37 +65,27 @@ export class CategoriesAdminCreateComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     Array.from(input.files || []).forEach(file => {
       const reader = new FileReader();
-      reader.onload = () => this.handleFileUpload(reader, file);
+      reader.onload = () => this.mediaControls.push(this.createMediaGroup(reader, file));
       reader.readAsDataURL(file);
     });
   }
 
-  private handleFileUpload(reader: FileReader, file: File): void {
+  private createMediaGroup(reader: FileReader, file: File): FormGroup {
     const base64 = (reader.result as string).split(',')[1];
-    this.mediaControls.push(this.fb.group({
+    return this.fb.group({
       base64Data: [base64],
       objectKey: [`categories/${Date.now()}_${file.name}`],
       contentType: [file.type],
       preview: [reader.result]
-    }));
-  }
-
-  openMediaDeleteDialog(index: number): void {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Delete Media',
-        message: 'Are you sure you want to delete this media item?',
-        warn: true
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) this.removeMedia(index);
     });
   }
 
-  removeMedia(index: number): void {
-    this.mediaControls.removeAt(index);
+  openMediaDeleteDialog(i: number): void {
+    this.dialog.open(ConfirmationDialogComponent, {
+      data: { title: 'Delete Media', message: 'Really delete this media?', warn: true }
+    }).afterClosed().subscribe(ok => {
+      if (ok) this.mediaControls.removeAt(i);
+    });
   }
 
   drop(event: CdkDragDrop<any[]>): void {
@@ -97,35 +97,30 @@ export class CategoriesAdminCreateComponent implements OnInit {
 
     this.saving = true;
     const payload: CreateCategoryDTO = this.categoryForm.value;
+    // payload now has name, description, tagIds: number[], uploadMediaDTOs
 
-    this.categoryService.createCategories([payload]).subscribe({
-      next: () => this.handleSaveSuccess(),
-      error: (err) => this.handleSaveError(err)
-    });
-  }
-
-  private handleSaveSuccess(): void {
-    this.saving = false;
-    this.router.navigate(['/admin/categories']);
-  }
-
-  private handleSaveError(err: any): void {
-    this.saving = false;
-    console.error('Creation failed:', err);
-    // TODO: show error notification
+    this.categoryService.createCategories([payload])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.saving = false;
+          this.router.navigate(['/admin/categories']);
+        },
+        error: err => {
+          this.saving = false;
+          console.error('Creation failed:', err);
+          this.dialog.open(ConfirmationDialogComponent, {
+            data: { title: 'Error', message: 'Could not create category.', warn: true }
+          });
+        }
+      });
   }
 
   openCancelDialog(): void {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Cancel Creation',
-        message: 'Are you sure you want to discard changes and go back?',
-        warn: true
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) this.router.navigate(['/admin/categories']);
+    this.dialog.open(ConfirmationDialogComponent, {
+      data: { title: 'Cancel Creation', message: 'Discard changes?', warn: true }
+    }).afterClosed().subscribe(ok => {
+      if (ok) this.router.navigate(['/admin/categories']);
     });
   }
 }

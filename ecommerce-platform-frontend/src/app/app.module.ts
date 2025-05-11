@@ -29,7 +29,7 @@ import {CategoriesAdminCreateComponent} from './layout/categories/admin/categori
 import {MixingAdminComponent} from './layout/mixing/admin/mixing-admin.component';
 import {OrdersComponent} from './layout/orders/client/orders.component';
 import {OrdersAdminComponent} from './layout/orders/admin/orders-admin.component';
-import {TagsAdminComponent} from './layout/tags/admin/tags-admin.component';
+import {TagsAdminCreateComponent} from './layout/tags/admin/tags-admin-create.component';
 import {CustomersAdminComponent} from './layout/customers/admin/customers-admin.component';
 import {CartComponent} from './layout/cart/client/cart.component';
 import {CdkDropList, DragDropModule} from '@angular/cdk/drag-drop';
@@ -44,6 +44,8 @@ import {CategoriesAdminUpdateComponent} from './layout/categories/admin/categori
 import {ProductsAdminCreateComponent} from './layout/products/admin/products-admin-create.component';
 import {ProductsAdminUpdateComponent} from './layout/products/admin/products-admin-update.component';
 import {AuthInterceptor} from './auth/auth.interceptor';
+import {TagsAdminUpdateComponent} from './layout/tags/admin/tags-admin-update.component';
+import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.component';
 
 @NgModule({
   declarations: [
@@ -68,7 +70,9 @@ import {AuthInterceptor} from './auth/auth.interceptor';
     CategoriesAdminCreateComponent,
     OrdersComponent,
     OrdersAdminComponent,
-    TagsAdminComponent,
+    TagsAdminCreateComponent,
+    TagsAdminUpdateComponent,
+    TagsAdminListComponent,
     CartComponent,
     UnauthorizedComponent,
     CategoriesAdminListComponent,

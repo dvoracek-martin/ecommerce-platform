@@ -1,0 +1,120 @@
+/* tags-admin-list.component.scss */
+.tags-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h1 {
+      margin: 0;
+      color: #333;
+      font-size: 2rem;
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+
+      mat-icon {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .loading,
+  .error {
+    text-align: center;
+    padding: 30px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    margin: 20px 0;
+
+    &.loading {
+      color: #3498db;
+      background: #f0f8ff;
+    }
+    &.error {
+      color: #e74c3c;
+      background: #fef0f0;
+    }
+  }
+
+  .tags-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    row-gap: 40px;
+    padding: 20px 0;
+
+    @media (max-width: 1200px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+  }
+
+  .tag-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      h2 {
+        margin: 0;
+        font-size: 1.3rem;
+        color: #2c3e50;
+      }
+
+      .delete-icon {
+        color: #666;
+        transition: color 0.2s;
+        &:hover {
+          color: #e74c3c;
+        }
+      }
+    }
+
+    .tag-relations {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+
+      .relation {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.9rem;
+        color: #555;
+
+        mat-icon {
+          font-size: 18px;
+          color: #757575;
+        }
+      }
+    }
+  }
+}

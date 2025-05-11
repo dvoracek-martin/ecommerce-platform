@@ -3,8 +3,8 @@ import {
   FormBuilder,
   FormGroup,
   FormArray,
-  Validators,
-  FormControl
+  FormControl,
+  Validators
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -14,12 +14,14 @@ import { Subject, takeUntil } from 'rxjs';
 
 import { ProductService } from '../../../services/product.service';
 import { CategoryService } from '../../../services/category.service';
+import { TagService } from '../../../services/tag.service';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
 
 import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
 import { UpdateProductDTO } from '../../../dto/product/update-product-dto';
 import { ResponseCategoryDTO } from '../../../dto/category/response-category-dto';
-import { HttpErrorResponse } from '@angular/common/http'; // Import HttpErrorResponse
+import { ResponseTagDTO } from '../../../dto/tag/response-tag-dto';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-products-admin-update',
@@ -30,15 +32,19 @@ import { HttpErrorResponse } from '@angular/common/http'; // Import HttpErrorRes
 export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   productForm!: FormGroup;
   saving = false;
+
   categories: ResponseCategoryDTO[] = [];
+  allTags: ResponseTagDTO[] = [];
+
   private productId!: number;
+  private initialMediaKeys: string[] = [];
   private readonly destroy$ = new Subject<void>();
-  private initialMediaObjectKeys: string[] = [];
 
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
     private categoryService: CategoryService,
+    private tagService: TagService,
     private route: ActivatedRoute,
     private router: Router,
     private dialog: MatDialog,
@@ -46,10 +52,11 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.productId = +params['id'];
       this.initForm();
       this.loadCategories();
+      this.loadTags();
       this.loadProduct();
     });
   }
@@ -57,28 +64,6 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-
-  openDeleteDialog(): void {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Delete Product',
-        message: 'This will permanently delete the product and all its contents.',
-        warn: true
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) this.deleteProduct();
-    });
-  }
-
-  private deleteProduct(): void {
-    this.productService.deleteProduct(this.productId).subscribe({
-      next: () => this.router.navigate(['/admin/products']),
-      error: (err) => console.error('Delete failed:', err)
-    });
   }
 
   private initForm(): void {
@@ -97,13 +82,30 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       medicinalUse: [null],
       weightGrams: [null],
       allergens: this.fb.array([]),
-      tagDTOS: this.fb.array([]),
+      // <-- replaced old tagDTOS with a single FormControl:
+      tagIds: [[], Validators.required],
       uploadMediaDTOs: this.fb.array([])
     });
   }
 
+  // getters for FormArrays
+  get allergensControls(): FormArray {
+    return this.productForm.get('allergens') as FormArray;
+  }
+  get allergenFormControls(): FormControl[] {
+    return this.allergensControls.controls as FormControl[];
+  }
+  get mediaControls(): FormArray {
+    return this.productForm.get('uploadMediaDTOs') as FormArray;
+  }
+
+  // convenience getter for tagIds:
+  get tagIdsControl(): FormControl {
+    return this.productForm.get('tagIds') as FormControl;
+  }
+
   private loadCategories(): void {
-    this.categoryService.getAllCategories()
+    this.categoryService.getAllCategoriesAdmin()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: cats => this.categories = cats,
@@ -111,8 +113,16 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       });
   }
 
+  private loadTags(): void {
+    this.tagService.getAllTags()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: tags => this.allTags = tags,
+        error: () => this.snackBar.open('Error loading tags', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
+      });
+  }
+
   private loadProduct(): void {
-    this.productId = Number(this.route.snapshot.paramMap.get('id'));
     this.productService.getProductById(this.productId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -125,6 +135,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   }
 
   private patchForm(p: ResponseProductDTO): void {
+    // patch simple fields
     this.productForm.patchValue({
       name: p.name,
       description: p.description,
@@ -141,77 +152,28 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       weightGrams: p.weightGrams
     });
 
-    // Allergens
+    // allergens
     p.allergens.forEach(a => this.allergensControls.push(this.fb.control(a)));
 
-    // Tags
-    p.tagsDTOs.forEach(tag =>
-      this.tagsControls.push(this.fb.group({
-        id: [tag.id],
-        name: [tag.name, Validators.required],
-        description: [tag.description],
-        color: [tag.color],
-        icon: [tag.icon],
-        imageUrl: [tag.imageUrl]
-      }))
-    );
-
-    // Media
-    p.responseMediaDTOs.forEach(media => {
+    // media
+    p.responseMediaDTOs.forEach(m => {
       this.mediaControls.push(this.fb.group({
-        base64Data: [media.base64Data],
-        objectKey: [media.objectKey],
-        contentType: [media.contentType],
-        preview: [`data:${media.contentType};base64,${media.base64Data}`]
+        base64Data: [m.base64Data],
+        objectKey: [m.objectKey],
+        contentType: [m.contentType],
+        preview: [`data:${m.contentType};base64,${m.base64Data}`]
       }));
-      this.initialMediaObjectKeys.push(media.objectKey); // Track initial media
+      this.initialMediaKeys.push(m.objectKey);
     });
+
+    // ** tags **
+    const existingTagIds = p.tagsDTOs.map(t => t.id);
+    this.tagIdsControl.setValue(existingTagIds);
   }
 
-  // --- FormArray getters ---
-  get allergensControls(): FormArray {
-    return this.productForm.get('allergens') as FormArray;
-  }
-  get allergenFormControls(): FormControl[] {
-    return this.allergensControls.controls as FormControl[];
-  }
-
-  get tagsControls(): FormArray {
-    return this.productForm.get('tagDTOS') as FormArray;
-  }
-
-  get mediaControls(): FormArray {
-    return this.productForm.get('uploadMediaDTOs') as FormArray;
-  }
-
-  // --- Allergens ---
-  addAllergen(): void {
-    this.allergensControls.push(this.fb.control('', Validators.required));
-  }
-  removeAllergen(i: number): void {
-    this.allergensControls.removeAt(i);
-  }
-
-  // --- Tags ---
-  addTag(): void {
-    this.tagsControls.push(this.fb.group({
-      name: ['', Validators.required],
-      description: [''],
-      color: [''],
-      icon: [''],
-      imageUrl: ['']
-    }));
-  }
-  removeTag(i: number): void {
-    this.tagsControls.removeAt(i);
-  }
-  dropTag(e: CdkDragDrop<any[]>): void {
-    moveItemInArray(this.tagsControls.controls, e.previousIndex, e.currentIndex);
-  }
-
-  // --- Media ---
-  onFileSelected(e: Event): void {
-    const input = e.target as HTMLInputElement;
+  // --- form-array media handlers ---
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
     Array.from(input.files || []).forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
@@ -226,62 +188,66 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       reader.readAsDataURL(file);
     });
   }
-
-  removeMedia(i: number): void {
-    this.mediaControls.removeAt(i);
-  }
-
-  dropMedia(e: CdkDragDrop<any[]>): void {
-    moveItemInArray(this.mediaControls.controls, e.previousIndex, e.currentIndex);
-  }
-
-  openMediaDeleteDialog(i: number): void {
+  removeMedia(i: number) { this.mediaControls.removeAt(i); }
+  dropMedia(e: CdkDragDrop<any[]>) { moveItemInArray(this.mediaControls.controls, e.previousIndex, e.currentIndex); }
+  openMediaDeleteDialog(i: number) {
     const ref = this.dialog.open(ConfirmationDialogComponent, {
       data: { title: 'Delete Media', message: 'Delete this media?', warn: true }
     });
     ref.afterClosed().subscribe(ok => ok && this.removeMedia(i));
   }
 
-  // --- Submit ---
+  // --- allergens handlers ---
+  addAllergen() { this.allergensControls.push(this.fb.control('', Validators.required)); }
+  removeAllergen(i: number) { this.allergensControls.removeAt(i); }
+
+  // --- delete product ---
+  openDeleteDialog(): void {
+    const ref = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Delete Product',
+        message: 'This will permanently delete the product and all its contents.',
+        warn: true
+      }
+    });
+    ref.afterClosed().subscribe(ok => ok && this.deleteProduct());
+  }
+  private deleteProduct() {
+    this.productService.deleteProduct(this.productId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.router.navigate(['/admin/products']),
+        err => console.error('Delete failed', err));
+  }
+
+  // --- submit form ---
   onSave(): void {
     if (this.productForm.invalid) return;
     this.saving = true;
 
-    const currentMediaObjectKeys = this.mediaControls.controls.map(control => control.value.objectKey).filter(key => !!key);
-    const mediaToDelete = this.initialMediaObjectKeys.filter(key => !currentMediaObjectKeys.includes(key));
+    // compute mediaToDelete
+    const currentKeys = this.mediaControls.controls.map(c => c.value.objectKey).filter(k => !!k);
+    const mediaToDelete = this.initialMediaKeys.filter(k => !currentKeys.includes(k));
 
     const payload: UpdateProductDTO = {
       id: this.productId,
       ...this.productForm.value,
-      mediaToDelete: mediaToDelete // Add the list of media to delete to the payload
+      mediaToDelete: mediaToDelete
     };
 
     this.productService.updateProduct(this.productId, payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => this.handleSaveSuccess(),
-        error: (error) => this.handleSaveError(error)
+        next: () => {
+          this.saving = false;
+          this.snackBar.open('Product updated!', 'Close', { duration: 3000 });
+          this.router.navigate(['/admin/products']);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.saving = false;
+          const msg = err.error?.message || err.message || 'An error occurred';
+          this.snackBar.open(`Update failed: ${msg}`, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+        }
       });
-  }
-
-  private handleSaveSuccess(): void {
-    this.saving = false;
-    this.snackBar.open('Product updated!', 'Close', { duration: 3000 });
-    this.router.navigate(['/admin/products']);
-  }
-
-  private handleSaveError(error: any): void {
-    this.saving = false;
-    console.error('Update failed:', error);
-
-    let errorMessage = 'An unexpected error occurred.';
-    if (error instanceof HttpErrorResponse) {
-      errorMessage = `Update failed: ${error.error?.message || error.message || 'Something went wrong.'}`;
-    } else {
-      errorMessage = `Update failed: ${error.message || 'An unexpected client-side error occurred.'}`;
-    }
-
-    this.snackBar.open(errorMessage, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
   }
 
   cancel(): void {

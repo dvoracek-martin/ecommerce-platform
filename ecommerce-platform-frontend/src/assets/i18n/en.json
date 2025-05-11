@@ -113,7 +113,8 @@
     "REMEMBER_PASSWORD": "Remember password?",
     "RESET_PASSWORD": "Reset password",
     "SEND_RESET_LINK": "Send reset link",
-    "TITLE": "Login"
+    "TITLE": "Login",
+    "LOGGING_IN": "Logging in..."
   },
   "MENU": {
     "ADMIN": {
@@ -142,7 +143,8 @@
       "NO_MEDIA_UPLOADED": "No media has been uploaded for this product.",
       "TAGS": "Product Tags",
       "TITLE": "Products",
-      "UPLOAD_MEDIA": "Upload Media"
+      "UPLOAD_MEDIA": "Upload Media",
+      "UPDATE_TITLE": "Edit Product"
     },
     "ALLERGEN": "Allergen",
     "BOTANICAL_NAME": "Botanical Name",

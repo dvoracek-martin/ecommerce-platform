@@ -1,5 +1,3 @@
-<!-- src/app/components/products-admin-update/products-admin-update.component.html -->
-
 <div class="product-container">
   <mat-card class="product-card">
     <mat-card-header>
@@ -43,7 +41,7 @@
             </mat-form-field>
           </div>
           <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
+            <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label>
               <textarea matInput formControlName="description"></textarea>
             </mat-form-field>
@@ -63,11 +61,13 @@
           </div>
         </div>
 
+        <!-- Details -->
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>spa</mat-icon>
             {{ 'PRODUCTS.ADMIN.DETAILS' | translate }}
           </h3>
+          <!-- scentProfile, botanicalName, extractionMethod, origin, usageInstructions, volumeMl, weightGrams, warnings, medicinalUse -->
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'PRODUCTS.SCENT_PROFILE' | translate }}</mat-label>
@@ -89,7 +89,7 @@
             </mat-form-field>
           </div>
           <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
+            <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>{{ 'PRODUCTS.USAGE_INSTRUCTIONS' | translate }}</mat-label>
               <textarea matInput formControlName="usageInstructions"></textarea>
             </mat-form-field>
@@ -98,14 +98,15 @@
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'PRODUCTS.VOLUME_ML' | translate }}</mat-label>
               <input matInput type="number" formControlName="volumeMl">
-              <mat-error *ngIf="productForm.get('volumeMl')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}: 1
+              <mat-error *ngIf="productForm.get('volumeMl')?.hasError('min')">
+                {{ 'VALIDATION.MIN' | translate }}: 1
               </mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'PRODUCTS.WEIGHT_GRAMS' | translate }}</mat-label>
               <input matInput type="number" formControlName="weightGrams">
-              <mat-error *ngIf="productForm.get('weightGrams')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}:
-                0.01
+              <mat-error *ngIf="productForm.get('weightGrams')?.hasError('min')">
+                {{ 'VALIDATION.MIN' | translate }}: 0.01
               </mat-error>
             </mat-form-field>
           </div>
@@ -121,47 +122,23 @@
           </div>
         </div>
 
+        <!-- Tags -->
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>label</mat-icon>
             {{ 'PRODUCTS.ADMIN.TAGS' | translate }}
           </h3>
-          <button mat-stroked-button type="button" (click)="addTag()">{{ 'PRODUCTS.ADMIN.ADD_TAG' | translate }}
-          </button>
-          <div formArrayName="tagDTOS" cdkDropList (cdkDropListDropped)="dropTag($event)">
-            <div *ngFor="let tagControl of tagsControls.controls; let i = index" [formGroupName]="i" class="form-row"
-                 cdkDrag>
-              <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PRODUCTS.TAG_NAME' | translate }}</mat-label>
-                <input matInput formControlName="name" required>
-                <mat-error
-                  *ngIf="tagsControls.controls[i].get('name')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
-                </mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PRODUCTS.TAG_DESCRIPTION' | translate }}</mat-label>
-                <input matInput formControlName="description">
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PRODUCTS.TAG_COLOR' | translate }}</mat-label>
-                <input matInput formControlName="color">
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PRODUCTS.TAG_ICON' | translate }}</mat-label>
-                <input matInput formControlName="icon">
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PRODUCTS.TAG_IMAGE_URL' | translate }}</mat-label>
-                <input matInput formControlName="imageUrl">
-              </mat-form-field>
-              <button mat-icon-button type="button" (click)="removeTag(i)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </div>
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>{{ 'PRODUCTS.ADMIN.SELECT_TAGS' | translate }}</mat-label>
+            <mat-select formControlName="tagIds" multiple>
+              <mat-option *ngFor="let t of allTags" [value]="t.id">
+                {{ t.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
 
+        <!-- Allergens -->
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>warning</mat-icon>
@@ -177,12 +154,13 @@
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
-            <button mat-stroked-button type="button"
-                    (click)="addAllergen()">{{ 'PRODUCTS.ADMIN.ADD_ALLERGEN' | translate }}
+            <button mat-stroked-button type="button" (click)="addAllergen()">
+              {{ 'PRODUCTS.ADMIN.ADD_ALLERGEN' | translate }}
             </button>
           </div>
         </div>
 
+        <!-- Media -->
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>image</mat-icon>
@@ -193,14 +171,12 @@
             <mat-icon>file_upload</mat-icon>
             {{ 'PRODUCTS.ADMIN.UPLOAD_MEDIA' | translate }}
           </button>
-
           <div formArrayName="uploadMediaDTOs" cdkDropList (cdkDropListDropped)="dropMedia($event)" class="media-list">
             <div *ngFor="let mediaControl of mediaControls.controls; let i = index"
                  [formGroupName]="i" class="media-item" cdkDrag>
               <div class="media-preview-container">
                 <img *ngIf="mediaControl.get('contentType')?.value?.startsWith('image/')"
-                     [src]="mediaControl.get('preview')?.value"
-                     alt="Media preview">
+                     [src]="mediaControl.get('preview')?.value" alt="Media preview">
                 <video *ngIf="mediaControl.get('contentType')?.value?.startsWith('video/')"
                        controls muted>
                   <source [src]="mediaControl.get('preview')?.value"
@@ -220,24 +196,20 @@
         <!-- Action Buttons -->
         <div class="actions">
           <div class="primary-actions">
-            <button mat-flat-button color="warn" type="button"
-                    [routerLink]="['/admin/categories']">
+            <button mat-flat-button color="warn" type="button" (click)="cancel()">
               {{ 'COMMON.CANCEL' | translate }}
             </button>
-            <button mat-flat-button color="primary"
-                    [disabled]="productForm.invalid || saving"
-                    type="submit">
+            <button mat-flat-button color="primary" type="submit" [disabled]="productForm.invalid || saving">
               <mat-icon>save</mat-icon>
               {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
             </button>
           </div>
-
-          <button mat-flat-button color="accent" type="button"
-                  (click)="openDeleteDialog()" class="delete-category">
+          <button mat-flat-button color="accent" type="button" (click)="openDeleteDialog()" class="delete-category">
             <mat-icon>delete_forever</mat-icon>
             {{ 'COMMON.DELETE' | translate }}
           </button>
         </div>
+
         <mat-progress-bar *ngIf="saving" mode="indeterminate" class="save-progress"></mat-progress-bar>
       </form>
     </mat-card-content>

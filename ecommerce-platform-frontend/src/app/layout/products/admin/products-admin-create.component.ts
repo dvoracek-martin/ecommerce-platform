@@ -10,6 +10,8 @@ import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog
 import { CreateProductDTO } from '../../../dto/product/create-product-dto';
 import { ResponseCategoryDTO } from '../../../dto/category/response-category-dto';
 import { Subject, takeUntil } from 'rxjs';
+import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
+import {TagService} from '../../../services/tag.service';
 
 @Component({
   selector: 'app-products-admin-create',
@@ -22,11 +24,13 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
   saving = false;
   categories: ResponseCategoryDTO[] = [];
   private readonly destroy$ = new Subject<void>();
+  allTags: ResponseTagDTO[] = [];
 
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
     private categoryService: CategoryService,
+    private tagService: TagService,
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
@@ -35,6 +39,7 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.initForm();
     this.loadCategories();
+    this.loadTags();
   }
 
   ngOnDestroy(): void {
@@ -58,13 +63,13 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
       medicinalUse: [''],
       weightGrams: [null],
       allergens: this.fb.array([]),
-      tagDTOS: this.fb.array([]),
+      tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])
     });
   }
 
   loadCategories(): void {
-    this.categoryService.getAllCategories()
+    this.categoryService.getAllCategoriesAdmin()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (categories) => {
@@ -74,6 +79,15 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
           console.error('Error loading categories:', error);
           this.snackBar.open('Error loading categories', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         }
+      });
+  }
+
+  private loadTags() {
+    this.tagService.getAllTags()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: tags => this.allTags = tags,
+        error: _ => this.snackBar.open('Error loading tags', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
       });
   }
 
@@ -146,6 +160,10 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
 
   get tagsControls(): FormArray {
     return this.productForm.get('tagDTOS') as FormArray;
+  }
+
+  get tagIdsControl(): FormControl {
+    return this.productForm.get('tagIds') as FormControl;
   }
 
   addTag(): void {

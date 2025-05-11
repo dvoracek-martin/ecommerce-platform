@@ -35,7 +35,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
 
   loadCategories(): void {
     this.isLoading = true;
-    this.categoryService.getAllCategories().subscribe({
+    this.categoryService.getAllCategoriesAdmin().subscribe({
       next: (data) => {
         this.categories = data;
         this.initializeCarousels();

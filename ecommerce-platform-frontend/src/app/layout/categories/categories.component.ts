@@ -25,7 +25,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
 
-    this.categoryService.getAllCategories().subscribe({
+    this.categoryService.getAllCategoriesAdmin().subscribe({
       next: (data) => {
         this.categories = data;
         this.initializeCarousels();

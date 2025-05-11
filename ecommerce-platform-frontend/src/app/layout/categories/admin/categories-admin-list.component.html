@@ -19,7 +19,6 @@
         <div class="category-header">
           <h2>{{ category.name }}</h2>
           <div class="actions">
-            <span class="category-type">{{ category.categoryType }}</span>
             <button mat-icon-button (click)="$event.stopPropagation(); openDeleteDialog(category.id)">
               <mat-icon class="delete-icon">delete</mat-icon>
             </button>

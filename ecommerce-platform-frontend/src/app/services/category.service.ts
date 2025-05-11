@@ -15,8 +15,8 @@ export class CategoryService {
   constructor(private http: HttpClient) { }
 
   // Public endpoints
-  getAllCategories(): Observable<ResponseCategoryDTO[]> {
-    return this.http.get<ResponseCategoryDTO[]>(`${this.apiUrl}all-categories`);
+  getAllCategoriesAdmin(): Observable<ResponseCategoryDTO[]> {
+    return this.http.get<ResponseCategoryDTO[]>(`${this.apiAdminUrl}all-categories`);
   }
 
   // Admin endpoints

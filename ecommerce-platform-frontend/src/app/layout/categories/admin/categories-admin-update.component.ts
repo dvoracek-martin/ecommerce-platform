@@ -1,15 +1,24 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { CategoryService } from '../../../services/category.service';
-import { UpdateCategoryDTO } from '../../../dto/category/update-category-dto';
-import { ResponseCategoryDTO } from '../../../dto/category/response-category-dto';
-import { ResponseMediaDTO } from '../../../dto/category/response-media-dto';
-import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
-import { HttpErrorResponse } from '@angular/common/http';
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop'; // Import HttpErrorResponse
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  FormArray,
+  FormControl,
+  Validators
+} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {MatDialog} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {Subject, takeUntil} from 'rxjs';
+
+import {CategoryService} from '../../../services/category.service';
+import {TagService} from '../../../services/tag.service';
+import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
+import {UpdateCategoryDTO} from '../../../dto/category/update-category-dto';
+import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
+import {ResponseMediaDTO} from '../../../dto/category/response-media-dto';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
 
 @Component({
   selector: 'app-categories-admin-update',
@@ -17,66 +26,45 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop'; // Import H
   standalone: false,
   styleUrls: ['./categories-admin-update.component.scss']
 })
-export class CategoriesAdminUpdateComponent implements OnInit {
+export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   categoryForm!: FormGroup;
   saving = false;
-  categoryId!: number;
-  existingMedia: ResponseMediaDTO[] = [];
+  allTags: ResponseTagDTO[] = [];
+  private categoryId!: number;
+  private initialMediaKeys: string[] = [];
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private categoryService: CategoryService,
+    private tagService: TagService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar // Inject MatSnackBar
-  ) {}
+    private snackBar: MatSnackBar
+  ) {
+  }
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.categoryId = +params['id'];
       this.initForm();
+      this.loadTags();
       this.loadCategory();
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private initForm(): void {
     this.categoryForm = this.fb.group({
       name: ['', Validators.required],
-      categoryType: ['', Validators.required],
       description: [''],
+      tagIds: [[], Validators.required],
       uploadMediaDTOs: this.fb.array([])
-    });
-  }
-
-  private loadCategory(): void {
-    this.categoryService.getCategoryById(this.categoryId).subscribe({
-      next: (category) => this.patchForm(category),
-      error: (err) => console.error('Error loading category:', err)
-    });
-  }
-
-  private patchForm(category: ResponseCategoryDTO): void {
-    this.categoryForm.patchValue({
-      name: category.name,
-      categoryType: category.categoryType,
-      description: category.description
-    });
-
-    while (this.mediaControls.length) this.mediaControls.removeAt(0);
-
-    category.responseMediaDTOs?.forEach(media => {
-      this.mediaControls.push(this.createMediaGroup(media));
-    });
-    this.existingMedia = [...(category.responseMediaDTOs || [])];
-  }
-
-  private createMediaGroup(media: ResponseMediaDTO): FormGroup {
-    return this.fb.group({
-      base64Data: [media.base64Data],
-      objectKey: [media.objectKey],
-      contentType: [media.contentType],
-      preview: [`data:${media.contentType};base64,${media.base64Data}`]
     });
   }
 
@@ -84,114 +72,119 @@ export class CategoriesAdminUpdateComponent implements OnInit {
     return this.categoryForm.get('uploadMediaDTOs') as FormArray;
   }
 
+  get tagIdsControl(): FormControl {
+    return this.categoryForm.get('tagIds') as FormControl;
+  }
+
+  private loadTags() {
+    this.tagService.getAllTags()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: tags => this.allTags = tags,
+        error: () => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
+      });
+  }
+
+  private loadCategory() {
+    this.categoryService.getCategoryById(this.categoryId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: c => this.patchForm(c),
+        error: () => {
+          this.snackBar.open('Error loading category', 'Close', {duration: 3000, panelClass: ['error-snackbar']});
+          this.router.navigate(['/admin/categories']);
+        }
+      });
+  }
+
+  private patchForm(cat: ResponseCategoryDTO) {
+    this.categoryForm.patchValue({
+      name: cat.name,
+      description: cat.description
+    });
+
+    // prefill tags
+    const existingIds = cat.tags.map(t => t.id);
+    this.tagIdsControl.setValue(existingIds);
+
+    // media
+    this.mediaControls.clear();
+    (cat.responseMediaDTOs || []).forEach(m => {
+      this.mediaControls.push(this.fb.group({
+        base64Data: [m.base64Data],
+        objectKey: [m.objectKey],
+        contentType: [m.contentType],
+        preview: [`data:${m.contentType};base64,${m.base64Data}`]
+      }));
+      this.initialMediaKeys.push(m.objectKey);
+    });
+  }
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     Array.from(input.files || []).forEach(file => {
       const reader = new FileReader();
-      reader.onload = () => this.handleFileUpload(reader, file);
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        this.mediaControls.push(this.fb.group({
+          base64Data: [base64],
+          objectKey: [`categories/${this.categoryId}_${Date.now()}_${file.name}`],
+          contentType: [file.type],
+          preview: [reader.result]
+        }));
+      };
       reader.readAsDataURL(file);
     });
   }
 
-  private handleFileUpload(reader: FileReader, file: File): void {
-    const base64 = (reader.result as string).split(',')[1];
-    this.mediaControls.push(this.fb.group({
-      base64Data: [base64],
-      objectKey: [`category_${this.categoryId}_${Date.now()}_${file.name}`],
-      contentType: [file.type],
-      preview: [reader.result]
-    }));
-  }
-
-  openMediaDeleteDialog(index: number): void {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Delete Media',
-        message: 'Are you sure you want to delete this media item?',
-        warn: true
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) this.removeMedia(index);
+  openMediaDeleteDialog(i: number) {
+    this.dialog.open(ConfirmationDialogComponent, {
+      data: {title: 'Delete Media', message: 'Delete this media?', warn: true}
+    }).afterClosed().subscribe(ok => {
+      if (ok) this.mediaControls.removeAt(i);
     });
   }
 
-  removeMedia(index: number): void {
-    const media = this.mediaControls.at(index).value;
-    if (media.objectKey) {
-      // Add backend deletion logic here if needed
-    }
-    this.mediaControls.removeAt(index);
-  }
-
-  drop(event: CdkDragDrop<any[]>): void {
+  drop(event: CdkDragDrop<any[]>) {
     moveItemInArray(this.mediaControls.controls, event.previousIndex, event.currentIndex);
   }
 
-  onSave(): void {
+  onSave() {
     if (this.categoryForm.invalid) return;
-
     this.saving = true;
+
     const payload: UpdateCategoryDTO = {
-      ...this.categoryForm.value,
-      id: this.categoryId
+      id: this.categoryId,
+      ...this.categoryForm.value
     };
 
-    this.categoryService.updateCategory(payload).subscribe({
-      next: () => this.handleSaveSuccess(),
-      error: (error) => this.handleSaveError(error)
-    });
-  }
-
-  private handleSaveSuccess(): void {
-    this.saving = false;
-    this.router.navigate(['/admin/categories']);
-    this.snackBar.open('Category updated successfully!', 'Close', { duration: 3000 });
-  }
-
-  private handleSaveError(error: any): void {
-    this.saving = false;
-    console.error('Update failed:', error);
-
-    let errorMessage = 'An unexpected error occurred.';
-    if (error instanceof HttpErrorResponse) {
-      if (error.status === 409) { // HttpStatus.CONFLICT
-        if (typeof error.error === 'string') {
-          errorMessage = error.error; // Backend sent the error message as a string
-        } else if (error.error && error.error.message) {
-          errorMessage = error.error.message; // Backend sent a JSON object with a 'message' property
-        } else {
-          errorMessage = 'Category name already exists.'; // Fallback if no specific message
+    this.categoryService.updateCategory(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.saving = false;
+          this.snackBar.open('Category updated!', 'Close', {duration: 3000});
+          this.router.navigate(['/admin/categories']);
+        },
+        error: err => {
+          this.saving = false;
+          console.error('Update failed', err);
+          this.snackBar.open('Failed to update category', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
         }
-      } else {
-        errorMessage = `Update failed: ${error.error?.message || error.message || 'Something went wrong.'}`;
-      }
-    } else {
-      errorMessage = `Update failed: ${error.message || 'An unexpected client-side error occurred.'}`;
-    }
-
-    this.snackBar.open(errorMessage, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+      });
   }
 
-  openDeleteDialog(): void {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Delete Category',
-        message: 'This will permanently delete the category and all its contents.',
-        warn: true
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) this.deleteCategory();
+  openDeleteDialog() {
+    this.dialog.open(ConfirmationDialogComponent, {
+      data: {title: 'Delete Category', message: 'Permanently delete?', warn: true}
+    }).afterClosed().subscribe(ok => {
+      if (ok) this.categoryService.deleteCategory(this.categoryId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => this.router.navigate(['/admin/categories']));
     });
   }
 
-  private deleteCategory(): void {
-    this.categoryService.deleteCategory(this.categoryId).subscribe({
-      next: () => this.router.navigate(['/admin/categories']),
-      error: (err) => console.error('Delete failed:', err)
-    });
+  cancel() {
+    this.router.navigate(['/admin/categories']);
   }
 }

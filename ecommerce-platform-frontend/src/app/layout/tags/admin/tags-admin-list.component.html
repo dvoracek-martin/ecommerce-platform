@@ -1,0 +1,52 @@
+<div class="tags-container">
+  <div class="header">
+    <h1>{{ 'TAGS.ADMIN.TITLE' | translate }}</h1>
+    <button mat-raised-button color="primary" [routerLink]="['/admin/tags/create']">
+      <mat-icon>add</mat-icon>
+      {{ 'TAGS.ADMIN.NEW_TITLE' | translate }}
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading">
+    {{ 'COMMON.LOADING' | translate }}
+  </div>
+  <!-- Error State -->
+  <div *ngIf="!isLoading && error" class="error">
+    {{ error }}
+  </div>
+
+  <!-- Tags Grid -->
+  <div *ngIf="!isLoading && !error" class="tags-grid">
+    <div
+      *ngFor="let tag of tags; trackBy: trackById"
+      class="tag-card"
+      (click)="navigateToUpdate(tag.id)"
+    >
+      <div class="card-header">
+        <h2>{{ tag.name }}</h2>
+        <button
+          mat-icon-button
+          (click)="$event.stopPropagation(); openDeleteDialog(tag.id)"
+        >
+          <mat-icon class="delete-icon">delete</mat-icon>
+        </button>
+      </div>
+
+      <div class="tag-relations">
+        <span class="relation">
+          <mat-icon>local_offer</mat-icon>
+          {{ tag.products.length }} {{ 'TAGS.ADMIN.PRODUCTS' | translate }}
+        </span>
+        <span class="relation">
+          <mat-icon>category</mat-icon>
+          {{ tag.categories.length }} {{ 'TAGS.ADMIN.CATEGORIES' | translate }}
+        </span>
+        <span class="relation">
+          <mat-icon>scatter_plot</mat-icon>
+          {{ tag.mixtures.length }} {{ 'TAGS.ADMIN.MIXTURES' | translate }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

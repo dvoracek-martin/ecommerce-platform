@@ -1,11 +1,17 @@
+// src/app/dto/category/response-category-dto.ts
+
 import {ResponseMediaDTO} from './response-media-dto';
+import {ResponseTagDTO} from '../tag/response-tag-dto';
 
 export interface ResponseCategoryDTO {
-  id: number; // Changed to number to match the backend
+  /** Primary key */
+  id: number;
+  /** Category name */
   name: string;
+  /** Optional description */
   description?: string;
-  categoryType: string;
-  responseMediaDTOs: ResponseMediaDTO[]; // Changed to match backend property name
-  // createdAt: string;  // Removed as it's not in the backend response
-  // updatedAt: string;  // Removed as it's not in the backend response
+  /** Uploaded media items (images/videos) */
+  responseMediaDTOs: ResponseMediaDTO[];
+  /** List of tags associated with this category */
+  tags: ResponseTagDTO[];
 }

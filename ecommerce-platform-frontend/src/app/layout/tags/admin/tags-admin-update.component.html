@@ -1,0 +1,84 @@
+<div class="category-container">
+  <mat-card class="category-card">
+    <mat-card-header>
+      <mat-card-title class="category-title">
+        <mat-icon class="title-icon">edit</mat-icon>
+        {{ 'TAGS.ADMIN.EDIT_TITLE' | translate }}
+      </mat-card-title>
+      <button mat-icon-button [routerLink]="['/admin/tags']">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-card-header>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content>
+      <form [formGroup]="tagForm" (ngSubmit)="onSave()" class="form-grid">
+        <div *ngIf="loading" class="loading-overlay">
+          <mat-spinner diameter="50"></mat-spinner>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>label</mat-icon>
+            {{ 'TAGS.ADMIN.BASIC_INFO' | translate }}
+          </h3>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'TAGS.ADMIN.NAME' | translate }}</mat-label>
+              <input matInput formControlName="name" required
+                     placeholder="{{ 'TAGS.ADMIN.NAME_PLACEHOLDER' | translate }}">
+              <mat-error *ngIf="tagForm.get('name')?.hasError('required')">
+                {{ 'TAGS.ADMIN.NAME_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'TAGS.ADMIN.COLOR' | translate }}</mat-label>
+              <input matInput type="color" formControlName="color"
+                     placeholder="{{ 'TAGS.ADMIN.COLOR_PLACEHOLDER' | translate }}">
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'TAGS.ADMIN.ICON' | translate }}</mat-label>
+              <input matInput formControlName="icon" required
+                     placeholder="{{ 'TAGS.ADMIN.ICON_PLACEHOLDER' | translate }}">
+              <mat-error *ngIf="tagForm.get('icon')?.hasError('required')">
+                {{ 'TAGS.ADMIN.ICON_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'TAGS.ADMIN.IMAGE_URL' | translate }}</mat-label>
+              <input matInput formControlName="imageUrl"
+                     placeholder="{{ 'TAGS.ADMIN.IMAGE_URL_PLACEHOLDER' | translate }}">
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'TAGS.ADMIN.DESCRIPTION' | translate }}</mat-label>
+              <textarea matInput formControlName="description"
+                        placeholder="{{ 'TAGS.ADMIN.DESCRIPTION_PLACEHOLDER' | translate }}"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button color="warn" mat-flat-button type="button" (click)="openCancelDialog()">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button color="primary" mat-flat-button [disabled]="tagForm.invalid || saving"
+                  type="submit">
+            <mat-icon>save</mat-icon>
+            {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+          </button>
+          <mat-progress-bar *ngIf="saving" mode="indeterminate" class="save-progress"></mat-progress-bar>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

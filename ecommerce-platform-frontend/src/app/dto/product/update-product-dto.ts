@@ -17,6 +17,6 @@ export interface UpdateProductDTO {
   medicinalUse?: string;
   weightGrams: number;
   allergens?: string[];
-  tagDTOS?: TagDTO[];
+  tagIds?: number[];
   uploadMediaDTOs?: UploadMediaDTO[];
 }

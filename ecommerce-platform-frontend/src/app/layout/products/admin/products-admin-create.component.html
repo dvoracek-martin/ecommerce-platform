@@ -122,40 +122,15 @@
             <mat-icon>label</mat-icon>
             {{ 'PRODUCTS.ADMIN.TAGS' | translate }}
           </h3>
-          <button mat-stroked-button type="button" (click)="addTag()">{{ 'PRODUCTS.ADMIN.ADD_TAG' | translate }}
-          </button>
-          <div formArrayName="tagDTOS" cdkDropList (cdkDropListDropped)="dropTag($event)">
-            <div *ngFor="let tagControl of tagsControls.controls; let i = index" [formGroupName]="i" class="form-row"
-                 cdkDrag>
-              <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PRODUCTS.TAG_NAME' | translate }}</mat-label>
-                <input matInput formControlName="name" required>
-                <mat-error
-                  *ngIf="tagsControls.controls[i].get('name')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
-                </mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PRODUCTS.TAG_DESCRIPTION' | translate }}</mat-label>
-                <input matInput formControlName="description">
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PRODUCTS.TAG_COLOR' | translate }}</mat-label>
-                <input matInput formControlName="color">
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PRODUCTS.TAG_ICON' | translate }}</mat-label>
-                <input matInput formControlName="icon">
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PRODUCTS.TAG_IMAGE_URL' | translate }}</mat-label>
-                <input matInput formControlName="imageUrl">
-              </mat-form-field>
-              <button mat-icon-button type="button" (click)="removeTag(i)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </div>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>{{ 'PRODUCTS.ADMIN.SELECT_TAGS' | translate }}</mat-label>
+            <mat-select formControlName="tagIds" multiple>
+              <mat-option *ngFor="let t of allTags" [value]="t.id">
+                {{ t.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
 
         <div class="form-section">
@@ -222,6 +197,7 @@
             {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
           </button>
         </div>
+        <mat-progress-bar *ngIf="saving" mode="indeterminate" class="save-progress"></mat-progress-bar>
       </form>
     </mat-card-content>
   </mat-card>

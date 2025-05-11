@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TagsAdminComponent } from './tags-admin.component';
+import { TagsAdminListComponent } from './tags-admin-list.component';
 
-describe('TagsAdminComponent', () => {
-  let component: TagsAdminComponent;
-  let fixture: ComponentFixture<TagsAdminComponent>;
+describe('TagsAdminListComponent', () => {
+  let component: TagsAdminListComponent;
+  let fixture: ComponentFixture<TagsAdminListComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TagsAdminComponent]
+      declarations: [TagsAdminListComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TagsAdminComponent);
+    fixture = TestBed.createComponent(TagsAdminListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
