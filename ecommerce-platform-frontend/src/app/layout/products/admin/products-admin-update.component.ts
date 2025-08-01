@@ -83,7 +83,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       weightGrams: [null],
       allergens: this.fb.array([]),
       // <-- replaced old tagDTOS with a single FormControl:
-      tagIds: [[], Validators.required],
+      tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])
     });
   }

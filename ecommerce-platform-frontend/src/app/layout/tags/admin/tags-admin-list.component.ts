@@ -1,4 +1,3 @@
-// tags-admin-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -41,12 +40,10 @@ export class TagsAdminListComponent implements OnInit {
     });
   }
 
-  /** Navigate into the edit form for this tag */
   navigateToUpdate(tagId: number): void {
     this.router.navigate([`/admin/tags/update/${tagId}`]);
   }
 
-  /** Ask for confirmation, then delete */
   openDeleteDialog(tagId: number): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
@@ -69,7 +66,7 @@ export class TagsAdminListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Delete failed:', err);
-        // TODO: show a snackbar/toast here
+        // TODO: Add a snackbar/toast notification
       }
     });
   }

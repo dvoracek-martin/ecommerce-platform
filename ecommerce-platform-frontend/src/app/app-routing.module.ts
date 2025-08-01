@@ -68,8 +68,8 @@ const routes: Routes = [
       {path: 'categories/update/:id', component: CategoriesAdminUpdateComponent},
       {path: 'mixtures', component: MixturesAdminComponent},
       {path: 'tags', component: TagsAdminListComponent,},
+      {path: 'tags/update/:id', component: TagsAdminUpdateComponent,},
       {path: 'tags/create', component: TagsAdminCreateComponent,},
-      {path: 'tags/:id', component: TagsAdminUpdateComponent,},
       {path: 'orders', component: OrdersAdminComponent}
     ]
   },

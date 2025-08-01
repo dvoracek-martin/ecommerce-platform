@@ -3,21 +3,47 @@
     <mat-icon>home</mat-icon>
   </button>
   <span>{{ 'APP.TITLE' | translate }}</span>
-  <span class="spacer"></span>
 
+  <!-- SEARCH FORM -->
+  <span class="spacer"></span>
+  <div class="search-container">
+    <div class="search-field">
+      <mat-form-field appearance="outline" >
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          matInput
+          placeholder="{{ 'SEARCH.PLACEHOLDER' | translate }}"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchChange()"
+          autocomplete="off" />
+      </mat-form-field>
+    </div>
+
+    <div class="search-dropdown" *ngIf="showResults">
+      <mat-list>
+        <mat-list-item *ngFor="let r of searchResults" (click)="goTo(r)">
+          <mat-icon matListIcon>search</mat-icon>
+          <div matLine>{{ r.name }}</div>
+          <div matLine class="secondary">{{ r.type }}</div>
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </div>
+
+  <!-- LANGUAGE MENU -->
   <mat-menu #langMenu="matMenu">
     <button (click)="changeLanguage(lang.code)" *ngFor="let lang of languages" mat-menu-item>
       <mat-icon svgIcon="{{ lang.icon }}"></mat-icon>
       <span>{{ lang.name }}</span>
     </button>
   </mat-menu>
-
   <button [matMenuTriggerFor]="langMenu" mat-button>
     <mat-icon svgIcon="{{ selectedLanguage.icon }}"></mat-icon>
     <span>{{ selectedLanguage.name }}</span>
     <mat-icon>arrow_drop_down</mat-icon>
   </button>
 
+  <!-- USER MENU -->
   <div class="user-menu">
     <mat-menu #userMenu="matMenu">
       <div *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_admin')">
@@ -52,10 +78,10 @@
           <mat-icon>account_circle</mat-icon>
           <span>{{ 'MENU.CLIENT.PROFILE' | translate }}</span>
         </button>
-        <button (click)="navigateToClientOrders()" mat-menu-item>
-          <mat-icon>shopping_cart</mat-icon>
-          <span>{{ 'MENU.CLIENT.ORDERS' | translate }}</span>
-        </button>
+<!--        <button (click)="navigateToClientOrders()" mat-menu-item>-->
+<!--          <mat-icon>shopping_cart</mat-icon>-->
+<!--          <span>{{ 'MENU.CLIENT.ORDERS' | translate }}</span>-->
+<!--        </button>-->
       </div>
 
       <button (click)="logout()" mat-menu-item>
@@ -63,12 +89,12 @@
         <span>{{ 'MENU.LOGOUT' | translate }}</span>
       </button>
     </mat-menu>
+
     <button *ngIf="authService.isAuthenticated$ | async; else loginBtn"
             [matMenuTriggerFor]="userMenu"
             mat-icon-button>
       <mat-icon>account_circle</mat-icon>
     </button>
-
     <ng-template #loginBtn>
       <button (click)="onUserIconClick()" mat-icon-button>
         <mat-icon>account_circle</mat-icon>
@@ -78,5 +104,4 @@
 </mat-toolbar>
 
 <router-outlet></router-outlet>
-
 <app-auth-popup (closePopup)="closeAuthPopup()" *ngIf="isPopupOpen"></app-auth-popup>

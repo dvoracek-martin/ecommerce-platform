@@ -63,7 +63,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     this.categoryForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
-      tagIds: [[], Validators.required],
+      tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])
     });
   }

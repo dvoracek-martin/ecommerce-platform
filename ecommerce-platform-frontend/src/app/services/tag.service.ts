@@ -4,6 +4,9 @@ import { Observable } from 'rxjs';
 import { CreateTagDTO } from '../dto/tag/create-tag-dto';
 import { ResponseTagDTO } from '../dto/tag/response-tag-dto';
 import { UpdateTagDTO } from '../dto/tag/update-tag-dto';
+import { ResponseCategoryDTO } from '../dto/category/response-category-dto';
+import { ResponseProductDTO } from '../dto/product/response-product-dto';
+import {ResponseMixtureDTO} from '../dto/mixtures/response-mixture-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +16,7 @@ export class TagService {
 
   constructor(private http: HttpClient) { }
 
+  // --- Tag CRUD ---
   createTags(tags: CreateTagDTO[]): Observable<ResponseTagDTO[]> {
     return this.http.post<ResponseTagDTO[]>(
       `${this.apiAdminUrl}tags`,
@@ -37,5 +41,18 @@ export class TagService {
 
   deleteTag(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiAdminUrl}tags/${id}`);
+  }
+
+  // --- Relation lookups for create/update forms ---
+  getAllCategories(): Observable<ResponseCategoryDTO[]> {
+    return this.http.get<ResponseCategoryDTO[]>(`${this.apiAdminUrl}all-categories`);
+  }
+
+  getAllProducts(): Observable<ResponseProductDTO[]> {
+    return this.http.get<ResponseProductDTO[]>(`${this.apiAdminUrl}all-products`);
+  }
+
+  getAllMixtures(): Observable<ResponseMixtureDTO[]> {
+    return this.http.get<ResponseMixtureDTO[]>(`${this.apiAdminUrl}all-mixtures`);
   }
 }

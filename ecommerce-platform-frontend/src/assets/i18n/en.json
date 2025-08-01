@@ -4,7 +4,9 @@
   },
   "AUTH": {
     "LOGIN": "Login",
-    "REGISTER": "Register"
+    "REGISTER": "Register",
+    "LOGOUT_SUCCESS": "You have been logged out",
+    "SESSION_EXPIRED": "Your session has expired. Please log in again."
   },
   "CART": {
     "TITLE": "Shopping Cart",
@@ -12,7 +14,10 @@
     "ITEMS": "items",
     "TOTAL": "Total",
     "VIEW_CART": "View Cart",
-    "CHECKOUT": "Checkout"
+    "CHECKOUT": "Checkout",
+    "REMOVE_ITEM": "Remove Item",
+    "QUANTITY": "Quantity",
+    "CONTINUE_SHOPPING": "Continue Shopping"
   },
   "CATEGORIES": {
     "ADMIN": {
@@ -47,7 +52,9 @@
     "SAVE": "Save Changes",
     "SAVING": "Saving...",
     "SENDING": "Sending...",
-    "YES": "Yes"
+    "YES": "Yes",
+    "LOADING": "Loading...",
+    "BACK": "Back"
   },
   "CUSTOMER": {
     "ADDRESS": "Address",
@@ -100,7 +107,8 @@
     "PASSWORD_CHANGE_FAILED": "Password change failed",
     "REGISTRATION_FAILED": "Registration failed:",
     "SERVER_ERROR": "Server error occurred",
-    "UNAUTHORIZED": "Unauthorized access"
+    "UNAUTHORIZED": "Unauthorized access",
+    "NETWORK_ERROR": "Network error. Please try again later."
   },
   "LOGIN": {
     "ENTER_EMAIL": "Enter email",
@@ -123,11 +131,15 @@
       "MIXTURES": "Mixtures",
       "ORDERS": "Orders",
       "PRODUCTS": "Products",
-      "TAGS": "Tags"
+      "TAGS": "Tags",
+      "DASHBOARD": "Dashboard",
+      "SETTINGS": "Settings"
     },
     "CLIENT": {
       "ORDERS": "My Orders",
-      "PROFILE": "My Profile"
+      "PROFILE": "My Profile",
+      "LOGOUT": "Logout",
+      "WISHLIST": "Wishlist"
     },
     "LOGOUT": "Logout"
   },
@@ -144,7 +156,8 @@
       "TAGS": "Product Tags",
       "TITLE": "Products",
       "UPLOAD_MEDIA": "Upload Media",
-      "UPDATE_TITLE": "Edit Product"
+      "UPDATE_TITLE": "Edit Product",
+      "DELETE_CONFIRMATION": "Are you sure you want to delete this product?"
     },
     "ALLERGEN": "Allergen",
     "BOTANICAL_NAME": "Botanical Name",
@@ -168,7 +181,10 @@
     "VOLUME": "Volume",
     "VOLUME_ML": "Volume (ml)",
     "WARNINGS": "Warnings",
-    "WEIGHT_GRAMS": "Weight (grams)"
+    "WEIGHT_GRAMS": "Weight (grams)",
+    "IN_STOCK": "In Stock",
+    "OUT_OF_STOCK": "Out of Stock",
+    "ADD_TO_CART": "Add to Cart"
   },
   "RESET_PASSWORD": {
     "BUTTON": "Reset Password",
@@ -183,7 +199,40 @@
     "LOGIN_SUCCESS": "Login successful",
     "PASSWORD_CHANGE_SUCCESS": "Password changed successfully",
     "PROFILE_UPDATE_SUCCESS": "Profile updated successfully",
-    "REGISTRATION_SUCCESS": "Registration successful"
+    "REGISTRATION_SUCCESS": "Registration successful",
+    "ORDER_PLACED": "Order placed successfully",
+    "ITEM_ADDED_TO_CART": "Item added to cart"
+  },
+  "TAGS": {
+    "ADMIN": {
+      "TITLE": "Tags",
+      "NEW_TITLE": "Create New Tag",
+      "EDIT_TITLE": "Edit Tag",
+      "NAME": "Tag Name",
+      "NAME_PLACEHOLDER": "Enter tag name",
+      "NAME_REQUIRED": "Tag name is required",
+      "COLOR": "Color",
+      "COLOR_PLACEHOLDER": "Select color",
+      "ICON": "Icon",
+      "ICON_PLACEHOLDER": "Enter icon name",
+      "DESCRIPTION": "Description",
+      "DESCRIPTION_PLACEHOLDER": "Enter tag description",
+      "IMAGE_URL": "Image URL",
+      "IMAGE_URL_PLACEHOLDER": "Enter image URL",
+      "ASSOCIATED_PRODUCTS": "Associated Products",
+      "ASSOCIATED_CATEGORIES": "Associated Categories",
+      "UPLOAD_MEDIA": "Upload Media",
+      "MEDIA": "Tag Media",
+      "RELATIONS": "Relations",
+      "BASIC_INFO": "Basic Information",
+      "CATEGORIES": "Categories",
+      "PRODUCTS": "Products",
+      "MIXTURES": "Mixtures"
+    },
+    "ERROR_LOADING": "Error loading tags: {{error}}",
+    "LOADING": "Loading tags...",
+    "NO_MEDIA": "No media available for this tag",
+    "TITLE": "Product Tags"
   },
   "USER_REGISTRATION": {
     "CONFIRM_PASSWORD": "Confirm Password",
@@ -204,7 +253,7 @@
   "VALIDATION": {
     "EMAIL": "Invalid email format",
     "MATCH": "Fields must match",
-    "MAX_LENGTH": "Maximum length is {{max}}characters",
+    "MAX_LENGTH": "Maximum length is {{max}} characters",
     "MIN_LENGTH": "Minimum length is {{min}} characters",
     "PATTERN": "Invalid format",
     "REQUIRED": "This field is required",
