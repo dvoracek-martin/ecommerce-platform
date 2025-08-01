@@ -5,3 +5,9 @@ spring:
     activate:
       on-profile: default
     import: "configserver:http://localhost:8888"
+  elasticsearch:
+    uris: http://localhost:9200
+    username: elastic
+    password: search
+    connection-timeout: 1000
+    socket-timeout: 2000

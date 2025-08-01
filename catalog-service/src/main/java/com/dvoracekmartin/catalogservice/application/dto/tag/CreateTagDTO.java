@@ -8,7 +8,6 @@ import java.util.List;
 
 public record CreateTagDTO(
         String name,
-        String description,
         List<CreateProductDTO> products,
         List<CreateCategoryDTO> categories,
         List<CreateMixtureDTO> mixtures

@@ -4,6 +4,8 @@ import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatalo
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.catalogservice.application.dto.search.ResponseSearchResultDTO;
+import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchService;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
 import com.dvoracekmartin.catalogservice.application.service.media.MinIOMediaRetriever;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class CatalogControllerV1 {
 
     private final CatalogService catalogService;
     private final MinIOMediaRetriever mediaRetriever;
+    private final ElasticsearchService elasticsearchService;
 
     @GetMapping("/all-products-and-mixtures")
     public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
@@ -33,7 +36,7 @@ public class CatalogControllerV1 {
 
     @GetMapping("/media")
     public ResponseEntity<byte[]> getMedia(@RequestParam String objectKey, @RequestParam String bucketName) {
-        byte[] mediaData = mediaRetriever.retrieveMedia(objectKey,bucketName);
+        byte[] mediaData = mediaRetriever.retrieveMedia(objectKey, bucketName);
 
         if (mediaData == null) {
             log.error("Media not found: {}", objectKey);
@@ -50,7 +53,7 @@ public class CatalogControllerV1 {
         List<String> mediaKeys = mediaRetriever.listMediaKeysInFolder(folder, "categories");
         List<ResponseEntity<byte[]>> responseEntities = new ArrayList<>();
         for (String mediaKey : mediaKeys) {
-            byte[] mediaData = mediaRetriever.retrieveMedia(mediaKey,bucketName);
+            byte[] mediaData = mediaRetriever.retrieveMedia(mediaKey, bucketName);
             if (mediaData != null) {
                 responseEntities.add(ResponseEntity.ok()
                         .contentType(MediaType.IMAGE_JPEG)
@@ -65,7 +68,7 @@ public class CatalogControllerV1 {
 
     @GetMapping("/media/list-names")
     public List<String> listNamesFolderContents(@RequestParam String folder, @RequestParam String bucketName) {
-        List<String> mediaKeys = mediaRetriever.listMediaKeysInFolder(folder,bucketName);
+        List<String> mediaKeys = mediaRetriever.listMediaKeysInFolder(folder, bucketName);
         log.info("Found {} items in folder '{}'", mediaKeys.size(), folder);
         return mediaKeys;
     }
@@ -98,5 +101,16 @@ public class CatalogControllerV1 {
     @GetMapping("/categories/{id}")
     public ResponseEntity<ResponseCategoryDTO> getCategoryById(@PathVariable Long id) {
         return ResponseEntity.ok(catalogService.getCategoryById(id));
+    }
+
+
+    @GetMapping("/search")
+    public ResponseSearchResultDTO search(@RequestParam("q") String query) {
+        log.info("Search query: {}", query);
+        // proof of concept: index all documents before search
+        // to be deleted
+        elasticsearchService.indexAll();
+        // move elasticsearchService to a separate module?
+        return elasticsearchService.search(query);
     }
 }

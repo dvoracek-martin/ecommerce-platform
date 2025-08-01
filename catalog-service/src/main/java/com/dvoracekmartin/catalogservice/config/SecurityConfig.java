@@ -36,9 +36,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints (no auth required)
                         .requestMatchers(
-                                "/catalog/v1/all-products",
-                                "/catalog/v1/all-categories",
-                                "/catalog/v1/all-mixtures"
+                                "/api/catalog/v1/all-products",
+                                "/api/catalog/v1/all-categories",
+                                "/api/catalog/v1/all-mixtures",
+                                "/api/catalog/v1/search"
                         ).permitAll()
 
                         // All other endpoints require authentication (roles enforced at Gateway)

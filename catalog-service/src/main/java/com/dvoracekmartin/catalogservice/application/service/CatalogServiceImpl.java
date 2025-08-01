@@ -387,7 +387,16 @@ public class CatalogServiceImpl implements CatalogService {
         existingCategory.setName(updateCategoryDTO.name());
         existingCategory.setDescription(updateCategoryDTO.description());
         existingCategory.getImages().addAll(newImageUrls);
-        existingCategory.setTags(updateCategoryDTO.tagIds().stream().map(tagRepository::findById).filter(Optional::isPresent).map(Optional::get).toList());
+        existingCategory.setTags(
+                new ArrayList<>(
+                        updateCategoryDTO.tagIds()
+                                .stream()
+                                .map(tagRepository::findById)
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .toList()
+                )
+        );
         Category savedCategory = categoryRepository.save(existingCategory);
 
         // Build response with updated data and new media
@@ -416,7 +425,7 @@ public class CatalogServiceImpl implements CatalogService {
 
     @Override
     public ResponseMixtureDTO getMixtureById(Long id) {
-        return getEntityById(id, mixtureRepository::findById, catalogMapper::mapMixtureToResponseMixtureDTO, "Mixture");
+        return getEntityById(id, mixtureRepository::findById, catalogMapper::mapMixtureToResponseMixtureDTO);
     }
 
     @Override
@@ -479,7 +488,6 @@ public class CatalogServiceImpl implements CatalogService {
                 .map(tag -> new ResponseTagDTO(
                         tag.getId(),
                         tag.getName(),
-                        tag.getDescription(),
                         tag.getProducts().stream()
                                 .map(catalogMapper::mapProductToResponseProductDTO)
                                 .toList(),
@@ -493,16 +501,31 @@ public class CatalogServiceImpl implements CatalogService {
                 .toList();
     }
 
-
     @Override
     public ResponseTagDTO getTagById(Long id) {
-        return tagRepository.findById(id).map(catalogMapper::mapTagToResponseTagDTO).orElseThrow(() -> new EntityNotFoundException("Tag not found with id: " + id));
+        Tag tag = tagRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Tag not found with id: " + id));
+
+        return new ResponseTagDTO(
+                tag.getId(),
+                tag.getName(),
+                tag.getProducts().stream()
+                        .map(catalogMapper::mapProductToResponseProductDTO)
+                        .toList(),
+                tag.getCategories().stream()
+                        .map(catalogMapper::mapCategoryToResponseCategoryDTO)
+                        .toList(),
+                tag.getMixtures().stream()
+                        .map(catalogMapper::mapMixtureToResponseMixtureDTO)
+                        .toList()
+        );
     }
+
 
     @Override
     @Transactional
     public List<ResponseTagDTO> createTags(List<CreateTagDTO> createTagDTOs) {
-        List<Tag> newTags = createTagDTOs.stream().map(createTagDTO -> catalogMapper.mapCreateTagDTOToTag(createTagDTO)).toList();
+        List<Tag> newTags = createTagDTOs.stream().map(catalogMapper::mapCreateTagDTOToTag).toList();
 
         List<Tag> savedTags = tagRepository.saveAll(newTags);
         return savedTags.stream().map(catalogMapper::mapTagToResponseTagDTO).toList();
@@ -510,13 +533,58 @@ public class CatalogServiceImpl implements CatalogService {
 
     @Override
     @Transactional
-    public ResponseTagDTO updateTag(Long id, UpdateTagDTO updateTagDTO) {
-        Tag existingTag = tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Tag not found with id: " + id));
+    public ResponseTagDTO updateTag(Long id, UpdateTagDTO dto) {
+        // 1) Fetch the existing tag or fail
+        Tag existing = tagRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Tag not found with id: " + id));
 
-        existingTag.setName(updateTagDTO.name());
-        Tag updatedTag = tagRepository.save(existingTag);
-        return catalogMapper.mapTagToResponseTagDTO(updatedTag);
+        // 2) Update scalar fields
+        existing.setName(dto.name());
+
+        // 3) Load related entities from DB
+        List<Category> newCategories = categoryRepository.findAllById(dto.categories());
+        List<Product> newProducts = productRepository.findAllById(dto.products());
+        List<Mixture> newMixtures = mixtureRepository.findAllById(dto.mixtures());
+
+        // 4) Clear old references from owning side (optional, to prevent duplicates)
+        for (Product p : existing.getProducts()) {
+            p.getTags().remove(existing);
+        }
+        for (Category c : existing.getCategories()) {
+            c.getTags().remove(existing);
+        }
+        for (Mixture m : existing.getMixtures()) {
+            m.getTags().remove(existing);
+        }
+
+        // 5) Update owning side (Product, Category, Mixture)
+        for (Product p : newProducts) {
+            if (!p.getTags().contains(existing)) {
+                p.getTags().add(existing);
+            }
+        }
+        for (Category c : newCategories) {
+            if (!c.getTags().contains(existing)) {
+                c.getTags().add(existing);
+            }
+        }
+        for (Mixture m : newMixtures) {
+            if (!m.getTags().contains(existing)) {
+                m.getTags().add(existing);
+            }
+        }
+
+        // 6) Update tag-side collections for DTO consistency (Hibernate will not persist from here)
+        existing.setProducts(newProducts);
+        existing.setCategories(newCategories);
+        existing.setMixtures(newMixtures);
+
+        // 7) Save tag (save is optional — might be saved by cascade from owning side if configured)
+        tagRepository.save(existing);
+
+        return catalogMapper.mapTagToResponseTagDTO(existing);
     }
+
 
     @Override
     @Transactional
@@ -527,9 +595,9 @@ public class CatalogServiceImpl implements CatalogService {
         tagRepository.deleteById(id);
     }
 
-    private <T, R> R getEntityById(Long id, Function<Long, java.util.Optional<T>> findById, Function<T, R> mapper, String entityName) {
-        log.info("Fetching {} with id: {}", entityName, id);
-        return findById.apply(id).map(mapper).orElseThrow(() -> new RuntimeException(entityName + " not found with id: " + id));
+    private <T, R> R getEntityById(Long id, Function<Long, Optional<T>> findById, Function<T, R> mapper) {
+        log.info("Fetching {} with id: {}", "Mixture", id);
+        return findById.apply(id).map(mapper).orElseThrow(() -> new RuntimeException("Mixture" + " not found with id: " + id));
     }
 
     /**

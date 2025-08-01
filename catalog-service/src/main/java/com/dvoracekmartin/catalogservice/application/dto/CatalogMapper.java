@@ -85,7 +85,6 @@ public interface CatalogMapper {
         return new Tag(
                 null,
                 createTagDTO.name(),
-                createTagDTO.description(),
                 createTagDTO.products().stream().map(this::mapCreateProductDTOToProduct).collect(Collectors.toList()),
                 createTagDTO.categories().stream().map(this::mapCreateCategoryDTOToCategory).collect(Collectors.toList()),
                 createTagDTO.mixtures().stream().map(this::mapCreateMixtureDTOToMixture).collect(Collectors.toList())

@@ -19,8 +19,6 @@ public class Tag {
     @Column(nullable = false, unique = true)
     private String name;
 
-    private String description;
-
     @JsonBackReference
     @ManyToMany(mappedBy = "tags")
     @ToString.Exclude
