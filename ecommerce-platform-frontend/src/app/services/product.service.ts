@@ -18,6 +18,10 @@ export class ProductService {
     return this.http.get<ResponseProductDTO[]>(`${this.apiAdminUrl}/all-products`);
   }
 
+  getAllProducts(): Observable<ResponseProductDTO[]> {
+    return this.http.get<ResponseProductDTO[]>(`${this.apiUrl}/all-products`);
+  }
+
   getProductById(id: number): Observable<ResponseProductDTO> {
     return this.http.get<ResponseProductDTO>(`${this.apiAdminUrl}/products/${id}`);
   }
