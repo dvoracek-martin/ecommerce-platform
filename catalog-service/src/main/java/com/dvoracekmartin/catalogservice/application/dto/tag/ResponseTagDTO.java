@@ -14,4 +14,3 @@ public record ResponseTagDTO(
         List<ResponseMixtureDTO> mixtures
 ) {
 }
-

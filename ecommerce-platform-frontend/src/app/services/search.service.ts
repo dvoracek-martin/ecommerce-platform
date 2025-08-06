@@ -10,7 +10,7 @@ export class SearchService {
 
   private apiUrl = 'http://localhost:8080/api/catalog/v1/';
 
-  search(q: string): Observable<SearchResultDTO[]> {
-    return this.http.get<SearchResultDTO[]>(`${this.apiUrl}search`, { params: { q } });
+  search(q: string): Observable<SearchResultDTO> {
+    return this.http.get<SearchResultDTO>(`${this.apiUrl}search`, { params: { q } });
   }
 }

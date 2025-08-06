@@ -11,9 +11,11 @@ import com.dvoracekmartin.catalogservice.application.dto.product.CreateProductDT
 import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductStockDTO;
+import com.dvoracekmartin.catalogservice.application.dto.search.ResponseSearchResultDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.UpdateTagDTO;
+import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchServiceImpl;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
 import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import jakarta.validation.Valid;
@@ -36,6 +38,7 @@ import java.util.List;
 public class CatalogAdminControllerV1 {
 
     private final CatalogService catalogService;
+    private final ElasticsearchServiceImpl elasticsearchService;
 
     // === PRODUCTS ===
 
@@ -188,5 +191,20 @@ public class CatalogAdminControllerV1 {
     public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
         log.info("Admin fetching all products and mixtures");
         return catalogService.getAllProductsAndMixtures();
+    }
+
+    // === SEARCH ===
+
+    @GetMapping("/search")
+    public ResponseSearchResultDTO search(@RequestParam("q") String query) {
+        log.info("Search query: {}", query);
+        return elasticsearchService.search(query);
+    }
+
+    @GetMapping("/index-all")
+    @ResponseStatus(HttpStatus.OK)
+    public void indexAll() {
+        log.info("Indexing all catalog items");
+        elasticsearchService.indexAll(getAllCategories(), getAllProducts(), getAllMixtures(), getAllTags());
     }
 }

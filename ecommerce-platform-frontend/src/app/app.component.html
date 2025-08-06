@@ -21,14 +21,22 @@
 
     <div class="search-dropdown" *ngIf="showResults">
       <mat-list>
-        <mat-list-item *ngFor="let r of searchResults" (click)="goTo(r)">
-          <mat-icon matListIcon>search</mat-icon>
-          <div matLine>{{ r.name }}</div>
-          <div matLine class="secondary">{{ r.type }}</div>
+        <mat-list-item *ngFor="let category of searchResults.categories" (click)="goToCategory(category)">
+          <div matLine>{{ category.name }}</div>
+        </mat-list-item>
+        <mat-list-item *ngFor="let product of searchResults.products" (click)="goToProduct(product)">
+          <div matLine>{{ product.name }}</div>
+        </mat-list-item>
+        <mat-list-item *ngFor="let mixture of searchResults.mixtures" (click)="goToMixture(mixture)">
+          <div matLine>{{ mixture.name }}</div>
+        </mat-list-item>
+        <mat-list-item *ngFor="let tag of searchResults.tags" (click)="goToTag(tag)">
+          <div matLine>{{ tag.name }}</div>
         </mat-list-item>
       </mat-list>
     </div>
   </div>
+
 
   <!-- LANGUAGE MENU -->
   <mat-menu #langMenu="matMenu">

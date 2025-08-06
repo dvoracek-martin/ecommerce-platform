@@ -5,7 +5,7 @@ import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatego
 import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.search.ResponseSearchResultDTO;
-import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchService;
+import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchServiceImpl;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
 import com.dvoracekmartin.catalogservice.application.service.media.MinIOMediaRetriever;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class CatalogControllerV1 {
 
     private final CatalogService catalogService;
     private final MinIOMediaRetriever mediaRetriever;
-    private final ElasticsearchService elasticsearchService;
+    private final ElasticsearchServiceImpl elasticsearchService;
 
     @GetMapping("/all-products-and-mixtures")
     public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
@@ -107,10 +107,6 @@ public class CatalogControllerV1 {
     @GetMapping("/search")
     public ResponseSearchResultDTO search(@RequestParam("q") String query) {
         log.info("Search query: {}", query);
-        // proof of concept: index all documents before search
-        // to be deleted
-        elasticsearchService.indexAll();
-        // move elasticsearchService to a separate module?
         return elasticsearchService.search(query);
     }
 }

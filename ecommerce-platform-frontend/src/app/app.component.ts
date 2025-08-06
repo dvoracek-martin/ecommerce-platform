@@ -1,13 +1,17 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
-import { AuthService } from './auth/auth.service';
-import { Router } from '@angular/router';
-import { SearchService } from './services/search.service';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
-import { SearchResultDTO } from './dto/search/search-result-dto';
+import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
+import {MatIconRegistry} from '@angular/material/icon';
+import {DomSanitizer} from '@angular/platform-browser';
+import {AuthService} from './auth/auth.service';
+import {Router} from '@angular/router';
+import {SearchService} from './services/search.service';
+import {Subject} from 'rxjs';
+import {debounceTime} from 'rxjs/operators';
+import {SearchResultDTO} from './dto/search/search-result-dto';
+import {ResponseCategoryDTO} from './dto/category/response-category-dto';
+import {ResponseProductDTO} from './dto/product/response-product-dto';
+import {ResponseMixtureDTO} from './dto/mixtures/response-mixture-dto';
+import {ResponseTagDTO} from './dto/tag/response-tag-dto';
 
 @Component({
   selector: 'app-root',
@@ -20,11 +24,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Language selection
   languages = [
-    { code: 'en', name: 'English', icon: 'flag_us' },
-    { code: 'de', name: 'Deutsch', icon: 'flag_ch' },
-    { code: 'fr', name: 'Français', icon: 'flag_ch' },
-    { code: 'cs', name: 'Česky', icon: 'flag_cz' },
-    { code: 'es', name: 'Español', icon: 'flag_es' }
+    {code: 'en', name: 'English', icon: 'flag_us'},
+    {code: 'de', name: 'Deutsch', icon: 'flag_ch'},
+    {code: 'fr', name: 'Français', icon: 'flag_ch'},
+    {code: 'cs', name: 'Česky', icon: 'flag_cz'},
+    {code: 'es', name: 'Español', icon: 'flag_es'}
   ];
   selectedLanguage = this.languages[0];
 
@@ -33,7 +37,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Search state
   searchQuery = '';
-  searchResults: SearchResultDTO[] = [];
+  searchResults: SearchResultDTO;
   showResults = false;
   private searchSubject = new Subject<string>();
 
@@ -46,7 +50,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private searchService: SearchService
   ) {
     // Register SVG icons
-    ['us','ch','cz','es'].forEach(code =>
+    ['us', 'ch', 'cz', 'es'].forEach(code =>
       this.matIconRegistry.addSvgIcon(
         `flag_${code}`,
         this.domSanitizer.bypassSecurityTrustResourceUrl(`assets/flags/${code}.svg`)
@@ -67,14 +71,15 @@ export class AppComponent implements OnInit, OnDestroy {
       if (q.trim().length > 1) {
         this.searchService.search(q).subscribe(res => {
           this.searchResults = res;
-          this.showResults = res.length > 0;
+          this.showResults = true
         });
       } else {
-        this.searchResults = [];
+        this.searchResults = null;
         this.showResults = false;
       }
     });
   }
+
 
   ngOnDestroy(): void {
     this.searchSubject.complete();
@@ -84,36 +89,94 @@ export class AppComponent implements OnInit, OnDestroy {
     this.searchSubject.next(this.searchQuery);
   }
 
-  goTo(result: SearchResultDTO): void {
+  goToCategory(category: ResponseCategoryDTO): void {
     this.showResults = false;
-    const route = result.type === 'products' ? '/product' : '/mixture';
-    this.router.navigate([route, result.id]);
+    this.router.navigate([`/categories/${category.id}`]);
   }
+
+  goToProduct(product: ResponseProductDTO) {
+    this.showResults = false;
+    this.router.navigate([`/products/${product.id}`]);
+
+  }
+
+  goToMixture(mixture: ResponseMixtureDTO) {
+    this.showResults = false;
+    this.router.navigate([`/mixutres/${mixture.id}`]);
+  }
+
+  goToTag(tag: ResponseTagDTO) {
+    this.showResults = false;
+    this.router.navigate([`/tags/${tag.id}`]);
+
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const clickedInsideSearch =
+      target.closest('.search-container'); // nebo jiný specifický selektor
+
+    if (!clickedInsideSearch) {
+      this.searchQuery = '';
+      this.showResults = false;
+    }
+  }
+
 
   changeLanguage(code: string): void {
     this.setLanguage(code);
   }
+
   private setLanguage(code: string) {
     this.translate.use(code);
     this.selectedLanguage = this.languages.find(l => l.code === code)!
       || this.selectedLanguage;
   }
 
-  navigateToRoot(): void { this.router.navigate(['/']); }
-  navigateToProfile(): void { this.router.navigate(['/customer']); }
+  navigateToRoot(): void {
+    this.router.navigate(['/']);
+  }
+
+  navigateToProfile(): void {
+    this.router.navigate(['/customer']);
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/']);
   }
-  navigateToAdminCategories(): void { this.router.navigate(['/admin/categories']); }
-  navigateToAdminProducts(): void { this.router.navigate(['/admin/products']); }
-  navigateToAdminMixtures(): void { this.router.navigate(['/admin/mixtures']); }
-  navigateToAdminCustomers(): void { this.router.navigate(['/admin/customers']); }
-  navigateToAdminOrders(): void { this.router.navigate(['/admin/orders']); }
-  navigateToAdminTags(): void { this.router.navigate(['/admin/tags']); }
+
+  navigateToAdminCategories(): void {
+    this.router.navigate(['/admin/categories']);
+  }
+
+  navigateToAdminProducts(): void {
+    this.router.navigate(['/admin/products']);
+  }
+
+  navigateToAdminMixtures(): void {
+    this.router.navigate(['/admin/mixtures']);
+  }
+
+  navigateToAdminCustomers(): void {
+    this.router.navigate(['/admin/customers']);
+  }
+
+  navigateToAdminOrders(): void {
+    this.router.navigate(['/admin/orders']);
+  }
+
+  navigateToAdminTags(): void {
+    this.router.navigate(['/admin/tags']);
+  }
 
   onUserIconClick(): void {
     if (!this.authService.isTokenValid()) this.isPopupOpen = true;
   }
-  closeAuthPopup(): void { this.isPopupOpen = false; }
+
+  closeAuthPopup(): void {
+    this.isPopupOpen = false;
+  }
+
 }

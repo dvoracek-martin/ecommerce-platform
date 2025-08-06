@@ -17,6 +17,8 @@ import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductSt
 import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.UpdateTagDTO;
+import com.dvoracekmartin.catalogservice.application.elasticsearch.document.CategoryDocument;
+import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchService;
 import com.dvoracekmartin.catalogservice.application.event.publisher.CatalogEventPublisher;
 import com.dvoracekmartin.catalogservice.application.service.media.MediaRetriever;
 import com.dvoracekmartin.catalogservice.application.service.media.MediaUploader;
@@ -69,6 +71,8 @@ public class CatalogServiceImpl implements CatalogService {
     private final CatalogDomainService catalogDomainService;
     private final MediaUploader mediaUploader;
     private final MediaRetriever mediaRetriever;
+    private final ElasticsearchService elasticsearchService;
+
 
     @Override
     public List<ResponseProductDTO> getAllProducts() {
@@ -171,6 +175,8 @@ public class CatalogServiceImpl implements CatalogService {
             product.setTags(tags);
             Product savedProduct = productRepository.save(product);
 
+            elasticsearchService.indexProduct(catalogMapper.mapProductToResponseProductDTO(savedProduct));
+
             // Build response with original base64 data
             return catalogMapper.mapProductToResponseProductDTO(savedProduct, responseMedia);
         }).collect(toList());
@@ -260,10 +266,12 @@ public class CatalogServiceImpl implements CatalogService {
         }
 
         // 10) Persist
-        Product saved = productRepository.save(existing);
+        Product savedProduct = productRepository.save(existing);
+
+        elasticsearchService.indexProduct(catalogMapper.mapProductToResponseProductDTO(savedProduct));
 
         // 11) Map to response
-        return catalogMapper.mapProductToResponseProductDTO(saved, mediaResponses);
+        return catalogMapper.mapProductToResponseProductDTO(savedProduct, mediaResponses);
     }
 
 
@@ -345,6 +353,8 @@ public class CatalogServiceImpl implements CatalogService {
 
             Category savedCategory = categoryRepository.save(category);
 
+            elasticsearchService.indexCategory(catalogMapper.mapCategoryToResponseCategoryDTO(savedCategory));
+
             // Build response with original base64 data
             return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), responseMedia, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
         }).collect(toList());
@@ -398,6 +408,8 @@ public class CatalogServiceImpl implements CatalogService {
                 )
         );
         Category savedCategory = categoryRepository.save(existingCategory);
+
+        elasticsearchService.indexCategory(catalogMapper.mapCategoryToResponseCategoryDTO(savedCategory));
 
         // Build response with updated data and new media
         return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), responseMedia, savedCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
@@ -457,6 +469,7 @@ public class CatalogServiceImpl implements CatalogService {
             for (String imageUrl : product.get().getImages()) {
                 mediaUploader.deleteMedia(imageUrl);
             }
+            elasticsearchService.deleteProduct(catalogMapper.mapProductToResponseProductDTO(product.get()));
         }
         productRepository.deleteById(id);
     }
@@ -464,6 +477,10 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public void deleteMixtureById(Long id) {
         log.info("Deleting mixture with id: {}", id);
+        if (!mixtureRepository.existsById(id)) {
+            throw new EntityNotFoundException("Mixutre not found with id: " + id);
+        }
+        elasticsearchService.deleteMixture(catalogMapper.mapMixtureToResponseMixtureDTO(mixtureRepository.getReferenceById(id)));
         mixtureRepository.deleteById(id);
     }
 
@@ -476,6 +493,7 @@ public class CatalogServiceImpl implements CatalogService {
             for (String imageUrl : category.get().getImages()) {
                 mediaUploader.deleteMedia(imageUrl);
             }
+            elasticsearchService.deleteCategory(catalogMapper.mapCategoryToResponseCategoryDTO(category.get()));
         }
         categoryRepository.deleteById(id);
     }
@@ -528,6 +546,8 @@ public class CatalogServiceImpl implements CatalogService {
         List<Tag> newTags = createTagDTOs.stream().map(catalogMapper::mapCreateTagDTOToTag).toList();
 
         List<Tag> savedTags = tagRepository.saveAll(newTags);
+        savedTags.stream()
+                .forEach(tag -> elasticsearchService.indexTag(catalogMapper.mapTagToResponseTagDTO(tag)));
         return savedTags.stream().map(catalogMapper::mapTagToResponseTagDTO).toList();
     }
 
@@ -535,11 +555,11 @@ public class CatalogServiceImpl implements CatalogService {
     @Transactional
     public ResponseTagDTO updateTag(Long id, UpdateTagDTO dto) {
         // 1) Fetch the existing tag or fail
-        Tag existing = tagRepository.findById(id)
+        Tag existingTag = tagRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Tag not found with id: " + id));
 
         // 2) Update scalar fields
-        existing.setName(dto.name());
+        existingTag.setName(dto.name());
 
         // 3) Load related entities from DB
         List<Category> newCategories = categoryRepository.findAllById(dto.categories());
@@ -547,44 +567,49 @@ public class CatalogServiceImpl implements CatalogService {
         List<Mixture> newMixtures = mixtureRepository.findAllById(dto.mixtures());
 
         // 4) Clear old references from owning side (optional, to prevent duplicates)
-        for (Product p : existing.getProducts()) {
-            p.getTags().remove(existing);
+        for (Product p : existingTag.getProducts()) {
+            p.getTags().remove(existingTag);
         }
-        for (Category c : existing.getCategories()) {
-            c.getTags().remove(existing);
+        for (Category c : existingTag.getCategories()) {
+            c.getTags().remove(existingTag);
         }
-        for (Mixture m : existing.getMixtures()) {
-            m.getTags().remove(existing);
+        for (Mixture m : existingTag.getMixtures()) {
+            m.getTags().remove(existingTag);
         }
 
         // 5) Update owning side (Product, Category, Mixture)
         for (Product p : newProducts) {
-            if (!p.getTags().contains(existing)) {
-                p.getTags().add(existing);
+            if (!p.getTags().contains(existingTag)) {
+                p.getTags().add(existingTag);
             }
         }
         for (Category c : newCategories) {
-            if (!c.getTags().contains(existing)) {
-                c.getTags().add(existing);
+            if (!c.getTags().contains(existingTag)) {
+                c.getTags().add(existingTag);
             }
         }
         for (Mixture m : newMixtures) {
-            if (!m.getTags().contains(existing)) {
-                m.getTags().add(existing);
+            if (!m.getTags().contains(existingTag)) {
+                m.getTags().add(existingTag);
             }
         }
 
         // 6) Update tag-side collections for DTO consistency (Hibernate will not persist from here)
-        existing.setProducts(newProducts);
-        existing.setCategories(newCategories);
-        existing.setMixtures(newMixtures);
+        existingTag.setProducts(newProducts);
+        existingTag.setCategories(newCategories);
+        existingTag.setMixtures(newMixtures);
 
         // 7) Save tag (save is optional — might be saved by cascade from owning side if configured)
-        tagRepository.save(existing);
+        tagRepository.save(existingTag);
 
-        return catalogMapper.mapTagToResponseTagDTO(existing);
+        elasticsearchService.indexTag(catalogMapper.mapTagToResponseTagDTO(existingTag));
+
+        return catalogMapper.mapTagToResponseTagDTO(existingTag);
     }
 
+    public void indexAll() {
+       elasticsearchService.indexAll(getAllCategories(),getAllProducts(), getAllMixtures(), getAllTags());
+    }
 
     @Override
     @Transactional
@@ -592,6 +617,8 @@ public class CatalogServiceImpl implements CatalogService {
         if (!tagRepository.existsById(id)) {
             throw new EntityNotFoundException("Tag not found with id: " + id);
         }
+
+        elasticsearchService.deleteTag(catalogMapper.mapTagToResponseTagDTO(tagRepository.getReferenceById(id)));
         tagRepository.deleteById(id);
     }
 
