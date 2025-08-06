@@ -2,27 +2,33 @@
   position: relative;
   width: 350px;
   max-width: 100%;
+  margin-top: 20px;
 
   .search-field {
     width: 100%;
 
     mat-form-field {
       width: 100%;
-      margin: 0;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08); // Softer background
+
+      transition: box-shadow 0.3s ease;
+
+      &:hover {
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); // Subtle hover effect
+      }
 
       .mat-form-field-outline {
         border-color: transparent;
       }
 
       .mat-form-field-infix {
-        padding: 0 12px;
+        padding: 14px 16px; // More space for a modern look
       }
 
       input {
         color: white;
-        padding: 8px 0;
+        font-size: 1rem;
+        padding: 0; // Already handled by infix
       }
 
       mat-icon {
@@ -33,11 +39,11 @@
 
   .search-dropdown {
     position: absolute;
-    top: 52px; // Below toolbar
+    top: 58px; // Adjust if needed
     width: 100%;
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     max-height: 300px;
     overflow-y: auto;
     z-index: 1000;
@@ -45,7 +51,7 @@
 
     mat-list-item {
       cursor: pointer;
-      padding: 8px 12px;
+      padding: 10px 14px;
 
       .mat-icon {
         color: #1976d2;
@@ -57,11 +63,12 @@
       }
 
       &:hover {
-        background-color: #f5f5f5;
+        background-color: #f0f0f0;
       }
     }
   }
 }
+
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }

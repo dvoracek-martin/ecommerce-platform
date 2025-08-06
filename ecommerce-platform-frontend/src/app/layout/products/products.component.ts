@@ -1,6 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ResponseProductDTO} from '../../dto/product/response-product-dto';
 import {ProductService} from '../../services/product.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-products',
@@ -16,7 +17,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
   activeSlideIndices: number[] = [];
   private intervals: any[] = [];
 
-  constructor(private categoryService: ProductService) {}
+  constructor(
+    private categoryService: ProductService,
+    private router: Router) {
+  }
 
   ngOnInit(): void {
     this.loadCategories();
@@ -79,8 +83,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
   trackByObjectKey(_idx: number, item: {
     contentType: string,
     base64Data: string,
-    objectKey: string }): string {
+    objectKey: string
+  }): string {
     return item.objectKey;
+  }
+
+  goToProduct(product: ResponseProductDTO) {
+    this.router.navigate([`/products/${product.id}`]);
   }
 }
 
