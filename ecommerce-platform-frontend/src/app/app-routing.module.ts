@@ -34,6 +34,7 @@ import {
 } from './layout/products/admin/products-admin-update.component';;
 import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.component';
 import {TagsAdminUpdateComponent} from './layout/tags/admin/tags-admin-update.component';
+import {ProductDetailComponent} from './layout/products/products-detail.component';
 
 const routes: Routes = [
   // Public / authenticated client routes
@@ -44,6 +45,7 @@ const routes: Routes = [
   {path: 'categories', component: CategoriesComponent},
   {path: 'mixtures', component: MixturesComponent},
   {path: 'products', component: ProductsComponent},
+  {path: 'products/:id', component: ProductDetailComponent},
   {path: 'mixing', component: MixingComponent},
 
   // Client‑side pages (require login)

@@ -37,6 +37,8 @@ public class SecurityConfig {
                         // Public endpoints (no auth required)
                         .requestMatchers(
                                 "/api/catalog/v1/all-products",
+                                "/api/catalog/v1/products/{id}",
+                                "/api/catalog/v1/all-products-and-mixtures",
                                 "/api/catalog/v1/all-categories",
                                 "/api/catalog/v1/all-mixtures",
                                 "/api/catalog/v1/search"

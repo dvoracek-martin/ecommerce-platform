@@ -23,6 +23,9 @@ export class ProductService {
   }
 
   getProductById(id: number): Observable<ResponseProductDTO> {
+    return this.http.get<ResponseProductDTO>(`${this.apiUrl}/products/${id}`);
+  }
+  getProductByIdAdmin(id: number): Observable<ResponseProductDTO> {
     return this.http.get<ResponseProductDTO>(`${this.apiAdminUrl}/products/${id}`);
   }
 

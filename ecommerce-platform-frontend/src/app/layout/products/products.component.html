@@ -14,7 +14,7 @@
   <div *ngIf="!isLoading && !error" class="products-grid">
     <div
       *ngFor="let product of products; let productIndex = index; trackBy: trackById"
-      class="product-card"
+      class="product-card" (click)="goToProduct(product)"
     >
       <div class="product-header">
         <h2>{{ product.name }}</h2>

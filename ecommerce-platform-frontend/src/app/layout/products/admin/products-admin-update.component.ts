@@ -123,7 +123,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   }
 
   private loadProduct(): void {
-    this.productService.getProductById(this.productId)
+    this.productService.getProductByIdAdmin(this.productId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: p => this.patchForm(p),

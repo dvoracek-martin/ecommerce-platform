@@ -1,0 +1,46 @@
+<div *ngIf="loading" class="loading">Loading product details...</div>
+<div *ngIf="error" class="error">{{ error }}</div>
+
+<div *ngIf="product" class="product-detail">
+  <h2>{{ product.name }}</h2>
+<!--  <p class="price">Price: {{ product.price | currency }}</p>-->
+  <p *ngIf="product.description">{{ product.description }}</p>
+
+  <div *ngIf="product.responseMediaDTOs?.length" class="images">
+    <img
+      *ngFor="let media of product.responseMediaDTOs"
+      ngSrc="'data:' + media.contentType + ';base64,' + media.base64Data"
+      [alt]="product.name"
+      class="product-image"
+    />
+  </div>
+
+  <ul class="details-list">
+    <li *ngIf="product.categoryId">Category ID: {{ product.categoryId }}</li>
+    <li *ngIf="product.scentProfile">Scent Profile: {{ product.scentProfile }}</li>
+    <li *ngIf="product.botanicalName">Botanical Name: {{ product.botanicalName }}</li>
+    <li *ngIf="product.extractionMethod">Extraction Method: {{ product.extractionMethod }}</li>
+    <li *ngIf="product.origin">Origin: {{ product.origin }}</li>
+    <li *ngIf="product.usageInstructions">Usage Instructions: {{ product.usageInstructions }}</li>
+    <li *ngIf="product.volumeMl">Volume: {{ product.volumeMl }} ml</li>
+    <li *ngIf="product.warnings">Warnings: {{ product.warnings }}</li>
+    <li *ngIf="product.medicinalUse">Medicinal Use: {{ product.medicinalUse }}</li>
+    <li *ngIf="product.weightGrams">Weight: {{ product.weightGrams }} g</li>
+  </ul>
+
+  <div *ngIf="product.allergens?.length" class="allergens">
+    <h4>Allergens</h4>
+    <ul>
+      <li *ngFor="let allergen of product.allergens">{{ allergen }}</li>
+    </ul>
+  </div>
+
+  <div *ngIf="product.tagsDTOs?.length" class="tags">
+    <h4>Tags</h4>
+    <span *ngFor="let tag of product.tagsDTOs" class="tag" [style.background-color]="tag.color || '#ccc'">
+      {{ tag.name }}
+    </span>
+  </div>
+
+  <button (click)="backToList()">Back to Products</button>
+</div>
