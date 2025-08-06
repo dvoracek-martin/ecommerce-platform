@@ -8,6 +8,7 @@ import com.dvoracekmartin.catalogservice.application.dto.search.ResponseSearchRe
 import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchServiceImpl;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
 import com.dvoracekmartin.catalogservice.application.service.media.MinIOMediaRetriever;
+import com.dvoracekmartin.catalogservice.config.RateLimit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -104,6 +105,7 @@ public class CatalogControllerV1 {
     }
 
 
+    @RateLimit(limit = 100, durationInSeconds = 15)
     @GetMapping("/search")
     public ResponseSearchResultDTO search(@RequestParam("q") String query) {
         log.info("Search query: {}", query);
