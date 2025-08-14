@@ -32,43 +32,6 @@
           </div>
         </div>
 
-        <div class="form-section">
-          <h3 class="section-subtitle">
-            <mat-icon>category</mat-icon>
-            {{ 'TAGS.ADMIN.RELATIONS' | translate }}
-          </h3>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'TAGS.ADMIN.CATEGORIES' | translate }}</mat-label>
-              <mat-select formControlName="categories" multiple>
-                <mat-option *ngFor="let cat of allCategories" [value]="cat.id">
-                  {{ cat.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'TAGS.ADMIN.PRODUCTS' | translate }}</mat-label>
-              <mat-select formControlName="products" multiple>
-                <mat-option *ngFor="let prod of allProducts" [value]="prod.id">
-                  {{ prod.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'TAGS.ADMIN.MIXTURES' | translate }}</mat-label>
-              <mat-select formControlName="mixtures" multiple>
-                <mat-option *ngFor="let mix of allMixtures" [value]="mix.id">
-                  {{ mix.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </div>
-
         <div class="actions">
           <button mat-flat-button color="warn" type="button" (click)="onCancel()">
             {{ 'COMMON.CANCEL' | translate }}

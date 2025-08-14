@@ -17,7 +17,6 @@ import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductSt
 import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.UpdateTagDTO;
-import com.dvoracekmartin.catalogservice.application.elasticsearch.document.CategoryDocument;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchService;
 import com.dvoracekmartin.catalogservice.application.event.publisher.CatalogEventPublisher;
 import com.dvoracekmartin.catalogservice.application.service.media.MediaRetriever;
@@ -543,11 +542,24 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     @Transactional
     public List<ResponseTagDTO> createTags(List<CreateTagDTO> createTagDTOs) {
-        List<Tag> newTags = createTagDTOs.stream().map(catalogMapper::mapCreateTagDTOToTag).toList();
+        List<Tag> savedTags = new ArrayList<>();
+        for (CreateTagDTO createTagDTO : createTagDTOs) {
+            // Check if tag already exists
+            if (tagRepository.existsByName(createTagDTO.name())) {
+                throw new IllegalArgumentException("Tag with name '" + createTagDTO.name() + "' already exists.");
+            }
 
-        List<Tag> savedTags = tagRepository.saveAll(newTags);
+            // Create new Tag entity
+            Tag tag = catalogMapper.mapCreateTagDTOToTag(createTagDTO);
+
+            // Save the tag
+            tagRepository.save(tag);
+            savedTags.add(tag);
+        }
+
         savedTags.stream()
                 .forEach(tag -> elasticsearchService.indexTag(catalogMapper.mapTagToResponseTagDTO(tag)));
+
         return savedTags.stream().map(catalogMapper::mapTagToResponseTagDTO).toList();
     }
 
@@ -608,16 +620,25 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     public void indexAll() {
-       elasticsearchService.indexAll(getAllCategories(),getAllProducts(), getAllMixtures(), getAllTags());
+        elasticsearchService.indexAll(getAllCategories(), getAllProducts(), getAllMixtures(), getAllTags());
     }
 
     @Override
     @Transactional
     public void deleteTagById(Long id) {
-        if (!tagRepository.existsById(id)) {
-            throw new EntityNotFoundException("Tag not found with id: " + id);
+        Tag existingTag = tagRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Tag not found with id: " + id));
+        // 4) Clear old references from owning side (optional, to prevent duplicates)
+        for (Product p : existingTag.getProducts()) {
+            p.getTags().remove(existingTag);
         }
-
+        for (Category c : existingTag.getCategories()) {
+            c.getTags().remove(existingTag);
+        }
+        for (Mixture m : existingTag.getMixtures()) {
+            m.getTags().remove(existingTag);
+        }
+        tagRepository.save(existingTag);
         elasticsearchService.deleteTag(catalogMapper.mapTagToResponseTagDTO(tagRepository.getReferenceById(id)));
         tagRepository.deleteById(id);
     }

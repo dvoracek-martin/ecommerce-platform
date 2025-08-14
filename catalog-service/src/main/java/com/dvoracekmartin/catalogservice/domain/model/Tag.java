@@ -20,15 +20,15 @@ public class Tag {
     private String name;
 
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
+    @ManyToMany(mappedBy = "tags")
+    private List<Category> categories;
+
+    @JsonBackReference
     @ManyToMany(mappedBy = "tags")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Product> products;
-
-    @JsonBackReference
-    @EqualsAndHashCode.Exclude
-    @ManyToMany(mappedBy = "tags")
-    private List<Category> categories;
 
     @JsonBackReference
     @EqualsAndHashCode.Exclude

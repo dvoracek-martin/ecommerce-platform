@@ -73,6 +73,12 @@ public interface CatalogMapper {
 
     Category mapUpdateCategoryDTOToCategory(UpdateCategoryDTO updateCategoryDTO);
 
+    Mixture mapResponseMixtureDTOToMixture(ResponseMixtureDTO updateMixtureDTO);
+
+    Category mapResponseCategoryDTOToCategory(ResponseCategoryDTO updateCategoryDTO);
+
+    Product mapResponseProductDTOToProduct(ResponseProductDTO updateProductDTO);
+
     @Mapping(target = "products", ignore = true)
     @Mapping(target = "categories", ignore = true)
     @Mapping(target = "mixtures", ignore = true)
@@ -85,11 +91,12 @@ public interface CatalogMapper {
         return new Tag(
                 null,
                 createTagDTO.name(),
-                createTagDTO.products().stream().map(this::mapCreateProductDTOToProduct).collect(Collectors.toList()),
-                createTagDTO.categories().stream().map(this::mapCreateCategoryDTOToCategory).collect(Collectors.toList()),
-                createTagDTO.mixtures().stream().map(this::mapCreateMixtureDTOToMixture).collect(Collectors.toList())
+                null,
+                null,
+                null
         );
     }
+
 
     @Mapping(target = "products", ignore = true)
     @Mapping(target = "categories", ignore = true)
