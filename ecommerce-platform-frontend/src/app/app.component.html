@@ -51,6 +51,31 @@
     <mat-icon>arrow_drop_down</mat-icon>
   </button>
 
+
+
+  <!-- CART MENU -->
+  <div class="cart-menu" (mouseenter)="openCartMenu()" (mouseleave)="closeCartMenu()">
+    <button mat-icon-button [matMenuTriggerFor]="cartMenu">
+      <mat-icon>shopping_cart</mat-icon>
+    </button>
+
+    <mat-menu #cartMenu="matMenu" class="cart-dropdown">
+      <ng-container *ngIf="cart?.items?.length > 0; else emptyCart">
+        <div class="cart-item" *ngFor="let item of cart.items">
+          <span>{{ item.productId }}</span>
+          <span>x {{ item.quantity }}</span>
+        </div>
+        <button mat-button color="primary" (click)="goToCart()">View Cart</button>
+      </ng-container>
+      <ng-template #emptyCart>
+        <div class="empty-cart">
+          {{ 'CART.EMPTY' | translate }}
+        </div>
+      </ng-template>
+    </mat-menu>
+  </div>
+
+
   <!-- USER MENU -->
   <div class="user-menu">
     <mat-menu #userMenu="matMenu">

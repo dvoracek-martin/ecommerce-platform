@@ -1,1 +1,9 @@
-<p>cart works!</p>
+<div *ngIf="cart">
+  <h2>Your Shopping Cart</h2>
+
+  <div *ngFor="let item of cart.items">
+    <p>Product ID: {{ item.productId }}</p>
+    <p>Quantity: <input type="number" [(ngModel)]="item.quantity" (change)="updateQuantity(item.productId, item.quantity)"></p>
+    <button (click)="removeItem(item.productId)">Remove</button>
+  </div>
+</div>

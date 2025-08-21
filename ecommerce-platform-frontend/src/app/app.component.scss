@@ -82,6 +82,28 @@
   flex: 1 1 auto;
 }
 
+.cart-menu {
+  position: relative;
+
+  .cart-dropdown {
+    min-width: 250px;
+    padding: 10px;
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+    }
+
+    .empty-cart {
+      padding: 10px;
+      text-align: center;
+      font-style: italic;
+      color: gray;
+    }
+  }
+}
+
 .user-menu {
   margin-left: 15px;
   display: flex;

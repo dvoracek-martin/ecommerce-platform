@@ -1,15 +1,15 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ResponseProductDTO} from '../../dto/product/response-product-dto';
-import {ProductService} from '../../services/product.service';
-import {Router} from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ResponseProductDTO } from '../../dto/product/response-product-dto';
+import { ProductService } from '../../services/product.service';
+import { Router } from '@angular/router';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-products',
-  standalone: false,
   templateUrl: './products.component.html',
-  styleUrl: './products.component.scss'
+  standalone: false,
+  styleUrls: ['./products.component.scss']
 })
-
 export class ProductsComponent implements OnInit, OnDestroy {
   products: ResponseProductDTO[] = [];
   isLoading = true;
@@ -18,19 +18,20 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private intervals: any[] = [];
 
   constructor(
-    private categoryService: ProductService,
-    private router: Router) {
-  }
+    private productService: ProductService,
+    private cartService: CartService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.loadCategories();
+    this.loadProducts();
   }
 
-  loadCategories(): void {
+  loadProducts(): void {
     this.isLoading = true;
     this.error = null;
 
-    this.categoryService.getAllProducts().subscribe({
+    this.productService.getAllProducts().subscribe({
       next: (data) => {
         this.products = data;
         this.initializeCarousels();
@@ -44,31 +45,40 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   initializeCarousels(): void {
-    this.activeSlideIndices = []; // Reset
-    this.products.forEach((category, idx) => {
+    this.activeSlideIndices = [];
+    this.products.forEach((product, idx) => {
       this.activeSlideIndices[idx] = 0;
-      const mediaCount = category.responseMediaDTOs?.length || 0;
+      const mediaCount = product.responseMediaDTOs?.length || 0;
       this.startCarousel(idx, mediaCount);
     });
   }
 
-// In startCarousel()
-  startCarousel(catIndex: number, mediaCount: number): void {
-    if (mediaCount <= 1) return; // No carousel needed
-    this.intervals[catIndex] = setInterval(() => {
-      this.nextSlide(catIndex, mediaCount);
+  startCarousel(index: number, mediaCount: number): void {
+    if (mediaCount <= 1) return;
+    this.intervals[index] = setInterval(() => {
+      this.nextSlide(index, mediaCount);
     }, 5000);
   }
 
-  nextSlide(catIndex: number, mediaCount: number): void {
-    this.activeSlideIndices[catIndex] =
-      (this.activeSlideIndices[catIndex] + 1) % mediaCount;
+  nextSlide(index: number, mediaCount: number): void {
+    this.activeSlideIndices[index] = (this.activeSlideIndices[index] + 1) % mediaCount;
   }
 
-  setActiveSlide(catIndex: number, slideIndex: number): void {
-    this.activeSlideIndices[catIndex] = slideIndex;
-    clearInterval(this.intervals[catIndex]);
-    this.startCarousel(catIndex, this.products[catIndex].responseMediaDTOs.length);
+  setActiveSlide(index: number, slideIndex: number): void {
+    this.activeSlideIndices[index] = slideIndex;
+    clearInterval(this.intervals[index]);
+    this.startCarousel(index, this.products[index].responseMediaDTOs.length);
+  }
+
+  addToCart(product: ResponseProductDTO): void {
+    this.cartService.addProduct(product, 1).subscribe({
+      next: () => {
+        console.log(`${product.name} added to cart`);
+      },
+      error: (err) => {
+        console.error('Failed to add to cart', err);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -79,12 +89,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     return item.id;
   }
 
-  /** trackBy for media slides */
-  trackByObjectKey(_idx: number, item: {
-    contentType: string,
-    base64Data: string,
-    objectKey: string
-  }): string {
+  trackByObjectKey(_idx: number, item: { contentType: string; base64Data: string; objectKey: string }): string {
     return item.objectKey;
   }
 
@@ -92,4 +97,3 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.router.navigate([`/products/${product.id}`]);
   }
 }
-

@@ -47,11 +47,12 @@ const routes: Routes = [
   {path: 'products', component: ProductsComponent},
   {path: 'products/:id', component: ProductDetailComponent},
   {path: 'mixing', component: MixingComponent},
+  {path: 'cart', component: CartComponent},
 
   // Client‑side pages (require login)
   {path: 'customer', component: CustomersComponent, canActivate: [AuthGuard]},
   {path: 'orders', component: OrdersComponent, canActivate: [AuthGuard]},
-  {path: 'cart', component: CartComponent, canActivate: [AuthGuard]},
+  // {path: 'cart', component: CartComponent, canActivate: [AuthGuard]},
 
   // Admin routes (only for user_admin role)
   {

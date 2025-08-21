@@ -1,17 +1,18 @@
-import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
-import {TranslateService} from '@ngx-translate/core';
-import {MatIconRegistry} from '@angular/material/icon';
-import {DomSanitizer} from '@angular/platform-browser';
-import {AuthService} from './auth/auth.service';
-import {Router} from '@angular/router';
-import {SearchService} from './services/search.service';
-import {Subject} from 'rxjs';
-import {debounceTime} from 'rxjs/operators';
-import {SearchResultDTO} from './dto/search/search-result-dto';
-import {ResponseCategoryDTO} from './dto/category/response-category-dto';
-import {ResponseProductDTO} from './dto/product/response-product-dto';
-import {ResponseMixtureDTO} from './dto/mixtures/response-mixture-dto';
-import {ResponseTagDTO} from './dto/tag/response-tag-dto';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+import { AuthService } from './auth/auth.service';
+import { Router } from '@angular/router';
+import { SearchService } from './services/search.service';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+import { SearchResultDTO } from './dto/search/search-result-dto';
+import { ResponseCategoryDTO } from './dto/category/response-category-dto';
+import { ResponseProductDTO } from './dto/product/response-product-dto';
+import { ResponseMixtureDTO } from './dto/mixtures/response-mixture-dto';
+import { ResponseTagDTO } from './dto/tag/response-tag-dto';
+import { CartService, Cart } from './services/cart.service';
 
 @Component({
   selector: 'app-root',
@@ -24,11 +25,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Language selection
   languages = [
-    {code: 'en', name: 'English', icon: 'flag_us'},
-    {code: 'de', name: 'Deutsch', icon: 'flag_ch'},
-    {code: 'fr', name: 'Français', icon: 'flag_ch'},
-    {code: 'cs', name: 'Česky', icon: 'flag_cz'},
-    {code: 'es', name: 'Español', icon: 'flag_es'}
+    { code: 'en', name: 'English', icon: 'flag_us' },
+    { code: 'de', name: 'Deutsch', icon: 'flag_ch' },
+    { code: 'fr', name: 'Français', icon: 'flag_ch' },
+    { code: 'cs', name: 'Česky', icon: 'flag_cz' },
+    { code: 'es', name: 'Español', icon: 'flag_es' }
   ];
   selectedLanguage = this.languages[0];
 
@@ -41,13 +42,17 @@ export class AppComponent implements OnInit, OnDestroy {
   showResults = false;
   private searchSubject = new Subject<string>();
 
+  // Cart state
+  cart: Cart | null = null;
+
   constructor(
     public translate: TranslateService,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
     public authService: AuthService,
     private router: Router,
-    private searchService: SearchService
+    private searchService: SearchService,
+    private cartService: CartService
   ) {
     // Register SVG icons
     ['us', 'ch', 'cz', 'es'].forEach(code =>
@@ -66,12 +71,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.authService.isAuthenticated$.subscribe();
+    this.loadCart();
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(q => {
       if (q.trim().length > 1) {
         this.searchService.search(q).subscribe(res => {
           this.searchResults = res;
-          this.showResults = true
+          this.showResults = true;
         });
       } else {
         this.searchResults = null;
@@ -79,7 +85,6 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     });
   }
-
 
   ngOnDestroy(): void {
     this.searchSubject.complete();
@@ -97,32 +102,27 @@ export class AppComponent implements OnInit, OnDestroy {
   goToProduct(product: ResponseProductDTO) {
     this.showResults = false;
     this.router.navigate([`/products/${product.id}`]);
-
   }
 
   goToMixture(mixture: ResponseMixtureDTO) {
     this.showResults = false;
-    this.router.navigate([`/mixutres/${mixture.id}`]);
+    this.router.navigate([`/mixtures/${mixture.id}`]);
   }
 
   goToTag(tag: ResponseTagDTO) {
     this.showResults = false;
     this.router.navigate([`/tags/${tag.id}`]);
-
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    const clickedInsideSearch =
-      target.closest('.search-container'); // nebo jiný specifický selektor
-
+    const clickedInsideSearch = target.closest('.search-container');
     if (!clickedInsideSearch) {
       this.searchQuery = '';
       this.showResults = false;
     }
   }
-
 
   changeLanguage(code: string): void {
     this.setLanguage(code);
@@ -130,8 +130,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private setLanguage(code: string) {
     this.translate.use(code);
-    this.selectedLanguage = this.languages.find(l => l.code === code)!
-      || this.selectedLanguage;
+    this.selectedLanguage = this.languages.find(l => l.code === code)! || this.selectedLanguage;
   }
 
   navigateToRoot(): void {
@@ -179,4 +178,23 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isPopupOpen = false;
   }
 
+  // ---------------- CART METHODS ----------------
+  loadCart(): void {
+    this.cartService.getCart().subscribe({
+      next: (cart) => (this.cart = cart),
+      error: () => (this.cart = { id: 0, username: '', items: [] })
+    });
+  }
+
+  openCartMenu(): void {
+    this.loadCart(); // refresh cart on hover
+  }
+
+  closeCartMenu(): void {
+    // optional: add delay/animation if needed
+  }
+
+  goToCart(): void {
+    this.router.navigate(['/cart']);
+  }
 }

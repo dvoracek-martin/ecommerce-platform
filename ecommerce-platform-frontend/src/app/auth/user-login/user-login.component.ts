@@ -3,6 +3,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AuthService} from '../auth.service';
+import {CartService} from '../../services/cart.service';
 
 @Component({
   selector: 'app-user-login',
@@ -22,7 +23,8 @@ export class UserLoginComponent {
     private fb: FormBuilder,
     private http: HttpClient,
     private snackBar: MatSnackBar,
-    private authService: AuthService
+    private authService: AuthService,
+    private cartService: CartService
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -50,8 +52,17 @@ export class UserLoginComponent {
     }).subscribe({
       next: (response: any) => {
         this.authService.storeToken(response);
-        this.snackBar.open('Login successful!', 'Close', {duration: 5000});
-        this.loginSuccess.emit();
+        // Merge guest cart
+        this.cartService.mergeGuestCart().subscribe({
+          next: () => {
+            this.snackBar.open('Login successful! Guest cart merged.', 'Close', {duration: 5000});
+            this.loginSuccess.emit();
+          },
+          error: () => {
+            this.snackBar.open('Login successful, but failed to merge guest cart.', 'Close', {duration: 5000});
+            this.loginSuccess.emit();
+          }
+        });
       },
       error: (err) => {
         const errorMessage = err.error?.error_description || err.statusText;
