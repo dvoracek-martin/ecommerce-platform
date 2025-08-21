@@ -16,7 +16,7 @@ import java.util.List;
 public class Mixture {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_mixture_id_generator")
     private Long id;
 
     @Column(nullable = false)
