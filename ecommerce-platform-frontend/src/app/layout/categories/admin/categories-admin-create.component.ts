@@ -40,6 +40,7 @@ export class CategoriesAdminCreateComponent implements OnInit {
     this.categoryForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
+      priority: [0, [Validators.required]],
       // new multi-select of tag IDs
       tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])
@@ -51,9 +52,9 @@ export class CategoriesAdminCreateComponent implements OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: tags => this.allTags = tags,
-        error: () => this.dialog.open(ConfirmationDialogComponent, {
-          data: { title: 'Error', message: 'Could not load tags.', warn: true }
-        })
+        // error: () => this.dialog.open(ConfirmationDialogComponent, {
+        //   data: { title: 'Error', message: 'Could not load tags.', warn: true }
+        // })
       });
   }
 

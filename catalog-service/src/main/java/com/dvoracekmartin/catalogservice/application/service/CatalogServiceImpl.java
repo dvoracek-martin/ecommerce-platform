@@ -127,7 +127,7 @@ public class CatalogServiceImpl implements CatalogService {
             }).toList();
 
             // 3) Build the full DTO
-            return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
+            return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getPriority(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
         }).toList();
     }
 
@@ -347,6 +347,7 @@ public class CatalogServiceImpl implements CatalogService {
             Category category = new Category();
             category.setName(createCategoryDTO.name());
             category.setDescription(createCategoryDTO.description());
+            category.setPriority(createCategoryDTO.priority());
             category.setTags(createCategoryDTO.tagIds().stream().map(tagRepository::findById).filter(Optional::isPresent).map(Optional::get).toList());
             category.setImages(imageUrls);
 
@@ -355,7 +356,7 @@ public class CatalogServiceImpl implements CatalogService {
             elasticsearchService.indexCategory(catalogMapper.mapCategoryToResponseCategoryDTO(savedCategory));
 
             // Build response with original base64 data
-            return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), responseMedia, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
+            return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), savedCategory.getPriority(), responseMedia, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
         }).collect(toList());
     }
 
@@ -395,6 +396,7 @@ public class CatalogServiceImpl implements CatalogService {
         // Update existing category
         existingCategory.setName(updateCategoryDTO.name());
         existingCategory.setDescription(updateCategoryDTO.description());
+        existingCategory.setPriority(updateCategoryDTO.priority());
         existingCategory.getImages().addAll(newImageUrls);
         existingCategory.setTags(
                 new ArrayList<>(
@@ -411,7 +413,7 @@ public class CatalogServiceImpl implements CatalogService {
         elasticsearchService.indexCategory(catalogMapper.mapCategoryToResponseCategoryDTO(savedCategory));
 
         // Build response with updated data and new media
-        return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), responseMedia, savedCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
+        return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), savedCategory.getPriority(), responseMedia, savedCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
     }
 
     @Override
@@ -456,7 +458,7 @@ public class CatalogServiceImpl implements CatalogService {
         }).toList();
 
         // 3) Build the full DTO
-        return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
+        return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getPriority(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
     }
 
     @Override

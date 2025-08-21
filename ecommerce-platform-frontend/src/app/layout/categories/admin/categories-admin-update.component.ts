@@ -1,11 +1,5 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  FormArray,
-  FormControl,
-  Validators
-} from '@angular/forms';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {MatDialog} from '@angular/material/dialog';
@@ -17,7 +11,6 @@ import {TagService} from '../../../services/tag.service';
 import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 import {UpdateCategoryDTO} from '../../../dto/category/update-category-dto';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
-import {ResponseMediaDTO} from '../../../dto/category/response-media-dto';
 import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
 
 @Component({
@@ -63,6 +56,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     this.categoryForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
+      priority: [[Validators.required]],
       tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])
     });
@@ -100,7 +94,8 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   private patchForm(cat: ResponseCategoryDTO) {
     this.categoryForm.patchValue({
       name: cat.name,
-      description: cat.description
+      description: cat.description,
+      priority: cat.priority
     });
 
     // prefill tags

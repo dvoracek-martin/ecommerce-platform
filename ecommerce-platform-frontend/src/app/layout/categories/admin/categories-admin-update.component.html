@@ -50,6 +50,19 @@
                         placeholder="{{ 'CATEGORIES.ADMIN.DESCRIPTION_PLACEHOLDER' | translate }}"></textarea>
             </mat-form-field>
           </div>
+
+
+          <div>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CATEGORIES.PRIORITY' | translate }}</mat-label>
+              <input matInput type="number" formControlName="priority" required>
+              <mat-error
+                *ngIf="categoryForm.get('priority')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+              <mat-error *ngIf="categoryForm.get('priority')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}: 0
+              </mat-error>
+            </mat-form-field>
+          </div>
         </div>
 
         <!-- Media -->

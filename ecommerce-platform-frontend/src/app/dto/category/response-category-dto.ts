@@ -10,6 +10,7 @@ export interface ResponseCategoryDTO {
   name: string;
   /** Optional description */
   description?: string;
+  priority: number;
   /** Uploaded media items (images/videos) */
   responseMediaDTOs: ResponseMediaDTO[];
   /** List of tags associated with this category */
