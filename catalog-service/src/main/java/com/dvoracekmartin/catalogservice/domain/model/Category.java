@@ -23,6 +23,12 @@ public class Category {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column
+    private int priority;
+
+    @Column
+    private boolean active;
+
     @ElementCollection
     @CollectionTable(name = "category_images", joinColumns = @JoinColumn(name = "category_id"))
     @Column(name = "image_url")

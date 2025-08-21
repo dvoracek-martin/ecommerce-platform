@@ -22,6 +22,10 @@ export class ProductService {
     return this.http.get<ResponseProductDTO[]>(`${this.apiUrl}/all-products`);
   }
 
+  getAllProductsByCategoryId(id: number): Observable<ResponseProductDTO[]> {
+    return this.http.get<ResponseProductDTO[]>(`${this.apiUrl}/all-products-by-category-id/${id}`);
+  }
+
   getProductById(id: number): Observable<ResponseProductDTO> {
     return this.http.get<ResponseProductDTO>(`${this.apiUrl}/products/${id}`);
   }
@@ -42,7 +46,6 @@ export class ProductService {
     console.log('update product: ' + JSON.stringify(updateProductDTO));
     return this.http.put<ResponseProductDTO>(`${this.apiAdminUrl}/products/${id}`, updateProductDTO);
   }
-
 
   deleteProductMedia(productId: number, objectKey: string): Observable<void> {
     return this.http.delete<void>(

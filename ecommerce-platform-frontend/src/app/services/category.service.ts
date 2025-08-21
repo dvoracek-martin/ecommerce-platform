@@ -19,6 +19,10 @@ export class CategoryService {
     return this.http.get<ResponseCategoryDTO[]>(`${this.apiAdminUrl}all-categories`);
   }
 
+  getActiveCategories(): Observable<ResponseCategoryDTO[]> {
+    return this.http.get<ResponseCategoryDTO[]>(`${this.apiUrl}active-categories`);
+  }
+
   // Admin endpoints
   getCategoryById(id: number): Observable<ResponseCategoryDTO> {
     return this.http.get<ResponseCategoryDTO>(`${this.apiAdminUrl}categories/${id}`);

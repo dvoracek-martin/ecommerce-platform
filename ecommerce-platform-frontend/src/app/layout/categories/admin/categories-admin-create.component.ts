@@ -41,6 +41,7 @@ export class CategoriesAdminCreateComponent implements OnInit {
       name: ['', Validators.required],
       description: [''],
       priority: [0, [Validators.required]],
+      active: [false],
       // new multi-select of tag IDs
       tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])

@@ -42,10 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -78,6 +75,25 @@ public class CatalogServiceImpl implements CatalogService {
         mediaUploader.createBucketIfNotExists(PRODUCT_BUCKET);
         log.info("Fetching all products with media");
         return productRepository.findAll().stream().map(product -> {
+            // 1) List all object keys in the folder named after the product ID
+            List<String> keys = mediaRetriever.listMediaKeysInFolder(product.getName().replaceAll("\\s", "-"), PRODUCT_BUCKET);
+
+            List<ResponseMediaDTO> mediaDTOs = keys.stream().map(key -> {
+                byte[] data = mediaRetriever.retrieveMedia(key, PRODUCT_BUCKET);
+                String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
+                String contentType = deriveContentTypeFromKey(key);
+                return new ResponseMediaDTO(base64, key, contentType);
+            }).toList();
+
+            return new ResponseProductDTO(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getImages(), product.getCategory().getId(), product.getScentProfile(), product.getBotanicalName(), product.getExtractionMethod(), product.getOrigin(), product.getUsageInstructions(), product.getVolumeMl(), product.getWarnings(), product.getMedicinalUse(), product.getWeightGrams(), product.getAllergens(), product.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList(), mediaDTOs);
+        }).toList();
+    }
+
+    @Override
+    public List<ResponseProductDTO> getAllProductsByCategoryId(Long categoryId) {
+        mediaUploader.createBucketIfNotExists(PRODUCT_BUCKET);
+        log.info("Fetching all products with media by CategoryId");
+        return productRepository.findAllByCategoryId(categoryId).stream().map(product -> {
             // 1) List all object keys in the folder named after the product ID
             List<String> keys = mediaRetriever.listMediaKeysInFolder(product.getName().replaceAll("\\s", "-"), PRODUCT_BUCKET);
 
@@ -127,8 +143,23 @@ public class CatalogServiceImpl implements CatalogService {
             }).toList();
 
             // 3) Build the full DTO
-            return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getPriority(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
+            return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getPriority(), category.isActive(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
         }).toList();
+    }
+
+    @Override
+    public List<ResponseCategoryDTO> getActiveCategories() {
+        log.info("Fetching all categories with media");
+        mediaUploader.createBucketIfNotExists(CATEGORY_BUCKET);
+        List<ResponseCategoryDTO> categoryList = categoryRepository.findByActiveTrue().stream().map(category -> {
+            // media or tags not needed for active categories
+            return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getPriority(), category.isActive(), null, null);
+        }).toList();
+
+        // sort by priority and by id then return
+        return categoryList.stream()
+                .sorted(Comparator.comparingInt(ResponseCategoryDTO::priority).thenComparingLong(ResponseCategoryDTO::id))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -273,7 +304,6 @@ public class CatalogServiceImpl implements CatalogService {
         return catalogMapper.mapProductToResponseProductDTO(savedProduct, mediaResponses);
     }
 
-
     @Override
     public ResponseProductStockEvent updateProductStockDTO(Long id, UpdateProductStockDTO updateProductStockDTO) {
         if (!id.equals(updateProductStockDTO.productId())) {
@@ -348,6 +378,7 @@ public class CatalogServiceImpl implements CatalogService {
             category.setName(createCategoryDTO.name());
             category.setDescription(createCategoryDTO.description());
             category.setPriority(createCategoryDTO.priority());
+            category.setActive(createCategoryDTO.isActive());
             category.setTags(createCategoryDTO.tagIds().stream().map(tagRepository::findById).filter(Optional::isPresent).map(Optional::get).toList());
             category.setImages(imageUrls);
 
@@ -356,7 +387,7 @@ public class CatalogServiceImpl implements CatalogService {
             elasticsearchService.indexCategory(catalogMapper.mapCategoryToResponseCategoryDTO(savedCategory));
 
             // Build response with original base64 data
-            return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), savedCategory.getPriority(), responseMedia, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
+            return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), savedCategory.getPriority(), category.isActive(), responseMedia, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
         }).collect(toList());
     }
 
@@ -397,6 +428,7 @@ public class CatalogServiceImpl implements CatalogService {
         existingCategory.setName(updateCategoryDTO.name());
         existingCategory.setDescription(updateCategoryDTO.description());
         existingCategory.setPriority(updateCategoryDTO.priority());
+        existingCategory.setActive(updateCategoryDTO.isActive());
         existingCategory.getImages().addAll(newImageUrls);
         existingCategory.setTags(
                 new ArrayList<>(
@@ -413,7 +445,7 @@ public class CatalogServiceImpl implements CatalogService {
         elasticsearchService.indexCategory(catalogMapper.mapCategoryToResponseCategoryDTO(savedCategory));
 
         // Build response with updated data and new media
-        return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), savedCategory.getPriority(), responseMedia, savedCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
+        return new ResponseCategoryDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription(), savedCategory.getPriority(), savedCategory.isActive(), responseMedia, savedCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
     }
 
     @Override
@@ -458,7 +490,7 @@ public class CatalogServiceImpl implements CatalogService {
         }).toList();
 
         // 3) Build the full DTO
-        return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getPriority(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
+        return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getPriority(), category.isActive(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
     }
 
     @Override

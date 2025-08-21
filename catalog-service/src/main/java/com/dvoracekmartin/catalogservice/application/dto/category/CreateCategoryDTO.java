@@ -1,6 +1,7 @@
 package com.dvoracekmartin.catalogservice.application.dto.category;
 
 import com.dvoracekmartin.catalogservice.application.dto.media.UploadMediaDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
@@ -17,6 +18,9 @@ public record CreateCategoryDTO(
         @NotBlank
         String name,
         String description,
+        int priority,
+        @JsonProperty("active")
+        boolean isActive,
         List<Long> tagIds,
         List<UploadMediaDTO> uploadMediaDTOs
 ) {

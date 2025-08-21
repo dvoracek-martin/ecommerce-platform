@@ -1,4 +1,3 @@
-<!-- src/app/components/PRODUCTS/PRODUCTS.component.html -->
 <div class="products-container">
   <h1>{{ 'MIXING.TITLE' | translate }}</h1>
 
@@ -10,69 +9,61 @@
     {{ 'PRODUCTS.ERROR_LOADING' | translate:{error: error} }}
   </div>
 
-  <!-- PRODUCTS Grid -->
-  <div *ngIf="!isLoading && !error" class="products-grid">
-    <div
-      *ngFor="let product of products; let productIndex = index; trackBy: trackById"
-      class="product-card" (click)="goToProduct(product)"
-    >
-      <div class="product-header">
-        <h2>{{ product.name }}</h2>
+  <!-- Categories horizontally -->
+  <div *ngIf="!isLoading && !error" class="categories-horizontal">
+    <div *ngFor="let category of categories" class="category-section">
+      <h2 class="category-title">{{ category.name }}</h2>
+
+      <!-- Products row -->
+      <div class="products-row">
+        <div *ngFor="let product of productsByCategory[category.id]; trackBy: trackById"
+             class="product-card">
+          <div class="product-header">
+            <h3>{{ product.name }}</h3>
+          </div>
+          <p class="product-description">{{ product.description }}</p>
+
+          <button>Add to mixture</button>
+
+          <!-- Media Carousel -->
+          <ng-container *ngIf="product.responseMediaDTOs?.length; else noMedia">
+            <div class="media-carousel">
+              <div *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
+                   class="slide"
+                   [class.active]="activeSlideIndices[product.id] === i">
+                <img *ngIf="media.contentType?.startsWith('image/')"
+                     [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                     [alt]="media.objectKey"
+                     class="media-content"/>
+                <video *ngIf="media.contentType?.startsWith('video/')"
+                       class="media-content"
+                       [attr.muted]="true"
+                       [muted]="true"
+                       autoplay
+                       loop
+                       preload="metadata"
+                       playsinline>
+                  <source [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                          [type]="media.contentType"/>
+                </video>
+              </div>
+
+              <!-- Carousel Controls -->
+              <div *ngIf="product.responseMediaDTOs?.length > 1" class="carousel-controls">
+                <button *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
+                        class="dot"
+                        [class.active]="activeSlideIndices[product.id] === i"
+                        (click)="setActiveSlide(product.id, i, product.responseMediaDTOs.length)">
+                </button>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #noMedia>
+            <div class="no-media">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
+          </ng-template>
+        </div>
       </div>
-      <p class="product-description">
-        {{ product.description }}
-      </p>
-
-      <!-- Media Carousel -->
-      <ng-container *ngIf="product.responseMediaDTOs?.length; else noMedia">
-        <div class="media-carousel">
-          <div
-            *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
-            class="slide"
-            [class.active]="activeSlideIndices[productIndex] === i"
-          >
-            <!-- Added ?. to contentType checks -->
-            <img
-              *ngIf="media.contentType?.startsWith('image/')"
-              [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-              [alt]="media.objectKey"
-              class="media-content"
-            />
-            <video
-              *ngIf="media.contentType?.startsWith('video/')"
-              class="media-content"
-              [attr.muted]="true"
-              [muted]="true"
-              autoplay
-              loop
-              preload="metadata"
-              playsinline
-            >
-              <source
-                [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                [type]="media.contentType"
-              />
-            </video>
-          </div>
-
-          <!-- Carousel Controls (only show if >1 media item) -->
-          <div *ngIf="product.responseMediaDTOs?.length > 1" class="carousel-controls">
-            <button
-              *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
-              class="dot"
-              [class.active]="activeSlideIndices[productIndex] === i"
-              (click)="setActiveSlide(productIndex, i)"
-            ></button>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Fallback for no media -->
-      <ng-template #noMedia>
-        <div class="no-media">
-          {{ 'PRODUCTS.NO_MEDIA' | translate }}
-        </div>
-      </ng-template>
     </div>
   </div>
 </div>

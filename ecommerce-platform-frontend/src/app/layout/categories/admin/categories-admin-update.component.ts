@@ -57,6 +57,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
       name: ['', Validators.required],
       description: [''],
       priority: [[Validators.required]],
+      active: [false],
       tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])
     });
@@ -95,7 +96,8 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     this.categoryForm.patchValue({
       name: cat.name,
       description: cat.description,
-      priority: cat.priority
+      priority: cat.priority,
+      active: cat.active
     });
 
     // prefill tags
