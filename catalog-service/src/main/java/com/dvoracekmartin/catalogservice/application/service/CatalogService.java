@@ -73,7 +73,11 @@ public interface CatalogService {
 
     void deleteTagById(Long id);
 
+    List<ResponseCategoryDTO> getActiveCategories();
+
     // === COMBINED ===
 
     List<ResponseCatalogItemDTO> getAllProductsAndMixtures();
+
+    List<ResponseProductDTO> getAllProductsByCategoryId(Long categoryId);
 }

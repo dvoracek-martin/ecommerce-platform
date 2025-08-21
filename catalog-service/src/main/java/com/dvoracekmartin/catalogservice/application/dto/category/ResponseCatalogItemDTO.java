@@ -6,6 +6,8 @@ import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProduct
 import java.math.BigDecimal;
 import java.util.List;
 
+// TODO either change to an interface which both product and mixture can implement,
+// or create a common record for product and mixture, or use a type field to distinguish them
 public record ResponseCatalogItemDTO(
         Long id,
         String name,

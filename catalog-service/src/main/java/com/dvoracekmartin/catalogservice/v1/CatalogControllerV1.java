@@ -79,6 +79,17 @@ public class CatalogControllerV1 {
         return catalogService.getAllProducts();
     }
 
+    @GetMapping("/all-products-by-category-id/{categoryId}")
+    public List<ResponseProductDTO> getAllProductsByCategoryId(@PathVariable Long categoryId) {
+        log.info("Fetching all products for category ID: {}", categoryId);
+        if (categoryId == null || categoryId <= 0) {
+            log.warn("Invalid category ID: {}", categoryId);
+            return new ArrayList<>();
+        }
+        log.info("Retrieving products for category ID: {}", categoryId);
+        return catalogService.getAllProductsByCategoryId(categoryId);
+    }
+
     @GetMapping("/all-mixtures")
     public List<ResponseMixtureDTO> getAllMixtures() {
         return catalogService.getAllMixtures();
@@ -87,6 +98,11 @@ public class CatalogControllerV1 {
     @GetMapping("/all-categories")
     public List<ResponseCategoryDTO> getAllCategories() {
         return catalogService.getAllCategories();
+    }
+
+    @GetMapping("/active-categories")
+    public List<ResponseCategoryDTO> getActiveCategories() {
+        return catalogService.getActiveCategories();
     }
 
     @GetMapping("/products/{id}")
