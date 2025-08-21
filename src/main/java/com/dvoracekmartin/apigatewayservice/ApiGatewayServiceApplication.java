@@ -8,6 +8,11 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableDiscoveryClient
 public class ApiGatewayServiceApplication {
 
+    /**
+     * Main method to start the API Gateway Service application.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         SpringApplication.run(ApiGatewayServiceApplication.class, args);
     }
