@@ -54,14 +54,15 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
 
   private initForm(): void {
     this.categoryForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
-      priority: [[Validators.required]],
+      priority: [0, [Validators.required]],
       active: [false],
       tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])
     });
   }
+
 
   get mediaControls(): FormArray {
     return this.categoryForm.get('uploadMediaDTOs') as FormArray;
@@ -125,7 +126,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
         const base64 = (reader.result as string).split(',')[1];
         this.mediaControls.push(this.fb.group({
           base64Data: [base64],
-          objectKey: [`categories/${this.categoryId}_${Date.now()}_${file.name}`],
+          objectKey: [`${this.categoryId}_${Date.now()}_${file.name}`],
           contentType: [file.type],
           preview: [reader.result]
         }));

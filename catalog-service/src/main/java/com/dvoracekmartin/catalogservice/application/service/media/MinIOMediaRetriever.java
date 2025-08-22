@@ -51,12 +51,12 @@ public class MinIOMediaRetriever implements MediaRetriever {
                 .forcePathStyle(true)
                 .build();
     }
-
-    @Cacheable(
-            value = "mediaContent",
-            key = "#objectKey",
-            condition = "@mediaRetriever.isUserClient()"
-    )
+// TODO caching commented out for testing
+//    @Cacheable(
+//            value = "mediaContent",
+//            key = "#objectKey",
+//            condition = "@mediaRetriever.isUserClient()"
+//    )
     public byte[] retrieveMedia(String objectKey, String bucketName) {
         try {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
@@ -77,7 +77,8 @@ public class MinIOMediaRetriever implements MediaRetriever {
     }
 
 
-    @Cacheable(value = "folderContents", key = "#folderName")
+//    @Cacheable(value = "folderContents", key = "#folderName",
+//    condition = "@mediaRetriever.isUserClient()")
     public List<String> listMediaKeysInFolder(String folderName, String bucketName) {
         ListObjectsV2Request listObjectsRequest = ListObjectsV2Request.builder()
                 .bucket(bucketName)

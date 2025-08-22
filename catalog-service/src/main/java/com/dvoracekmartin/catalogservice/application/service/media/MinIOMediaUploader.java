@@ -11,6 +11,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.S3Uri;
 
 import java.net.URI;
 import java.util.Base64;
@@ -105,23 +106,30 @@ public class MinIOMediaUploader implements MediaUploader {
 
     @Override
     public void deleteMedia(String imageUrl) {
-        // Step 1: Remove base URL and get the path inside the bucket
-        String urlWithoutBase = imageUrl.substring(imageUrl.indexOf(minioEndpoint) + minioEndpoint.length() + 1);
+        try {
+            S3Uri s3Uri = S3Uri.builder().uri(URI.create(imageUrl)).build();
+            String bucketName = s3Uri.bucket().orElse(null);
+            String objectKey = s3Uri.key().orElse(null);
 
-        // Step 2: Extract bucket name (first segment)
-        String bucketName = urlWithoutBase.substring(0, urlWithoutBase.indexOf('/'));
+            if (bucketName != null && objectKey != null) {
+                // Remove leading slash if present
+                if (objectKey.startsWith("/")) {
+                    objectKey = objectKey.substring(1);
+                }
 
-        // Step 3: Extract the full key (everything after the first slash)
-        String key = urlWithoutBase.substring(bucketName.length() + 1);
-
-        key = key.replaceAll("\\s", "-");
-        // Step 4: Delete object
-        s3Client.deleteObject(DeleteObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .build());
-
-        System.out.println("Deleted from bucket: " + bucketName + ", key: " + key);
+                s3Client.deleteObject(DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectKey)
+                        .build());
+                log.info("Deleted media from bucket '{}' with key '{}'", bucketName, objectKey);
+            } else {
+                log.error("Could not parse bucket and key from URL: {}", imageUrl);
+            }
+        } catch (S3Exception e) {
+            log.error("Failed to delete media from URL {}: {}", imageUrl, e.getMessage());
+        } catch (Exception e) {
+            log.error("Failed to parse URL {}: {}", imageUrl, e.getMessage());
+        }
     }
 
 

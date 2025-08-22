@@ -49,7 +49,7 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
 
   initForm(): void {
     this.productForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', Validators.required, Validators.minLength(3)],
       description: [''],
       price: ['', [Validators.required, Validators.min(0)]],
       categoryId: [null, Validators.required],
@@ -110,7 +110,7 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
     const base64 = (reader.result as string).split(',')[1];
     this.mediaControls.push(this.fb.group({
       base64Data: [base64],
-      objectKey: [`products/${Date.now()}_${file.name}`],
+      objectKey: [`${Date.now()}_${file.name}`],
       contentType: [file.type],
       preview: [reader.result]
     }));

@@ -7,7 +7,7 @@ import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProduct
 import com.dvoracekmartin.catalogservice.application.dto.search.ResponseSearchResultDTO;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchServiceImpl;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
-import com.dvoracekmartin.catalogservice.application.service.media.MinIOMediaRetriever;
+import com.dvoracekmartin.catalogservice.application.service.media.MediaRetriever;
 import com.dvoracekmartin.catalogservice.config.RateLimit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import java.util.List;
 public class CatalogControllerV1 {
 
     private final CatalogService catalogService;
-    private final MinIOMediaRetriever mediaRetriever;
+    private final MediaRetriever mediaRetriever;
     private final ElasticsearchServiceImpl elasticsearchService;
 
     @GetMapping("/all-products-and-mixtures")

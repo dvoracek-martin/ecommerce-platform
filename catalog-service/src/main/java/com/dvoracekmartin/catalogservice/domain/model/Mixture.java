@@ -2,6 +2,8 @@ package com.dvoracekmartin.catalogservice.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +22,7 @@ public class Mixture {
     private Long id;
 
     @Column(nullable = false)
+    @Size(min = 3, message = "Name must be at least 3 characters long")
     private String name;
 
     @Column(columnDefinition = "TEXT")
@@ -30,7 +33,7 @@ public class Mixture {
 
     @ElementCollection
     @CollectionTable(name = "mixture_images", joinColumns = @JoinColumn(name = "mixture_id"))
-    @Column(name = "image_url")
+    @Column(name = "image_url", length = 512)
     private List<String> images;
 
     @ManyToMany

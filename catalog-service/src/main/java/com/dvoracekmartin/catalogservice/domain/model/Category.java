@@ -3,6 +3,8 @@ package com.dvoracekmartin.catalogservice.domain.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.List;
@@ -18,6 +20,7 @@ public class Category {
     private Long id;
 
     @Column(nullable = false, unique = true)
+    @Size(min = 3, message = "Name must be at least 3 characters long")
     private String name;
 
     @Column(columnDefinition = "TEXT")
@@ -31,7 +34,7 @@ public class Category {
 
     @ElementCollection
     @CollectionTable(name = "category_images", joinColumns = @JoinColumn(name = "category_id"))
-    @Column(name = "image_url")
+    @Column(name = "image_url", length = 512)
     private List<String> images;
 
     @ManyToMany(mappedBy = "categories")

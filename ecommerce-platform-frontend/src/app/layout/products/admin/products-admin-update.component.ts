@@ -68,7 +68,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
 
   private initForm(): void {
     this.productForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
       price: [null, [Validators.required, Validators.min(0)]],
       categoryId: [null, Validators.required],
@@ -82,7 +82,6 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       medicinalUse: [null],
       weightGrams: [null],
       allergens: this.fb.array([]),
-      // <-- replaced old tagDTOS with a single FormControl:
       tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])
     });
@@ -135,7 +134,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   }
 
   private patchForm(p: ResponseProductDTO): void {
-    // patch simple fields
+    // patch simple fields, including categoryId and price
     this.productForm.patchValue({
       name: p.name,
       description: p.description,
@@ -166,7 +165,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       this.initialMediaKeys.push(m.objectKey);
     });
 
-    // ** tags **
+    // tags
     const existingTagIds = p.tagsDTOs.map(t => t.id);
     this.tagIdsControl.setValue(existingTagIds);
   }
@@ -180,7 +179,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
         const base64 = (reader.result as string).split(',')[1];
         this.mediaControls.push(this.fb.group({
           base64Data: [base64],
-          objectKey: [`products/${Date.now()}_${file.name}`],
+          objectKey: [`${Date.now()}_${file.name}`],
           contentType: [file.type],
           preview: [reader.result]
         }));

@@ -1,7 +1,6 @@
 <div class="products-container">
   <h1>{{ 'MIXING.TITLE' | translate }}</h1>
 
-  <!-- Loading & Error States -->
   <div *ngIf="isLoading" class="loading">
     {{ 'PRODUCTS.LOADING' | translate }}
   </div>
@@ -9,59 +8,92 @@
     {{ 'PRODUCTS.ERROR_LOADING' | translate:{error: error} }}
   </div>
 
-  <!-- Categories horizontally -->
-  <div *ngIf="!isLoading && !error" class="categories-horizontal">
-    <div *ngFor="let category of categories" class="category-section">
-      <h2 class="category-title">{{ category.name }}</h2>
+  <div class="main-content-wrapper" *ngIf="!isLoading && !error">
+    <div class="carousel-wrapper">
+      <button class="carousel-btn" (click)="prevCategory()" [disabled]="activeCategoryIndex === 0">
+        ‹
+      </button>
+      <div class="carousel-container">
+        <div class="carousel-inner" [style.transform]="'translateX(-' + activeCategoryIndex * 100 + '%)'">
+          <div *ngFor="let category of categories" class="category-section">
+            <h2 class="category-title">{{ category.name }}</h2>
+            <div class="products-row">
+              <div *ngFor="let product of productsByCategory[category.id]; trackBy: trackById"
+                   class="product-card"
+                   [class.animating]="addingProductId === product.id">
+                <ng-container *ngIf="product.responseMediaDTOs?.length; else noMedia">
+                  <img *ngIf="product.responseMediaDTOs[0].contentType?.startsWith('image/')"
+                       [src]="'data:' + product.responseMediaDTOs[0].contentType + ';base64,' + product.responseMediaDTOs[0].base64Data"
+                       alt="{{ product.responseMediaDTOs[0].objectKey }}"
+                       class="product-image"/>
+                  <video *ngIf="product.responseMediaDTOs[0].contentType?.startsWith('video/')"
+                         class="product-image"
+                         muted autoplay loop preload="metadata" playsinline>
+                    <source [src]="'data:' + product.responseMediaDTOs[0].contentType + ';base64,' + product.responseMediaDTOs[0].base64Data"
+                            [type]="product.responseMediaDTOs[0].contentType"/>
+                  </video>
+                </ng-container>
+                <ng-template #noMedia>
+                  <div class="no-media">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
+                </ng-template>
 
-      <!-- Products row -->
-      <div class="products-row">
-        <div *ngFor="let product of productsByCategory[category.id]; trackBy: trackById"
-             class="product-card">
-          <div class="product-header">
-            <h3>{{ product.name }}</h3>
-          </div>
-          <p class="product-description">{{ product.description }}</p>
-
-          <button>Add to mixture</button>
-
-          <!-- Media Carousel -->
-          <ng-container *ngIf="product.responseMediaDTOs?.length; else noMedia">
-            <div class="media-carousel">
-              <div *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
-                   class="slide"
-                   [class.active]="activeSlideIndices[product.id] === i">
-                <img *ngIf="media.contentType?.startsWith('image/')"
-                     [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                     [alt]="media.objectKey"
-                     class="media-content"/>
-                <video *ngIf="media.contentType?.startsWith('video/')"
-                       class="media-content"
-                       [attr.muted]="true"
-                       [muted]="true"
-                       autoplay
-                       loop
-                       preload="metadata"
-                       playsinline>
-                  <source [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                          [type]="media.contentType"/>
-                </video>
-              </div>
-
-              <!-- Carousel Controls -->
-              <div *ngIf="product.responseMediaDTOs?.length > 1" class="carousel-controls">
-                <button *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
-                        class="dot"
-                        [class.active]="activeSlideIndices[product.id] === i"
-                        (click)="setActiveSlide(product.id, i, product.responseMediaDTOs.length)">
-                </button>
+                <div class="product-name">{{ product.name }}</div>
+                <div class="product-description">{{ product.description }}</div>
+                <div class="product-bottom">
+                  <div class="product-price">{{ product.price | currency }}</div>
+                  <button class="btn-add" (click)="addProductToMixture(product)">Add</button>
+                </div>
               </div>
             </div>
-          </ng-container>
+          </div>
+        </div>
+      </div>
+      <button class="carousel-btn" (click)="nextCategory()" [disabled]="activeCategoryIndex === categories.length - 1">
+        ›
+      </button>
+    </div>
 
-          <ng-template #noMedia>
-            <div class="no-media">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
-          </ng-template>
+    <div class="mixture-container">
+      <div class="mixture-name-container">
+        <h2 *ngIf="!isEditingName" (click)="editName()">{{ mixtureName }}</h2>
+        <input *ngIf="isEditingName"
+               type="text"
+               [(ngModel)]="mixtureName"
+               (blur)="saveName()"
+               (keyup.enter)="saveName()"
+               class="editable-name"/>
+        <button *ngIf="!isEditingName" class="btn-edit" (click)="editName()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="mixture-grid">
+        <div *ngFor="let product of mixedProducts; trackBy: trackById" class="mixed-product-card">
+          <img *ngIf="product.responseMediaDTOs?.[0]?.contentType?.startsWith('image/')"
+               [src]="'data:' + product.responseMediaDTOs[0].contentType + ';base64,' + product.responseMediaDTOs[0].base64Data"
+               class="mixed-product-image"
+               alt="{{ product.name }}"/>
+          <div class="mixed-product-name">{{ product.name }}</div>
+          <button class="btn-remove" (click)="removeProductFromMixture(product.id)">x</button>
+        </div>
+        <div *ngFor="let i of [].constructor(12 - mixedProducts.length)" class="empty-grid-cell"></div>
+      </div>
+
+      <div class="mixture-summary">
+        <h3>Summary</h3>
+        <ng-container *ngFor="let categoryName of getProductsByCategoryInMixture() | keyvalue">
+          <h4 class="category-heading">{{ categoryName.key }}</h4>
+          <ul>
+            <li *ngFor="let product of categoryName.value; trackBy: trackById">
+              {{ product.name }}
+            </li>
+          </ul>
+        </ng-container>
+        <div class="final-price">
+          Total: {{ calculateTotalPrice() | currency }}
         </div>
       </div>
     </div>

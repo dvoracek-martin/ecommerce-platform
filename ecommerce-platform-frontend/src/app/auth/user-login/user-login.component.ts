@@ -1,9 +1,9 @@
-import {Component, EventEmitter, Output} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {HttpClient} from '@angular/common/http';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {AuthService} from '../auth.service';
-import {CartService} from '../../services/cart.service';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../auth.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-user-login',
@@ -34,12 +34,12 @@ export class UserLoginComponent {
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
-      this.snackBar.open('Please fix validation errors.', 'Close', {duration: 5000});
+      this.snackBar.open('Please fix validation errors.', 'Close', { duration: 5000 });
       return;
     }
 
     this.loading = true;
-    const {email, password} = this.loginForm.value;
+    const { email, password } = this.loginForm.value;
 
     const body = new URLSearchParams();
     body.set('grant_type', 'password');
@@ -48,25 +48,26 @@ export class UserLoginComponent {
     body.set('password', password);
 
     this.http.post(this.keycloakTokenUrl, body.toString(), {
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).subscribe({
       next: (response: any) => {
         this.authService.storeToken(response);
-        // Merge guest cart
+        this.loginSuccess.emit();
+        this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
+
+        // merge cart
         this.cartService.mergeGuestCart().subscribe({
           next: () => {
-            this.snackBar.open('Login successful! Guest cart merged.', 'Close', {duration: 5000});
-            this.loginSuccess.emit();
+            this.snackBar.open('Guest cart merged successfully.', 'Close', { duration: 5000 });
           },
           error: () => {
-            this.snackBar.open('Login successful, but failed to merge guest cart.', 'Close', {duration: 5000});
-            this.loginSuccess.emit();
+            this.snackBar.open('Login successful, but failed to merge guest cart.', 'Close', { duration: 5000 });
           }
         });
       },
       error: (err) => {
         const errorMessage = err.error?.error_description || err.statusText;
-        this.snackBar.open(`Login failed: ${errorMessage}`, 'Close', {duration: 5000});
+        this.snackBar.open(`Login failed: ${errorMessage}`, 'Close', { duration: 5000 });
       }
     }).add(() => this.loading = false);
   }

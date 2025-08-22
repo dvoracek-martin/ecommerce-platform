@@ -38,7 +38,7 @@ export class CategoriesAdminCreateComponent implements OnInit {
 
   private initForm(): void {
     this.categoryForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', Validators.required, Validators.minLength(3)],
       description: [''],
       priority: [0, [Validators.required]],
       active: [false],
@@ -76,7 +76,7 @@ export class CategoriesAdminCreateComponent implements OnInit {
     const base64 = (reader.result as string).split(',')[1];
     return this.fb.group({
       base64Data: [base64],
-      objectKey: [`categories/${Date.now()}_${file.name}`],
+      objectKey: [`${Date.now()}_${file.name}`],
       contentType: [file.type],
       preview: [reader.result]
     });

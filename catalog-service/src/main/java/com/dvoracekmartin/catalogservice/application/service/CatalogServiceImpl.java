@@ -454,7 +454,7 @@ public class CatalogServiceImpl implements CatalogService {
         Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         // 1) List all object keys in the folder named after the product
-        List<String> keys = mediaRetriever.listMediaKeysInFolder(product.getName().replaceAll("\\s", "-"), CATEGORY_BUCKET);
+        List<String> keys = mediaRetriever.listMediaKeysInFolder(product.getName().replaceAll("\\s", "-"), PRODUCT_BUCKET);
 
         // 2) For each key, download bytes, encode to Base64, and derive a contentType
         List<ResponseMediaDTO> mediaDTOs = keys.stream().map(key -> {
