@@ -1,5 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { Cart, CartService } from '../../../services/cart.service';
+import { Cart, CartItem, CartService } from '../../../services/cart.service';
+import { ProductService } from '../../../services/product.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
+
+interface CartItemWithProduct extends CartItem {
+  product?: ResponseProductDTO;
+}
 
 @Component({
   selector: 'app-cart',
@@ -9,9 +18,14 @@ import { Cart, CartService } from '../../../services/cart.service';
 })
 export class CartComponent implements OnInit {
   cart: Cart | null = null;
+  cartItemsWithProducts: CartItemWithProduct[] = [];
   isLoading = false;
 
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private productService: ProductService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadCart();
@@ -19,24 +33,52 @@ export class CartComponent implements OnInit {
 
   loadCart() {
     this.isLoading = true;
-    this.cartService.getCart().subscribe({
-      next: cart => {
-        this.cart = cart;
+    this.cartService.getCart()
+      .pipe(
+        switchMap(cart => {
+          this.cart = cart;
+
+          if (!cart.items?.length) {
+            this.cartItemsWithProducts = [];
+            return of(null);
+          }
+
+          const productObservables = cart.items.map(item =>
+            this.productService.getProductById(item.productId)
+              .pipe(catchError(() => of(null)))
+          );
+
+          return forkJoin(productObservables);
+        })
+      )
+      .subscribe(products => {
+        if (products) {
+          this.cartItemsWithProducts = this.cart!.items.map((item, idx) => ({
+            ...item,
+            product: products[idx] || undefined
+          }));
+        }
         this.isLoading = false;
-      },
-      error: () => (this.isLoading = false)
-    });
-  }
-
-  addItem(productId: number, quantity = 1) {
-    this.cartService.addItem({ productId, quantity }).subscribe(cart => this.cart = cart);
-  }
-
-  removeItem(productId: number) {
-    this.cartService.removeItem(productId).subscribe(cart => this.cart = cart);
+      }, () => this.isLoading = false);
   }
 
   updateQuantity(productId: number, quantity: number) {
-    this.cartService.updateItem(productId, quantity).subscribe(cart => this.cart = cart);
+    this.cartService.updateItem(productId, quantity).subscribe(() => this.loadCart());
+  }
+
+  removeItem(productId: number) {
+    this.cartService.removeItem(productId).subscribe(() => this.loadCart());
+  }
+
+  goToProduct(productId: number) {
+    this.router.navigate([`/products/${productId}`]);
+  }
+
+  getItemTotal(item: CartItemWithProduct): number {
+    return (item.product?.price || 0) * item.quantity;
+  }
+
+  getCartTotal(): number {
+    return this.cartItemsWithProducts.reduce((sum, item) => sum + this.getItemTotal(item), 0);
   }
 }

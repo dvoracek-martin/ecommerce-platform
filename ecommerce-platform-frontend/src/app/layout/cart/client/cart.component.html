@@ -1,9 +1,46 @@
-<div *ngIf="cart">
-  <h2>Your Shopping Cart</h2>
+<div class="cart-container" *ngIf="cart">
+  <h1>Your Shopping Cart</h1>
 
-  <div *ngFor="let item of cart.items">
-    <p>Product ID: {{ item.productId }}</p>
-    <p>Quantity: <input type="number" [(ngModel)]="item.quantity" (change)="updateQuantity(item.productId, item.quantity)"></p>
-    <button (click)="removeItem(item.productId)">Remove</button>
+  <div *ngIf="!cartItemsWithProducts.length" class="empty-cart">
+    <p>Your cart is empty 😢</p>
+  </div>
+
+  <div class="cart-items" *ngIf="cartItemsWithProducts.length">
+    <div *ngFor="let item of cartItemsWithProducts" class="cart-item">
+      <div class="item-media" (click)="goToProduct(item.productId)">
+        <img *ngIf="item.product?.responseMediaDTOs?.length"
+             [src]="'data:' + item.product.responseMediaDTOs[0].contentType + ';base64,' + item.product.responseMediaDTOs[0].base64Data"
+             [alt]="item.product.name">
+        <div *ngIf="!item.product?.responseMediaDTOs?.length" class="no-image">No Image</div>
+      </div>
+
+      <div class="item-info">
+        <p class="item-name" (click)="goToProduct(item.productId)">
+          {{ item.product?.name || ('Product ' + item.productId) }}
+        </p>
+        <div class="item-price">
+          Price: {{ item.product?.price | currency }}
+        </div>
+        <div class="item-quantity">
+          <label for="qty-{{item.productId}}">Quantity:</label>
+          <input id="qty-{{item.productId}}" type="number" min="1" [(ngModel)]="item.quantity"
+                 (change)="updateQuantity(item.productId, item.quantity)">
+        </div>
+        <div class="item-total">
+          Total: {{ getItemTotal(item) | currency }}
+        </div>
+      </div>
+
+      <div class="item-actions">
+        <button mat-stroked-button color="warn" (click)="removeItem(item.productId)">
+          Remove
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-footer" *ngIf="cartItemsWithProducts.length">
+    <p class="cart-total">Cart Total: {{ getCartTotal() | currency }}</p>
+    <button mat-raised-button color="primary">Checkout</button>
   </div>
 </div>
