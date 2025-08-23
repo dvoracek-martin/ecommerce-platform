@@ -36,7 +36,7 @@
 /* New Sticky Header for Mixing Page */
 .sticky-header-mixing {
   position: sticky;
-  top: 0;
+  top: 50px;
   z-index: 50;
   background: #f4f6f9;
   padding: 20px;
@@ -361,7 +361,7 @@ h1 {
 /* Mixture Container (Right Side) */
 .mixture-container {
   position: sticky;
-  top: 70px;
+  top: 50px;
   right: 20px;
   background-color: #ffffff;
   border-radius: 12px;

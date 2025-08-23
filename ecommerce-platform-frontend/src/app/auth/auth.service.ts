@@ -1,3 +1,4 @@
+// src/app/services/auth.service.ts
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
@@ -45,7 +46,6 @@ export class AuthService {
     return this.getRoles().includes(role);
   }
 
-  // Existing methods remain unchanged below
   get token(): string | null {
     if (isPlatformBrowser(this.platformId)) {
       return localStorage.getItem(this.accessTokenKey);

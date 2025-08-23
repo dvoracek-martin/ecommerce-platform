@@ -1,20 +1,25 @@
 // src/app/services/cart.service.ts
 import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {ResponseProductDTO} from "../dto/product/response-product-dto";
+import {BehaviorSubject, Observable, of, throwError} from 'rxjs';
+import {catchError, tap, switchMap} from 'rxjs/operators';
 import {isPlatformBrowser} from '@angular/common';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {ResponseProductDTO} from "../dto/product/response-product-dto";
+import {AuthService} from '../auth/auth.service';
 
 export interface CartItem {
   id?: number;
   productId: number;
   quantity: number;
+  product?: ResponseProductDTO; // <-- Add product details
 }
 
 export interface Cart {
   id: number;
   username: string;
   items: CartItem[];
+  totalPrice: number;
 }
 
 @Injectable({providedIn: 'root'})
@@ -22,23 +27,32 @@ export class CartService {
   private apiUrl = 'http://localhost:8080/api/cart/v1';
   private isBrowser: boolean;
 
+  private _cart = new BehaviorSubject<Cart | null>(null);
+  readonly cart$ = this._cart.asObservable();
+
   constructor(
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private snackBar: MatSnackBar,
+    private authService: AuthService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
-  }
-
-  /** Check if user is logged in */
-  private isLoggedIn(): boolean {
-    return this.isBrowser && !!localStorage.getItem('access_token');
+    if (this.isBrowser) {
+      this.authService.isAuthenticated$.subscribe(isAuthenticated => {
+        if (isAuthenticated) {
+          this.loadUserCart();
+        } else {
+          this.loadGuestCartFromStorage();
+        }
+      });
+    }
   }
 
   /** ==================== GUEST CART HELPERS ==================== */
-  private getGuestCart(): Cart {
-    if (!this.isBrowser) return {id: 0, username: 'guest', items: []};
+  private loadGuestCartFromStorage(): void {
     const items = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-    return {id: 0, username: 'guest', items};
+    const guestCart: Cart = {id: 0, username: 'guest', items: items, totalPrice: 0};
+    this._cart.next(guestCart);
   }
 
   private saveGuestCart(items: CartItem[]) {
@@ -47,101 +61,163 @@ export class CartService {
     }
   }
 
+  /** ==================== AUTHENTICATED CART HELPERS ==================== */
+  private loadUserCart(): void {
+    if (!this.authService.isTokenValid()) {
+      this.showSnackbar('Please log in to view your cart.', 'warning');
+      this._cart.next({id: 0, username: 'guest', items: [], totalPrice: 0});
+      return;
+    }
+
+    this.http.get<Cart>(this.apiUrl)
+      .pipe(
+        catchError(error => {
+          this.showSnackbar('Failed to load cart. Please try again.', 'error');
+          console.error('Failed to load user cart:', error);
+          this._cart.next({id: 0, username: 'guest', items: [], totalPrice: 0});
+          return throwError(() => error);
+        })
+      )
+      .subscribe(cart => this._cart.next(cart));
+  }
+
+  private showSnackbar(message: string, type: 'success' | 'error' | 'warning'): void {
+    let panelClass = [];
+    if (type === 'success') {
+      panelClass = ['success-snackbar'];
+    } else if (type === 'error') {
+      panelClass = ['error-snackbar'];
+    } else if (type === 'warning') {
+      panelClass = ['warning-snackbar'];
+    }
+    this.snackBar.open(message, 'Close', {duration: 3000, panelClass: panelClass});
+  }
+
   /** ==================== PUBLIC METHODS ==================== */
 
   getCart(): Observable<Cart> {
-    if (this.isLoggedIn()) {
-      return this.http.get<Cart>(this.apiUrl);
-    } else {
-      return new Observable<Cart>(observer => {
-        observer.next(this.getGuestCart());
-        observer.complete();
-      });
-    }
+    return this._cart.asObservable();
   }
 
   addItem(item: CartItem): Observable<Cart> {
-    if (this.isLoggedIn()) {
-      return this.http.post<Cart>(`${this.apiUrl}/add`, item);
+    if (this.authService.isTokenValid()) {
+      return this.http.post<Cart>(`${this.apiUrl}/add`, item)
+        .pipe(
+          tap(cart => {
+            this._cart.next(cart);
+          }),
+          catchError(error => {
+            this.showSnackbar('Failed to add item to cart.', 'error');
+            console.error('Failed to add item to user cart:', error);
+            return throwError(() => error);
+          })
+        );
     } else {
-      const cart = this.getGuestCart();
-      const existingItem = cart.items.find(ci => ci.productId === item.productId);
+      const currentCart = this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0};
+      const existingItem = currentCart.items.find(ci => ci.productId === item.productId);
       if (existingItem) {
         existingItem.quantity += item.quantity;
       } else {
-        cart.items.push(item);
+        currentCart.items.push(item);
       }
-      this.saveGuestCart(cart.items);
-      return new Observable<Cart>(observer => {
-        observer.next(cart);
-        observer.complete();
-      });
+      this.saveGuestCart(currentCart.items);
+      this._cart.next(currentCart);
+      return of(currentCart);
     }
   }
 
   updateItem(productId: number, quantity: number): Observable<Cart> {
-    if (this.isLoggedIn()) {
-      return this.http.post<Cart>(`${this.apiUrl}/update?productId=${productId}&quantity=${quantity}`, {});
+    if (this.authService.isTokenValid()) {
+      return this.http.post<Cart>(`${this.apiUrl}/update?productId=${productId}&quantity=${quantity}`, {})
+        .pipe(
+          tap(cart => {
+            this._cart.next(cart);
+            this.showSnackbar('Cart item quantity updated!', 'success');
+          }),
+          catchError(error => {
+            this.showSnackbar('Failed to update cart item.', 'error');
+            console.error('Failed to update user cart item:', error);
+            return throwError(() => error);
+          })
+        );
     } else {
-      const cart = this.getGuestCart();
-      const item = cart.items.find(ci => ci.productId === productId);
-      if (item) item.quantity = quantity;
-      this.saveGuestCart(cart.items);
-      return new Observable<Cart>(observer => {
-        observer.next(cart);
-        observer.complete();
-      });
+      const currentCart = this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0};
+      const item = currentCart.items.find(ci => ci.productId === productId);
+      if (item) {
+        item.quantity = quantity;
+        this.saveGuestCart(currentCart.items);
+        this._cart.next(currentCart);
+        this.showSnackbar('Guest cart item quantity updated!', 'success');
+      }
+      return of(currentCart);
     }
   }
 
   removeItem(productId: number): Observable<Cart> {
-    if (this.isLoggedIn()) {
-      return this.http.delete<Cart>(`${this.apiUrl}/remove/${productId}`);
+    if (this.authService.isTokenValid()) {
+      return this.http.delete<Cart>(`${this.apiUrl}/remove/${productId}`)
+        .pipe(
+          tap(cart => {
+            this._cart.next(cart);
+            this.showSnackbar('Item removed from cart!', 'success');
+          }),
+          catchError(error => {
+            this.showSnackbar('Failed to remove item from cart.', 'error');
+            console.error('Failed to remove item from user cart:', error);
+            return throwError(() => error);
+          })
+        );
     } else {
-      let cart = this.getGuestCart();
-      cart.items = cart.items.filter(ci => ci.productId !== productId);
-      this.saveGuestCart(cart.items);
-      return new Observable<Cart>(observer => {
-        observer.next(cart);
-        observer.complete();
-      });
+      const currentCart = this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0};
+      currentCart.items = currentCart.items.filter(ci => ci.productId !== productId);
+      this.saveGuestCart(currentCart.items);
+      this._cart.next(currentCart);
+      this.showSnackbar('Item removed from guest cart!', 'success');
+      return of(currentCart);
     }
   }
 
-  /** Add product to cart with optional quantity (default 1) */
   addProduct(product: ResponseProductDTO, quantity: number = 1): Observable<Cart> {
-    return this.addItem({productId: product.id, quantity});
+    if (product.id === undefined || product.id === null) {
+      this.showSnackbar('Cannot add product to cart: Product ID is missing.', 'error');
+      return throwError(() => new Error('Product ID is missing.'));
+    }
+    const cartItem: CartItem = {productId: product.id, quantity, product};
+    return this.addItem(cartItem);
   }
 
-  /** Merge guest cart into user cart after login */
   mergeGuestCart(): Observable<Cart> {
-    if (!this.isBrowser) return new Observable<Cart>(observer => observer.complete());
+    if (!this.isBrowser || !this.authService.isTokenValid()) {
+      return of(this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0});
+    }
 
-    const guestCart: CartItem[] = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-    if (!guestCart.length) return new Observable<Cart>(observer => observer.complete());
+    const guestCartItems: CartItem[] = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+    if (!guestCartItems.length) {
+      return of(this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0});
+    }
 
     return new Observable<Cart>(observer => {
       let completed = 0;
-      let mergedCart: Cart | null = null;
-
-      guestCart.forEach(item => {
+      guestCartItems.forEach(item => {
         this.addItem(item).subscribe({
           next: cart => {
-            mergedCart = cart;
-          },
-          error: err => console.error('Failed to merge guest item', err),
-          complete: () => {
-            completed++;
-            if (completed === guestCart.length) {
-              // Po merge smažeme guest_cart
+            if (completed === guestCartItems.length - 1) {
               localStorage.removeItem('guest_cart');
-              observer.next(mergedCart!);
+              this.showSnackbar('Guest cart merged successfully!', 'success');
+              this.loadUserCart();
+              observer.next(cart);
               observer.complete();
+            }
+          },
+          error: err => {
+            console.error('Failed to merge guest item', err);
+            completed++;
+            if (completed === guestCartItems.length) {
+              observer.error(err);
             }
           }
         });
       });
     });
   }
-
 }

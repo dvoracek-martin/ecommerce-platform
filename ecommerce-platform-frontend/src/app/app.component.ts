@@ -1,3 +1,4 @@
+// src/app/app.component.ts
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -5,7 +6,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { AuthService } from './auth/auth.service';
 import { Router } from '@angular/router';
 import { SearchService } from './services/search.service';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs'; // <-- Import Subscription
 import { debounceTime } from 'rxjs/operators';
 import { SearchResultDTO } from './dto/search/search-result-dto';
 import { ResponseCategoryDTO } from './dto/category/response-category-dto';
@@ -13,6 +14,7 @@ import { ResponseProductDTO } from './dto/product/response-product-dto';
 import { ResponseMixtureDTO } from './dto/mixtures/response-mixture-dto';
 import { ResponseTagDTO } from './dto/tag/response-tag-dto';
 import { CartService, Cart } from './services/cart.service';
+import { MatSnackBar } from '@angular/material/snack-bar'; // <-- Import MatSnackBar
 
 @Component({
   selector: 'app-root',
@@ -41,6 +43,8 @@ export class AppComponent implements OnInit, OnDestroy {
   searchResults: SearchResultDTO;
   showResults = false;
   private searchSubject = new Subject<string>();
+  private searchSubscription: Subscription; // <-- Add subscription
+  private cartSubscription: Subscription; // <-- Add subscription
 
   // Cart state
   cart: Cart | null = null;
@@ -52,7 +56,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public authService: AuthService,
     private router: Router,
     private searchService: SearchService,
-    private cartService: CartService
+    private cartService: CartService,
+    private snackBar: MatSnackBar // <-- Add MatSnackBar
   ) {
     // Register SVG icons
     ['us', 'ch', 'cz', 'es'].forEach(code =>
@@ -71,9 +76,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.authService.isAuthenticated$.subscribe();
-    this.loadCart();
+    this.listenToCartChanges(); // <-- Change loadCart() to this method
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(q => {
+    this.searchSubscription = this.searchSubject.pipe(debounceTime(300)).subscribe(q => {
       if (q.trim().length > 1) {
         this.searchService.search(q).subscribe(res => {
           this.searchResults = res;
@@ -87,6 +92,12 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.searchSubscription) { // <-- Use the subscription
+      this.searchSubscription.unsubscribe();
+    }
+    if (this.cartSubscription) { // <-- Use the subscription
+      this.cartSubscription.unsubscribe();
+    }
     this.searchSubject.complete();
   }
 
@@ -179,19 +190,36 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   // ---------------- CART METHODS ----------------
-  loadCart(): void {
-    this.cartService.getCart().subscribe({
-      next: (cart) => (this.cart = cart),
-      error: () => (this.cart = { id: 0, username: '', items: [] })
+  listenToCartChanges(): void {
+    this.cartSubscription = this.cartService.cart$.subscribe({
+      next: (cart) => {
+        const prevCartItems = this.cart ? this.cart.items.length : 0;
+        this.cart = cart;
+        const currentCartItems = cart ? cart.items.length : 0;
+        if (currentCartItems > prevCartItems) {
+          this.showSnackbar('Item added to cart!', 'success');
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load cart:', err);
+        this.cart = { id: 0, username: '', items: [], totalPrice: 0 };
+      }
     });
   }
 
-  openCartMenu(): void {
-    this.loadCart(); // refresh cart on hover
-  }
-
-  closeCartMenu(): void {
-    // optional: add delay/animation if needed
+  showSnackbar(message: string, type: 'success' | 'error' | 'warning'): void {
+    let panelClass = [];
+    if (type === 'success') {
+      panelClass = ['success-snackbar'];
+    } else if (type === 'error') {
+      panelClass = ['error-snackbar'];
+    } else if (type === 'warning') {
+      panelClass = ['warning-snackbar'];
+    }
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: panelClass
+    });
   }
 
   goToCart(): void {

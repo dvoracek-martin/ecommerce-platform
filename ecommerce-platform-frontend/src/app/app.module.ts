@@ -47,6 +47,7 @@ import {AuthInterceptor} from './auth/auth.interceptor';
 import {TagsAdminUpdateComponent} from './layout/tags/admin/tags-admin-update.component';
 import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.component';
 import {MatTable} from '@angular/material/table';
+import {MatBadgeModule} from '@angular/material/badge';
 
 @NgModule({
   declarations: [
@@ -89,6 +90,7 @@ import {MatTable} from '@angular/material/table';
     BrowserAnimationsModule,
     AppRoutingModule,
     MaterialModule,
+    MatBadgeModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
