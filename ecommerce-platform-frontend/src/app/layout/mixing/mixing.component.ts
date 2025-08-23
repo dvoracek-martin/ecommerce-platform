@@ -42,7 +42,6 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   premiumCategoryId: number | null = null;
 
-  // New property to store the index of the most recently removed item
   lastRemovedIndex: number | null = null;
 
   constructor(
@@ -141,7 +140,6 @@ export class MixingComponent implements OnInit, OnDestroy {
     return item.id;
   }
 
-  // New trackBy function for the mixed products grid
   trackByMixtureIndex(_idx: number, item: any): number {
     return _idx;
   }
@@ -164,16 +162,13 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
   }
 
-  // New method to combine jump to category and scroll to top
   jumpToCategoryAndScroll(index: number) {
     this.activeCategoryIndex = index;
-    // Delay the scroll to allow Angular to render the new content
     setTimeout(() => {
       this.scrollToTop();
     }, 100);
   }
 
-  // Helper method for smooth scrolling to the top
   scrollToTop(): void {
     window.scroll({
       top: 0,
@@ -185,38 +180,66 @@ export class MixingComponent implements OnInit, OnDestroy {
     return item.objectKey;
   }
 
+  isAddButtonDisabled(product: ResponseProductDTO): boolean {
+    const isPremiumProduct = product.categoryId === this.premiumCategoryId;
+
+    if (isPremiumProduct) {
+      return this.mixedProducts[4] !== null;
+    } else {
+      let nonPremiumCount = 0;
+      for (let i = 0; i < this.mixedProducts.length; i++) {
+        if (i !== 4 && this.mixedProducts[i] !== null) {
+          nonPremiumCount++;
+        }
+      }
+      return nonPremiumCount >= 8;
+    }
+  }
+
+  getAddButtonTooltip(product: ResponseProductDTO): string {
+    const isPremiumProduct = product.categoryId === this.premiumCategoryId;
+    if (isPremiumProduct) {
+      return this.mixedProducts[4] !== null ? 'Only one premium product allowed in the grid.' : '';
+    } else {
+      const nonPremiumSlotsFull = this.mixedProducts.filter((item, index) => item !== null && index !== 4).length >= 8;
+      return nonPremiumSlotsFull ? 'All non-premium slots are full.' : '';
+    }
+  }
+
   addProductToMixture(product: ResponseProductDTO): void {
     const isPremiumProduct = product.categoryId === this.premiumCategoryId;
 
     const premiumSpotIndex = 4;
-    const premiumProductInGrid = this.mixedProducts[premiumSpotIndex];
 
     if (isPremiumProduct) {
-      if (premiumProductInGrid) {
+      if (this.mixedProducts[premiumSpotIndex]) {
         console.log('Only one premium product can be in the mixture. Remove the current one first.');
         return;
       }
       this.mixedProducts[premiumSpotIndex] = product;
       this.animateAdd(product, 'mixed-card-' + premiumSpotIndex);
-      return;
+    } else {
+      let targetIndex = -1;
+      if (this.lastRemovedIndex !== null && this.mixedProducts[this.lastRemovedIndex] === null && this.lastRemovedIndex !== premiumSpotIndex) {
+        targetIndex = this.lastRemovedIndex;
+        this.lastRemovedIndex = null;
+      } else {
+        targetIndex = this.mixedProducts.findIndex((item, index) => item === null && index !== premiumSpotIndex);
+      }
+
+      if (targetIndex > -1) {
+        this.mixedProducts[targetIndex] = product;
+        this.animateAdd(product, `mixed-card-${targetIndex}`);
+      } else {
+        console.log('The mixture grid is full! (excluding the premium spot)');
+        return; // Early exit if no space is found
+      }
     }
 
-    let targetIndex = -1;
-    // Check if a spot was just cleared and is not the premium spot
-    if (this.lastRemovedIndex !== null && this.mixedProducts[this.lastRemovedIndex] === null && this.lastRemovedIndex !== premiumSpotIndex) {
-      targetIndex = this.lastRemovedIndex;
-      this.lastRemovedIndex = null; // Reset it after use
-    } else {
-      // If no spot was just cleared, find the next empty spot.
-      targetIndex = this.mixedProducts.findIndex((item, index) => item === null && index !== premiumSpotIndex);
-    }
-
-    if (targetIndex > -1) {
-      this.mixedProducts[targetIndex] = product;
-      this.animateAdd(product, `mixed-card-${targetIndex}`);
-    } else {
-      console.log('The mixture grid is full! (excluding the premium spot)');
-    }
+    this.addingProductId = product.id;
+    setTimeout(() => {
+      this.addingProductId = null;
+    }, 1000);
   }
 
   private animateAdd(product: ResponseProductDTO, targetElementId: string): void {
@@ -265,7 +288,6 @@ export class MixingComponent implements OnInit, OnDestroy {
 
         setTimeout(() => {
           this.mixedProducts.splice(index, 1, null);
-          // Store the index of the removed item
           this.lastRemovedIndex = index;
         }, 400);
       } else {

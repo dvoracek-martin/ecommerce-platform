@@ -62,17 +62,25 @@ h1 {
   color: #e74c3c;
 }
 
+/* Category Navigation Wrapper */
+.category-nav-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 0;
+  margin-bottom: 40px;
+  border-bottom: 1px solid #e9ecef;
+}
+
 /* Category Navigation Bar */
 .category-nav-row {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
-  padding: 15px 0;
-  margin-bottom: 40px;
-  border-bottom: 1px solid #e9ecef;
-  overflow-x: auto;
-  white-space: nowrap;
+  flex-wrap: wrap;
+  flex-grow: 1;
 }
 
 .category-nav-item {
@@ -85,36 +93,16 @@ h1 {
   flex-direction: column;
   align-items: center;
   position: relative;
-  /* for the hover effect */
 
   &:hover {
     transform: translateY(-5px) scale(1.05);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(230, 126, 34, 0.6);
   }
 
   &.active {
     transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), 0 0 15px rgba(230, 126, 34, 0.8);
     background-color: #f1f3f5;
-  }
-
-  .category-name-hover {
-    position: absolute;
-    bottom: -30px;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease;
-  }
-
-  &:hover .category-name-hover {
-    opacity: 1;
-    visibility: visible;
   }
 }
 
@@ -146,6 +134,19 @@ h1 {
   border: 3px dashed #bdc3c7;
 }
 
+.category-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin-top: 8px;
+  transition: text-shadow 0.3s ease, color 0.3s ease;
+
+  .category-nav-item:hover & {
+    text-shadow: 0 0 8px rgba(230, 126, 34, 0.8);
+    color: #e67e22;
+  }
+}
+
 /* Main content wrapper */
 .main-content-wrapper {
   display: flex;
@@ -156,63 +157,49 @@ h1 {
 }
 
 /* Carousel and Navigation */
-.carousel-wrapper {
+.products-carousel-wrapper {
   display: flex;
   align-items: center;
   flex: 3;
   min-width: 60%;
   position: relative;
-  /* Set to relative to contain absolute children */
-  padding: 0 40px;
   box-sizing: border-box;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .carousel-btn {
   background: #ffffff;
   color: #34495e;
   border: 1px solid #ccc;
-  width: 50px;
-  height: 50px;
-  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  font-size: 2.5rem;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   z-index: 20;
-  position: fixed;
-  /* Use fixed position to make it sticky to the viewport */
-  top: 50%;
-  /* Adjust this value based on your specific layout to align with the mixture-container */
-  transform: translateY(-50%);
-
-  &.left {
-    left: 20px;
-    /* Adjust this value to place it on the screen */
-  }
-
-  &.right {
-    right: 20px;
-    /* Adjust this value to place it on the screen */
-  }
 
   &:hover {
     background: #e9ecef;
-    transform: scale(1.1) translateY(-50%);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.8);
   }
 
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
     box-shadow: none;
-    transform: translateY(-50%) scale(1);
+    transform: none;
   }
 }
 
-.carousel-container {
+.products-carousel-container {
   overflow: hidden;
   width: 100%;
 
-  .carousel-inner {
+  .products-carousel-inner {
     display: flex;
     transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 
@@ -300,7 +287,6 @@ h1 {
       width: 40px;
       height: 40px;
       font-size: 1.5rem;
-      /* Increased font size for the icon */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -340,6 +326,21 @@ h1 {
         transform: none;
       }
     }
+    .adding-animation {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .icon-pulse {
+        font-size: 1.5rem;
+        animation: pulse 1s infinite;
+      }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
   }
 
   .no-media {
@@ -359,24 +360,24 @@ h1 {
 .mixture-container {
   flex: 1;
   background-color: #ffffff;
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  min-width: 320px;
+  border-radius: 12px; /* Scaled down */
+  padding: 20px; /* Scaled down */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* Scaled down */
+  min-width: 240px; /* Scaled down */
   display: flex;
   flex-direction: column;
   position: sticky;
-  top: 350px;
+  top: 370px;
   z-index: 10;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
-  gap: 30px;
+  gap: 20px; /* Scaled down */
 
   h2 {
-    font-size: 1.8rem;
+    font-size: 1.5rem; /* Scaled down */
     font-weight: 600;
     color: #34495e;
-    margin-bottom: 20px;
+    margin-bottom: 15px; /* Scaled down */
   }
 }
 
@@ -385,14 +386,11 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  //margin-bottom: 25px;
-  //gap: 15px;
-
   h2 {
     margin: 0;
     cursor: pointer;
     font-weight: bold;
-    font-size: 2rem;
+    font-size: 1.5rem; /* Scaled down */
     transition: color 0.3s;
 
     &:hover {
@@ -401,11 +399,11 @@ h1 {
   }
 
   .editable-name {
-    font-size: 2rem;
+    font-size: 1.5rem; /* Scaled down */
     font-weight: bold;
     border: none;
     background-color: transparent;
-    border-bottom: 3px solid #3498db;
+    border-bottom: 2px solid #3498db; /* Scaled down */
     text-align: center;
     width: 100%;
     outline: none;
@@ -433,15 +431,15 @@ h1 {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   grid-auto-rows: minmax(0, 1fr);
-  gap: 12px;
+  gap: 8px; /* Scaled down */
   height: auto;
   flex-grow: 1;
-  margin-bottom: 10px;
+  margin-bottom: 8px; /* Scaled down */
 }
 
 .mixed-product-card {
   position: relative;
-  border-radius: 12px;
+  border-radius: 8px; /* Scaled down */
   overflow: hidden;
   background-color: #ecf0f1;
   display: flex;
@@ -454,7 +452,7 @@ h1 {
 
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Scaled down */
   }
 }
 
@@ -462,14 +460,14 @@ h1 {
 .premium-card {
   grid-column: 2 / span 2;
   grid-row: 1 / span 2;
-  min-height: 250px;
+  min-height: 180px; /* Scaled down */
   background-color: #ecf0f1;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Scaled down */
 
   .mixed-product-image {
     width: 100%;
     height: 100%;
-    border-radius: 12px;
+    border-radius: 8px; /* Scaled down */
     border: none;
   }
 
@@ -492,8 +490,8 @@ h1 {
   right: 0;
   background-color: rgba(0, 0, 0, 0.7);
   color: white;
-  padding: 8px;
-  font-size: 0.9rem;
+  padding: 6px; /* Scaled down */
+  font-size: 0.75rem; /* Scaled down */
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -503,15 +501,15 @@ h1 {
 
 .btn-remove {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px; /* Scaled down */
+  right: 6px; /* Scaled down */
   background-color: #e74c3c;
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  font-size: 1rem;
+  width: 20px; /* Scaled down */
+  height: 20px; /* Scaled down */
+  font-size: 0.8rem; /* Scaled down */
   line-height: 1;
   cursor: pointer;
   z-index: 10;
@@ -525,22 +523,36 @@ h1 {
 
 .empty-grid-cell {
   background-color: #ecf0f1;
-  border-radius: 12px;
+  border-radius: 8px; /* Scaled down */
   border: 2px dashed #bdc3c7;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   aspect-ratio: 1 / 1;
 }
 
+.empty-cell-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.7rem; /* Scaled down */
+  color: #7f8c8d;
+  .icon-plus {
+    font-size: 1.5rem; /* Scaled down */
+    margin-bottom: 5px;
+    color: #bdc3c7;
+  }
+}
+
 .mixture-summary {
   h3 {
-    font-size: 1.5rem;
+    font-size: 1.2rem; /* Scaled down */
     font-weight: 300;
     color: #34495e;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #bdc3c7;
-    padding-bottom: 10px;
+    margin-bottom: 10px; /* Scaled down */
+    border-bottom: 1px solid #bdc3c7; /* Scaled down */
+    padding-bottom: 8px; /* Scaled down */
   }
 
   ul {
@@ -548,24 +560,24 @@ h1 {
     padding: 0;
     margin: 0;
     border-bottom: 1px solid #e9ecef;
-    padding: 10px 0;
+    padding: 8px 0; /* Scaled down */
   }
 
   li {
-    font-size: 1rem;
+    font-size: 0.85rem; /* Scaled down */
     color: #555;
-    margin-bottom: 8px;
+    margin-bottom: 6px; /* Scaled down */
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px dashed #ecf0f1;
-    padding-bottom: 5px;
+    padding-bottom: 4px; /* Scaled down */
   }
 
   .product-count {
     font-weight: 600;
     color: #e67e22;
-    margin-right: 10px;
+    margin-right: 8px; /* Scaled down */
   }
 
   .product-price-summary {
@@ -575,7 +587,7 @@ h1 {
 }
 
 .final-price {
-  font-size: 1.8rem;
+  font-size: 1.4rem; /* Scaled down */
   font-weight: 700;
   color: #27ae60;
   margin-top: 5px;
@@ -585,17 +597,17 @@ h1 {
 .mixture-actions {
   display: flex;
   justify-content: space-between;
-  gap: 15px;
-  margin-top: 30px;
-  padding-top: 20px;
+  gap: 10px; /* Scaled down */
+  margin-top: 20px; /* Scaled down */
+  padding-top: 15px; /* Scaled down */
   border-top: 1px solid #e9ecef;
 
   .btn {
     flex: 1;
-    font-size: 1.1rem;
+    font-size: 0.9rem; /* Scaled down */
     font-weight: 600;
-    padding: 15px 10px;
-    border-radius: 8px;
+    padding: 10px 8px; /* Scaled down */
+    border-radius: 6px; /* Scaled down */
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -768,7 +780,7 @@ h1 {
     align-items: center;
   }
 
-  .carousel-wrapper,
+  .products-carousel-wrapper,
   .mixture-container {
     max-width: 100%;
     position: static;

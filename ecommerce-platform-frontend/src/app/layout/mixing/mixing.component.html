@@ -2,20 +2,29 @@
 
   <div class="sticky-header-mixing">
     <h1>{{ 'MIXING.TITLE' | translate }}</h1>
-    <div class="category-nav-row">
-      <div *ngFor="let category of categories; let i = index"
-           class="category-nav-item"
-           [class.active]="i === activeCategoryIndex"
-           (click)="jumpToCategoryAndScroll(i)">
-        <ng-container *ngIf="category.responseMediaDTOs?.[0]?.contentType?.startsWith('image/'); else categoryPlaceholder">
-          <img [src]="'data:' + category.responseMediaDTOs[0].contentType + ';base64,' + category.responseMediaDTOs[0].base64Data"
-               alt="{{ category.name }}"
-               class="category-image" />
-        </ng-container>
-        <ng-template #categoryPlaceholder>
-          <div class="category-placeholder">{{ category.name }}</div>
-        </ng-template>
+    <div class="category-nav-wrapper">
+      <button class="carousel-btn left" (click)="prevCategory()" [disabled]="activeCategoryIndex === 0">
+        ‹
+      </button>
+      <div class="category-nav-row">
+        <div *ngFor="let category of categories; let i = index"
+             class="category-nav-item"
+             [class.active]="i === activeCategoryIndex"
+             (click)="jumpToCategoryAndScroll(i)">
+          <ng-container *ngIf="category.responseMediaDTOs?.[0]?.contentType?.startsWith('image/'); else categoryPlaceholder">
+            <img [src]="'data:' + category.responseMediaDTOs[0].contentType + ';base64,' + category.responseMediaDTOs[0].base64Data"
+                 alt="{{ category.name }}"
+                 class="category-image" />
+          </ng-container>
+          <ng-template #categoryPlaceholder>
+            <div class="category-placeholder">{{ category.name }}</div>
+          </ng-template>
+          <div class="category-name">{{ category.name }}</div>
+        </div>
       </div>
+      <button class="carousel-btn right" (click)="nextCategory()" [disabled]="activeCategoryIndex === categories.length - 1">
+        ›
+      </button>
     </div>
   </div>
 
@@ -27,12 +36,9 @@
   </div>
 
   <div class="main-content-wrapper" *ngIf="!isLoading && !error">
-    <div class="carousel-wrapper">
-      <button class="carousel-btn left" (click)="prevCategory()" [disabled]="activeCategoryIndex === 0">
-        ‹
-      </button>
-      <div class="carousel-container">
-        <div class="carousel-inner" [style.transform]="'translateX(-' + activeCategoryIndex * 100 + '%)'">
+    <div class="products-carousel-wrapper">
+      <div class="products-carousel-container">
+        <div class="products-carousel-inner" [style.transform]="'translateX(-' + activeCategoryIndex * 100 + '%)'">
           <div *ngFor="let category of categories" class="category-section">
             <h2 class="category-title">{{ category.name }}</h2>
             <div class="products-row">
@@ -59,23 +65,29 @@
                 <div class="product-description">{{ product.description }}</div>
                 <div class="product-bottom">
                   <div class="product-info-btn" (click)="showProductInfo(product)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <line x1="12" y1="16" x2="12" y2="12"></line>
-                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                    </svg>
+                    <mat-icon>info</mat-icon>
                   </div>
                   <div class="product-price">{{ product.price | currency }}</div>
-                  <button class="btn-add" (click)="addProductToMixture(product)">Add</button>
+                  <button class="btn-add"
+                          [disabled]="isAddButtonDisabled(product) || addingProductId === product.id"
+                          [title]="getAddButtonTooltip(product)"
+                          (click)="addProductToMixture(product)">
+                    <ng-container *ngIf="addingProductId === product.id; else defaultAdd">
+                      <div class="adding-animation">
+                        <span class="icon-pulse">✔</span>
+                      </div>
+                    </ng-container>
+                    <ng-template #defaultAdd>
+                      <ng-container *ngIf="!isAddButtonDisabled(product)">Add</ng-container>
+                      <ng-container *ngIf="isAddButtonDisabled(product)">Grid Full</ng-container>
+                    </ng-template>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <button class="carousel-btn right" (click)="nextCategory()" [disabled]="activeCategoryIndex === categories.length - 1">
-        ›
-      </button>
     </div>
 
     <div class="mixture-container">
@@ -88,10 +100,7 @@
                (keyup.enter)="saveName()"
                class="editable-name"/>
         <button *ngIf="!isEditingName" class="btn-edit" (click)="editName()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
-          </svg>
+          <mat-icon>edit</mat-icon>
         </button>
       </div>
 
@@ -108,7 +117,12 @@
               <div class="mixed-product-name">{{ p.name }}</div>
               <button class="btn-remove" (click)="removeProductFromMixture(index)">x</button>
             </ng-container>
-            <div *ngIf="!product" class="empty-grid-cell"></div>
+            <div *ngIf="!product" class="empty-grid-cell">
+              <div class="empty-cell-text">
+                <span class="icon-plus">+</span>
+                Add Product
+              </div>
+            </div>
           </div>
         </ng-container>
       </div>
@@ -140,10 +154,7 @@
 <div *ngIf="showInfoPopup" class="popup-overlay" (click)="closePopup()">
   <div class="popup-content" (click)="$event.stopPropagation()">
     <button class="popup-close-btn" (click)="closePopup()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
+      <mat-icon>close</mat-icon>
     </button>
     <div *ngIf="selectedProduct" class="popup-flex-container">
       <div class="popup-media-container">
