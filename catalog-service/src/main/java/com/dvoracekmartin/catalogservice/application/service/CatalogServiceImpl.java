@@ -152,8 +152,19 @@ public class CatalogServiceImpl implements CatalogService {
         log.info("Fetching all categories with media");
         mediaUploader.createBucketIfNotExists(CATEGORY_BUCKET);
         List<ResponseCategoryDTO> categoryList = categoryRepository.findByActiveTrue().stream().map(category -> {
-            // media or tags not needed for active categories
-            return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getPriority(), category.isActive(), null, null);
+            // 1) List all object keys in the folder named after the category
+            List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), CATEGORY_BUCKET);
+
+            // 2) For each key, download bytes, encode to Base64, and derive a contentType
+            List<ResponseMediaDTO> mediaDTOs = keys.stream().map(key -> {
+                byte[] data = mediaRetriever.retrieveMedia(key, CATEGORY_BUCKET);
+                String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
+                String contentType = deriveContentTypeFromKey(key);
+                return new ResponseMediaDTO(base64, key, contentType);
+            }).toList();
+
+            // 3) Build the full DTO
+            return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getPriority(), category.isActive(), mediaDTOs, null);
         }).toList();
 
         // sort by priority and by id then return

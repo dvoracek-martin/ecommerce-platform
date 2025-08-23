@@ -5,6 +5,14 @@ import {Router} from '@angular/router';
 import {CategoryService} from '../../services/category.service';
 import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
 import {forkJoin} from 'rxjs';
+import {ResponseMediaDTO} from '../../dto/category/response-media-dto';
+import {TagDTO} from '../../dto/tag/tag-dto';
+
+interface ProductSummary {
+  product: ResponseProductDTO;
+  count: number;
+  totalPrice: number;
+}
 
 @Component({
   selector: 'app-mixing',
@@ -12,7 +20,7 @@ import {forkJoin} from 'rxjs';
   templateUrl: './mixing.component.html',
   styleUrl: './mixing.component.scss'
 })
-export class MixingComponent implements OnInit {
+export class MixingComponent implements OnInit, OnDestroy {
   products: ResponseProductDTO[] = [];
   categories: ResponseCategoryDTO[] = [];
   productsByCategory: { [categoryId: number]: ResponseProductDTO[] } = {};
@@ -21,13 +29,21 @@ export class MixingComponent implements OnInit {
   activeSlideIndices: { [productId: number]: number } = {};
   private intervals: { [productId: number]: any } = {};
 
-  mixedProducts: ResponseProductDTO[] = [];
+  mixedProducts: (ResponseProductDTO | null)[] = new Array(9).fill(null);
 
-  // New property for animation
   addingProductId: number | null = null;
-  // New property for editable mixture name
   mixtureName: string = 'Your Mixture';
   isEditingName: boolean = false;
+
+  showInfoPopup: boolean = false;
+  selectedProduct: ResponseProductDTO | null = null;
+
+  activeCategoryIndex = 0;
+
+  premiumCategoryId: number | null = null;
+
+  // New property to store the index of the most recently removed item
+  lastRemovedIndex: number | null = null;
 
   constructor(
     private productService: ProductService,
@@ -39,6 +55,10 @@ export class MixingComponent implements OnInit {
     this.loadProducts();
   }
 
+  ngOnDestroy(): void {
+    Object.values(this.intervals).forEach(i => clearInterval(i));
+  }
+
   loadProducts(): void {
     this.isLoading = true;
     this.error = null;
@@ -46,6 +66,7 @@ export class MixingComponent implements OnInit {
     this.categoryService.getActiveCategories().subscribe({
       next: (categories) => {
         this.categories = categories;
+        this.getPremiumCategoryId();
 
         const requests = categories.map(cat =>
           this.productService.getAllProductsByCategoryId(cat.id)
@@ -71,6 +92,15 @@ export class MixingComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  getPremiumCategoryId(): void {
+    if (this.categories.length > 0) {
+      const highestPriorityCategory = this.categories.reduce((prev, current) =>
+        (prev.priority > current.priority) ? prev : current
+      );
+      this.premiumCategoryId = highestPriorityCategory.id;
+    }
   }
 
   initializeCarousels(): void {
@@ -111,73 +141,192 @@ export class MixingComponent implements OnInit {
     return item.id;
   }
 
-  activeCategoryIndex = 0;
+  // New trackBy function for the mixed products grid
+  trackByMixtureIndex(_idx: number, item: any): number {
+    return _idx;
+  }
+
+  trackBySummaryProductId(_idx: number, summary: ProductSummary): number {
+    return summary.product.id;
+  }
 
   nextCategory() {
     if (this.activeCategoryIndex < this.categories.length - 1) {
       this.activeCategoryIndex++;
+      this.scrollToTop();
     }
   }
 
   prevCategory() {
     if (this.activeCategoryIndex > 0) {
       this.activeCategoryIndex--;
+      this.scrollToTop();
     }
   }
 
-  trackByObjectKey(_idx: number, item: {
-    contentType: string,
-    base64Data: string,
-    objectKey: string
-  }): string {
+  // New method to combine jump to category and scroll to top
+  jumpToCategoryAndScroll(index: number) {
+    this.activeCategoryIndex = index;
+    // Delay the scroll to allow Angular to render the new content
+    setTimeout(() => {
+      this.scrollToTop();
+    }, 100);
+  }
+
+  // Helper method for smooth scrolling to the top
+  scrollToTop(): void {
+    window.scroll({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+
+  trackByObjectKey(_idx: number, item: ResponseMediaDTO): string {
     return item.objectKey;
   }
 
   addProductToMixture(product: ResponseProductDTO): void {
-    if (this.mixedProducts.length < 12) {
-      this.mixedProducts.push(product);
+    const isPremiumProduct = product.categoryId === this.premiumCategoryId;
 
-      this.addingProductId = product.id;
-      setTimeout(() => {
-        this.addingProductId = null;
-      }, 800);
+    const premiumSpotIndex = 4;
+    const premiumProductInGrid = this.mixedProducts[premiumSpotIndex];
 
+    if (isPremiumProduct) {
+      if (premiumProductInGrid) {
+        console.log('Only one premium product can be in the mixture. Remove the current one first.');
+        return;
+      }
+      this.mixedProducts[premiumSpotIndex] = product;
+      this.animateAdd(product, 'mixed-card-' + premiumSpotIndex);
+      return;
+    }
+
+    let targetIndex = -1;
+    // Check if a spot was just cleared and is not the premium spot
+    if (this.lastRemovedIndex !== null && this.mixedProducts[this.lastRemovedIndex] === null && this.lastRemovedIndex !== premiumSpotIndex) {
+      targetIndex = this.lastRemovedIndex;
+      this.lastRemovedIndex = null; // Reset it after use
     } else {
-      console.log('The mixture grid is full!');
+      // If no spot was just cleared, find the next empty spot.
+      targetIndex = this.mixedProducts.findIndex((item, index) => item === null && index !== premiumSpotIndex);
+    }
+
+    if (targetIndex > -1) {
+      this.mixedProducts[targetIndex] = product;
+      this.animateAdd(product, `mixed-card-${targetIndex}`);
+    } else {
+      console.log('The mixture grid is full! (excluding the premium spot)');
     }
   }
 
-  removeProductFromMixture(productId: number): void {
-    this.mixedProducts = this.mixedProducts.filter(p => p.id !== productId);
+  private animateAdd(product: ResponseProductDTO, targetElementId: string): void {
+    const sourceElement = document.getElementById('product-card-' + product.id);
+    const targetElement = document.getElementById(targetElementId);
+
+    if (sourceElement && targetElement) {
+      const sourceRect = sourceElement.getBoundingClientRect();
+      const targetRect = targetElement.getBoundingClientRect();
+
+      const clone = sourceElement.cloneNode(true) as HTMLElement;
+      clone.style.position = 'fixed';
+      clone.style.top = `${sourceRect.top}px`;
+      clone.style.left = `${sourceRect.left}px`;
+      clone.style.width = `${sourceRect.width}px`;
+      clone.style.height = `${sourceRect.height}px`;
+      clone.style.zIndex = '1000';
+      clone.classList.add('animating-clone');
+
+      document.body.appendChild(clone);
+
+      const translateX = targetRect.left - sourceRect.left;
+      const translateY = targetRect.top - sourceRect.top;
+
+      setTimeout(() => {
+        clone.style.transform = `translate(${translateX}px, ${translateY}px) scale(${targetRect.width / sourceRect.width})`;
+        clone.style.opacity = '0.5';
+      }, 50);
+
+      setTimeout(() => {
+        document.body.removeChild(clone);
+      }, 800);
+    }
+  }
+
+  removeProductFromMixture(index: number): void {
+    if (index > -1 && index < this.mixedProducts.length) {
+      const targetElement = document.getElementById(`mixed-card-${index}`);
+      if (targetElement) {
+        const productElement = targetElement.querySelector('.mixed-product-image, .mixed-product-name');
+        if (productElement) {
+          (productElement as HTMLElement).style.transition = 'transform 0.4s ease-in, opacity 0.4s ease-in';
+          (productElement as HTMLElement).style.transform = 'scale(0.5)';
+          (productElement as HTMLElement).style.opacity = '0';
+        }
+
+        setTimeout(() => {
+          this.mixedProducts.splice(index, 1, null);
+          // Store the index of the removed item
+          this.lastRemovedIndex = index;
+        }, 400);
+      } else {
+        this.mixedProducts.splice(index, 1, null);
+        this.lastRemovedIndex = index;
+      }
+    }
   }
 
   calculateTotalPrice(): number {
-    return this.mixedProducts.reduce((sum, product) => sum + (product.price || 0), 0);
+    return this.mixedProducts.reduce((sum, product) => sum + (product?.price || 0), 0);
   }
 
-  // New method to get products grouped by category
-  getProductsByCategoryInMixture(): { [categoryName: string]: ResponseProductDTO[] } {
-    const groupedProducts: { [categoryName: string]: ResponseProductDTO[] } = {};
+  getProductsByCategoryInMixture(): { [categoryName: string]: ProductSummary[] } {
+    const groupedProducts: { [categoryName: string]: ProductSummary[] } = {};
     const categoryMap = new Map<number, string>(this.categories.map(cat => [cat.id, cat.name]));
 
     this.mixedProducts.forEach(product => {
+      if (!product) return;
       const categoryName = categoryMap.get(product.categoryId) || 'Uncategorized';
       if (!groupedProducts[categoryName]) {
         groupedProducts[categoryName] = [];
       }
-      groupedProducts[categoryName].push(product);
+
+      const existingProduct = groupedProducts[categoryName].find(p => p.product.id === product.id);
+      if (existingProduct) {
+        existingProduct.count++;
+        existingProduct.totalPrice += product.price;
+      } else {
+        groupedProducts[categoryName].push({
+          product: product,
+          count: 1,
+          totalPrice: product.price
+        });
+      }
     });
 
     return groupedProducts;
   }
 
-  // New methods for name editing
   editName() {
     this.isEditingName = true;
   }
 
   saveName() {
     this.isEditingName = false;
-    // You could save the name to a backend here if needed
+  }
+
+  showProductInfo(product: ResponseProductDTO): void {
+    this.selectedProduct = product;
+    this.showInfoPopup = true;
+  }
+
+  closePopup(): void {
+    this.showInfoPopup = false;
+    this.selectedProduct = null;
+  }
+
+  getCategoryName(categoryId: number | undefined): string {
+    if (!categoryId) return 'N/A';
+    const category = this.categories.find(cat => cat.id === categoryId);
+    return category ? category.name : 'N/A';
   }
 }
