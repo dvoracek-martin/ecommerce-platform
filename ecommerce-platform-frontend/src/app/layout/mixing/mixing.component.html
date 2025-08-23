@@ -1,87 +1,89 @@
-<div class="main-container">
+<div class="app-container">
+  <div class="main-container">
 
-  <div class="sticky-header-mixing">
-    <h1>{{ 'MIXING.TITLE' | translate }}</h1>
-    <div class="category-nav-wrapper">
-      <button class="carousel-btn left" (click)="prevCategory()" [disabled]="activeCategoryIndex === 0">
-        ‹
-      </button>
-      <div class="category-nav-row">
-        <div *ngFor="let category of categories; let i = index"
-             class="category-nav-item"
-             [class.active]="i === activeCategoryIndex"
-             (click)="jumpToCategoryAndScroll(i)">
-          <ng-container *ngIf="category.responseMediaDTOs?.[0]?.contentType?.startsWith('image/'); else categoryPlaceholder">
-            <img [src]="'data:' + category.responseMediaDTOs[0].contentType + ';base64,' + category.responseMediaDTOs[0].base64Data"
-                 alt="{{ category.name }}"
-                 class="category-image" />
-          </ng-container>
-          <ng-template #categoryPlaceholder>
-            <div class="category-placeholder">{{ category.name }}</div>
-          </ng-template>
-          <div class="category-name">{{ category.name }}</div>
+    <div class="sticky-header-mixing">
+      <h1>{{ 'MIXING.TITLE' | translate }}</h1>
+      <div class="category-nav-wrapper">
+        <button class="carousel-btn left" (click)="prevCategory()" [disabled]="activeCategoryIndex === 0">
+          ‹
+        </button>
+        <div class="category-nav-row">
+          <div *ngFor="let category of categories; let i = index"
+               class="category-nav-item"
+               [class.active]="i === activeCategoryIndex"
+               (click)="jumpToCategoryAndScroll(i)">
+            <ng-container *ngIf="category.responseMediaDTOs?.[0]?.contentType?.startsWith('image/'); else categoryPlaceholder">
+              <img [src]="'data:' + category.responseMediaDTOs[0].contentType + ';base64,' + category.responseMediaDTOs[0].base64Data"
+                   alt="{{ category.name }}"
+                   class="category-image" />
+            </ng-container>
+            <ng-template #categoryPlaceholder>
+              <div class="category-placeholder">{{ category.name }}</div>
+            </ng-template>
+            <div class="category-name">{{ category.name }}</div>
+          </div>
         </div>
+        <button class="carousel-btn right" (click)="nextCategory()" [disabled]="activeCategoryIndex === categories.length - 1">
+          ›
+        </button>
       </div>
-      <button class="carousel-btn right" (click)="nextCategory()" [disabled]="activeCategoryIndex === categories.length - 1">
-        ›
-      </button>
     </div>
-  </div>
 
-  <div *ngIf="isLoading" class="loading">
-    {{ 'PRODUCTS.LOADING' | translate }}
-  </div>
-  <div *ngIf="error" class="error">
-    {{ 'PRODUCTS.ERROR_LOADING' | translate:{error: error} }}
-  </div>
+    <div *ngIf="isLoading" class="loading">
+      {{ 'PRODUCTS.LOADING' | translate }}
+    </div>
+    <div *ngIf="error" class="error">
+      {{ 'PRODUCTS.ERROR_LOADING' | translate:{error: error} }}
+    </div>
 
-  <div class="main-content-wrapper" *ngIf="!isLoading && !error">
-    <div class="products-carousel-wrapper">
-      <div class="products-carousel-container">
-        <div class="products-carousel-inner" [style.transform]="'translateX(-' + activeCategoryIndex * 100 + '%)'">
-          <div *ngFor="let category of categories" class="category-section">
-            <h2 class="category-title">{{ category.name }}</h2>
-            <div class="products-row">
-              <div *ngFor="let product of productsByCategory[category.id]; trackBy: trackById"
-                   class="product-card"
-                   [id]="'product-card-' + product.id">
-                <ng-container *ngIf="product.responseMediaDTOs?.length; else noMedia">
-                  <img *ngIf="product.responseMediaDTOs[0].contentType?.startsWith('image/')"
-                       [src]="'data:' + product.responseMediaDTOs[0].contentType + ';base64,' + product.responseMediaDTOs[0].base64Data"
-                       alt="{{ product.responseMediaDTOs[0].objectKey }}"
-                       class="product-image"/>
-                  <video *ngIf="product.responseMediaDTOs[0].contentType?.startsWith('video/')"
-                         class="product-image"
-                         muted autoplay loop preload="metadata" playsinline>
-                    <source [src]="'data:' + product.responseMediaDTOs[0].contentType + ';base64,' + product.responseMediaDTOs[0].base64Data"
-                            [type]="product.responseMediaDTOs[0].contentType"/>
-                  </video>
-                </ng-container>
-                <ng-template #noMedia>
-                  <div class="no-media">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
-                </ng-template>
+    <div class="main-content-wrapper" *ngIf="!isLoading && !error">
+      <div class="products-carousel-wrapper">
+        <div class="products-carousel-container">
+          <div class="products-carousel-inner" [style.transform]="'translateX(-' + activeCategoryIndex * 100 + '%)'">
+            <div *ngFor="let category of categories" class="category-section">
+              <h2 class="category-title">{{ category.name }}</h2>
+              <div class="products-row">
+                <div *ngFor="let product of productsByCategory[category.id]; trackBy: trackById"
+                     class="product-card"
+                     [id]="'product-card-' + product.id">
+                  <ng-container *ngIf="product.responseMediaDTOs?.length; else noMedia">
+                    <img *ngIf="product.responseMediaDTOs[0].contentType?.startsWith('image/')"
+                         [src]="'data:' + product.responseMediaDTOs[0].contentType + ';base64,' + product.responseMediaDTOs[0].base64Data"
+                         alt="{{ product.responseMediaDTOs[0].objectKey }}"
+                         class="product-image"/>
+                    <video *ngIf="product.responseMediaDTOs[0].contentType?.startsWith('video/')"
+                           class="product-image"
+                           muted autoplay loop preload="metadata" playsinline>
+                      <source [src]="'data:' + product.responseMediaDTOs[0].contentType + ';base64,' + product.responseMediaDTOs[0].base64Data"
+                              [type]="product.responseMediaDTOs[0].contentType"/>
+                    </video>
+                  </ng-container>
+                  <ng-template #noMedia>
+                    <div class="no-media">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
+                  </ng-template>
 
-                <div class="product-name">{{ product.name }}</div>
-                <div class="product-description">{{ product.description }}</div>
-                <div class="product-bottom">
-                  <div class="product-info-btn" (click)="showProductInfo(product)">
-                    <mat-icon>info</mat-icon>
+                  <div class="product-name">{{ product.name }}</div>
+                  <div class="product-description">{{ product.description }}</div>
+                  <div class="product-bottom">
+                    <div class="product-info-btn" (click)="showProductInfo(product)">
+                      <mat-icon>info</mat-icon>
+                    </div>
+                    <div class="product-price">{{ product.price | currency }}</div>
+                    <button class="btn-add"
+                            [disabled]="isAddButtonDisabled(product) || addingProductId === product.id"
+                            [title]="getAddButtonTooltip(product)"
+                            (click)="addProductToMixture(product)">
+                      <ng-container *ngIf="addingProductId === product.id; else defaultAdd">
+                        <div class="adding-animation">
+                          <span class="icon-pulse">✔</span>
+                        </div>
+                      </ng-container>
+                      <ng-template #defaultAdd>
+                        <ng-container *ngIf="!isAddButtonDisabled(product)">Add</ng-container>
+                        <ng-container *ngIf="isAddButtonDisabled(product)">Grid Full</ng-container>
+                      </ng-template>
+                    </button>
                   </div>
-                  <div class="product-price">{{ product.price | currency }}</div>
-                  <button class="btn-add"
-                          [disabled]="isAddButtonDisabled(product) || addingProductId === product.id"
-                          [title]="getAddButtonTooltip(product)"
-                          (click)="addProductToMixture(product)">
-                    <ng-container *ngIf="addingProductId === product.id; else defaultAdd">
-                      <div class="adding-animation">
-                        <span class="icon-pulse">✔</span>
-                      </div>
-                    </ng-container>
-                    <ng-template #defaultAdd>
-                      <ng-container *ngIf="!isAddButtonDisabled(product)">Add</ng-container>
-                      <ng-container *ngIf="isAddButtonDisabled(product)">Grid Full</ng-container>
-                    </ng-template>
-                  </button>
                 </div>
               </div>
             </div>
@@ -89,139 +91,139 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="mixture-container">
-      <div class="mixture-name-container">
-        <h2 *ngIf="!isEditingName" (click)="editName()">{{ mixtureName }}</h2>
-        <input *ngIf="isEditingName"
-               type="text"
-               [(ngModel)]="mixtureName"
-               (blur)="saveName()"
-               (keyup.enter)="saveName()"
-               class="editable-name"/>
-        <button *ngIf="!isEditingName" class="btn-edit" (click)="editName()">
-          <mat-icon>edit</mat-icon>
-        </button>
-      </div>
+  <div class="mixture-container">
+    <div class="mixture-name-container">
+      <h2 *ngIf="!isEditingName" (click)="editName()">{{ mixtureName }}</h2>
+      <input *ngIf="isEditingName"
+             type="text"
+             [(ngModel)]="mixtureName"
+             (blur)="saveName()"
+             (keyup.enter)="saveName()"
+             class="editable-name"/>
+      <button *ngIf="!isEditingName" class="btn-edit" (click)="editName()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
 
-      <div class="mixture-grid">
-        <ng-container *ngFor="let product of mixedProducts; let index = index; trackBy: trackByMixtureIndex">
-          <div class="mixed-product-card"
-               [ngClass]="{'premium-card': index === 4}"
-               [id]="'mixed-card-' + index">
-            <ng-container *ngIf="product as p">
-              <img *ngIf="p.responseMediaDTOs?.[0]?.contentType?.startsWith('image/')"
-                   [src]="'data:' + p.responseMediaDTOs[0].contentType + ';base64,' + p.responseMediaDTOs[0].base64Data"
-                   class="mixed-product-image"
-                   alt="{{ p.name }}"/>
-              <div class="mixed-product-name">{{ p.name }}</div>
-              <button class="btn-remove" (click)="removeProductFromMixture(index)">x</button>
-            </ng-container>
-            <div *ngIf="!product" class="empty-grid-cell">
-              <div class="empty-cell-text">
-                <span class="icon-plus">+</span>
-                Add Product
-              </div>
+    <div class="mixture-grid">
+      <ng-container *ngFor="let product of mixedProducts; let index = index; trackBy: trackByMixtureIndex">
+        <div class="mixed-product-card"
+             [ngClass]="{'premium-card': index === 4}"
+             [id]="'mixed-card-' + index">
+          <ng-container *ngIf="product as p">
+            <img *ngIf="p.responseMediaDTOs?.[0]?.contentType?.startsWith('image/')"
+                 [src]="'data:' + p.responseMediaDTOs[0].contentType + ';base64,' + p.responseMediaDTOs[0].base64Data"
+                 class="mixed-product-image"
+                 alt="{{ p.name }}"/>
+            <div class="mixed-product-name">{{ p.name }}</div>
+            <button class="btn-remove" (click)="removeProductFromMixture(index)">x</button>
+          </ng-container>
+          <div *ngIf="!product" class="empty-grid-cell">
+            <div class="empty-cell-text">
+              <span class="icon-plus">+</span>
+              Add Product
             </div>
           </div>
-        </ng-container>
-      </div>
+        </div>
+      </ng-container>
+    </div>
 
-      <div class="mixture-summary">
-        <h3>Summary</h3>
-        <ng-container *ngFor="let item of getProductsByCategoryInMixture() | keyvalue">
-          <h4 class="category-heading">{{ item.key }}</h4>
-          <ul>
-            <li *ngFor="let summary of item.value; trackBy: trackBySummaryProductId">
-              <span class="product-count">{{ summary.count }}x</span>
-              {{ summary.product.name }}
-              <span class="product-price-summary">{{ summary.totalPrice | currency }}</span>
-            </li>
-          </ul>
-        </ng-container>
-        <div class="final-price">
-          Total: {{ calculateTotalPrice() | currency }}
-        </div>
-        <div class="mixture-actions">
-          <button class="btn btn-save">Save my Mix</button>
-          <button class="btn btn-checkout">Go to Checkout</button>
-        </div>
+    <div class="mixture-summary">
+      <h3>Summary</h3>
+      <ng-container *ngFor="let item of getProductsByCategoryInMixture() | keyvalue">
+        <h4 class="category-heading">{{ item.key }}</h4>
+        <ul>
+          <li *ngFor="let summary of item.value; trackBy: trackBySummaryProductId">
+            <span class="product-count">{{ summary.count }}x</span>
+            {{ summary.product.name }}
+            <span class="product-price-summary">{{ summary.totalPrice | currency }}</span>
+          </li>
+        </ul>
+      </ng-container>
+      <div class="final-price">
+        Total: {{ calculateTotalPrice() | currency }}
+      </div>
+      <div class="mixture-actions">
+        <button class="btn btn-save">Save my Mix</button>
+        <button class="btn btn-checkout">Go to Checkout</button>
       </div>
     </div>
   </div>
-</div>
 
-<div *ngIf="showInfoPopup" class="popup-overlay" (click)="closePopup()">
-  <div class="popup-content" (click)="$event.stopPropagation()">
-    <button class="popup-close-btn" (click)="closePopup()">
-      <mat-icon>close</mat-icon>
-    </button>
-    <div *ngIf="selectedProduct" class="popup-flex-container">
-      <div class="popup-media-container">
-        <ng-container *ngIf="selectedProduct.responseMediaDTOs?.length; else noMediaPopup">
-          <img *ngIf="selectedProduct.responseMediaDTOs[0].contentType?.startsWith('image/')"
-               [src]="'data:' + selectedProduct.responseMediaDTOs[0].contentType + ';base64,' + selectedProduct.responseMediaDTOs[0].base64Data"
-               class="popup-image"
-               alt="{{ selectedProduct.responseMediaDTOs[0].objectKey }}"/>
-          <video *ngIf="selectedProduct.responseMediaDTOs[0].contentType?.startsWith('video/')"
+  <div *ngIf="showInfoPopup" class="popup-overlay" (click)="closePopup()">
+    <div class="popup-content" (click)="$event.stopPropagation()">
+      <button class="popup-close-btn" (click)="closePopup()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <div *ngIf="selectedProduct" class="popup-flex-container">
+        <div class="popup-media-container">
+          <ng-container *ngIf="selectedProduct.responseMediaDTOs?.length; else noMediaPopup">
+            <img *ngIf="selectedProduct.responseMediaDTOs[0].contentType?.startsWith('image/')"
+                 [src]="'data:' + selectedProduct.responseMediaDTOs[0].contentType + ';base64,' + selectedProduct.responseMediaDTOs[0].base64Data"
                  class="popup-image"
-                 muted autoplay loop playsinline>
-            <source [src]="'data:' + selectedProduct.responseMediaDTOs[0].contentType + ';base64,' + selectedProduct.responseMediaDTOs[0].base64Data"
-                    [type]="selectedProduct.responseMediaDTOs[0].contentType"/>
-          </video>
-        </ng-container>
-        <ng-template #noMediaPopup>
-          <div class="no-media-popup">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
-        </ng-template>
-      </div>
+                 alt="{{ selectedProduct.responseMediaDTOs[0].objectKey }}"/>
+            <video *ngIf="selectedProduct.responseMediaDTOs[0].contentType?.startsWith('video/')"
+                   class="popup-image"
+                   muted autoplay loop playsinline>
+              <source [src]="'data:' + selectedProduct.responseMediaDTOs[0].contentType + ';base64,' + selectedProduct.responseMediaDTOs[0].base64Data"
+                      [type]="selectedProduct.responseMediaDTOs[0].contentType"/>
+            </video>
+          </ng-container>
+          <ng-template #noMediaPopup>
+            <div class="no-media-popup">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
+          </ng-template>
+        </div>
 
-      <div class="popup-scroll-content">
-        <div class="popup-details">
-          <h2 class="popup-product-name">{{ selectedProduct.name }}</h2>
-          <div class="popup-price">{{ selectedProduct.price | currency }}</div>
+        <div class="popup-scroll-content">
+          <div class="popup-details">
+            <h2 class="popup-product-name">{{ selectedProduct.name }}</h2>
+            <div class="popup-price">{{ selectedProduct.price | currency }}</div>
 
-          <div class="popup-info-grid">
-            <div *ngIf="selectedProduct.description" class="info-item">
-              <span class="info-label">Description:</span>
-              <p>{{ selectedProduct.description }}</p>
-            </div>
-            <div *ngIf="selectedProduct.scentProfile" class="info-item">
-              <span class="info-label">Scent Profile:</span> {{ selectedProduct.scentProfile }}
-            </div>
-            <div *ngIf="selectedProduct.botanicalName" class="info-item">
-              <span class="info-label">Botanical Name:</span> {{ selectedProduct.botanicalName }}
-            </div>
-            <div *ngIf="selectedProduct.extractionMethod" class="info-item">
-              <span class="info-label">Extraction Method:</span> {{ selectedProduct.extractionMethod }}
-            </div>
-            <div *ngIf="selectedProduct.origin" class="info-item">
-              <span class="info-label">Origin:</span> {{ selectedProduct.origin }}
-            </div>
-            <div *ngIf="selectedProduct.usageInstructions" class="info-item">
-              <span class="info-label">Usage Instructions:</span>
-              <p>{{ selectedProduct.usageInstructions }}</p>
-            </div>
-            <div *ngIf="selectedProduct.volumeMl" class="info-item">
-              <span class="info-label">Volume:</span> {{ selectedProduct.volumeMl }} ml
-            </div>
-            <div *ngIf="selectedProduct.warnings" class="info-item">
-              <span class="info-label">Warnings:</span>
-              <p>{{ selectedProduct.warnings }}</p>
-            </div>
-            <div *ngIf="selectedProduct.medicinalUse" class="info-item">
-              <span class="info-label">Medicinal Use:</span>
-              <p>{{ selectedProduct.medicinalUse }}</p>
-            </div>
-            <div *ngIf="selectedProduct.weightGrams" class="info-item">
-              <span class="info-label">Weight:</span> {{ selectedProduct.weightGrams }} g
-            </div>
-            <div *ngIf="selectedProduct.allergens?.length" class="info-item">
-              <span class="info-label">Allergens:</span> {{ selectedProduct.allergens.join(', ') }}
-            </div>
-            <div *ngIf="selectedProduct.tagsDTOs?.length" class="info-item">
-              <span class="info-label">Tags:</span>
-              <div class="tags-container">
-                <span *ngFor="let tag of selectedProduct.tagsDTOs" class="tag">{{ tag.name }}</span>
+            <div class="popup-info-grid">
+              <div *ngIf="selectedProduct.description" class="info-item">
+                <span class="info-label">Description:</span>
+                <p>{{ selectedProduct.description }}</p>
+              </div>
+              <div *ngIf="selectedProduct.scentProfile" class="info-item">
+                <span class="info-label">Scent Profile:</span> {{ selectedProduct.scentProfile }}
+              </div>
+              <div *ngIf="selectedProduct.botanicalName" class="info-item">
+                <span class="info-label">Botanical Name:</span> {{ selectedProduct.botanicalName }}
+              </div>
+              <div *ngIf="selectedProduct.extractionMethod" class="info-item">
+                <span class="info-label">Extraction Method:</span> {{ selectedProduct.extractionMethod }}
+              </div>
+              <div *ngIf="selectedProduct.origin" class="info-item">
+                <span class="info-label">Origin:</span> {{ selectedProduct.origin }}
+              </div>
+              <div *ngIf="selectedProduct.usageInstructions" class="info-item">
+                <span class="info-label">Usage Instructions:</span>
+                <p>{{ selectedProduct.usageInstructions }}</p>
+              </div>
+              <div *ngIf="selectedProduct.volumeMl" class="info-item">
+                <span class="info-label">Volume:</span> {{ selectedProduct.volumeMl }} ml
+              </div>
+              <div *ngIf="selectedProduct.warnings" class="info-item">
+                <span class="info-label">Warnings:</span>
+                <p>{{ selectedProduct.warnings }}</p>
+              </div>
+              <div *ngIf="selectedProduct.medicinalUse" class="info-item">
+                <span class="info-label">Medicinal Use:</span>
+                <p>{{ selectedProduct.medicinalUse }}</p>
+              </div>
+              <div *ngIf="selectedProduct.weightGrams" class="info-item">
+                <span class="info-label">Weight:</span> {{ selectedProduct.weightGrams }} g
+              </div>
+              <div *ngIf="selectedProduct.allergens?.length" class="info-item">
+                <span class="info-label">Allergens:</span> {{ selectedProduct.allergens.join(', ') }}
+              </div>
+              <div *ngIf="selectedProduct.tagsDTOs?.length" class="info-item">
+                <span class="info-label">Tags:</span>
+                <div class="tags-container">
+                  <span *ngFor="let tag of selectedProduct.tagsDTOs" class="tag">{{ tag.name }}</span>
+                </div>
               </div>
             </div>
           </div>

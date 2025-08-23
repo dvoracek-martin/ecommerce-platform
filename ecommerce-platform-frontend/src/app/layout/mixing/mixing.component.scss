@@ -12,10 +12,20 @@
   min-height: 100vh;
 }
 
-.main-container {
+.app-container {
+  display: flex;
+  justify-content: center; /* Center the main content and its spacer */
+  align-items: flex-start;
   max-width: 1800px;
   width: 100%;
   margin: 0 auto;
+  gap: 40px;
+  position: relative;
+}
+
+.main-container {
+  flex: 1;
+  max-width: 1200px; /* Reduced max-width to leave space for the sidebar */
   position: relative;
   background-color: #ffffff;
   border-radius: 16px;
@@ -26,10 +36,8 @@
 .sticky-header-mixing {
   position: sticky;
   top: 64px;
-  /* Toolbar height */
   z-index: 50;
   background: #f4f6f9;
-  /* Match body background */
   padding: 20px;
   border-bottom: 1px solid #e9ecef;
 }
@@ -149,10 +157,6 @@ h1 {
 
 /* Main content wrapper */
 .main-content-wrapper {
-  display: flex;
-  gap: 40px;
-  align-items: flex-start;
-  flex-wrap: wrap;
   padding: 0 20px 40px;
 }
 
@@ -160,9 +164,6 @@ h1 {
 .products-carousel-wrapper {
   display: flex;
   align-items: center;
-  flex: 3;
-  min-width: 60%;
-  position: relative;
   box-sizing: border-box;
   padding-left: 20px;
   padding-right: 20px;
@@ -358,26 +359,27 @@ h1 {
 
 /* Mixture Container (Right Side) */
 .mixture-container {
-  flex: 1;
+  position: fixed;
+  right: 20px;
+  top: 104px;
   background-color: #ffffff;
-  border-radius: 12px; /* Scaled down */
-  padding: 20px; /* Scaled down */
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* Scaled down */
-  min-width: 240px; /* Scaled down */
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  min-width: 250px;
+  max-width: 300px;
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: 370px;
   z-index: 10;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
-  gap: 20px; /* Scaled down */
+  gap: 20px;
 
   h2 {
-    font-size: 1.5rem; /* Scaled down */
+    font-size: 1.5rem;
     font-weight: 600;
     color: #34495e;
-    margin-bottom: 15px; /* Scaled down */
+    margin-bottom: 15px;
   }
 }
 
@@ -390,7 +392,7 @@ h1 {
     margin: 0;
     cursor: pointer;
     font-weight: bold;
-    font-size: 1.5rem; /* Scaled down */
+    font-size: 1.5rem;
     transition: color 0.3s;
 
     &:hover {
@@ -399,11 +401,11 @@ h1 {
   }
 
   .editable-name {
-    font-size: 1.5rem; /* Scaled down */
+    font-size: 1.5rem;
     font-weight: bold;
     border: none;
     background-color: transparent;
-    border-bottom: 2px solid #3498db; /* Scaled down */
+    border-bottom: 2px solid #3498db;
     text-align: center;
     width: 100%;
     outline: none;
@@ -431,15 +433,15 @@ h1 {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   grid-auto-rows: minmax(0, 1fr);
-  gap: 8px; /* Scaled down */
+  gap: 8px;
   height: auto;
   flex-grow: 1;
-  margin-bottom: 8px; /* Scaled down */
+  margin-bottom: 8px;
 }
 
 .mixed-product-card {
   position: relative;
-  border-radius: 8px; /* Scaled down */
+  border-radius: 8px;
   overflow: hidden;
   background-color: #ecf0f1;
   display: flex;
@@ -452,7 +454,7 @@ h1 {
 
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Scaled down */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -460,14 +462,14 @@ h1 {
 .premium-card {
   grid-column: 2 / span 2;
   grid-row: 1 / span 2;
-  min-height: 180px; /* Scaled down */
+  min-height: 180px;
   background-color: #ecf0f1;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Scaled down */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
   .mixed-product-image {
     width: 100%;
     height: 100%;
-    border-radius: 8px; /* Scaled down */
+    border-radius: 8px;
     border: none;
   }
 
@@ -490,8 +492,8 @@ h1 {
   right: 0;
   background-color: rgba(0, 0, 0, 0.7);
   color: white;
-  padding: 6px; /* Scaled down */
-  font-size: 0.75rem; /* Scaled down */
+  padding: 6px;
+  font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -501,15 +503,15 @@ h1 {
 
 .btn-remove {
   position: absolute;
-  top: 6px; /* Scaled down */
-  right: 6px; /* Scaled down */
+  top: 6px;
+  right: 6px;
   background-color: #e74c3c;
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 20px; /* Scaled down */
-  height: 20px; /* Scaled down */
-  font-size: 0.8rem; /* Scaled down */
+  width: 20px;
+  height: 20px;
+  font-size: 0.8rem;
   line-height: 1;
   cursor: pointer;
   z-index: 10;
@@ -523,7 +525,7 @@ h1 {
 
 .empty-grid-cell {
   background-color: #ecf0f1;
-  border-radius: 8px; /* Scaled down */
+  border-radius: 8px;
   border: 2px dashed #bdc3c7;
   display: flex;
   flex-direction: column;
@@ -536,10 +538,10 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 0.7rem; /* Scaled down */
+  font-size: 0.7rem;
   color: #7f8c8d;
   .icon-plus {
-    font-size: 1.5rem; /* Scaled down */
+    font-size: 1.5rem;
     margin-bottom: 5px;
     color: #bdc3c7;
   }
@@ -547,12 +549,12 @@ h1 {
 
 .mixture-summary {
   h3 {
-    font-size: 1.2rem; /* Scaled down */
+    font-size: 1.2rem;
     font-weight: 300;
     color: #34495e;
-    margin-bottom: 10px; /* Scaled down */
-    border-bottom: 1px solid #bdc3c7; /* Scaled down */
-    padding-bottom: 8px; /* Scaled down */
+    margin-bottom: 10px;
+    border-bottom: 1px solid #bdc3c7;
+    padding-bottom: 8px;
   }
 
   ul {
@@ -560,24 +562,24 @@ h1 {
     padding: 0;
     margin: 0;
     border-bottom: 1px solid #e9ecef;
-    padding: 8px 0; /* Scaled down */
+    padding: 8px 0;
   }
 
   li {
-    font-size: 0.85rem; /* Scaled down */
+    font-size: 0.85rem;
     color: #555;
-    margin-bottom: 6px; /* Scaled down */
+    margin-bottom: 6px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px dashed #ecf0f1;
-    padding-bottom: 4px; /* Scaled down */
+    padding-bottom: 4px;
   }
 
   .product-count {
     font-weight: 600;
     color: #e67e22;
-    margin-right: 8px; /* Scaled down */
+    margin-right: 8px;
   }
 
   .product-price-summary {
@@ -587,7 +589,7 @@ h1 {
 }
 
 .final-price {
-  font-size: 1.4rem; /* Scaled down */
+  font-size: 1.4rem;
   font-weight: 700;
   color: #27ae60;
   margin-top: 5px;
@@ -597,17 +599,17 @@ h1 {
 .mixture-actions {
   display: flex;
   justify-content: space-between;
-  gap: 10px; /* Scaled down */
-  margin-top: 20px; /* Scaled down */
-  padding-top: 15px; /* Scaled down */
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 15px;
   border-top: 1px solid #e9ecef;
 
   .btn {
     flex: 1;
-    font-size: 0.9rem; /* Scaled down */
+    font-size: 0.9rem;
     font-weight: 600;
-    padding: 10px 8px; /* Scaled down */
-    border-radius: 6px; /* Scaled down */
+    padding: 10px 8px;
+    border-radius: 6px;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -775,12 +777,14 @@ h1 {
 
 /* Responsive Design (new and improved) */
 @media (max-width: 992px) {
-  .main-content-wrapper {
+  .app-container {
     flex-direction: column;
     align-items: center;
+    padding-right: 0;
+    gap: 20px;
   }
 
-  .products-carousel-wrapper,
+  .main-container,
   .mixture-container {
     max-width: 100%;
     position: static;
