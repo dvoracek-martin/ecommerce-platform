@@ -1,50 +1,56 @@
-<div class="products-grid">
-  <div *ngFor="let product of products; let productIndex = index; trackBy: trackById" class="product-card">
-    <div class="product-header">
-      <h2>{{ product.name }}</h2>
-    </div>
-    <p class="product-description">{{ product.description }}</p>
+<div class="products-container">
+  <h1>{{ 'PRODUCTS.TITLE' | translate }}</h1>
 
-    <!-- Add to Cart Button -->
-    <button mat-raised-button color="primary" (click)="addToCart(product)">
-      {{ 'PRODUCTS.ADD_TO_CART' | translate }}
-    </button>
+  <div *ngIf="isLoading" class="loading">{{ 'PRODUCTS.LOADING' | translate }}</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
 
-    <!-- Media Carousel -->
-    <ng-container *ngIf="product.responseMediaDTOs?.length; else noMedia">
-      <div class="media-carousel">
-        <div *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
-             class="slide"
-             [class.active]="activeSlideIndices[productIndex] === i">
-          <img *ngIf="media.contentType?.startsWith('image/')"
-               [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-               [alt]="media.objectKey"
-               class="media-content"/>
-          <video *ngIf="media.contentType?.startsWith('video/')"
-                 class="media-content"
+  <div class="products-grid">
+    <div *ngFor="let product of products; let productIndex = index; trackBy: trackById"
+         class="product-card"
+         (click)="goToProduct(product)">
+
+      <ng-container *ngIf="product.responseMediaDTOs?.length; else noMedia">
+        <div class="product-image-container">
+          <img *ngIf="product.responseMediaDTOs[activeSlideIndices[productIndex]]?.contentType?.startsWith('image/')"
+               [src]="'data:' + product.responseMediaDTOs[activeSlideIndices[productIndex]].contentType + ';base64,' + product.responseMediaDTOs[activeSlideIndices[productIndex]].base64Data"
+               [alt]="product.name"
+               class="product-image"/>
+          <video *ngIf="product.responseMediaDTOs[activeSlideIndices[productIndex]]?.contentType?.startsWith('video/')"
+                 class="product-image"
                  [attr.muted]="true"
                  [muted]="true"
                  autoplay
                  loop
                  preload="metadata"
                  playsinline>
-            <source [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                    [type]="media.contentType"/>
+            <source [src]="'data:' + product.responseMediaDTOs[activeSlideIndices[productIndex]].contentType + ';base64,' + product.responseMediaDTOs[activeSlideIndices[productIndex]].base64Data"
+                    [type]="product.responseMediaDTOs[activeSlideIndices[productIndex]].contentType"/>
           </video>
+          <div *ngIf="product.responseMediaDTOs?.length > 1" class="carousel-dots">
+            <button *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
+                    class="dot"
+                    [class.active]="activeSlideIndices[productIndex] === i"
+                    (click)="$event.stopPropagation(); setActiveSlide(productIndex, i)">
+            </button>
+          </div>
         </div>
+      </ng-container>
 
-        <div *ngIf="product.responseMediaDTOs?.length > 1" class="carousel-controls">
-          <button *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
-                  class="dot"
-                  [class.active]="activeSlideIndices[productIndex] === i"
-                  (click)="setActiveSlide(productIndex, i)">
-          </button>
-        </div>
+      <ng-template #noMedia>
+        <div class="no-media">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
+      </ng-template>
+
+      <div class="product-details">
+        <h2 class="product-name">{{ product.name }}</h2>
+        <p class="product-description">{{ product.description }}</p>
       </div>
-    </ng-container>
 
-    <ng-template #noMedia>
-      <div class="no-media">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
-    </ng-template>
+      <div class="product-bottom">
+        <span class="product-price">{{ product.price | currency:'EUR' }}</span>
+        <button mat-raised-button color="primary" class="btn-add" (click)="$event.stopPropagation(); addToCart(product)">
+          {{ 'PRODUCTS.ADD_TO_CART' | translate }}
+        </button>
+      </div>
+    </div>
   </div>
 </div>

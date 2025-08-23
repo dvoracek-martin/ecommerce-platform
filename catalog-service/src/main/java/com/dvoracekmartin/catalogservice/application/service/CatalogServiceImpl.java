@@ -131,20 +131,23 @@ public class CatalogServiceImpl implements CatalogService {
         log.info("Fetching all categories with media");
         mediaUploader.createBucketIfNotExists(CATEGORY_BUCKET);
         return categoryRepository.findAll().stream().map(category -> {
-            // 1) List all object keys in the folder named after the category
-            List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), CATEGORY_BUCKET);
+                    // 1) List all object keys in the folder named after the category
+                    List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), CATEGORY_BUCKET);
 
-            // 2) For each key, download bytes, encode to Base64, and derive a contentType
-            List<ResponseMediaDTO> mediaDTOs = keys.stream().map(key -> {
-                byte[] data = mediaRetriever.retrieveMedia(key, CATEGORY_BUCKET);
-                String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
-                String contentType = deriveContentTypeFromKey(key);
-                return new ResponseMediaDTO(base64, key, contentType);
-            }).toList();
+                    // 2) For each key, download bytes, encode to Base64, and derive a contentType
+                    List<ResponseMediaDTO> mediaDTOs = keys.stream().map(key -> {
+                        byte[] data = mediaRetriever.retrieveMedia(key, CATEGORY_BUCKET);
+                        String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
+                        String contentType = deriveContentTypeFromKey(key);
+                        return new ResponseMediaDTO(base64, key, contentType);
+                    }).toList();
 
-            // 3) Build the full DTO
-            return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getPriority(), category.isActive(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
-        }).toList();
+
+                    // 3) Build the full DTO
+                    return new ResponseCategoryDTO(category.getId(), category.getName(), category.getDescription(), category.getPriority(), category.isActive(), mediaDTOs, category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList());
+                })
+                .sorted(Comparator.comparingInt(ResponseCategoryDTO::priority).thenComparingLong(ResponseCategoryDTO::id))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -224,65 +227,67 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     @Override
-    public ResponseProductDTO updateProduct(Long id, UpdateProductDTO dto) {
-        log.info("Updating product with id {}: {}", id, dto);
+    public ResponseProductDTO updateProduct(Long id, UpdateProductDTO updateProductDTO) {
+        log.info("Updating product with id {}: {}", id, updateProductDTO);
 
         // 1) Fetch existing product
         Product existing = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         // 2) Validate name uniqueness if changed
-        if (!dto.name().equals(existing.getName()) && productRepository.existsByName(dto.name())) {
-            throw new IllegalArgumentException("Product name already exists: " + dto.name());
+        if (!updateProductDTO.name().equals(existing.getName()) && productRepository.existsByName(updateProductDTO.name())) {
+            throw new IllegalArgumentException("Product name already exists: " + updateProductDTO.name());
         }
 
         // 3) Update basic fields
-        existing.setName(dto.name());
-        existing.setDescription(dto.description());
-        existing.setPrice(dto.price());
-        existing.setScentProfile(dto.scentProfile());
-        existing.setBotanicalName(dto.botanicalName());
-        existing.setExtractionMethod(dto.extractionMethod());
-        existing.setOrigin(dto.origin());
-        existing.setUsageInstructions(dto.usageInstructions());
-        existing.setVolumeMl(dto.volumeMl());
-        existing.setWarnings(dto.warnings());
-        existing.setMedicinalUse(dto.medicinalUse());
-        existing.setWeightGrams(dto.weightGrams());
+        existing.setName(updateProductDTO.name());
+        existing.setDescription(updateProductDTO.description());
+        existing.setPrice(updateProductDTO.price());
+        existing.setScentProfile(updateProductDTO.scentProfile());
+        existing.setBotanicalName(updateProductDTO.botanicalName());
+        existing.setExtractionMethod(updateProductDTO.extractionMethod());
+        existing.setOrigin(updateProductDTO.origin());
+        existing.setUsageInstructions(updateProductDTO.usageInstructions());
+        existing.setVolumeMl(updateProductDTO.volumeMl());
+        existing.setWarnings(updateProductDTO.warnings());
+        existing.setMedicinalUse(updateProductDTO.medicinalUse());
+        existing.setWeightGrams(updateProductDTO.weightGrams());
 
         // 4) Update allergens in-place
-        if (dto.allergens() != null) {
+        if (updateProductDTO.allergens() != null) {
             existing.getAllergens().clear();
-            existing.getAllergens().addAll(dto.allergens());
+            existing.getAllergens().addAll(updateProductDTO.allergens());
         }
 
         // 5) Update tags in-place
-        if (dto.tagIds() != null) {
+        if (updateProductDTO.tagIds() != null) {
             // load all Tag entities by id
-            List<Tag> tags = tagRepository.findAllById(dto.tagIds());
+            List<Tag> tags = tagRepository.findAllById(updateProductDTO.tagIds());
             existing.getTags().clear();
             existing.getTags().addAll(tags);
         }
 
-        // === Media handling (same as category update logic) ===
+        // === Media handling ===
 
-        // 6) Delete *all* old images
-        for (String url : existing.getImages()) {
-            mediaUploader.deleteMedia(url);
+        // 6) Delete all the media form the original one
+        if (existing.getImages() != null) {
+            for (String objectKey : existing.getImages()) {
+                mediaUploader.deleteMedia(objectKey);
+            }
         }
 
         // 7) Upload new images
         List<String> newImageUrls = new ArrayList<>();
         List<ResponseMediaDTO> mediaResponses = new ArrayList<>();
-        if (dto.uploadMediaDTOs() != null) {
-            for (UploadMediaDTO m : dto.uploadMediaDTOs()) {
+        if (updateProductDTO.uploadMediaDTOs() != null) {
+            for (UploadMediaDTO m : updateProductDTO.uploadMediaDTOs()) {
                 String publicUrl = mediaUploader.uploadBase64(
                         m.base64Data(),
-                        dto.name(),
+                        updateProductDTO.name(),
                         m.objectKey(),
                         m.contentType(),
                         PRODUCT_BUCKET,
-                        dto.name()
+                        updateProductDTO.name()
                 );
                 if (publicUrl != null) {
                     newImageUrls.add(publicUrl);
@@ -300,9 +305,9 @@ public class CatalogServiceImpl implements CatalogService {
         existing.getImages().addAll(newImageUrls);
 
         // 9) Update category if changed
-        if (dto.categoryId() != null) {
-            Category cat = categoryRepository.findById(dto.categoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + dto.categoryId()));
+        if (updateProductDTO.categoryId() != null) {
+            Category cat = categoryRepository.findById(updateProductDTO.categoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + updateProductDTO.categoryId()));
             existing.setCategory(cat);
         }
 

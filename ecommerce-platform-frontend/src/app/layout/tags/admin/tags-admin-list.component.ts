@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject, takeUntil } from 'rxjs';
 import { ResponseTagDTO } from '../../../dto/tag/response-tag-dto';
 import { TagService } from '../../../services/tag.service';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
@@ -8,36 +10,47 @@ import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog
 @Component({
   selector: 'app-tags-admin-list',
   templateUrl: './tags-admin-list.component.html',
-  standalone: false,
+  standalone: false, // Keeping this as per your last request
   styleUrls: ['./tags-admin-list.component.scss']
 })
-export class TagsAdminListComponent implements OnInit {
+export class TagsAdminListComponent implements OnInit, OnDestroy {
   tags: ResponseTagDTO[] = [];
   isLoading = true;
   error: string | null = null;
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private tagService: TagService,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     this.loadTags();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadTags(): void {
     this.isLoading = true;
-    this.tagService.getAllTags().subscribe({
-      next: (data) => {
-        this.tags = data;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.error = err.message || 'Failed to load tags';
-        this.isLoading = false;
-      }
-    });
+    this.tagService.getAllTags()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.tags = data;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.error = err.message || 'Failed to load tags';
+          this.isLoading = false;
+          this.snackBar.open('Failed to load tags.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+        }
+      });
   }
 
   navigateToUpdate(tagId: number): void {
@@ -52,23 +65,28 @@ export class TagsAdminListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.deleteTag(tagId);
-      }
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.deleteTag(tagId);
+        }
+      });
   }
 
   private deleteTag(id: number): void {
-    this.tagService.deleteTag(id).subscribe({
-      next: () => {
-        this.tags = this.tags.filter((t) => t.id !== id);
-      },
-      error: (err) => {
-        console.error('Delete failed:', err);
-        // TODO: Add a snackbar/toast notification
-      }
-    });
+    this.tagService.deleteTag(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.tags = this.tags.filter((t) => t.id !== id);
+          this.snackBar.open('Tag deleted successfully.', 'Close', { duration: 3000 });
+        },
+        error: (err) => {
+          console.error('Delete failed:', err);
+          this.snackBar.open('Failed to delete tag.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+        }
+      });
   }
 
   trackById(_idx: number, item: ResponseTagDTO): number {

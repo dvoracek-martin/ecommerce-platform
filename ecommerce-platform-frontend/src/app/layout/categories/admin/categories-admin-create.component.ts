@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+// src/app/components/categories-admin-create/categories-admin-create.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryService } from '../../../services/category.service';
 import { TagService } from '../../../services/tag.service';
 import { CreateCategoryDTO } from '../../../dto/category/create-category-dto';
@@ -17,7 +19,7 @@ import { ResponseMediaDTO } from '../../../dto/category/response-media-dto';
   standalone: false,
   styleUrls: ['./categories-admin-create.component.scss']
 })
-export class CategoriesAdminCreateComponent implements OnInit {
+export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
   categoryForm!: FormGroup;
   saving = false;
   allTags: ResponseTagDTO[] = [];
@@ -28,7 +30,8 @@ export class CategoriesAdminCreateComponent implements OnInit {
     private categoryService: CategoryService,
     private tagService: TagService,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -36,13 +39,17 @@ export class CategoriesAdminCreateComponent implements OnInit {
     this.loadTags();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private initForm(): void {
     this.categoryForm = this.fb.group({
-      name: ['', Validators.required, Validators.minLength(3)],
+      name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
-      priority: [0, [Validators.required]],
+      priority: [0, [Validators.required, Validators.min(0)]],
       active: [false],
-      // new multi-select of tag IDs
       tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])
     });
@@ -53,9 +60,7 @@ export class CategoriesAdminCreateComponent implements OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: tags => this.allTags = tags,
-        // error: () => this.dialog.open(ConfirmationDialogComponent, {
-        //   data: { title: 'Error', message: 'Could not load tags.', warn: true }
-        // })
+        error: () => this.snackBar.open('Error loading tags', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
       });
   }
 
@@ -95,34 +100,46 @@ export class CategoriesAdminCreateComponent implements OnInit {
   }
 
   onSave(): void {
-    if (this.categoryForm.invalid) return;
+    if (this.categoryForm.invalid) {
+      this.categoryForm.markAllAsTouched();
+      this.snackBar.open('Please correct the highlighted fields.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+      return;
+    }
 
     this.saving = true;
     const payload: CreateCategoryDTO = this.categoryForm.value;
-    // payload now has name, description, tagIds: number[], uploadMediaDTOs
 
     this.categoryService.createCategories([payload])
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
-          this.saving = false;
-          this.router.navigate(['/admin/categories']);
-        },
-        error: err => {
-          this.saving = false;
-          console.error('Creation failed:', err);
-          this.dialog.open(ConfirmationDialogComponent, {
-            data: { title: 'Error', message: 'Could not create category.', warn: true }
-          });
-        }
+        next: () => this.handleSaveSuccess(),
+        error: err => this.handleSaveError(err)
       });
   }
 
+  private handleSaveSuccess(): void {
+    this.saving = false;
+    this.snackBar.open('Category created successfully!', 'Close', { duration: 3000 });
+    this.router.navigate(['/admin/categories']);
+  }
+
+  private handleSaveError(err: any): void {
+    this.saving = false;
+    console.error('Creation failed:', err);
+    this.snackBar.open('Failed to create category', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+  }
+
   openCancelDialog(): void {
-    this.dialog.open(ConfirmationDialogComponent, {
-      data: { title: 'Cancel Creation', message: 'Discard changes?', warn: true }
-    }).afterClosed().subscribe(ok => {
-      if (ok) this.router.navigate(['/admin/categories']);
-    });
+    if (this.categoryForm.dirty) {
+      this.dialog.open(ConfirmationDialogComponent, {
+        data: {title: 'Cancel Update', message: 'Discard changes?', warn: true}
+      }).afterClosed().subscribe(ok => {
+        if (ok) {
+          this.router.navigate(['/admin/categories']);
+        }
+      });
+    } else {
+      this.router.navigate(['/admin/categories']);
+    }
   }
 }

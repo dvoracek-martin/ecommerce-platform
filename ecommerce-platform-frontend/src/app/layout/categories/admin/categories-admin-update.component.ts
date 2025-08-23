@@ -1,3 +1,4 @@
+// src/app/components/categories-admin-update/categories-admin-update.component.ts
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -24,7 +25,6 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   saving = false;
   allTags: ResponseTagDTO[] = [];
   private categoryId!: number;
-  private initialMediaKeys: string[] = [];
   private readonly destroy$ = new Subject<void>();
 
   constructor(
@@ -56,13 +56,12 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     this.categoryForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
-      priority: [0, [Validators.required]],
+      priority: [0, [Validators.required, Validators.min(0)]],
       active: [false],
       tagIds: [[]],
       uploadMediaDTOs: this.fb.array([])
     });
   }
-
 
   get mediaControls(): FormArray {
     return this.categoryForm.get('uploadMediaDTOs') as FormArray;
@@ -101,20 +100,16 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
       active: cat.active
     });
 
-    // prefill tags
     const existingIds = cat.tags.map(t => t.id);
     this.tagIdsControl.setValue(existingIds);
 
-    // media
     this.mediaControls.clear();
     (cat.responseMediaDTOs || []).forEach(m => {
       this.mediaControls.push(this.fb.group({
-        base64Data: [m.base64Data],
         objectKey: [m.objectKey],
         contentType: [m.contentType],
         preview: [`data:${m.contentType};base64,${m.base64Data}`]
       }));
-      this.initialMediaKeys.push(m.objectKey);
     });
   }
 
@@ -148,7 +143,15 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   }
 
   onSave() {
-    if (this.categoryForm.invalid) return;
+    if (this.categoryForm.invalid) {
+      this.categoryForm.markAllAsTouched();
+      this.snackBar.open('Please correct the highlighted fields.', 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
     this.saving = true;
 
     const payload: UpdateCategoryDTO = {
@@ -159,17 +162,21 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     this.categoryService.updateCategory(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
-          this.saving = false;
-          this.snackBar.open('Category updated!', 'Close', {duration: 3000});
-          this.router.navigate(['/admin/categories']);
-        },
-        error: err => {
-          this.saving = false;
-          console.error('Update failed', err);
-          this.snackBar.open('Failed to update category', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
-        }
+        next: () => this.handleSaveSuccess(),
+        error: err => this.handleSaveError(err)
       });
+  }
+
+  private handleSaveSuccess(): void {
+    this.saving = false;
+    this.snackBar.open('Category updated!', 'Close', {duration: 3000});
+    this.router.navigate(['/admin/categories']);
+  }
+
+  private handleSaveError(err: any): void {
+    this.saving = false;
+    console.error('Update failed', err);
+    this.snackBar.open('Failed to update category', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
   }
 
   openDeleteDialog() {
@@ -178,11 +185,24 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     }).afterClosed().subscribe(ok => {
       if (ok) this.categoryService.deleteCategory(this.categoryId)
         .pipe(takeUntil(this.destroy$))
-        .subscribe(() => this.router.navigate(['/admin/categories']));
+        .subscribe(() => {
+          this.snackBar.open('Category deleted successfully.', 'Close', {duration: 3000});
+          this.router.navigate(['/admin/categories']);
+        });
     });
   }
 
-  cancel() {
-    this.router.navigate(['/admin/categories']);
+  openCancelDialog(): void {
+    if (this.categoryForm.dirty) {
+      this.dialog.open(ConfirmationDialogComponent, {
+        data: {title: 'Cancel Update', message: 'Discard changes?', warn: true}
+      }).afterClosed().subscribe(ok => {
+        if (ok) {
+          this.router.navigate(['/admin/categories']);
+        }
+      });
+    } else {
+      this.router.navigate(['/admin/categories']);
+    }
   }
 }

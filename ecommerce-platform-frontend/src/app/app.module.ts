@@ -46,6 +46,7 @@ import {ProductsAdminUpdateComponent} from './layout/products/admin/products-adm
 import {AuthInterceptor} from './auth/auth.interceptor';
 import {TagsAdminUpdateComponent} from './layout/tags/admin/tags-admin-update.component';
 import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.component';
+import {MatTable} from '@angular/material/table';
 
 @NgModule({
   declarations: [
@@ -103,7 +104,8 @@ import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.compon
     MatDialogTitle,
     MatDialogClose,
     TranslatePipe,
-    DragDropModule
+    DragDropModule,
+    MatTable
   ],
   providers: [
     {

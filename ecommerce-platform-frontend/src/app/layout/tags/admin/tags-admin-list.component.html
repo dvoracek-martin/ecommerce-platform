@@ -1,52 +1,68 @@
 <div class="tags-container">
   <div class="header">
-    <h1>{{ 'TAGS.ADMIN.TITLE' | translate }}</h1>
-    <button mat-raised-button color="primary" [routerLink]="['/admin/tags/create']">
-      <mat-icon>add</mat-icon>
-      {{ 'TAGS.ADMIN.NEW_TITLE' | translate }}
-    </button>
+    <div class="title-and-search">
+      <h1 class="page-title">
+        <mat-icon class="title-icon">local_offer</mat-icon>
+        {{ 'TAGS.ADMIN.TITLE' | translate }}
+      </h1>
+    </div>
+    <div class="actions">
+      <button mat-raised-button color="primary" [routerLink]="['/admin/tags/create']">
+        <mat-icon>add</mat-icon>
+        {{ 'TAGS.ADMIN.NEW_TITLE' | translate }}
+      </button>
+    </div>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading">
-    {{ 'COMMON.LOADING' | translate }}
-  </div>
-  <!-- Error State -->
-  <div *ngIf="!isLoading && error" class="error">
+  <mat-card *ngIf="isLoading" class="data-card">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <div class="loading-message">
+      {{ 'COMMON.LOADING' | translate }}
+    </div>
+  </mat-card>
+
+  <div *ngIf="!isLoading && error" class="error-message">
     {{ error }}
   </div>
 
-  <!-- Tags Grid -->
-  <div *ngIf="!isLoading && !error" class="tags-grid">
-    <div
+  <div *ngIf="!isLoading && !error && tags.length > 0" class="tags-grid">
+    <mat-card
       *ngFor="let tag of tags; trackBy: trackById"
       class="tag-card"
       (click)="navigateToUpdate(tag.id)"
     >
-      <div class="card-header">
-        <h2>{{ tag.name }}</h2>
+      <mat-card-header>
+        <mat-card-title>{{ tag.name }}</mat-card-title>
         <button
           mat-icon-button
+          color="warn"
           (click)="$event.stopPropagation(); openDeleteDialog(tag.id)"
         >
-          <mat-icon class="delete-icon">delete</mat-icon>
+          <mat-icon>delete</mat-icon>
         </button>
-      </div>
+      </mat-card-header>
 
-      <div class="tag-relations">
-        <span class="relation">
-          <mat-icon>local_offer</mat-icon>
-          {{ tag.products.length }} {{ 'TAGS.ADMIN.PRODUCTS' | translate }}
-        </span>
-        <span class="relation">
-          <mat-icon>category</mat-icon>
-          {{ tag.categories.length }} {{ 'TAGS.ADMIN.CATEGORIES' | translate }}
-        </span>
-        <span class="relation">
-          <mat-icon>scatter_plot</mat-icon>
-          {{ tag.mixtures.length }} {{ 'TAGS.ADMIN.MIXTURES' | translate }}
-        </span>
-      </div>
-    </div>
+      <mat-card-content>
+        <div class="tag-relations">
+          <span class="relation">
+            <mat-icon>local_offer</mat-icon>
+            {{ tag.products.length }} {{ 'TAGS.ADMIN.PRODUCTS' | translate }}
+          </span>
+          <span class="relation">
+            <mat-icon>category</mat-icon>
+            {{ tag.categories.length }} {{ 'TAGS.ADMIN.CATEGORIES' | translate }}
+          </span>
+          <span class="relation">
+            <mat-icon>scatter_plot</mat-icon>
+            {{ tag.mixtures.length }} {{ 'TAGS.ADMIN.MIXTURES' | translate }}
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!isLoading && !error && tags.length === 0" class="no-data">
+    <mat-icon>info</mat-icon>
+    {{ 'COMMON.NO_DATA' | translate }}
   </div>
 </div>

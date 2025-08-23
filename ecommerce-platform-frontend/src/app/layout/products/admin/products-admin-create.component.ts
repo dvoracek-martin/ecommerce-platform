@@ -1,15 +1,15 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators, FormControl } from '@angular/forms';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ProductService } from '../../../services/product.service';
-import { CategoryService } from '../../../services/category.service';
-import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
-import { CreateProductDTO } from '../../../dto/product/create-product-dto';
-import { ResponseCategoryDTO } from '../../../dto/category/response-category-dto';
-import { Subject, takeUntil } from 'rxjs';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {FormBuilder, FormGroup, FormArray, Validators, FormControl} from '@angular/forms';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {Router} from '@angular/router';
+import {MatDialog} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {ProductService} from '../../../services/product.service';
+import {CategoryService} from '../../../services/category.service';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {CreateProductDTO} from '../../../dto/product/create-product-dto';
+import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
+import {Subject, takeUntil} from 'rxjs';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
 import {TagService} from '../../../services/tag.service';
 
@@ -34,7 +34,8 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.initForm();
@@ -49,7 +50,7 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
 
   initForm(): void {
     this.productForm = this.fb.group({
-      name: ['', Validators.required, Validators.minLength(3)],
+      name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
       price: ['', [Validators.required, Validators.min(0)]],
       categoryId: [null, Validators.required],
@@ -77,7 +78,7 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading categories:', error);
-          this.snackBar.open('Error loading categories', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+          this.snackBar.open('Error loading categories', 'Close', {duration: 3000, panelClass: ['error-snackbar']});
         }
       });
   }
@@ -87,7 +88,7 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: tags => this.allTags = tags,
-        error: _ => this.snackBar.open('Error loading tags', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
+        error: _ => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
       });
   }
 
@@ -166,28 +167,18 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
     return this.productForm.get('tagIds') as FormControl;
   }
 
-  addTag(): void {
-    this.tagsControls.push(this.fb.group({
-      name: ['', Validators.required],
-      description: [''],
-      color: [''],
-      icon: [''],
-      imageUrl: ['']
-    }));
-  }
-
-  removeTag(index: number): void {
-    this.tagsControls.removeAt(index);
-  }
-
-  dropTag(event: CdkDragDrop<any[]>): void {
-    moveItemInArray(this.tagsControls.controls, event.previousIndex, event.currentIndex);
-  }
-
   // --- Form Submission ---
 
   onSave(): void {
-    if (this.productForm.invalid) return;
+    if (this.productForm.invalid) {
+      // Mark all form controls as touched to display validation errors
+      this.productForm.markAllAsTouched();
+      this.snackBar.open('Please correct the highlighted fields.', 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
 
     this.saving = true;
     const payload: CreateProductDTO = this.productForm.value;
@@ -202,27 +193,27 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
 
   private handleSaveSuccess(): void {
     this.saving = false;
-    this.snackBar.open('Product created successfully!', 'Close', { duration: 3000 });
+    this.snackBar.open('Product created successfully!', 'Close', {duration: 3000});
     this.router.navigate(['/admin/products']);
   }
 
   private handleSaveError(err: any): void {
     this.saving = false;
     console.error('Creation failed:', err);
-    this.snackBar.open('Failed to create product', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+    this.snackBar.open('Failed to create product', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
   }
 
   openCancelDialog(): void {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Cancel Creation',
-        message: 'Are you sure you want to discard changes and go back?',
-        warn: true
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) this.router.navigate(['/admin/products']);
-    });
+    if (this.productForm.dirty) {
+      this.dialog.open(ConfirmationDialogComponent, {
+        data: {title: 'Cancel Update', message: 'Discard changes?', warn: true}
+      }).afterClosed().subscribe(ok => {
+        if (ok) {
+          this.router.navigate(['/admin/categories']);
+        }
+      });
+    } else {
+      this.router.navigate(['/admin/products']);
+    }
   }
 }

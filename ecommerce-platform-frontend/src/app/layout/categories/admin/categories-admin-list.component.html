@@ -1,71 +1,54 @@
 <div class="categories-container">
   <div class="header">
     <h1>{{ 'CATEGORIES.ADMIN.TITLE' | translate }}</h1>
-    <button mat-raised-button color="primary"
-            [routerLink]="['/admin/categories/create']">
+    <button mat-raised-button color="primary" [routerLink]="['/admin/categories/create']" class="btn-create-category">
       <mat-icon>add</mat-icon>
-      {{ 'CATEGORIES.ADMIN.NEW_TITLE' | translate }}
+      <span>{{ 'CATEGORIES.ADMIN.NEW_TITLE' | translate }}</span>
     </button>
   </div>
 
-  <!-- Loading & Error States -->
+  <div *ngIf="isLoading" class="loading">
+    {{ 'CATEGORIES.LOADING' | translate }}
+  </div>
+  <div *ngIf="error" class="error">
+    {{ 'CATEGORIES.ERROR_LOADING' | translate:{error: error} }}
+  </div>
+
   <div *ngIf="!isLoading && !error" class="categories-grid">
     <div
       *ngFor="let category of categories; let catIndex = index; trackBy: trackById"
       class="category-card"
-      (click)="navigateToUpdate(category.id)"
     >
-      <div class="card-content">
-        <div class="category-header">
-          <h2>{{ category.name }}</h2>
-          <div class="actions">
-            <button mat-icon-button (click)="$event.stopPropagation(); openDeleteDialog(category.id)">
-              <mat-icon class="delete-icon">delete</mat-icon>
-            </button>
-          </div>
-        </div>
-        <p class="category-description">
-          {{ category.description }}
-        </p>
-
-        <!-- Media Carousel -->
+      <div class="card-link" (click)="navigateToUpdate(category.id)">
         <ng-container *ngIf="category.responseMediaDTOs?.length; else noMedia">
-          <div class="media-carousel">
-            <div
-              *ngFor="let media of category.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
-              class="slide"
-              [class.active]="activeSlideIndices[catIndex] === i"
+          <div class="category-image-container">
+            <img
+              *ngIf="category.responseMediaDTOs[activeSlideIndices[catIndex]]?.contentType?.startsWith('image/')"
+              [src]="'data:' + category.responseMediaDTOs[activeSlideIndices[catIndex]].contentType + ';base64,' + category.responseMediaDTOs[activeSlideIndices[catIndex]].base64Data"
+              [alt]="category.name"
+              class="category-image"
+            />
+            <video
+              *ngIf="category.responseMediaDTOs[activeSlideIndices[catIndex]]?.contentType?.startsWith('video/')"
+              class="category-image"
+              [attr.muted]="true"
+              [muted]="true"
+              autoplay
+              loop
+              preload="metadata"
+              playsinline
             >
-              <img
-                *ngIf="media.contentType?.startsWith('image/')"
-                [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                [alt]="media.objectKey"
-                class="media-content"
+              <source
+                [src]="'data:' + category.responseMediaDTOs[activeSlideIndices[catIndex]].contentType + ';base64,' + category.responseMediaDTOs[activeSlideIndices[catIndex]].base64Data"
+                [type]="category.responseMediaDTOs[activeSlideIndices[catIndex]].contentType"
               />
-              <video
-                *ngIf="media.contentType?.startsWith('video/')"
-                class="media-content"
-                [attr.muted]="true"
-                [muted]="true"
-                autoplay
-                loop
-                preload="metadata"
-                playsinline
-              >
-                <source
-                  [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                  [type]="media.contentType"
-                />
-              </video>
-            </div>
-
-            <!-- Carousel Controls -->
-            <div *ngIf="category.responseMediaDTOs?.length > 1" class="carousel-controls">
+            </video>
+            <div *ngIf="category.responseMediaDTOs?.length > 1" class="carousel-dots">
               <button
                 *ngFor="let media of category.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
                 class="dot"
                 [class.active]="activeSlideIndices[catIndex] === i"
-                (click)="setActiveSlide(catIndex, i)"
+                (click)="$event.stopPropagation(); setActiveSlide(catIndex, i)"
               ></button>
             </div>
           </div>
@@ -76,6 +59,17 @@
             {{ 'CATEGORIES.NO_MEDIA' | translate }}
           </div>
         </ng-template>
+
+        <div class="category-details">
+          <h2 class="category-name">{{ category.name }}</h2>
+          <p class="category-description">{{ category.description }}</p>
+        </div>
+      </div>
+
+      <div class="category-actions">
+        <button mat-icon-button class="btn-delete" (click)="openDeleteDialog(category.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
       </div>
     </div>
   </div>

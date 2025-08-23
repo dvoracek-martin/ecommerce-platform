@@ -1,120 +1,150 @@
-/* tags-admin-list.component.scss */
+/* Overall Page Layout */
 .tags-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  min-height: calc(100vh - 64px);
+}
 
-  .header {
+/* Header and Actions */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.title-and-search {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-grow: 1;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 2rem;
+  margin: 0;
+  color: #2c3e50;
+  .title-icon {
+    font-size: 2.2rem;
+    color: #3f51b5;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* State Messages */
+.loading-message,
+.error-message {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.1rem;
+  border-radius: 8px;
+}
+.loading-message {
+  color: #3f51b5;
+  background-color: #e8eaf6;
+}
+.error-message {
+  color: #e74c3c;
+  background-color: #fef0f0;
+}
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Tags Grid & Card */
+.tags-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.tag-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .mat-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    padding-bottom: 0;
 
-    h1 {
-      margin: 0;
-      color: #333;
-      font-size: 2rem;
+    .mat-card-title {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #2c3e50;
     }
+  }
 
-    button {
+  .mat-card-content {
+    padding-top: 0;
+  }
+
+  .tag-relations {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+
+    .relation {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 20px;
-      border-radius: 8px;
-      transition: all 0.2s ease;
+      font-size: 0.9rem;
+      color: #555;
 
       mat-icon {
-        font-size: 20px;
+        font-size: 18px;
+        color: #757575;
       }
     }
   }
+}
 
-  .loading,
-  .error {
-    text-align: center;
-    padding: 30px;
-    font-size: 1.2rem;
-    border-radius: 8px;
-    margin: 20px 0;
-
-    &.loading {
-      color: #3498db;
-      background: #f0f8ff;
-    }
-    &.error {
-      color: #e74c3c;
-      background: #fef0f0;
+/* Responsive Styles */
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .page-title {
+    font-size: 1.5rem;
+  }
+  .actions {
+    width: 100%;
+    .mat-raised-button {
+      width: 100%;
+      text-align: center;
     }
   }
-
+  .tags-container {
+    padding: 1rem;
+  }
   .tags-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-    row-gap: 40px;
-    padding: 20px 0;
-
-    @media (max-width: 1200px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-      gap: 25px;
-    }
-  }
-
-  .tag-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    transition: transform 0.3s, box-shadow 0.3s;
-    cursor: pointer;
-
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-
-      h2 {
-        margin: 0;
-        font-size: 1.3rem;
-        color: #2c3e50;
-      }
-
-      .delete-icon {
-        color: #666;
-        transition: color 0.2s;
-        &:hover {
-          color: #e74c3c;
-        }
-      }
-    }
-
-    .tag-relations {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-
-      .relation {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 0.9rem;
-        color: #555;
-
-        mat-icon {
-          font-size: 18px;
-          color: #757575;
-        }
-      }
-    }
+    grid-template-columns: 1fr;
   }
 }

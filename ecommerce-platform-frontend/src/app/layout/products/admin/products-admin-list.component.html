@@ -18,58 +18,37 @@
     <div
       *ngFor="let product of products; let prodIndex = index; trackBy: trackById"
       class="product-card"
-      (click)="navigateToUpdate(product.id)"
     >
-      <div class="card-content">
-        <div class="product-header">
-          <h2>{{ product.name }}</h2>
-          <div class="actions">
-            <span class="product-price">{{ product.price | currency }}</span>
-            <button mat-icon-button (click)="$event.stopPropagation(); openDeleteDialog(product.id)">
-              <mat-icon class="delete-icon">delete</mat-icon>
-            </button>
-          </div>
-        </div>
-        <p class="product-description">
-          {{ product.description }}
-        </p>
-
+      <div class="card-link" (click)="navigateToUpdate(product.id)">
         <ng-container *ngIf="product.responseMediaDTOs?.length; else noMedia">
-          <div class="media-carousel">
-            <div
-              *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
-              class="slide"
-              [class.active]="activeSlideIndices[prodIndex] === i"
+          <div class="product-image-container">
+            <img
+              *ngIf="product.responseMediaDTOs[activeSlideIndices[prodIndex]]?.contentType?.startsWith('image/')"
+              [src]="'data:' + product.responseMediaDTOs[activeSlideIndices[prodIndex]].contentType + ';base64,' + product.responseMediaDTOs[activeSlideIndices[prodIndex]].base64Data"
+              [alt]="product.name"
+              class="product-image"
+            />
+            <video
+              *ngIf="product.responseMediaDTOs[activeSlideIndices[prodIndex]]?.contentType?.startsWith('video/')"
+              class="product-image"
+              [attr.muted]="true"
+              [muted]="true"
+              autoplay
+              loop
+              preload="metadata"
+              playsinline
             >
-              <img
-                *ngIf="media.contentType?.startsWith('image/')"
-                [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                [alt]="media.objectKey"
-                class="media-content"
+              <source
+                [src]="'data:' + product.responseMediaDTOs[activeSlideIndices[prodIndex]].contentType + ';base64,' + product.responseMediaDTOs[activeSlideIndices[prodIndex]].base64Data"
+                [type]="product.responseMediaDTOs[activeSlideIndices[prodIndex]].contentType"
               />
-              <video
-                *ngIf="media.contentType?.startsWith('video/')"
-                class="media-content"
-                [attr.muted]="true"
-                [muted]="true"
-                autoplay
-                loop
-                preload="metadata"
-                playsinline
-              >
-                <source
-                  [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                  [type]="media.contentType"
-                />
-              </video>
-            </div>
-
-            <div *ngIf="product.responseMediaDTOs?.length > 1" class="carousel-controls">
+            </video>
+            <div *ngIf="product.responseMediaDTOs?.length > 1" class="carousel-dots">
               <button
                 *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
                 class="dot"
                 [class.active]="activeSlideIndices[prodIndex] === i"
-                (click)="setActiveSlide(prodIndex, i)"
+                (click)="$event.stopPropagation(); setActiveSlide(prodIndex, i)"
               ></button>
             </div>
           </div>
@@ -82,9 +61,30 @@
         </ng-template>
 
         <div class="product-details">
-          <span *ngIf="product.scentProfile">{{ 'PRODUCTS.SCENT_PROFILE' | translate }}: {{ product.scentProfile }}</span>
-          <span *ngIf="product.volumeMl">{{ 'PRODUCTS.VOLUME' | translate }}: {{ product.volumeMl }} ml</span>
+          <h2 class="product-name">{{ product.name }}</h2>
+          <p class="product-description-truncated">
+            {{ product.description }}
+          </p>
+          <div class="product-specs">
+            <span *ngIf="product.scentProfile">
+              <mat-icon>local_florist</mat-icon>
+              {{ 'PRODUCTS.SCENT_PROFILE' | translate }}:
+              {{ product.scentProfile }}
+            </span>
+            <span *ngIf="product.volumeMl">
+              <mat-icon>science</mat-icon>
+              {{ 'PRODUCTS.VOLUME' | translate }}:
+              {{ product.volumeMl }} ml
+            </span>
+          </div>
         </div>
+      </div>
+
+      <div class="product-actions">
+        <span class="product-price">{{ product.price | currency:'EUR' }}</span>
+        <button mat-icon-button class="btn-delete" (click)="$event.stopPropagation(); openDeleteDialog(product.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
       </div>
     </div>
   </div>

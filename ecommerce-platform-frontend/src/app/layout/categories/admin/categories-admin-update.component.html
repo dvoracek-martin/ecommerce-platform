@@ -1,4 +1,3 @@
-<!-- src/app/components/categories-admin-update/categories-admin-update.component.html -->
 <div class="category-container">
   <mat-card class="category-card">
     <mat-card-header>
@@ -6,17 +5,14 @@
         <mat-icon class="title-icon">edit</mat-icon>
         {{ 'CATEGORIES.ADMIN.EDIT_TITLE' | translate }}
       </mat-card-title>
-      <button mat-icon-button [routerLink]="['/admin/categories']">
-        <mat-icon>close</mat-icon>
-      </button>
     </mat-card-header>
 
     <mat-divider></mat-divider>
 
-    <mat-card-content>
-      <form [formGroup]="categoryForm" (ngSubmit)="onSave()" class="form-grid">
+    <form id="categoryForm" [formGroup]="categoryForm" (ngSubmit)="onSave()" class="form-and-media-wrapper">
 
-        <!-- Basic Info -->
+      <div class="form-content">
+        <mat-progress-bar *ngIf="saving" mode="indeterminate" class="save-progress"></mat-progress-bar>
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>label</mat-icon>
@@ -25,14 +21,12 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'CATEGORIES.ADMIN.NAME' | translate }}</mat-label>
-              <input matInput formControlName="name"
-                     placeholder="{{ 'CATEGORIES.ADMIN.NAME_PLACEHOLDER' | translate }}">
+              <input matInput formControlName="name" placeholder="{{ 'CATEGORIES.ADMIN.NAME_PLACEHOLDER' | translate }}">
               <mat-error *ngIf="categoryForm.get('name')?.hasError('required')">
                 {{ 'CATEGORIES.ADMIN.NAME_REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
 
-            <!-- Tags multi-select -->
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'CATEGORIES.ADMIN.SELECT_TAGS' | translate }}</mat-label>
               <mat-select formControlName="tagIds" multiple>
@@ -52,7 +46,7 @@
           </div>
 
 
-          <div>
+          <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'CATEGORIES.PRIORITY' | translate }}</mat-label>
               <input matInput type="number" formControlName="priority" required>
@@ -62,15 +56,16 @@
               <mat-error *ngIf="categoryForm.get('priority')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}: 0
               </mat-error>
             </mat-form-field>
-          </div>
-          <div class="form-section">
-            <mat-checkbox formControlName="active">
-              {{ 'CATEGORIES.ACTIVE' | translate }}
-            </mat-checkbox>
+            <div class="form-field form-section">
+              <mat-checkbox formControlName="active">
+                {{ 'CATEGORIES.ACTIVE' | translate }}
+              </mat-checkbox>
+            </div>
           </div>
         </div>
+      </div>
 
-        <!-- Media -->
+      <div class="media-sidebar">
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>cloud_upload</mat-icon>
@@ -102,25 +97,24 @@
             </div>
           </div>
         </div>
+      </div>
+    </form>
 
-        <!-- Actions -->
-        <div class="actions">
-          <div class="primary-actions">
-            <button mat-flat-button color="warn" type="button" [routerLink]="['/admin/categories']">
-              {{ 'COMMON.CANCEL' | translate }}
-            </button>
-            <button mat-flat-button color="primary" [disabled]="categoryForm.invalid || saving" type="submit">
-              <mat-icon>save</mat-icon>
-              {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
-            </button>
-          </div>
-          <button mat-flat-button color="accent" type="button" (click)="openDeleteDialog()">
-            <mat-icon>delete_forever</mat-icon>
-            {{ 'COMMON.DELETE' | translate }}
-          </button>
-        </div>
-        <mat-progress-bar *ngIf="saving" mode="indeterminate" class="save-progress"></mat-progress-bar>
-      </form>
-    </mat-card-content>
+    <div class="actions-floating-bar">
+      <div class="action-buttons">
+        <button mat-stroked-button color="warn" type="button" (click)="openCancelDialog()">
+          <mat-icon>close</mat-icon>
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button mat-flat-button color="primary" type="submit" form="categoryForm" [disabled]="categoryForm.invalid || saving">
+          <mat-icon>save</mat-icon>
+          {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+        </button>
+        <button mat-flat-button color="accent" type="button" (click)="openDeleteDialog()">
+          <mat-icon>delete_forever</mat-icon>
+          {{ 'COMMON.DELETE' | translate }}
+        </button>
+      </div>
+    </div>
   </mat-card>
 </div>

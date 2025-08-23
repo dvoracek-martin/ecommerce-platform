@@ -11,7 +11,6 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
-import software.amazon.awssdk.services.s3.S3Uri;
 
 import java.net.URI;
 import java.util.Base64;
@@ -107,12 +106,17 @@ public class MinIOMediaUploader implements MediaUploader {
     @Override
     public void deleteMedia(String imageUrl) {
         try {
-            S3Uri s3Uri = S3Uri.builder().uri(URI.create(imageUrl)).build();
-            String bucketName = s3Uri.bucket().orElse(null);
-            String objectKey = s3Uri.key().orElse(null);
+            URI uri = new URI(imageUrl);
+            String path = uri.getPath();
 
-            if (bucketName != null && objectKey != null) {
-                // Remove leading slash if present
+            // The first part of the path is the bucket name, the rest is the object key
+            String[] pathParts = path.substring(1).split("/", 2);
+
+            if (pathParts.length == 2) {
+                String bucketName = pathParts[0];
+                String objectKey = pathParts[1];
+
+                // Remove leading slash from the objectKey if present
                 if (objectKey.startsWith("/")) {
                     objectKey = objectKey.substring(1);
                 }
@@ -123,7 +127,7 @@ public class MinIOMediaUploader implements MediaUploader {
                         .build());
                 log.info("Deleted media from bucket '{}' with key '{}'", bucketName, objectKey);
             } else {
-                log.error("Could not parse bucket and key from URL: {}", imageUrl);
+                log.error("Could not parse bucket and key from URL path: {}", path);
             }
         } catch (S3Exception e) {
             log.error("Failed to delete media from URL {}: {}", imageUrl, e.getMessage());

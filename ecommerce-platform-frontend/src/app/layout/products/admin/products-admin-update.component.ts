@@ -173,7 +173,13 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   // --- form-array media handlers ---
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    Array.from(input.files || []).forEach(file => {
+    const files = Array.from(input.files || []);
+
+    if (files.length === 0) {
+      return;
+    }
+
+    files.forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
         const base64 = (reader.result as string).split(',')[1];
@@ -186,9 +192,26 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       };
       reader.readAsDataURL(file);
     });
+
+    // Reset the file input to allow re-uploading the same file
+    input.value = '';
+
+    // Mark the form as dirty after adding new media items
+    this.productForm.markAsDirty();
   }
-  removeMedia(i: number) { this.mediaControls.removeAt(i); }
-  dropMedia(e: CdkDragDrop<any[]>) { moveItemInArray(this.mediaControls.controls, e.previousIndex, e.currentIndex); }
+
+  removeMedia(i: number) {
+    this.mediaControls.removeAt(i);
+    // Mark the form as dirty after removing a media item
+    this.productForm.markAsDirty();
+  }
+
+  dropMedia(e: CdkDragDrop<any[]>) {
+    moveItemInArray(this.mediaControls.controls, e.previousIndex, e.currentIndex);
+    // Mark the form as dirty after reordering media items
+    this.productForm.markAsDirty();
+  }
+
   openMediaDeleteDialog(i: number) {
     const ref = this.dialog.open(ConfirmationDialogComponent, {
       data: { title: 'Delete Media', message: 'Delete this media?', warn: true }
@@ -250,6 +273,16 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   }
 
   cancel(): void {
-    this.router.navigate(['/admin/products']);
+    if (this.productForm.dirty) {
+      this.dialog.open(ConfirmationDialogComponent, {
+        data: { title: 'Cancel Update', message: 'Discard changes?', warn: true }
+      }).afterClosed().subscribe(ok => {
+        if (ok) {
+          this.router.navigate(['/admin/products']);
+        }
+      });
+    } else {
+      this.router.navigate(['/admin/products']);
+    }
   }
 }
