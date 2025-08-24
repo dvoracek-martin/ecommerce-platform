@@ -11,7 +11,7 @@ import { CreateCategoryDTO } from '../../../dto/category/create-category-dto';
 import { ResponseTagDTO } from '../../../dto/tag/response-tag-dto';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
 import { Subject, takeUntil } from 'rxjs';
-import { ResponseMediaDTO } from '../../../dto/category/response-media-dto';
+import { ResponseMediaDTO } from '../../../dto/media/response-media-dto';
 
 @Component({
   selector: 'app-categories-admin-create',

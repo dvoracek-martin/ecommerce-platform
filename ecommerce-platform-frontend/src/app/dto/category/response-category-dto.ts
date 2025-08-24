@@ -1,6 +1,6 @@
 // src/app/dto/category/response-category-dto.ts
 
-import {ResponseMediaDTO} from './response-media-dto';
+import {ResponseMediaDTO} from '../media/response-media-dto';
 import {ResponseTagDTO} from '../tag/response-tag-dto';
 
 export interface ResponseCategoryDTO {

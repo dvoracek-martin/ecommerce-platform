@@ -1,4 +1,4 @@
-<mat-toolbar color="primary">
+<mat-toolbar class="main-toolbar">
   <button (click)="navigateToRoot()" mat-icon-button>
     <mat-icon>home</mat-icon>
   </button>
@@ -53,21 +53,36 @@
 
   <button mat-icon-button
           [matMenuTriggerFor]="cartMenu"
-          [matBadge]="cart?.items?.length || 0"
+          [matBadge]="totalCartItemCount$ | async"
           matBadgeColor="accent"
           matBadgePosition="above after"
-          [matBadgeHidden]="!cart?.items?.length">
+          [matBadgeHidden]="(totalCartItemCount$ | async) === 0">
     <mat-icon>shopping_cart</mat-icon>
   </button>
 
   <mat-menu #cartMenu="matMenu" class="cart-dropdown">
-    <ng-container *ngIf="cart?.items?.length > 0; else emptyCart">
-      <div class="cart-item" *ngFor="let item of cart.items">
-        <span>{{ item.productId }}</span>
-        <span>x {{ item.quantity }}</span>
-      </div>
-      <div class="cart-footer">
-        <button mat-flat-button color="primary" (click)="goToCart()">{{ 'CART.VIEW_CART' | translate }}</button>
+    <ng-container *ngIf="cartItemsWithProducts?.length > 0; else emptyCart">
+      <div class="cart-preview">
+        <h4>{{ 'CART.SUMMARY' | translate }}</h4>
+        <div class="cart-item" *ngFor="let item of cartItemsWithProducts" (click)="goToProduct(item.product)">
+          <ng-container *ngIf="item.product">
+            <img *ngIf="item.product.responseMediaDTOs?.[0]"
+                 [src]="'data:' + item.product.responseMediaDTOs[0].contentType + ';base64,' + item.product.responseMediaDTOs[0].base64Data"
+                 [alt]="item.product.name"
+                 class="item-image"
+                 width="60"
+                 height="60" />
+            <div class="item-info">
+              <span class="item-name">{{ item.product.name }}</span>
+              <span class="item-quantity-bubble" *ngIf="item.quantity > 1">{{ item.quantity }}</span>
+            </div>
+            <span class="item-price">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }}</span>
+          </ng-container>
+        </div>
+        <div class="cart-footer">
+          <div class="cart-total">{{ 'CART.TOTAL' | translate }}: {{ cart?.totalPrice | currency:'USD':'symbol':'1.2-2' }}</div>
+          <button mat-flat-button color="primary" (click)="goToCart()">{{ 'CART.VIEW_CART' | translate }}</button>
+        </div>
       </div>
     </ng-container>
     <ng-template #emptyCart>

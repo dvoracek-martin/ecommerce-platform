@@ -1,3 +1,4 @@
+// src/app/components/products/products.component.ts
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ResponseProductDTO } from '../../dto/product/response-product-dto';
 import { ProductService } from '../../services/product.service';
@@ -67,11 +68,11 @@ export class ProductsComponent implements OnInit, OnDestroy {
   setActiveSlide(index: number, slideIndex: number): void {
     this.activeSlideIndices[index] = slideIndex;
     clearInterval(this.intervals[index]);
-    this.startCarousel(index, this.products[index].responseMediaDTOs.length);
+    this.startCarousel(index, this.products[index].responseMediaDTOs .length);
   }
 
   addToCart(product: ResponseProductDTO): void {
-    this.cartService.addProduct(product, 1).subscribe({
+    this.cartService.addItem({ productId: product.id!, quantity: 1, product: product }).subscribe({
       next: () => {
         console.log(`${product.name} added to cart`);
       },

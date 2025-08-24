@@ -5,7 +5,7 @@ import {Router} from '@angular/router';
 import {CategoryService} from '../../services/category.service';
 import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
 import {forkJoin} from 'rxjs';
-import {ResponseMediaDTO} from '../../dto/category/response-media-dto';
+import {ResponseMediaDTO} from '../../dto/media/response-media-dto';
 import {TagDTO} from '../../dto/tag/tag-dto';
 
 interface ProductSummary {

@@ -6,15 +6,20 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { AuthService } from './auth/auth.service';
 import { Router } from '@angular/router';
 import { SearchService } from './services/search.service';
-import { Subject, Subscription } from 'rxjs'; // <-- Import Subscription
-import { debounceTime } from 'rxjs/operators';
+import { Subject, Subscription, forkJoin, of, Observable } from 'rxjs';
+import { debounceTime, switchMap, catchError, map } from 'rxjs/operators';
 import { SearchResultDTO } from './dto/search/search-result-dto';
 import { ResponseCategoryDTO } from './dto/category/response-category-dto';
 import { ResponseProductDTO } from './dto/product/response-product-dto';
 import { ResponseMixtureDTO } from './dto/mixtures/response-mixture-dto';
-import { ResponseTagDTO } from './dto/tag/response-tag-dto';
-import { CartService, Cart } from './services/cart.service';
-import { MatSnackBar } from '@angular/material/snack-bar'; // <-- Import MatSnackBar
+import { ResponseTagDTO } from './dto/tag/response-tag-dto'
+import { Cart, CartItem, CartService } from './services/cart.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ProductService } from "./services/product.service";
+
+interface CartItemWithProduct extends CartItem {
+  product?: ResponseProductDTO;
+}
 
 @Component({
   selector: 'app-root',
@@ -43,11 +48,13 @@ export class AppComponent implements OnInit, OnDestroy {
   searchResults: SearchResultDTO;
   showResults = false;
   private searchSubject = new Subject<string>();
-  private searchSubscription: Subscription; // <-- Add subscription
-  private cartSubscription: Subscription; // <-- Add subscription
+  private searchSubscription: Subscription;
+  private cartSubscription: Subscription;
 
   // Cart state
   cart: Cart | null = null;
+  cartItemsWithProducts: CartItemWithProduct[] = [];
+  totalCartItemCount$: Observable<number>;
 
   constructor(
     public translate: TranslateService,
@@ -57,7 +64,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private searchService: SearchService,
     private cartService: CartService,
-    private snackBar: MatSnackBar // <-- Add MatSnackBar
+    private snackBar: MatSnackBar,
+    private productService: ProductService
   ) {
     // Register SVG icons
     ['us', 'ch', 'cz', 'es'].forEach(code =>
@@ -72,11 +80,18 @@ export class AppComponent implements OnInit, OnDestroy {
     translate.setDefaultLang('en');
     const browserLang = translate.getBrowserLang() || 'en';
     this.setLanguage(/en|de|fr|cs|es/.test(browserLang) ? browserLang : 'en');
+
+    // Start listening to cart changes as soon as the component is constructed.
+    this.listenToCartChanges();
   }
 
   ngOnInit(): void {
+    // Subscription to isAuthenticated$ is not needed here if it's already handled in CartService
     this.authService.isAuthenticated$.subscribe();
-    this.listenToCartChanges(); // <-- Change loadCart() to this method
+
+    this.totalCartItemCount$ = this.cartService.cart$.pipe(
+      map(cart => cart ? cart.items.reduce((acc, item) => acc + item.quantity, 0) : 0)
+    );
 
     this.searchSubscription = this.searchSubject.pipe(debounceTime(300)).subscribe(q => {
       if (q.trim().length > 1) {
@@ -92,10 +107,10 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.searchSubscription) { // <-- Use the subscription
+    if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();
     }
-    if (this.cartSubscription) { // <-- Use the subscription
+    if (this.cartSubscription) {
       this.cartSubscription.unsubscribe();
     }
     this.searchSubject.complete();
@@ -191,19 +206,37 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // ---------------- CART METHODS ----------------
   listenToCartChanges(): void {
-    this.cartSubscription = this.cartService.cart$.subscribe({
-      next: (cart) => {
-        const prevCartItems = this.cart ? this.cart.items.length : 0;
+    this.cartSubscription = this.cartService.getCart().pipe(
+      switchMap(cart => {
         this.cart = cart;
-        const currentCartItems = cart ? cart.items.length : 0;
-        if (currentCartItems > prevCartItems) {
-          this.showSnackbar('Item added to cart!', 'success');
+        if (!cart || !cart.items || cart.items.length === 0) {
+          this.cartItemsWithProducts = [];
+          return of([]);
         }
-      },
-      error: (err) => {
-        console.error('Failed to load cart:', err);
-        this.cart = { id: 0, username: '', items: [], totalPrice: 0 };
-      }
+
+        const productObservables = cart.items.map(item =>
+          this.productService.getProductById(item.productId).pipe(
+            catchError(() => {
+              this.showSnackbar(`Failed to load product details for an item.`, 'warning');
+              return of(null);
+            })
+          )
+        );
+        return forkJoin(productObservables).pipe(
+          map(products => {
+            return cart.items.map((item, index) => {
+              const product = products[index];
+              return product ? { ...item, product } : item;
+            });
+          })
+        );
+      })
+    ).subscribe(itemsWithProducts => {
+      this.cartItemsWithProducts = itemsWithProducts as CartItemWithProduct[];
+    }, err => {
+      console.error('Failed to load cart with product details', err);
+      this.cart = { id: 0, username: '', items: [], totalPrice: 0 };
+      this.cartItemsWithProducts = [];
     });
   }
 
@@ -224,5 +257,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   goToCart(): void {
     this.router.navigate(['/cart']);
+  }
+
+  getItemTotal(item: CartItemWithProduct): number {
+    return (item.product?.price || 0) * item.quantity;
   }
 }

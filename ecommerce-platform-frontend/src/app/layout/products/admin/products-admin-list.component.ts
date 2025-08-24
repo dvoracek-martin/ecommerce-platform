@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
-import { ResponseMediaDTO } from '../../../dto/category/response-media-dto';
+import { ResponseMediaDTO } from '../../../dto/media/response-media-dto';
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {ProductService} from '../../../services/product.service'; // Assuming you'll reuse this
 

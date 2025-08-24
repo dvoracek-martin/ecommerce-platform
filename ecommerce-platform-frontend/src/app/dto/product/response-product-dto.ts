@@ -1,4 +1,4 @@
-import { ResponseMediaDTO } from '../category/response-media-dto';
+import { ResponseMediaDTO } from '../media/response-media-dto';
 import { TagDTO } from '../tag/tag-dto';
 
 export interface ResponseProductDTO {
