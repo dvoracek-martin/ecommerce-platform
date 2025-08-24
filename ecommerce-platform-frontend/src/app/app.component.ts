@@ -13,7 +13,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { AuthService } from './auth/auth.service';
 import { Router } from '@angular/router';
 import { SearchService } from './services/search.service';
-import { Subject, Subscription, forkJoin, of, Observable } from 'rxjs';
+import { Subject, Subscription, forkJoin, of, Observable, BehaviorSubject } from 'rxjs';
 import { debounceTime, map, catchError, switchMap } from 'rxjs/operators';
 import { SearchResultDTO } from './dto/search/search-result-dto';
 import { ResponseCategoryDTO } from './dto/category/response-category-dto';
@@ -28,6 +28,8 @@ import { ConfirmationDialogComponent } from './shared/confirmation-dialog.compon
 
 interface CartItemWithProduct extends CartItem {
   product?: ResponseProductDTO;
+  optimisticQuantity?: number;
+  updating?: boolean;
 }
 
 @Component({
@@ -53,6 +55,7 @@ export class AppComponent implements OnInit, OnDestroy {
   searchQuery = '';
   searchResults: SearchResultDTO | null = null;
   showResults = false;
+  isSearchFocused = false;
   private searchSubject = new Subject<string>();
   private searchSubscription!: Subscription;
 
@@ -120,16 +123,33 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onSearchChange(): void { this.searchSubject.next(this.searchQuery); }
-  goToCategory(category: ResponseCategoryDTO): void { this.showResults = false; this.router.navigate([`/categories/${category.id}`]); }
-  goToProduct(product: ResponseProductDTO) { this.showResults = false; this.router.navigate([`/products/${product.id}`]); }
-  goToMixture(mixture: ResponseMixtureDTO) { this.showResults = false; this.router.navigate([`/mixtures/${mixture.id}`]); }
-  goToTag(tag: ResponseTagDTO) { this.showResults = false; this.router.navigate([`/tags/${tag.id}`]); }
+
+  onSearchFocus(): void {
+    this.isSearchFocused = true;
+    if (this.searchQuery.trim().length > 1) {
+      this.showResults = true;
+    }
+  }
+
+  onSearchBlur(): void {
+    // We'll handle the blur through the backdrop click to prevent premature hiding
+  }
+
+  onSearchBackdropClick(): void {
+    this.isSearchFocused = false;
+    this.showResults = false;
+  }
+
+  goToCategory(category: ResponseCategoryDTO): void { this.showResults = false; this.isSearchFocused = false; this.router.navigate([`/categories/${category.id}`]); }
+  goToProduct(product: ResponseProductDTO) { this.showResults = false; this.isSearchFocused = false; this.router.navigate([`/products/${product.id}`]); }
+  goToMixture(mixture: ResponseMixtureDTO) { this.showResults = false; this.isSearchFocused = false; this.router.navigate([`/mixtures/${mixture.id}`]); }
+  goToTag(tag: ResponseTagDTO) { this.showResults = false; this.isSearchFocused = false; this.router.navigate([`/tags/${tag.id}`]); }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     const clickedInsideSearch = target.closest('.search-container');
-    if (!clickedInsideSearch) {
+    if (!clickedInsideSearch && !this.isSearchFocused) {
       this.searchQuery = '';
       this.showResults = false;
     }
@@ -172,7 +192,14 @@ export class AppComponent implements OnInit, OnDestroy {
         return forkJoin(productObservables).pipe(
           map(products => cart.items.map((item, index) => {
             const product = products[index];
-            return product ? { ...item, product } : item;
+            // Preserve optimistic state if exists
+            const existingItem = this.cartItemsWithProducts.find(i => i.productId === item.productId);
+            return {
+              ...item,
+              product,
+              optimisticQuantity: existingItem?.optimisticQuantity || item.quantity,
+              updating: existingItem?.updating || false
+            };
           }))
         );
       })
@@ -218,17 +245,84 @@ export class AppComponent implements OnInit, OnDestroy {
 
   updateItemQuantity(item: CartItemWithProduct, action: 'increase' | 'decrease'): void {
     const newQuantity = action === 'increase' ? item.quantity + 1 : item.quantity - 1;
+
     if (newQuantity < 1) {
       this.removeItem(item.productId);
-    } else {
-      this.cartService.updateItem(item.productId, newQuantity).subscribe(
-        () => this.showSnackbar('Item quantity updated!', 'success'),
-        error => {
-          this.showSnackbar('Failed to update item quantity.', 'error');
-          console.error('Update quantity error:', error);
-        }
-      );
+      return;
     }
+
+    // Optimistic update
+    const updatedItems = this.cartItemsWithProducts.map(i =>
+      i.productId === item.productId
+        ? { ...i, optimisticQuantity: newQuantity, updating: true }
+        : i
+    );
+    this.cartItemsWithProducts = updatedItems;
+
+    // Server update
+    this.cartService.updateItem(item.productId, newQuantity).subscribe(
+      () => {
+        // Update with server response
+        const finalItems = this.cartItemsWithProducts.map(i =>
+          i.productId === item.productId
+            ? { ...i, quantity: newQuantity, optimisticQuantity: undefined, updating: false }
+            : i
+        );
+        this.cartItemsWithProducts = finalItems;
+      },
+      error => {
+        // Revert on error
+        const revertedItems = this.cartItemsWithProducts.map(i =>
+          i.productId === item.productId
+            ? { ...i, optimisticQuantity: undefined, updating: false }
+            : i
+        );
+        this.cartItemsWithProducts = revertedItems;
+        this.showSnackbar('Failed to update item quantity.', 'error');
+        console.error('Update quantity error:', error);
+      }
+    );
+  }
+
+  onQuantityChange(event: Event, item: CartItemWithProduct): void {
+    const input = event.target as HTMLInputElement;
+    const newQuantity = parseInt(input.value, 10);
+
+    if (isNaN(newQuantity) || newQuantity < 1) {
+      input.value = item.quantity.toString();
+      return;
+    }
+
+    // Optimistic update
+    const updatedItems = this.cartItemsWithProducts.map(i =>
+      i.productId === item.productId
+        ? { ...i, optimisticQuantity: newQuantity, updating: true }
+        : i
+    );
+    this.cartItemsWithProducts = updatedItems;
+
+    // Server update
+    this.cartService.updateItem(item.productId, newQuantity).subscribe(
+      () => {
+        const finalItems = this.cartItemsWithProducts.map(i =>
+          i.productId === item.productId
+            ? { ...i, quantity: newQuantity, optimisticQuantity: undefined, updating: false }
+            : i
+        );
+        this.cartItemsWithProducts = finalItems;
+      },
+      error => {
+        const revertedItems = this.cartItemsWithProducts.map(i =>
+          i.productId === item.productId
+            ? { ...i, optimisticQuantity: undefined, updating: false }
+            : i
+        );
+        this.cartItemsWithProducts = revertedItems;
+        input.value = item.quantity.toString();
+        this.showSnackbar('Failed to update item quantity.', 'error');
+        console.error('Update quantity error:', error);
+      }
+    );
   }
 
   removeItem(productId: number | undefined): void {
@@ -244,9 +338,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        // Optimistic removal
+        this.cartItemsWithProducts = this.cartItemsWithProducts.filter(item => item.productId !== productId);
+
         this.cartService.removeItem(productId).subscribe(
           () => this.showSnackbar('Item removed from cart!', 'success'),
           error => {
+            // Re-add item on error
+            this.listenToCartChanges(); // Reload cart items
             this.showSnackbar('Failed to remove item.', 'error');
             console.error('Remove item error:', error);
           }
@@ -273,6 +372,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   getItemTotal(item: CartItemWithProduct): number {
-    return (item.product?.price || 0) * item.quantity;
+    const quantity = item.optimisticQuantity !== undefined ? item.optimisticQuantity : item.quantity;
+    return (item.product?.price || 0) * quantity;
   }
 }
