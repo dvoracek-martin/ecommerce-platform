@@ -1,13 +1,11 @@
 @use '@angular/material' as mat;
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* Basic styles for the entire app */
 :host {
   font-family: 'Poppins', sans-serif;
-  color: #e9ecef;
+  color: #2c3e50;
 }
 
-/* Main toolbar styles - Now correctly light to match your preference */
 .main-toolbar {
   @include mat.elevation(4);
   background-color: #ffffff;
@@ -25,7 +23,6 @@
   flex: 1 1 auto;
 }
 
-/* Search bar styles */
 .search-container {
   position: relative;
   width: 300px;
@@ -78,34 +75,22 @@
   }
 }
 
-/* Dropdown menu styles for all menus */
-.mat-mdc-menu-panel.mat-menu-panel {
-  padding: 8px;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  background-color: #ffffff;
-}
 
-/* Menu for language selection */
 mat-menu-item {
   color: #2c3e50;
   font-weight: 500;
-
   mat-icon {
     margin-right: 8px;
   }
 }
 
-/* Buttons and icons in the toolbar */
 button.mat-mdc-button, button.mat-mdc-icon-button {
   color: #2c3e50;
-
   .mat-icon {
     color: #2c3e50;
   }
 }
 
-/* Cart badge styles */
 .mat-badge-content {
   background-color: #e67e22 !important;
   color: white !important;
@@ -113,65 +98,65 @@ button.mat-mdc-button, button.mat-mdc-icon-button {
   font-size: 12px;
 }
 
-/* ---------------------------------------------------- */
-/* Corrected Cart Preview Styling */
-/* ---------------------------------------------------- */
-.cart-dropdown.mat-menu-panel {
-  padding: 1rem;
-  min-width: 320px;
-  max-width: 400px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  background-color: #ffffff;
-  color: #2c3e50;
+.cart-container {
+  position: relative;
+  display: inline-block;
 }
 
-.cart-preview {
-  display: flex;
-  flex-direction: column;
+.cart-preview-panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1001;
+  width: 400px;
+  margin-top: 15px;
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  background: linear-gradient(145deg, #ffffff, #f9f9f9);
+  color: #2c3e50;
+
 
   h4 {
     margin: 0 0 1rem 0;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: #34495e;
     text-align: center;
-    border-bottom: 2px solid #e9ecef;
+    border-bottom: 1px solid #e0e0e0;
     padding-bottom: 10px;
+    letter-spacing: 0.5px;
   }
 
   .empty-cart {
-    padding: 1.5rem 1rem;
+    padding: 2rem 1rem;
     text-align: center;
-    color: #7f8c8d;
+    color: #95a5a6;
     font-style: italic;
+    font-size: 0.95rem;
   }
 
   .cart-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 0;
-    border-bottom: 1px solid #e9ecef;
-    transition: background-color 0.2s ease-in-out;
-
-    &:hover {
-      background-color: #f8f9fa;
-    }
-
-    &:last-child {
-      border-bottom: none;
-      padding-bottom: 0.5rem;
-    }
+    padding: 12px 0;
+    border-bottom: 1px solid #e0e0e0;
+    transition: background 0.2s ease-in-out;
 
     .item-image {
       width: 60px;
       height: 60px;
       object-fit: cover;
-      border-radius: 8px;
-      margin-right: 1rem;
+      border-radius: 12px;
+      margin-right: 12px;
       border: 1px solid #ecf0f1;
       cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+      &:hover {
+        transform: scale(1.05);
+      }
     }
 
     .item-info {
@@ -187,43 +172,49 @@ button.mat-mdc-button, button.mat-mdc-icon-button {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        font-size: 0.95rem;
       }
     }
 
     .quantity-controls {
       display: flex;
       align-items: center;
-      margin-top: 8px;
+      margin-top: 6px;
 
       button {
-        width: 30px;
-        height: 30px;
-        line-height: 30px;
+        width: 28px;
+        height: 28px;
+        color: #3498db;
       }
 
       .item-quantity-text {
-        font-weight: bold;
-        padding: 0 8px;
+        font-weight: 600;
+        padding: 0 6px;
+        color: #34495e;
       }
     }
 
     .item-actions {
       display: flex;
       align-items: center;
+      gap: 6px;
+
+      button {
+        color: #e74c3c;
+      }
     }
 
     .item-price {
       font-weight: 700;
       color: #27ae60;
       font-size: 1rem;
-      margin-right: 8px;
     }
   }
 
   .cart-footer {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 2px solid #e9ecef;
+    border-top: 1px solid #e0e0e0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -235,7 +226,7 @@ button.mat-mdc-button, button.mat-mdc-icon-button {
     }
 
     button.mat-flat-button {
-      background-color: #3498db;
+      background: #3498db;
       color: #ffffff;
       font-weight: 600;
       border-radius: 25px;
@@ -243,24 +234,10 @@ button.mat-mdc-button, button.mat-mdc-icon-button {
       transition: all 0.3s ease;
 
       &:hover {
-        background-color: #2980b9;
+        background: #2980b9;
         transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.12);
       }
     }
   }
-}
-
-/* Specific snackbar styles */
-.success-snackbar {
-  background-color: #27ae60;
-  color: white;
-}
-.error-snackbar {
-  background-color: #c0392b;
-  color: white;
-}
-.warning-snackbar {
-  background-color: #f39c12;
-  color: white;
 }

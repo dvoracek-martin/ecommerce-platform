@@ -1,4 +1,3 @@
-// src/app/services/cart.service.ts
 import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, Observable, of, throwError, forkJoin} from 'rxjs';
@@ -36,7 +35,7 @@ export class CartService {
     @Inject(PLATFORM_ID) private platformId: Object,
     private snackBar: MatSnackBar,
     private authService: AuthService,
-    private productService: ProductService // Inject the ProductService
+    private productService: ProductService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     if (this.isBrowser) {
@@ -50,14 +49,12 @@ export class CartService {
     }
   }
 
-  // A helper method to calculate the total price and update the cart.
   private calculateAndSetTotalPrice(cart: Cart): void {
     const totalPrice = cart.items.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
     cart.totalPrice = totalPrice;
     this._cart.next(cart);
   }
 
-  /** ==================== GUEST CART HELPERS ==================== */
   private loadGuestCartFromStorage(): void {
     const items = JSON.parse(localStorage.getItem('guest_cart') || '[]');
     const guestCart: Cart = {id: 0, username: 'guest', items: items, totalPrice: 0};
@@ -71,7 +68,6 @@ export class CartService {
     }
   }
 
-  /** ==================== AUTHENTICATED CART HELPERS ==================== */
   private loadUserCart(): void {
     if (!this.authService.isTokenValid()) {
       this.showSnackbar('Please log in to view your cart.', 'warning');
@@ -81,7 +77,6 @@ export class CartService {
 
     this.http.get<Cart>(this.apiUrl)
       .pipe(
-        // Switch to a new observable that fetches product details
         switchMap(cart => {
           if (!cart || !cart.items || cart.items.length === 0) {
             return of(cart);
@@ -89,7 +84,7 @@ export class CartService {
           const productObservables = cart.items.map(item =>
             this.productService.getProductById(item.productId).pipe(
               map(product => ({...item, product})),
-              catchError(() => of({...item, product: undefined})) // In case a product is not found
+              catchError(() => of({...item, product: undefined}))
             )
           );
           return forkJoin(productObservables).pipe(
@@ -121,8 +116,6 @@ export class CartService {
     this.snackBar.open(message, 'Close', {duration: 3000, panelClass: panelClass});
   }
 
-  /** ==================== PUBLIC METHODS ==================== */
-
   getCart(): Observable<Cart | null> {
     return this._cart.asObservable();
   }
@@ -135,7 +128,6 @@ export class CartService {
             if (!cart || !cart.items || cart.items.length === 0) {
               return of(cart);
             }
-            // Fetch the product details for the newly updated cart
             const productObservables = cart.items.map(cartItem =>
               this.productService.getProductById(cartItem.productId).pipe(
                 map(product => ({...cartItem, product})),
@@ -172,32 +164,30 @@ export class CartService {
 
   updateItem(productId: number, quantity: number): Observable<Cart> {
     if (this.authService.isTokenValid()) {
-      return this.http.post<Cart>(`${this.apiUrl}/update?productId=${productId}&quantity=${quantity}`, {})
-        .pipe(
-          switchMap(cart => {
-            if (!cart || !cart.items || cart.items.length === 0) {
-              return of(cart);
-            }
-            const productObservables = cart.items.map(cartItem =>
-              this.productService.getProductById(cartItem.productId).pipe(
-                map(product => ({...cartItem, product})),
-                catchError(() => of({...cartItem, product: undefined}))
-              )
+      const currentCart = this._cart.getValue();
+      if (currentCart) {
+        const item = currentCart.items.find(i => i.productId === productId);
+        if (item) {
+          const oldQuantity = item.quantity;
+          item.quantity = quantity;
+          this.calculateAndSetTotalPrice(currentCart);
+
+          return this.http.post<Cart>(`${this.apiUrl}/update?productId=${productId}&quantity=${quantity}`, {})
+            .pipe(
+              tap(() => this.showSnackbar('Cart item quantity updated!', 'success')),
+              catchError(error => {
+                this.showSnackbar('Failed to update item quantity.', 'error');
+                console.error('Failed to update user cart item:', error);
+                if (item) {
+                  item.quantity = oldQuantity;
+                  this.calculateAndSetTotalPrice(currentCart);
+                }
+                return throwError(() => error);
+              })
             );
-            return forkJoin(productObservables).pipe(
-              map(itemsWithProducts => ({...cart, items: itemsWithProducts}))
-            );
-          }),
-          tap(cart => {
-            this.calculateAndSetTotalPrice(cart);
-            this.showSnackbar('Cart item quantity updated!', 'success');
-          }),
-          catchError(error => {
-            this.showSnackbar('Failed to update cart item.', 'error');
-            console.error('Failed to update user cart item:', error);
-            return throwError(() => error);
-          })
-        );
+        }
+      }
+      return throwError(() => new Error('Item not found in cart.'));
     } else {
       const currentCart = this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0};
       const item = currentCart.items.find(ci => ci.productId === productId);
@@ -213,85 +203,73 @@ export class CartService {
 
   removeItem(productId: number): Observable<Cart> {
     if (this.authService.isTokenValid()) {
-      return this.http.delete<Cart>(`${this.apiUrl}/remove/${productId}`)
-        .pipe(
-          switchMap(cart => {
-            if (!cart || !cart.items || cart.items.length === 0) {
-              return of(cart);
-            }
-            const productObservables = cart.items.map(cartItem =>
-              this.productService.getProductById(cartItem.productId).pipe(
-                map(product => ({...cartItem, product})),
-                catchError(() => of({...cartItem, product: undefined}))
-              )
-            );
-            return forkJoin(productObservables).pipe(
-              map(itemsWithProducts => ({...cart, items: itemsWithProducts}))
-            );
-          }),
-          tap(cart => {
-            this.calculateAndSetTotalPrice(cart);
-            this.showSnackbar('Item removed from cart!', 'success');
-          }),
-          catchError(error => {
-            this.showSnackbar('Failed to remove item from cart.', 'error');
-            console.error('Failed to remove item from user cart:', error);
-            return throwError(() => error);
-          })
-        );
+      const currentCart = this._cart.getValue();
+      if (currentCart) {
+        const itemToRemove = currentCart.items.find(i => i.productId === productId);
+        const oldItems = [...currentCart.items];
+        currentCart.items = currentCart.items.filter(i => i.productId !== productId);
+        this.calculateAndSetTotalPrice(currentCart);
+
+        return this.http.delete<Cart>(`${this.apiUrl}/remove/${productId}`)
+          .pipe(
+            tap(() => this.showSnackbar('Item removed from cart!', 'success')),
+            catchError(error => {
+              this.showSnackbar('Failed to remove item from cart.', 'error');
+              console.error('Failed to remove item from user cart:', error);
+              if (itemToRemove) {
+                currentCart.items = oldItems;
+                this.calculateAndSetTotalPrice(currentCart);
+              }
+              return throwError(() => error);
+            })
+          );
+      }
+      return throwError(() => new Error('Cart not found.'));
     } else {
       const currentCart = this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0};
-      currentCart.items = currentCart.items.filter(ci => ci.productId !== productId);
+      currentCart.items = currentCart.items.filter(item => item.productId !== productId);
       this.saveGuestCart(currentCart.items);
       this.calculateAndSetTotalPrice(currentCart);
-      this.showSnackbar('Item removed from guest cart!', 'success');
+      this.showSnackbar('Item removed from cart!', 'success');
       return of(currentCart);
     }
   }
 
-  addProduct(product: ResponseProductDTO, quantity: number = 1): Observable<Cart> {
-    if (product.id === undefined || product.id === null) {
-      this.showSnackbar('Cannot add product to cart: Product ID is missing.', 'error');
-      return throwError(() => new Error('Product ID is missing.'));
-    }
-    const cartItem: CartItem = {productId: product.id, quantity, product};
-    return this.addItem(cartItem);
-  }
-
   mergeGuestCart(): Observable<Cart> {
-    if (!this.isBrowser || !this.authService.isTokenValid()) {
-      return of(this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0});
+    const guestCartItems = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+
+    if (guestCartItems.length === 0) {
+      return of(this._cart.getValue() as Cart);
     }
 
-    const guestCartItems: CartItem[] = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-    if (!guestCartItems.length) {
-      this.loadUserCart();
-      return of(this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0});
-    }
-
-    return new Observable<Cart>(observer => {
-      let completed = 0;
-      guestCartItems.forEach(item => {
-        this.addItem(item).subscribe({
-          next: cart => {
-            completed++;
-            if (completed === guestCartItems.length) {
-              localStorage.removeItem('guest_cart');
-              this.showSnackbar('Guest cart merged successfully!', 'success');
-              this.loadUserCart();
-              observer.next(cart);
-              observer.complete();
-            }
-          },
-          error: err => {
-            console.error('Failed to merge guest item', err);
-            completed++;
-            if (completed === guestCartItems.length) {
-              observer.error(err);
-            }
+    return this.http.post<Cart>(`${this.apiUrl}/merge-guest-cart`, guestCartItems)
+      .pipe(
+        switchMap(cart => {
+          if (!cart || !cart.items || cart.items.length === 0) {
+            return of(cart);
           }
-        });
-      });
-    });
+          const productObservables = cart.items.map(cartItem =>
+            this.productService.getProductById(cartItem.productId).pipe(
+              map(product => ({ ...cartItem, product })),
+              catchError(() => of({ ...cartItem, product: undefined }))
+            )
+          );
+          return forkJoin(productObservables).pipe(
+            map(itemsWithProducts => ({ ...cart, items: itemsWithProducts }))
+          );
+        }),
+        tap(cart => {
+          this.calculateAndSetTotalPrice(cart);
+          if (this.isBrowser) {
+            localStorage.removeItem('guest_cart');
+          }
+          this.showSnackbar('Guest cart merged successfully!', 'success');
+        }),
+        catchError(error => {
+          this.showSnackbar('Failed to merge guest cart.', 'error');
+          console.error('Failed to merge guest cart:', error);
+          return throwError(() => error);
+        })
+      );
   }
 }
