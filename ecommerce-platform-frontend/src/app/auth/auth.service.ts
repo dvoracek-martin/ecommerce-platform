@@ -14,7 +14,11 @@ export class AuthService {
   private tokenExpirationKey = 'token_expiration';
   private refreshTimeout: any;
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  private currentUserSubject = new BehaviorSubject<{ username: string; email: string } | null>(null);
+
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  currentUser$ = this.currentUserSubject.asObservable();
+
   private readonly keycloakTokenUrl = 'http://localhost:9090/realms/ecommerce-platform/protocol/openid-connect/token';
   private readonly clientId = 'ecommerce-platform-client';
 
@@ -25,6 +29,9 @@ export class AuthService {
   ) {
     if (isPlatformBrowser(this.platformId)) {
       this.isAuthenticatedSubject.next(this.isTokenValid());
+      if (this.isTokenValid()) {
+        this.updateCurrentUser();
+      }
       this.scheduleTokenRefresh();
     }
   }
@@ -62,6 +69,7 @@ export class AuthService {
       localStorage.setItem(this.refreshTokenKey, response.refresh_token);
       localStorage.setItem(this.tokenExpirationKey, expirationTime.toString());
 
+      this.updateCurrentUser();
       this.scheduleTokenRefresh();
     }
     this.isAuthenticatedSubject.next(true);
@@ -73,6 +81,7 @@ export class AuthService {
       localStorage.removeItem(this.refreshTokenKey);
       localStorage.removeItem(this.tokenExpirationKey);
       clearTimeout(this.refreshTimeout);
+      this.currentUserSubject.next(null);
       this.snackBar.open('Logout successful!', 'Close', { duration: 5000 });
     }
     this.isAuthenticatedSubject.next(false);
@@ -111,6 +120,16 @@ export class AuthService {
     if (!token) return '';
     const decoded: any = jwtDecode(token);
     return decoded.email;
+  }
+
+  private updateCurrentUser(): void {
+    if (isPlatformBrowser(this.platformId) && this.isTokenValid()) {
+      const username = this.getUsername();
+      const email = this.getEmail();
+      this.currentUserSubject.next({ username, email });
+    } else {
+      this.currentUserSubject.next(null);
+    }
   }
 
   private scheduleTokenRefresh(): void {

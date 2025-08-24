@@ -10,28 +10,21 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Tag {
+public class Tag extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
-    private String name;
-
+    @ManyToMany(mappedBy = "tags")
     @JsonBackReference
     @EqualsAndHashCode.Exclude
-    @ManyToMany(mappedBy = "tags")
     private List<Category> categories;
 
-    @JsonBackReference
     @ManyToMany(mappedBy = "tags")
+    @JsonBackReference
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Product> products;
 
+    @ManyToMany(mappedBy = "tags")
     @JsonBackReference
     @EqualsAndHashCode.Exclude
-    @ManyToMany(mappedBy = "tags")
     private List<Mixture> mixtures;
 }

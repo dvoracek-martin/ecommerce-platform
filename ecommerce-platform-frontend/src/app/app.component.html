@@ -77,7 +77,6 @@
       </div>
     </div>
   </div>
-
   <div class="toolbar-actions">
     <div class="language-menu-container">
       <button class="language-button" mat-icon-button [matMenuTriggerFor]="langMenu">
@@ -171,61 +170,92 @@
       </div>
     </div>
 
-    <div class="user-menu-container">
-      <mat-menu #userMenu="matMenu" class="user-menu">
-        <div *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_admin')" class="menu-section">
-          <h4 class="menu-section-title">{{ 'MENU.ADMIN.TITLE' | translate }}</h4>
-          <button (click)="navigateToAdminCategories()" mat-menu-item class="menu-item">
-            <mat-icon class="menu-icon">category</mat-icon>
+    <!-- New Modern User Button -->
+    <div class="modern-user-menu-container">
+      <mat-menu #modernUserMenu="matMenu" panelClass="modern-user-menu-panel" class="modern-user-menu">
+        <div class="modern-menu-header" *ngIf="authService.isAuthenticated$ | async">
+          <div class="user-avatar">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div class="user-info">
+            <h4>{{ (authService.currentUser$ | async)?.username || 'User' }}</h4>
+            <p>{{ (authService.currentUser$ | async)?.email || '' }}</p>
+          </div>
+        </div>
+
+        <div class="modern-menu-section" *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_admin')">
+          <h4 class="modern-section-title">{{ 'MENU.ADMIN.TITLE' | translate }}</h4>
+          <button mat-menu-item (click)="navigateToAdminCategories()" class="modern-menu-item">
+            <div class="modern-menu-icon-wrapper">
+              <mat-icon class="modern-menu-icon">category</mat-icon>
+            </div>
             <span>{{ 'MENU.ADMIN.CATEGORIES' | translate }}</span>
           </button>
-          <button (click)="navigateToAdminProducts()" mat-menu-item class="menu-item">
-            <mat-icon class="menu-icon">inventory</mat-icon>
+          <button mat-menu-item (click)="navigateToAdminProducts()" class="modern-menu-item">
+            <div class="modern-menu-icon-wrapper">
+              <mat-icon class="modern-menu-icon">inventory</mat-icon>
+            </div>
             <span>{{ 'MENU.ADMIN.PRODUCTS' | translate }}</span>
           </button>
-          <button (click)="navigateToAdminMixtures()" mat-menu-item class="menu-item">
-            <mat-icon class="menu-icon">science</mat-icon>
+          <button mat-menu-item (click)="navigateToAdminMixtures()" class="modern-menu-item">
+            <div class="modern-menu-icon-wrapper">
+              <mat-icon class="modern-menu-icon">science</mat-icon>
+            </div>
             <span>{{ 'MENU.ADMIN.MIXTURES' | translate }}</span>
           </button>
-          <button (click)="navigateToAdminTags()" mat-menu-item class="menu-item">
-            <mat-icon class="menu-icon">label</mat-icon>
+          <button mat-menu-item (click)="navigateToAdminTags()" class="modern-menu-item">
+            <div class="modern-menu-icon-wrapper">
+              <mat-icon class="modern-menu-icon">label</mat-icon>
+            </div>
             <span>{{ 'MENU.ADMIN.TAGS' | translate }}</span>
           </button>
-          <button (click)="navigateToAdminCustomers()" mat-menu-item class="menu-item">
-            <mat-icon class="menu-icon">people</mat-icon>
+          <button mat-menu-item (click)="navigateToAdminCustomers()" class="modern-menu-item">
+            <div class="modern-menu-icon-wrapper">
+              <mat-icon class="modern-menu-icon">people</mat-icon>
+            </div>
             <span>{{ 'MENU.ADMIN.CUSTOMERS' | translate }}</span>
           </button>
-          <button (click)="navigateToAdminOrders()" mat-menu-item class="menu-item">
-            <mat-icon class="menu-icon">list_alt</mat-icon>
+          <button mat-menu-item (click)="navigateToAdminOrders()" class="modern-menu-item">
+            <div class="modern-menu-icon-wrapper">
+              <mat-icon class="modern-menu-icon">list_alt</mat-icon>
+            </div>
             <span>{{ 'MENU.ADMIN.ORDERS' | translate }}</span>
           </button>
         </div>
 
-        <div *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_client')" class="menu-section">
-          <h4 class="menu-section-title">{{ 'MENU.CLIENT.TITLE' | translate }}</h4>
-          <button (click)="navigateToProfile()" mat-menu-item class="menu-item">
-            <mat-icon class="menu-icon">account_circle</mat-icon>
+        <div class="modern-menu-section" *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_client')">
+          <h4 class="modern-section-title">{{ 'MENU.CLIENT.TITLE' | translate }}</h4>
+          <button mat-menu-item (click)="navigateToProfile()" class="modern-menu-item">
+            <div class="modern-menu-icon-wrapper">
+              <mat-icon class="modern-menu-icon">account_circle</mat-icon>
+            </div>
             <span>{{ 'MENU.CLIENT.PROFILE' | translate }}</span>
           </button>
         </div>
 
-        <div class="menu-section">
-          <button (click)="logout()" mat-menu-item class="menu-item logout-item">
-            <mat-icon class="menu-icon">logout</mat-icon>
+        <div class="modern-menu-section">
+          <button mat-menu-item (click)="logout()" class="modern-menu-item logout-item">
+            <div class="modern-menu-icon-wrapper">
+              <mat-icon class="modern-menu-icon">logout</mat-icon>
+            </div>
             <span>{{ 'MENU.LOGOUT' | translate }}</span>
           </button>
         </div>
       </mat-menu>
 
-      <button *ngIf="authService.isAuthenticated$ | async; else loginBtn"
-              [matMenuTriggerFor]="userMenu"
+      <button *ngIf="authService.isAuthenticated$ | async; else modernLoginBtn"
+              [matMenuTriggerFor]="modernUserMenu"
               mat-icon-button
-              class="user-button">
-        <mat-icon class="user-icon">account_circle</mat-icon>
+              class="modern-user-button">
+        <div class="modern-user-icon-wrapper">
+          <mat-icon class="modern-user-icon">person</mat-icon>
+        </div>
       </button>
-      <ng-template #loginBtn>
-        <button (click)="onUserIconClick()" mat-icon-button class="user-button">
-          <mat-icon class="user-icon">account_circle</mat-icon>
+      <ng-template #modernLoginBtn>
+        <button (click)="onUserIconClick()" mat-icon-button class="modern-user-button">
+          <div class="modern-user-icon-wrapper">
+            <mat-icon class="modern-user-icon">person</mat-icon>
+          </div>
         </button>
       </ng-template>
     </div>

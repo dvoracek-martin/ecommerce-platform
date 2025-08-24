@@ -1,4 +1,3 @@
-// src/main/java/com/dvoracek/cartservice/domain/model/CartItem.java
 package com.dvoracek.cartservice.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -16,7 +15,11 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long productId;
+    private Long itemId; // ID of Product or Mixture
+
+    @Enumerated(EnumType.STRING)
+    private CartItemType itemType;
+
     private int quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)

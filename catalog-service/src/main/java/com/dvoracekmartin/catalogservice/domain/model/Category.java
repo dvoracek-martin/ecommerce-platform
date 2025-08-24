@@ -2,9 +2,10 @@ package com.dvoracekmartin.catalogservice.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import lombok.*;
 
 import java.util.List;
@@ -13,29 +14,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
-    @Size(min = 3, message = "Name must be at least 3 characters long")
-    private String name;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column
-    private int priority;
-
-    @Column
-    private boolean active;
-
-    @ElementCollection
-    @CollectionTable(name = "category_images", joinColumns = @JoinColumn(name = "category_id"))
-    @Column(name = "image_url", length = 512)
-    private List<String> images;
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class Category extends BaseEntity {
 
     @ManyToMany(mappedBy = "categories")
     @JsonBackReference
