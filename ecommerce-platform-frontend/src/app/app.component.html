@@ -20,16 +20,16 @@
 
     <div class="search-dropdown" *ngIf="showResults">
       <mat-list>
-        <mat-list-item *ngFor="let category of searchResults.categories" (click)="goToCategory(category)">
+        <mat-list-item *ngFor="let category of searchResults.categories" (click)="goToCategory(category); $event.stopPropagation()">
           <div matLine>{{ category.name }}</div>
         </mat-list-item>
-        <mat-list-item *ngFor="let product of searchResults.products" (click)="goToProduct(product)">
+        <mat-list-item *ngFor="let product of searchResults.products" (click)="goToProduct(product); $event.stopPropagation()">
           <div matLine>{{ product.name }}</div>
         </mat-list-item>
-        <mat-list-item *ngFor="let mixture of searchResults.mixtures" (click)="goToMixture(mixture)">
+        <mat-list-item *ngFor="let mixture of searchResults.mixtures" (click)="goToMixture(mixture); $event.stopPropagation()">
           <div matLine>{{ mixture.name }}</div>
         </mat-list-item>
-        <mat-list-item *ngFor="let tag of searchResults.tags" (click)="goToTag(tag)">
+        <mat-list-item *ngFor="let tag of searchResults.tags" (click)="goToTag(tag); $event.stopPropagation()">
           <div matLine>{{ tag.name }}</div>
         </mat-list-item>
       </mat-list>
@@ -64,24 +64,38 @@
     <ng-container *ngIf="cartItemsWithProducts?.length > 0; else emptyCart">
       <div class="cart-preview">
         <h4>{{ 'CART.SUMMARY' | translate }}</h4>
-        <div class="cart-item" *ngFor="let item of cartItemsWithProducts" (click)="goToProduct(item.product)">
+        <div class="cart-item" *ngFor="let item of cartItemsWithProducts">
           <ng-container *ngIf="item.product">
             <img *ngIf="item.product.responseMediaDTOs?.[0]"
                  [src]="'data:' + item.product.responseMediaDTOs[0].contentType + ';base64,' + item.product.responseMediaDTOs[0].base64Data"
                  [alt]="item.product.name"
                  class="item-image"
                  width="60"
-                 height="60" />
+                 height="60"
+                 (click)="goToProduct(item.product); $event.stopPropagation()" />
             <div class="item-info">
               <span class="item-name">{{ item.product.name }}</span>
-              <span class="item-quantity-bubble" *ngIf="item.quantity > 1">{{ item.quantity }}</span>
+              <div class="quantity-controls">
+                <button mat-icon-button color="warn" (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
+                  <mat-icon>remove</mat-icon>
+                </button>
+                <span class="item-quantity-text">{{ item.quantity }}</span>
+                <button mat-icon-button color="primary" (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
             </div>
-            <span class="item-price">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }}</span>
+            <div class="item-actions">
+              <span class="item-price">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }}</span>
+              <button mat-icon-button color="warn" (click)="removeItem(item.productId); $event.stopPropagation()">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </ng-container>
         </div>
         <div class="cart-footer">
           <div class="cart-total">{{ 'CART.TOTAL' | translate }}: {{ cart?.totalPrice | currency:'USD':'symbol':'1.2-2' }}</div>
-          <button mat-flat-button color="primary" (click)="goToCart()">{{ 'CART.VIEW_CART' | translate }}</button>
+          <button mat-flat-button color="primary" (click)="goToCart(); $event.stopPropagation()">{{ 'CART.VIEW_CART' | translate }}</button>
         </div>
       </div>
     </ng-container>

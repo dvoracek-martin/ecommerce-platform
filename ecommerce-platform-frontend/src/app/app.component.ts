@@ -16,6 +16,8 @@ import { ResponseTagDTO } from './dto/tag/response-tag-dto'
 import { Cart, CartItem, CartService } from './services/cart.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProductService } from "./services/product.service";
+import { MatDialog } from '@angular/material/dialog'; // Import MatDialog
+import { ConfirmationDialogComponent } from './shared/confirmation-dialog.component'; // Import the new dialog component
 
 interface CartItemWithProduct extends CartItem {
   product?: ResponseProductDTO;
@@ -65,7 +67,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private searchService: SearchService,
     private cartService: CartService,
     private snackBar: MatSnackBar,
-    private productService: ProductService
+    private productService: ProductService,
+    private dialog: MatDialog // Inject MatDialog
   ) {
     // Register SVG icons
     ['us', 'ch', 'cz', 'es'].forEach(code =>
@@ -237,6 +240,53 @@ export class AppComponent implements OnInit, OnDestroy {
       console.error('Failed to load cart with product details', err);
       this.cart = { id: 0, username: '', items: [], totalPrice: 0 };
       this.cartItemsWithProducts = [];
+    });
+  }
+
+  // New method to update item quantity
+  updateItemQuantity(item: CartItemWithProduct, action: 'increase' | 'decrease'): void {
+    const newQuantity = action === 'increase' ? item.quantity + 1 : item.quantity - 1;
+    if (newQuantity < 1) {
+      this.removeItem(item.productId);
+    } else {
+      this.cartService.updateItem(item.productId, newQuantity).subscribe(
+        () => {
+          this.showSnackbar('Item quantity updated!', 'success');
+        },
+        error => {
+          this.showSnackbar('Failed to update item quantity.', 'error');
+          console.error('Update quantity error:', error);
+        }
+      );
+    }
+  }
+
+  // Adjusted removeItem method to include a confirmation dialog
+  removeItem(productId: number | undefined): void {
+    if (productId === undefined) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '300px',
+      data: {
+        title: this.translate.instant('DIALOG.CONFIRM_DELETE_TITLE'),
+        message: this.translate.instant('DIALOG.CONFIRM_DELETE_MESSAGE')
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.cartService.removeItem(productId).subscribe(
+          () => {
+            this.showSnackbar('Item removed from cart!', 'success');
+          },
+          error => {
+            this.showSnackbar('Failed to remove item.', 'error');
+            console.error('Remove item error:', error);
+          }
+        );
+      }
     });
   }
 

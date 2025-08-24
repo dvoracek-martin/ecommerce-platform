@@ -150,10 +150,10 @@ button.mat-mdc-button, button.mat-mdc-icon-button {
   .cart-item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 1rem 0;
     border-bottom: 1px solid #e9ecef;
     transition: background-color 0.2s ease-in-out;
-    cursor: pointer;
 
     &:hover {
       background-color: #f8f9fa;
@@ -171,6 +171,7 @@ button.mat-mdc-button, button.mat-mdc-icon-button {
       border-radius: 8px;
       margin-right: 1rem;
       border: 1px solid #ecf0f1;
+      cursor: pointer;
     }
 
     .item-info {
@@ -187,29 +188,35 @@ button.mat-mdc-button, button.mat-mdc-icon-button {
         overflow: hidden;
         text-overflow: ellipsis;
       }
+    }
 
-      .item-quantity-bubble {
-        background-color: #e67e22;
-        color: white;
-        border-radius: 50%;
-        padding: 4px;
-        font-size: 0.75rem;
-        font-weight: bold;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-        margin-left: 8px;
-        position: relative;
-        top: -2px;
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      margin-top: 8px;
+
+      button {
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
       }
+
+      .item-quantity-text {
+        font-weight: bold;
+        padding: 0 8px;
+      }
+    }
+
+    .item-actions {
+      display: flex;
+      align-items: center;
     }
 
     .item-price {
       font-weight: 700;
       color: #27ae60;
       font-size: 1rem;
+      margin-right: 8px;
     }
   }
 
@@ -242,4 +249,18 @@ button.mat-mdc-button, button.mat-mdc-icon-button {
       }
     }
   }
+}
+
+/* Specific snackbar styles */
+.success-snackbar {
+  background-color: #27ae60;
+  color: white;
+}
+.error-snackbar {
+  background-color: #c0392b;
+  color: white;
+}
+.warning-snackbar {
+  background-color: #f39c12;
+  color: white;
 }
