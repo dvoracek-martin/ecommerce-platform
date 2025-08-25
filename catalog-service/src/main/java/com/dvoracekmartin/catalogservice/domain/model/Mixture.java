@@ -3,9 +3,11 @@ package com.dvoracekmartin.catalogservice.domain.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -17,7 +19,9 @@ public class Mixture extends BaseEntity {
 
     @Column(nullable = false)
     @NotNull
-    private BigDecimal price;
+    private Double price;
+
+    private Double weightGrams;
 
     @ManyToMany
     @JsonManagedReference
@@ -27,27 +31,6 @@ public class Mixture extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     private List<Product> products;
-
-    @Column(nullable = false)
-    private String intendedUse;
-
-    @Column(nullable = false)
-    private String blendingInstructions;
-
-    @Column(nullable = false)
-    private String benefits;
-
-    @Column(columnDefinition = "TEXT")
-    private String medicinalUse;
-
-    @Column(nullable = false)
-    private Double totalWeightGrams;
-
-    @Column(nullable = false)
-    private boolean isCustomizable;
-
-    @Column(columnDefinition = "TEXT")
-    private String customizationOptions;
 
     @ManyToMany
     @JsonManagedReference

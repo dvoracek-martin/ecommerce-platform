@@ -86,27 +86,6 @@
             </mat-select>
           </mat-form-field>
         </div>
-
-        <div class="form-section">
-          <h3 class="section-subtitle">
-            <mat-icon>warning</mat-icon>
-            {{ 'PRODUCTS.ADMIN.ALLERGENS' | translate }}
-          </h3>
-          <div formArrayName="allergens">
-            <div *ngFor="let allergenControl of allergenFormControls; let i = index" class="form-row">
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PRODUCTS.ALLERGEN' | translate }} {{ i + 1 }}</mat-label>
-                <input matInput [formControl]="allergenControl">
-              </mat-form-field>
-              <button mat-icon-button type="button" (click)="removeAllergen(i)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-            <button mat-stroked-button type="button" (click)="addAllergen()">
-              {{ 'PRODUCTS.ADMIN.ADD_ALLERGEN' | translate }}
-            </button>
-          </div>
-        </div>
       </div>
 
       <div class="media-sidebar">

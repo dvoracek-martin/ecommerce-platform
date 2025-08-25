@@ -63,7 +63,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.ADMIN.CATEGORIES' | translate }}</mat-label>
-              <mat-select formControlName="categories" multiple>
+              <mat-select formControlName="categoryIds" multiple>
                 <mat-option *ngFor="let cat of allCategories" [value]="cat.id">
                   {{ cat.name }}
                 </mat-option>
@@ -73,7 +73,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.ADMIN.PRODUCTS' | translate }}</mat-label>
-              <mat-select formControlName="products" multiple>
+              <mat-select formControlName="productIds" multiple>
                 <mat-option *ngFor="let prod of allProducts" [value]="prod.id">
                   {{ prod.name }}
                 </mat-option>
@@ -83,7 +83,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.ADMIN.MIXTURES' | translate }}</mat-label>
-              <mat-select formControlName="mixtures" multiple>
+              <mat-select formControlName="mixtureIds" multiple>
                 <mat-option *ngFor="let mix of allMixtures" [value]="mix.id">
                   {{ mix.name }}
                 </mat-option>

@@ -63,6 +63,27 @@
         <div class="tag-details">
           <h2 class="tag-name">{{ tag.name }}</h2>
           <p class="tag-description">{{ tag.description }}</p>
+
+          <div class="related-info">
+            <div *ngIf="tag.categories?.length">
+              <p><strong>Categories:</strong></p>
+              <ul>
+                <li *ngFor="let category of tag.categories">{{ category.name }}</li>
+              </ul>
+            </div>
+            <div *ngIf="tag.products?.length">
+              <p><strong>Products:</strong></p>
+              <ul>
+                <li *ngFor="let product of tag.products">{{ product.name }}</li>
+              </ul>
+            </div>
+            <div *ngIf="tag.mixtures?.length">
+              <p><strong>Mixtures:</strong></p>
+              <ul>
+                <li *ngFor="let mixture of tag.mixtures">{{ mixture.name }}</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 

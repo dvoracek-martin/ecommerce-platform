@@ -67,9 +67,9 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
       priority: [0, [Validators.required, Validators.min(0)]],
       active: [true],
       media: this.fb.array([]),
-      categories: [[]],
-      products: [[]],
-      mixtures: [[]]
+      categoryIds: [[]],
+      productIds: [[]],
+      mixtureIds: [[]]
     });
   }
 
@@ -110,9 +110,9 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
             description: tag.description,
             priority: tag.priority,
             active: tag.active,
-            categories: tag.categories.map(c => c.id),
-            products: tag.products.map(p => p.id),
-            mixtures: tag.mixtures.map(m => m.id)
+            categoryIds: tag.categories.map(c => c.id),
+            productIds: tag.products.map(p => p.id),
+            mixtureIds: tag.mixtures.map(m => m.id)
           });
           this.initMedia(tag.media);
           this.loading = false;

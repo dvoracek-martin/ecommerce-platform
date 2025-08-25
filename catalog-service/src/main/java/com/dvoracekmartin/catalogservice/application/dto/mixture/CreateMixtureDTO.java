@@ -1,26 +1,39 @@
 package com.dvoracekmartin.catalogservice.application.dto.mixture;
 
+import com.dvoracekmartin.catalogservice.application.dto.base.BaseCreateDTO;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.List;
 
-public record CreateMixtureDTO(
-        @NotBlank String name,
-        String description,
-        @NotNull BigDecimal price,
-        List<String> images,
-        List<Long> productIds, // List of product IDs that make up the mixture
-        @NotBlank String intendedUse,
-        @NotBlank String blendingInstructions,
-        @NotBlank String benefits,
-        String medicinalUse,
-        @NotNull Double totalWeightGrams,
-        List<Long> tagIds,
-        boolean isCustomizable,
-        String customizationOptions,
-        List<MediaDTO> uploadMediaDTOs
-) {
+
+@Setter
+@Getter
+public class CreateMixtureDTO extends BaseCreateDTO {
+
+    private Double price;
+    private Double weightGrams;
+    private Long categoryId;
+    private List<Long> productIds;
+    private List<Long> tagIds;
+
+    public CreateMixtureDTO(String name,
+                            String description,
+                            int priority,
+                            boolean active,
+                            List<MediaDTO> media,
+                            Long categoryId,
+                            List<Long> productIds,
+                            List<Long> tagIds,
+                            Double price,
+                            Double weightGrams
+    ) {
+        super(name, description, priority, active, media);
+        this.categoryId = categoryId;
+        this.productIds = productIds;
+        this.tagIds = tagIds;
+        this.price = price;
+        this.weightGrams = weightGrams;
+    }
 }

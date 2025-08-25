@@ -32,5 +32,5 @@ public abstract class BaseEntity {
 
     @ElementCollection
     @Column(name = "image_url", length = 512)
-    private List<String> images;
+    private List<String> imageUrl;
 }

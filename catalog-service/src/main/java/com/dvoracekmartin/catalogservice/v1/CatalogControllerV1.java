@@ -30,10 +30,10 @@ public class CatalogControllerV1 {
     private final MediaRetriever mediaRetriever;
     private final ElasticsearchServiceImpl elasticsearchService;
 
-    @GetMapping("/all-products-and-mixtures")
-    public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
-        return catalogService.getAllProductsAndMixtures();
-    }
+//    @GetMapping("/all-products-and-mixtures")
+//    public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
+//        return catalogService.getAllProductsAndMixtures();
+//    }
 
     @GetMapping("/media")
     public ResponseEntity<byte[]> getMedia(@RequestParam String objectKey, @RequestParam String bucketName) {

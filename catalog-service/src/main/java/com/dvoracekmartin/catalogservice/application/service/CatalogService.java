@@ -77,7 +77,7 @@ public interface CatalogService {
 
     // === COMBINED ===
 
-    List<ResponseCatalogItemDTO> getAllProductsAndMixtures();
+//    List<ResponseCatalogItemDTO> getAllProductsAndMixtures();
 
     List<ResponseProductDTO> getAllProductsByCategoryId(Long categoryId);
 }

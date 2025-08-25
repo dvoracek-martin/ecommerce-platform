@@ -11,12 +11,16 @@ import java.util.List;
 @Getter
 public class CreateProductDTO extends BaseCreateDTO {
 
-    private Long categoryId;
-    private List<Long> tagIds;
     private Double price;
     private Double weightGrams;
+    private Long categoryId;
+    private List<Long> tagIds;
 
-    public CreateProductDTO(String name, String description, int priority, boolean active, List<MediaDTO> media,
+    public CreateProductDTO(String name,
+                            String description,
+                            int priority,
+                            boolean active,
+                            List<MediaDTO> media,
                             Long categoryId,
                             List<Long> tagIds,
                             Double price,

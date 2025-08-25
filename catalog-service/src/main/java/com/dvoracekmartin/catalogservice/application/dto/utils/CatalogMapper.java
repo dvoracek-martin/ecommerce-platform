@@ -20,9 +20,6 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface CatalogMapper {
-    ResponseCatalogItemDTO mapProductToResponseCatalogItemDTO(Product product);
-
-    ResponseCatalogItemDTO mapMixtureToResponseCatalogItemDTO(Mixture mixture);
 
     ResponseCategoryDTO mapCategoryToResponseCategoryDTO(Category category);
 

@@ -69,7 +69,7 @@
       </div>
 
       <div class="product-actions">
-        <span class="product-price">{{ product.price | currency:'EUR' }}</span>
+        <span class="product-price">{{ product.price | currency:'USD' }}</span>
         <button mat-icon-button class="btn-delete" (click)="$event.stopPropagation(); openDeleteDialog(product.id)">
           <mat-icon>delete</mat-icon>
         </button>

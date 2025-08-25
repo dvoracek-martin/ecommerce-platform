@@ -56,9 +56,9 @@ export class TagsAdminCreateComponent implements OnInit, OnDestroy {
       active: [false],
       media: this.fb.array([]),
       // The following fields are for relationships and can be left for future implementation
-      categories: [[]],
-      products: [[]],
-      mixtures: [[]]
+      categoryIds: [[]],
+      productIds: [[]],
+      mixtureIds: [[]]
     });
   }
 

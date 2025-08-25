@@ -1,25 +1,39 @@
 package com.dvoracekmartin.catalogservice.application.dto.mixture;
 
+import com.dvoracekmartin.catalogservice.application.dto.base.BaseUpdateOrResponseDTO;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-public record UpdateMixtureDTO(
-        Long id,
-        String name,
-        String description,
-        BigDecimal price,
-        List<String> images,
-        List<Long> productIds,
-        String intendedUse,
-        String blendingInstructions,
-        String benefits,
-        String medicinalUse,
-        Double totalWeightGrams,
-        List<Long> tagIds,
-        boolean isCustomizable,
-        String customizationOptions,
-        List<MediaDTO> uploadMediaDTOs
-) {
+@Setter
+@Getter
+public class UpdateMixtureDTO extends BaseUpdateOrResponseDTO{
+    private Double price;
+    private Double weightGrams;
+    private Long categoryId;
+    private List<Long> productIds;
+    private List<Long> tagIds;
+
+    public UpdateMixtureDTO(Long id,
+                            String name,
+                            String description,
+                            int priority,
+                            boolean active,
+                            List<MediaDTO> media,
+                            Long categoryId,
+                            List<Long> productIds,
+                            List<Long> tagIds,
+                            Double price,
+                            Double weightGrams
+    ) {
+        super(id, name, description, priority, active, media);
+        this.categoryId = categoryId;
+        this.productIds = productIds;
+        this.tagIds = tagIds;
+        this.price = price;
+        this.weightGrams = weightGrams;
+    }
 }

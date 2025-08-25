@@ -46,7 +46,7 @@
       </div>
 
       <div class="product-bottom">
-        <span class="product-price">{{ product.price | currency:'EUR' }}</span>
+        <span class="product-price">{{ product.price | currency:'USD' }}</span>
         <button mat-raised-button color="primary" class="btn-add" (click)="$event.stopPropagation(); addToCart(product)">
           {{ 'PRODUCTS.ADD_TO_CART' | translate }}
         </button>

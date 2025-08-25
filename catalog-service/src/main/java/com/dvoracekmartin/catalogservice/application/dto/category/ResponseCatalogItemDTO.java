@@ -3,7 +3,6 @@ package com.dvoracekmartin.catalogservice.application.dto.category;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 // TODO either change to an interface which both product and mixture can implement,
@@ -12,7 +11,7 @@ public record ResponseCatalogItemDTO(
         Long id,
         String name,
         String description,
-        BigDecimal price,
+        Double price,
         List<String> images,
         String type, // "product" or "mixture"
         List<ResponseProductDTO> productDTOs,

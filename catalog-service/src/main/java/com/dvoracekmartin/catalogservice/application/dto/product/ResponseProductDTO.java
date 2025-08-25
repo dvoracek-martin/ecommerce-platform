@@ -17,7 +17,12 @@ public class ResponseProductDTO extends BaseUpdateOrResponseDTO {
     private List<ResponseTagDTO> responseTagDTOS;
     private Long categoryId;
 
-    public ResponseProductDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media,
+    public ResponseProductDTO(Long id,
+                              String name,
+                              String description,
+                              int priority,
+                              boolean active,
+                              List<MediaDTO> media,
                               List<ResponseTagDTO> responseTagDTOS,
                               Long categoryId,
                               Double price,

@@ -52,18 +52,11 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
     this.productForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
+      priority: [0, [Validators.required, Validators.min(0)]],
+      active: [false],
       price: ['', [Validators.required, Validators.min(0)]],
       categoryId: [null, Validators.required],
-      scentProfile: [null],
-      botanicalName: [null],
-      extractionMethod: [null],
-      origin: [null],
-      usageInstructions: [null],
-      volumeMl: [null],
-      warnings: [null],
-      medicinalUse: [''],
       weightGrams: [null],
-      allergens: this.fb.array([]),
       tagIds: [[]],
       media: this.fb.array([])
     });

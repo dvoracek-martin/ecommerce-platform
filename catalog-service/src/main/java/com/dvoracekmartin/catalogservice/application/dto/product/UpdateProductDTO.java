@@ -1,7 +1,6 @@
 package com.dvoracekmartin.catalogservice.application.dto.product;
 
 import com.dvoracekmartin.catalogservice.application.dto.base.BaseUpdateOrResponseDTO;
-import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +17,12 @@ public class UpdateProductDTO extends BaseUpdateOrResponseDTO {
     private Double price;
     private Double weightGrams;
 
-    public UpdateProductDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media,
+    public UpdateProductDTO(Long id,
+                            String name,
+                            String description,
+                            int priority,
+                            boolean active,
+                            List<MediaDTO> media,
                             List<Long> tagIds,
                             Long categoryId,
                             Double price,
