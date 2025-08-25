@@ -1,68 +1,76 @@
 <div class="tags-container">
   <div class="header">
-    <div class="title-and-search">
-      <h1 class="page-title">
-        <mat-icon class="title-icon">local_offer</mat-icon>
-        {{ 'TAGS.ADMIN.TITLE' | translate }}
-      </h1>
-    </div>
-    <div class="actions">
-      <button mat-raised-button color="primary" [routerLink]="['/admin/tags/create']">
-        <mat-icon>add</mat-icon>
-        {{ 'TAGS.ADMIN.NEW_TITLE' | translate }}
-      </button>
-    </div>
+    <h1>{{ 'TAGS.ADMIN.TITLE' | translate }}</h1>
+    <button mat-raised-button color="primary" [routerLink]="['/admin/tags/create']" class="btn-create-tag">
+      <mat-icon>add</mat-icon>
+      <span>{{ 'TAGS.ADMIN.NEW_TITLE' | translate }}</span>
+    </button>
   </div>
 
-  <mat-card *ngIf="isLoading" class="data-card">
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    <div class="loading-message">
-      {{ 'COMMON.LOADING' | translate }}
-    </div>
-  </mat-card>
-
-  <div *ngIf="!isLoading && error" class="error-message">
-    {{ error }}
+  <div *ngIf="isLoading" class="loading">
+    {{ 'TAGS.LOADING' | translate }}
+  </div>
+  <div *ngIf="error" class="error">
+    {{ 'TAGS.ERROR_LOADING' | translate:{error: error} }}
   </div>
 
-  <div *ngIf="!isLoading && !error && tags.length > 0" class="tags-grid">
-    <mat-card
-      *ngFor="let tag of tags; trackBy: trackById"
+  <div *ngIf="!isLoading && !error" class="tags-grid">
+    <div
+      *ngFor="let tag of tags; let tagIndex = index; trackBy: trackById"
       class="tag-card"
-      (click)="navigateToUpdate(tag.id)"
     >
-      <mat-card-header>
-        <mat-card-title>{{ tag.name }}</mat-card-title>
-        <button
-          mat-icon-button
-          color="warn"
-          (click)="$event.stopPropagation(); openDeleteDialog(tag.id)"
-        >
+      <div class="card-link" (click)="navigateToUpdate(tag.id)">
+        <ng-container *ngIf="tag.media?.length; else noMedia">
+          <div class="tag-image-container">
+            <img
+              *ngIf="tag.media[activeSlideIndices[tagIndex]]?.contentType?.startsWith('image/')"
+              [src]="'data:' + tag.media[activeSlideIndices[tagIndex]].contentType + ';base64,' + tag.media[activeSlideIndices[tagIndex]].base64Data"
+              [alt]="tag.name"
+              class="tag-image"
+            />
+            <video
+              *ngIf="tag.media[activeSlideIndices[tagIndex]]?.contentType?.startsWith('video/')"
+              class="tag-image"
+              [attr.muted]="true"
+              [muted]="true"
+              autoplay
+              loop
+              preload="metadata"
+              playsinline
+            >
+              <source
+                [src]="'data:' + tag.media[activeSlideIndices[tagIndex]].contentType + ';base64,' + tag.media[activeSlideIndices[tagIndex]].base64Data"
+                [type]="tag.media[activeSlideIndices[tagIndex]].contentType"
+              />
+            </video>
+            <div *ngIf="tag.media?.length > 1" class="carousel-dots">
+              <button
+                *ngFor="let media of tag.media; let i = index; trackBy: trackByObjectKey"
+                class="dot"
+                [class.active]="activeSlideIndices[tagIndex] === i"
+                (click)="$event.stopPropagation(); setActiveSlide(tagIndex, i)"
+              ></button>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noMedia>
+          <div class="no-media">
+            {{ 'TAGS.NO_MEDIA' | translate }}
+          </div>
+        </ng-template>
+
+        <div class="tag-details">
+          <h2 class="tag-name">{{ tag.name }}</h2>
+          <p class="tag-description">{{ tag.description }}</p>
+        </div>
+      </div>
+
+      <div class="tag-actions">
+        <button mat-icon-button class="btn-delete" (click)="openDeleteDialog(tag.id)">
           <mat-icon>delete</mat-icon>
         </button>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="tag-relations">
-          <span class="relation">
-            <mat-icon>local_offer</mat-icon>
-            {{ tag.products.length }} {{ 'TAGS.ADMIN.PRODUCTS' | translate }}
-          </span>
-          <span class="relation">
-            <mat-icon>category</mat-icon>
-            {{ tag.categories.length }} {{ 'TAGS.ADMIN.CATEGORIES' | translate }}
-          </span>
-          <span class="relation">
-            <mat-icon>scatter_plot</mat-icon>
-            {{ tag.mixtures.length }} {{ 'TAGS.ADMIN.MIXTURES' | translate }}
-          </span>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <div *ngIf="!isLoading && !error && tags.length === 0" class="no-data">
-    <mat-icon>info</mat-icon>
-    {{ 'COMMON.NO_DATA' | translate }}
+      </div>
+    </div>
   </div>
 </div>

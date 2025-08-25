@@ -1,7 +1,7 @@
-<div class="tag-container">
-  <mat-card class="tag-card">
+<div class="category-container">
+  <mat-card class="category-card">
     <mat-card-header>
-      <mat-card-title class="tag-title">
+      <mat-card-title class="category-title">
         <mat-icon class="title-icon">local_offer</mat-icon>
         {{ 'TAGS.ADMIN.NEW_TITLE' | translate }}
       </mat-card-title>
@@ -9,33 +9,95 @@
 
     <mat-divider></mat-divider>
 
-    <form id="tagForm" [formGroup]="tagForm" (ngSubmit)="onSave()" class="form-grid">
+    <form id="tagForm" [formGroup]="tagForm" (ngSubmit)="onSave()" class="form-and-media-wrapper">
+      <div class="form-content">
+        <mat-progress-bar *ngIf="saving" mode="indeterminate" class="save-progress"></mat-progress-bar>
 
-      <div class="form-section">
-        <h3 class="section-subtitle">
-          <mat-icon>label</mat-icon>
-          {{ 'TAGS.ADMIN.BASIC_INFO' | translate }}
-        </h3>
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'TAGS.ADMIN.NAME' | translate }}</mat-label>
-            <input matInput formControlName="name"
-                   placeholder="{{ 'TAGS.ADMIN.NAME_PLACEHOLDER' | translate }}" required>
-            <mat-error *ngIf="tagForm.get('name')?.hasError('required')">
-              {{ 'TAGS.ADMIN.NAME_REQUIRED' | translate }}
-            </mat-error>
-          </mat-form-field>
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>label</mat-icon>
+            {{ 'TAGS.ADMIN.BASIC_INFO' | translate }}
+          </h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'TAGS.ADMIN.NAME' | translate }}</mat-label>
+              <input matInput formControlName="name"
+                     placeholder="{{ 'TAGS.ADMIN.NAME_PLACEHOLDER' | translate }}" required>
+              <mat-error *ngIf="tagForm.get('name')?.hasError('required')">
+                {{ 'TAGS.ADMIN.NAME_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>{{ 'TAGS.ADMIN.DESCRIPTION' | translate }}</mat-label>
+              <textarea matInput formControlName="description"
+                        placeholder="{{ 'TAGS.ADMIN.DESCRIPTION_PLACEHOLDER' | translate }}"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'TAGS.PRIORITY' | translate }}</mat-label>
+              <input matInput type="number" formControlName="priority" required>
+              <mat-error
+                *ngIf="tagForm.get('priority')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+              <mat-error *ngIf="tagForm.get('priority')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}: 0
+              </mat-error>
+            </mat-form-field>
+            <div class="form-field form-section">
+              <mat-checkbox formControlName="active">
+                {{ 'TAGS.ACTIVE' | translate }}
+              </mat-checkbox>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- No media section for tags, so no two-column layout is needed here -->
+      <div class="media-sidebar">
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>cloud_upload</mat-icon>
+            {{ 'TAGS.ADMIN.MEDIA' | translate }}
+          </h3>
 
-      <mat-progress-bar *ngIf="saving" mode="indeterminate" class="save-progress"></mat-progress-bar>
+          <input type="file" (change)="onFileSelected($event)" multiple accept="image/*, video/*" hidden #fileInput>
+          <button mat-stroked-button type="button" (click)="fileInput.click()" class="upload-button">
+            <mat-icon>file_upload</mat-icon>
+            {{ 'TAGS.ADMIN.UPLOAD_MEDIA' | translate }}
+          </button>
+
+          <div cdkDropList formArrayName="media" (cdkDropListDropped)="drop($event)"
+               class="media-list">
+            <div class="media-item" *ngFor="let ctrl of mediaControls.controls; let i = index"
+                 [formGroupName]="i" cdkDrag>
+              <div class="media-preview-container">
+                <img *ngIf="ctrl.get('preview')?.value && ctrl.get('contentType')?.value?.startsWith('image/')" class="media-preview"
+                     [src]="ctrl.get('preview')?.value"
+                     [alt]="ctrl.get('objectKey')?.value">
+                <video *ngIf="ctrl.get('preview')?.value && ctrl.get('contentType')?.value?.startsWith('video/')"
+                       class="media-preview" controls muted>
+                  <source [src]="ctrl.get('preview')?.value" [type]="ctrl.get('contentType')?.value">
+                </video>
+              </div>
+              <div class="media-actions">
+                <button mat-icon-button type="button" (click)="openMediaDeleteDialog(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </form>
 
     <div class="actions-floating-bar">
       <div class="action-buttons">
-        <button mat-stroked-button color="warn" type="button" (click)="onCancel()">
+        <button mat-stroked-button color="warn" type="button" (click)="openCancelDialog()">
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>

@@ -1,16 +1,12 @@
-package com.dvoracekmartin.catalogservice.application.dto;
+package com.dvoracekmartin.catalogservice.application.dto.utils;
 
-import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatalogItemDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
-import com.dvoracekmartin.catalogservice.application.dto.category.UpdateCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.UpdateMixtureDTO;
-import com.dvoracekmartin.catalogservice.application.dto.product.CreateProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
-import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.domain.model.Category;
@@ -49,25 +45,9 @@ public interface CatalogMapper {
 
     ResponseMixtureDTO mapMixtureToResponseMixtureDTO(Mixture mixture);
 
-    Category mapCreateCategoryDTOToCategory(CreateCategoryDTO createCategoryDTO);
-
-    Mixture mapMixtureDTOToMixture(UpdateMixtureDTO updateMixtureDTO);
-
-    Product mapUpdateProductDTOToProduct(UpdateProductDTO updateProductDTO);
-
-    ResponseProductDTO mapUpdateCategoryToResponseCategoryDTO(UpdateCategoryDTO updateCategoryDTO);
-
     Mixture mapCreateMixtureDTOToMixture(CreateMixtureDTO createMixtureDTO);
 
-    Product mapCreateProductDTOToProduct(CreateProductDTO createProductDTO);
-
     Mixture mapUpdateMixtureDTOToMixture(UpdateMixtureDTO updateMixtureDTO);
-
-    Category mapUpdateCategoryDTOToCategory(UpdateCategoryDTO updateCategoryDTO);
-
-    Mixture mapResponseMixtureDTOToMixture(ResponseMixtureDTO updateMixtureDTO);
-
-    Category mapResponseCategoryDTOToCategory(ResponseCategoryDTO updateCategoryDTO);
 
     Product mapResponseProductDTOToProduct(ResponseProductDTO updateProductDTO);
 
@@ -80,11 +60,11 @@ public interface CatalogMapper {
     @Mapping(target = "categories", ignore = true)
     @Mapping(target = "mixtures", ignore = true)
     default Tag mapCreateTagDTOToTag(CreateTagDTO createTagDTO) {
-        // FIXME
         return new Tag(
-                null,
-                null,
-                null
+                createTagDTO.getName(),
+                createTagDTO.getDescription(),
+                createTagDTO.getPriority(),
+                createTagDTO.isActive()
         );
     }
 

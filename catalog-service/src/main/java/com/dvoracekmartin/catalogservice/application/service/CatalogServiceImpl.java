@@ -1,6 +1,6 @@
 package com.dvoracekmartin.catalogservice.application.service;
 
-import com.dvoracekmartin.catalogservice.application.dto.CatalogMapper;
+import com.dvoracekmartin.catalogservice.application.dto.utils.CatalogMapper;
 import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatalogItemDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
@@ -20,12 +20,16 @@ import com.dvoracekmartin.catalogservice.application.elasticsearch.service.Elast
 import com.dvoracekmartin.catalogservice.application.event.publisher.CatalogEventPublisher;
 import com.dvoracekmartin.catalogservice.application.service.media.MediaRetriever;
 import com.dvoracekmartin.catalogservice.application.service.media.MediaUploader;
-import com.dvoracekmartin.catalogservice.domain.model.*;
+import com.dvoracekmartin.catalogservice.domain.model.Category;
+import com.dvoracekmartin.catalogservice.domain.model.Mixture;
+import com.dvoracekmartin.catalogservice.domain.model.Product;
+import com.dvoracekmartin.catalogservice.domain.model.Tag;
 import com.dvoracekmartin.catalogservice.domain.repository.CategoryRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.MixtureRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.ProductRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.TagRepository;
 import com.dvoracekmartin.catalogservice.domain.service.CatalogDomainService;
+import com.dvoracekmartin.catalogservice.domain.utils.BucketName;
 import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -51,9 +55,6 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 public class CatalogServiceImpl implements CatalogService {
 
-    private static final String CATEGORY_BUCKET = "categories";
-    private static final String PRODUCT_BUCKET = "products";
-    private static final String MIXTURE_BUCKET = "mixtures";
     private final CatalogEventPublisher catalogEventPublisher;
     private final ProductRepository productRepository;
     private final MixtureRepository mixtureRepository;
@@ -68,14 +69,14 @@ public class CatalogServiceImpl implements CatalogService {
 
     @Override
     public List<ResponseProductDTO> getAllProducts() {
-        mediaUploader.createBucketIfNotExists(PRODUCT_BUCKET);
+        mediaUploader.createBucketIfNotExists(BucketName.PRODUCTS.getName());
         log.info("Fetching all products with media");
         return productRepository.findAll().stream().map(product -> {
             // 1) List all object keys in the folder named after the product ID
-            List<String> keys = mediaRetriever.listMediaKeysInFolder(product.getName().replaceAll("\\s", "-"), PRODUCT_BUCKET);
+            List<String> keys = mediaRetriever.listMediaKeysInFolder(product.getName().replaceAll("\\s", "-"), BucketName.PRODUCTS.getName());
 
             List<MediaDTO> mediaDTOs = keys.stream().map(key -> {
-                byte[] data = mediaRetriever.retrieveMedia(key, PRODUCT_BUCKET);
+                byte[] data = mediaRetriever.retrieveMedia(key, BucketName.PRODUCTS.getName());
                 String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
                 String contentType = deriveContentTypeFromKey(key);
                 return new MediaDTO(base64, key, contentType);
@@ -87,14 +88,14 @@ public class CatalogServiceImpl implements CatalogService {
 
     @Override
     public List<ResponseProductDTO> getAllProductsByCategoryId(Long categoryId) {
-        mediaUploader.createBucketIfNotExists(PRODUCT_BUCKET);
+        mediaUploader.createBucketIfNotExists(BucketName.PRODUCTS.getName());
         log.info("Fetching all products with media by CategoryId");
         return productRepository.findAllByCategoryId(categoryId).stream().map(product -> {
             // 1) List all object keys in the folder named after the product ID
-            List<String> keys = mediaRetriever.listMediaKeysInFolder(product.getName().replaceAll("\\s", "-"), PRODUCT_BUCKET);
+            List<String> keys = mediaRetriever.listMediaKeysInFolder(product.getName().replaceAll("\\s", "-"), BucketName.PRODUCTS.getName());
 
             List<MediaDTO> mediaDTOs = keys.stream().map(key -> {
-                byte[] data = mediaRetriever.retrieveMedia(key, PRODUCT_BUCKET);
+                byte[] data = mediaRetriever.retrieveMedia(key, BucketName.PRODUCTS.getName());
                 String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
                 String contentType = deriveContentTypeFromKey(key);
                 return new MediaDTO(base64, key, contentType);
@@ -107,7 +108,7 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<ResponseMixtureDTO> getAllMixtures() {
         log.info("Fetching all mixtures");
-        mediaUploader.createBucketIfNotExists(MIXTURE_BUCKET);
+        mediaUploader.createBucketIfNotExists(BucketName.MIXTURES.getName());
         return mixtureRepository.findAll().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList();
     }
 
@@ -125,14 +126,14 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<ResponseCategoryDTO> getAllCategories() {
         log.info("Fetching all categories with media");
-        mediaUploader.createBucketIfNotExists(CATEGORY_BUCKET);
+        mediaUploader.createBucketIfNotExists(BucketName.CATEGORIES.getName());
         return categoryRepository.findAll().stream().map(category -> {
                     // 1) List all object keys in the folder named after the category
-                    List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), CATEGORY_BUCKET);
+                    List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), BucketName.CATEGORIES.getName());
 
                     // 2) For each key, download bytes, encode to Base64, and derive a contentType
                     List<MediaDTO> mediaDTOs = keys.stream().map(key -> {
-                        byte[] data = mediaRetriever.retrieveMedia(key, CATEGORY_BUCKET);
+                        byte[] data = mediaRetriever.retrieveMedia(key, BucketName.CATEGORIES.getName());
                         String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
                         String contentType = deriveContentTypeFromKey(key);
                         return new MediaDTO(base64, key, contentType);
@@ -149,14 +150,14 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<ResponseCategoryDTO> getActiveCategories() {
         log.info("Fetching all categories with media");
-        mediaUploader.createBucketIfNotExists(CATEGORY_BUCKET);
+        mediaUploader.createBucketIfNotExists(BucketName.CATEGORIES.getName());
         List<ResponseCategoryDTO> categoryList = categoryRepository.findByActiveTrue().stream().map(category -> {
             // 1) List all object keys in the folder named after the category
-            List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), CATEGORY_BUCKET);
+            List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), BucketName.CATEGORIES.getName());
 
             // 2) For each key, download bytes, encode to Base64, and derive a contentType
             List<MediaDTO> mediaDTOs = keys.stream().map(key -> {
-                byte[] data = mediaRetriever.retrieveMedia(key, CATEGORY_BUCKET);
+                byte[] data = mediaRetriever.retrieveMedia(key, BucketName.CATEGORIES.getName());
                 String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
                 String contentType = deriveContentTypeFromKey(key);
                 return new MediaDTO(base64, key, contentType);
@@ -190,7 +191,7 @@ public class CatalogServiceImpl implements CatalogService {
                 for (MediaDTO media : createProductDTO.getMedia()) {
 
                     // Upload media and get public URL
-                    String publicUrl = mediaUploader.uploadBase64(media.base64Data(), createProductDTO.getName(), media.objectKey(), media.contentType(), PRODUCT_BUCKET, createProductDTO.getName());
+                    String publicUrl = mediaUploader.uploadBase64(media.base64Data(), createProductDTO.getName(), media.objectKey(), media.contentType(), BucketName.PRODUCTS.getName(), createProductDTO.getName());
                     if (publicUrl != null) {
                         imageUrls.add(publicUrl);
                     }
@@ -268,7 +269,7 @@ public class CatalogServiceImpl implements CatalogService {
                         updateProductDTO.getName(),
                         m.objectKey(),
                         m.contentType(),
-                        PRODUCT_BUCKET,
+                        BucketName.PRODUCTS.getName(),
                         updateProductDTO.getName()
                 );
                 if (publicUrl != null) {
@@ -355,7 +356,7 @@ public class CatalogServiceImpl implements CatalogService {
                 for (MediaDTO media : createCategoryDTO.getMedia()) {
 
                     // Upload media and get public URL
-                    String publicUrl = mediaUploader.uploadBase64(media.base64Data(), createCategoryDTO.getName(), media.objectKey(), media.contentType(), CATEGORY_BUCKET, createCategoryDTO.getName());
+                    String publicUrl = mediaUploader.uploadBase64(media.base64Data(), createCategoryDTO.getName(), media.objectKey(), media.contentType(), BucketName.CATEGORIES.getName(), createCategoryDTO.getName());
                     if (publicUrl != null) {
                         imageUrls.add(publicUrl);
                     }
@@ -404,7 +405,7 @@ public class CatalogServiceImpl implements CatalogService {
             for (MediaDTO media : updateCategoryDTO.getMedia()) {
 
                 // Upload media and get public URL
-                String publicUrl = mediaUploader.uploadBase64(media.base64Data(), updateCategoryDTO.getName(), media.objectKey(), media.contentType(), CATEGORY_BUCKET, updateCategoryDTO.getName());
+                String publicUrl = mediaUploader.uploadBase64(media.base64Data(), updateCategoryDTO.getName(), media.objectKey(), media.contentType(), BucketName.CATEGORIES.getName(), updateCategoryDTO.getName());
 
                 if (publicUrl != null) {
                     newImageUrls.add(publicUrl);
@@ -445,11 +446,11 @@ public class CatalogServiceImpl implements CatalogService {
         Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         // 1) List all object keys in the folder named after the product
-        List<String> keys = mediaRetriever.listMediaKeysInFolder(product.getName().replaceAll("\\s", "-"), PRODUCT_BUCKET);
+        List<String> keys = mediaRetriever.listMediaKeysInFolder(product.getName().replaceAll("\\s", "-"), BucketName.PRODUCTS.getName());
 
         // 2) For each key, download bytes, encode to Base64, and derive a contentType
         List<MediaDTO> mediaDTOs = keys.stream().map(key -> {
-            byte[] data = mediaRetriever.retrieveMedia(key, PRODUCT_BUCKET);
+            byte[] data = mediaRetriever.retrieveMedia(key, BucketName.PRODUCTS.getName());
             String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
             String contentType = deriveContentTypeFromKey(key);
             return new MediaDTO(base64, key, contentType);
@@ -470,11 +471,11 @@ public class CatalogServiceImpl implements CatalogService {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
 
         // 1) List all object keys in the folder named after the category
-        List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), CATEGORY_BUCKET);
+        List<String> keys = mediaRetriever.listMediaKeysInFolder(category.getName().replaceAll("\\s", "-"), BucketName.CATEGORIES.getName());
 
         // 2) For each key, download bytes, encode to Base64, and derive a contentType
         List<MediaDTO> mediaDTOs = keys.stream().map(key -> {
-            byte[] data = mediaRetriever.retrieveMedia(key, CATEGORY_BUCKET);
+            byte[] data = mediaRetriever.retrieveMedia(key, BucketName.CATEGORIES.getName());
             String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
             String contentType = deriveContentTypeFromKey(key);
             return new MediaDTO(base64, key, contentType);
@@ -524,68 +525,96 @@ public class CatalogServiceImpl implements CatalogService {
 
     @Override
     public List<ResponseTagDTO> getAllTags() {
-        List<Tag> tags = tagRepository.findAll();
 
-        return tags.stream()
-                .map(tag -> new ResponseTagDTO(
-                        tag.getId(),
-                        tag.getName(),
-                        tag.getProducts().stream()
-                                .map(catalogMapper::mapProductToResponseProductDTO)
-                                .toList(),
-                        tag.getCategories().stream()
-                                .map(catalogMapper::mapCategoryToResponseCategoryDTO)
-                                .toList(),
-                        tag.getMixtures().stream()
-                                .map(catalogMapper::mapMixtureToResponseMixtureDTO)
-                                .toList()
-                ))
-                .toList();
+        return tagRepository.findAll().stream().map(tag -> {
+            // 1) List all object keys in the folder named after the tag ID
+            List<String> keys = mediaRetriever.listMediaKeysInFolder(tag.getName().replaceAll("\\s", "-"), BucketName.TAGS.getName());
+
+            List<MediaDTO> mediaDTOs = keys.stream().map(key -> {
+                byte[] data = mediaRetriever.retrieveMedia(key, BucketName.TAGS.getName());
+                String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
+                String contentType = deriveContentTypeFromKey(key);
+                return new MediaDTO(base64, key, contentType);
+            }).toList();
+
+            return new ResponseTagDTO(tag.getId(), tag.getName(), tag.getDescription(), tag.getPriority(), tag.isActive(), mediaDTOs,
+                    tag.getCategories().stream()
+                            .map(catalogMapper::mapCategoryToResponseCategoryDTO)
+                            .toList(), tag.getProducts().stream()
+                    .map(catalogMapper::mapProductToResponseProductDTO)
+                    .toList(),
+                    tag.getMixtures().stream()
+                            .map(catalogMapper::mapMixtureToResponseMixtureDTO)
+                            .toList());
+        }).toList();
     }
 
     @Override
     public ResponseTagDTO getTagById(Long id) {
         Tag tag = tagRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Tag not found with id: " + id));
+        List<String> keys = mediaRetriever.listMediaKeysInFolder(tag.getName().replaceAll("\\s", "-"), BucketName.TAGS.getName());
 
-        return new ResponseTagDTO(
-                tag.getId(),
-                tag.getName(),
-                tag.getProducts().stream()
-                        .map(catalogMapper::mapProductToResponseProductDTO)
-                        .toList(),
+        List<MediaDTO> mediaDTOs = keys.stream().map(key -> {
+            byte[] data = mediaRetriever.retrieveMedia(key, BucketName.TAGS.getName());
+            String base64 = data != null ? Base64.getEncoder().encodeToString(data) : null;
+            String contentType = deriveContentTypeFromKey(key);
+            return new MediaDTO(base64, key, contentType);
+        }).toList();
+
+        return new ResponseTagDTO(tag.getId(), tag.getName(), tag.getDescription(), tag.getPriority(), tag.isActive(), mediaDTOs,
                 tag.getCategories().stream()
                         .map(catalogMapper::mapCategoryToResponseCategoryDTO)
-                        .toList(),
+                        .toList(), tag.getProducts().stream()
+                .map(catalogMapper::mapProductToResponseProductDTO)
+                .toList(),
                 tag.getMixtures().stream()
                         .map(catalogMapper::mapMixtureToResponseMixtureDTO)
-                        .toList()
-        );
+                        .toList());
     }
 
 
     @Override
     @Transactional
     public List<ResponseTagDTO> createTags(List<CreateTagDTO> createTagDTOs) {
-        List<Tag> savedTags = new ArrayList<>();
-        for (CreateTagDTO createTagDTO : createTagDTOs) {
-            // Check if tag already exists
-            if (tagRepository.existsByName(createTagDTO.name())) {
-                throw new IllegalArgumentException("Tag with name '" + createTagDTO.name() + "' already exists.");
+        log.info("Creating tags: {}", createTagDTOs.stream().map(CreateTagDTO::getName).toList());
+        return createTagDTOs.stream().filter(dto -> !tagRepository.existsByName(dto.getName())).collect(Collectors.collectingAndThen(toList(), list -> {
+            if (list.isEmpty()) {
+                throw new IllegalArgumentException("All tags already exist!");
+            }
+            return list;
+        })).stream().map(createTagDTO -> {
+            // Process media uploads and collect image URLs
+            List<String> imageUrls = new ArrayList<>();
+            List<MediaDTO> responseMedia = new ArrayList<>();
+
+            if (nonNull(createTagDTO.getMedia())) {
+                for (MediaDTO media : createTagDTO.getMedia()) {
+                    // Upload media and get public URL
+                    String publicUrl = mediaUploader.uploadBase64(media.base64Data(), createTagDTO.getName(), media.objectKey(), media.contentType(), BucketName.TAGS.getName(), createTagDTO.getName());
+                    if (publicUrl != null) {
+                        imageUrls.add(publicUrl);
+                    }
+                    // Store original base64 data for response
+                    responseMedia.add(new MediaDTO(media.base64Data(), media.objectKey(), media.contentType()));
+                }
             }
 
-            // Create new Tag entity
-            Tag tag = catalogMapper.mapCreateTagDTOToTag(createTagDTO);
+            // Create and save tag
+            Tag tag = new Tag();
+            tag.setName(createTagDTO.getName());
+            tag.setDescription(createTagDTO.getDescription());
+            tag.setPriority(createTagDTO.getPriority());
+            tag.setActive(createTagDTO.isActive());
+            tag.setImages(imageUrls);
 
-            // Save the tag
-            tagRepository.save(tag);
-            savedTags.add(tag);
-        }
+            Tag savedTag = tagRepository.save(tag);
 
-        savedTags.stream()
-                .forEach(tag -> elasticsearchService.indexTag(catalogMapper.mapTagToResponseTagDTO(tag)));
+            elasticsearchService.indexTag(catalogMapper.mapTagToResponseTagDTO(savedTag));
 
-        return savedTags.stream().map(catalogMapper::mapTagToResponseTagDTO).toList();
+            // Build response with original base64 data
+            return new ResponseTagDTO(savedTag.getId(), savedTag.getName(), savedTag.getDescription(), savedTag.getPriority(), savedTag.isActive(), responseMedia, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        }).toList();
     }
 
     @Override
@@ -596,12 +625,12 @@ public class CatalogServiceImpl implements CatalogService {
                 .orElseThrow(() -> new EntityNotFoundException("Tag not found with id: " + id));
 
         // 2) Update scalar fields
-        existingTag.setName(dto.name());
+        existingTag.setName(dto.getName());
 
         // 3) Load related entities from DB
-        List<Category> newCategories = categoryRepository.findAllById(dto.categories());
-        List<Product> newProducts = productRepository.findAllById(dto.products());
-        List<Mixture> newMixtures = mixtureRepository.findAllById(dto.mixtures());
+        List<Category> newCategories = categoryRepository.findAllById(dto.getCategoryIds());
+        List<Product> newProducts = productRepository.findAllById(dto.getProductIds());
+        List<Mixture> newMixtures = mixtureRepository.findAllById(dto.getMixtureIds());
 
         // 4) Clear old references from owning side (optional, to prevent duplicates)
         for (Product p : existingTag.getProducts()) {

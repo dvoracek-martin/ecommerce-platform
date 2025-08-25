@@ -6,7 +6,6 @@ import {CategoryService} from '../../services/category.service';
 import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
 import {forkJoin} from 'rxjs';
 import {MediaDTO} from '../../dto/media/media-dto';
-import {TagDTO} from '../../dto/tag/tag-dto';
 
 interface ProductSummary {
   product: ResponseProductDTO;

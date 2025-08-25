@@ -1,15 +1,17 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar'; // Import MatSnackBar
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TagService } from '../../../services/tag.service';
 import { CategoryService } from '../../../services/category.service';
 import { ProductService } from '../../../services/product.service';
 import { MixtureService } from '../../../services/mixture.service';
 import { CreateTagDTO } from '../../../dto/tag/create-tag-dto';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
-import { Subject, takeUntil } from 'rxjs'; // Import Subject and takeUntil
+import { Subject, takeUntil } from 'rxjs';
+import { MediaDTO } from '../../../dto/media/media-dto';
 
 @Component({
   selector: 'app-tags-admin-create',
@@ -17,74 +19,89 @@ import { Subject, takeUntil } from 'rxjs'; // Import Subject and takeUntil
   standalone: false,
   styleUrls: ['./tags-admin-create.component.scss']
 })
-export class TagsAdminCreateComponent implements OnInit, OnDestroy { // Implement OnDestroy
+export class TagsAdminCreateComponent implements OnInit, OnDestroy {
   tagForm!: FormGroup;
   saving = false;
-  allCategories = []; // Assuming these are still used or will be for relationships
-  allProducts = [];
-  allMixtures = [];
-  private readonly destroy$ = new Subject<void>(); // Initialize destroy$
+  allCategories: any[] = [];
+  allProducts: any[] = [];
+  allMixtures: any[] = [];
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
     private tagService: TagService,
-    private categoryService: CategoryService, // Keep if still relevant for loading relations
-    private productService: ProductService, // Keep if still relevant for loading relations
-    private mixtureService: MixtureService, // Keep if still relevant for loading relations
+    private categoryService: CategoryService,
+    private productService: ProductService,
+    private mixtureService: MixtureService,
     private router: Router,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar // Inject MatSnackBar
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     this.initForm();
-    this.loadRelations(); // Keep if you intend to add relationship fields later
+    this.loadRelations();
   }
 
-  ngOnDestroy(): void { // Implement ngOnDestroy
+  ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   private initForm(): void {
     this.tagForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]], // Wrapped validator in array
-      // Assuming categories, products, mixtures are for future use or relationships,
-      // if not, consider removing them from the form group if they are not bound to any fields.
-      // If they are to be multi-selects like in category/product, they should be initialized as empty arrays.
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      priority: [0, [Validators.required, Validators.min(0)]],
+      active: [false],
+      media: this.fb.array([]),
+      // The following fields are for relationships and can be left for future implementation
       categories: [[]],
       products: [[]],
       mixtures: [[]]
     });
   }
 
-  // Keep loadRelations if you plan to add UI for these relationships
-  private loadRelations(): void {
-    this.categoryService.getAllCategoriesAdmin()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        data => this.allCategories = data,
-        error => this.snackBar.open('Error loading categories.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
-      );
-    this.productService.getAllProductsAdmin()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        data => this.allProducts = data,
-        error => this.snackBar.open('Error loading products.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
-      );
-    this.mixtureService.getAllMixturesAdmin()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        data => this.allMixtures = data,
-        error => this.snackBar.open('Error loading mixtures.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
-      );
+  get mediaControls(): FormArray {
+    return this.tagForm.get('media') as FormArray;
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    Array.from(input.files || []).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => this.mediaControls.push(this.createMediaGroup(reader, file));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  private createMediaGroup(reader: FileReader, file: File): FormGroup {
+    const base64 = (reader.result as string).split(',')[1];
+    return this.fb.group({
+      base64Data: [base64],
+      objectKey: [`${Date.now()}_${file.name}`],
+      contentType: [file.type],
+      preview: [reader.result]
+    });
+  }
+
+  openMediaDeleteDialog(i: number): void {
+    this.dialog.open(ConfirmationDialogComponent, {
+      data: { title: 'Delete Media', message: 'Really delete this media?', warn: true }
+    }).afterClosed().subscribe(ok => {
+      if (ok) this.mediaControls.removeAt(i);
+    });
+  }
+
+  drop(event: CdkDragDrop<any[]>): void {
+    moveItemInArray(this.mediaControls.controls, event.previousIndex, event.currentIndex);
   }
 
   onSave(): void {
     if (this.tagForm.invalid) {
-      this.tagForm.markAllAsTouched(); // Mark all controls as touched
+      this.tagForm.markAllAsTouched();
       this.snackBar.open('Please correct the highlighted fields.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
-      return; // Prevent saving if form is invalid
+      return;
     }
     this.saving = true;
 
@@ -109,21 +126,43 @@ export class TagsAdminCreateComponent implements OnInit, OnDestroy { // Implemen
     this.snackBar.open('Failed to create tag', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
   }
 
-  onCancel(): void {
-    if (this.tagForm.dirty) { // Only show dialog if the form has changes
+  // Renamed to match the category component
+  openCancelDialog(): void {
+    if (this.tagForm.dirty) {
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
         data: {
           title: 'COMMON.CANCEL_CONFIRM_TITLE',
           message: 'COMMON.CANCEL_CONFIRM_MESSAGE',
-          warn: true // Add warn property for consistent styling if your dialog uses it
+          warn: true
         }
       });
-
       dialogRef.afterClosed().subscribe(result => {
         if (result) this.router.navigate(['/admin/tags']);
       });
     } else {
-      this.router.navigate(['/admin/tags']); // Navigate directly if no changes
+      this.router.navigate(['/admin/tags']);
     }
+  }
+
+  // The following method is kept for completeness but is not bound to the new template
+  private loadRelations(): void {
+    this.categoryService.getAllCategoriesAdmin()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        data => this.allCategories = data,
+        error => this.snackBar.open('Error loading categories.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
+      );
+    this.productService.getAllProductsAdmin()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        data => this.allProducts = data,
+        error => this.snackBar.open('Error loading products.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
+      );
+    this.mixtureService.getAllMixturesAdmin()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        data => this.allMixtures = data,
+        error => this.snackBar.open('Error loading mixtures.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
+      );
   }
 }

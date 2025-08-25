@@ -1,150 +1,230 @@
-/* Overall Page Layout */
-.tags-container {
-  padding: 2rem;
-  background-color: #f9f9f9;
-  min-height: calc(100vh - 64px);
-}
-
-/* Header and Actions */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.title-and-search {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-grow: 1;
-}
-
-.page-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 2rem;
-  margin: 0;
+/* A minimalist, refined design for the admin tags page */
+:host {
+  font-family: 'Poppins', sans-serif;
   color: #2c3e50;
-  .title-icon {
-    font-size: 2.2rem;
-    color: #3f51b5;
-  }
+  display: block;
+  padding: 40px 20px;
+  background-color: #f4f6f9;
+  min-height: 100vh;
 }
 
-.actions {
-  display: flex;
-  gap: 1rem;
-}
+.tags-container {
+  max-width: 1400px;
+  margin: 0 auto;
 
-/* State Messages */
-.loading-message,
-.error-message {
-  text-align: center;
-  padding: 20px;
-  font-size: 1.1rem;
-  border-radius: 8px;
-}
-.loading-message {
-  color: #3f51b5;
-  background-color: #e8eaf6;
-}
-.error-message {
-  color: #e74c3c;
-  background-color: #fef0f0;
-}
-.no-data {
-  text-align: center;
-  padding: 40px;
-  color: #7f8c8d;
-  font-size: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Tags Grid & Card */
-.tags-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-  padding: 20px 0;
-}
-
-.tag-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  }
-
-  .mat-card-header {
+  .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 0;
+    margin-bottom: 40px;
+    padding: 0 10px;
 
-    .mat-card-title {
-      font-size: 1.3rem;
-      font-weight: 500;
-      color: #2c3e50;
+    h1 {
+      margin: 0;
+      color: #34495e;
+      font-size: 2.5rem;
+      font-weight: 700;
     }
-  }
 
-  .mat-card-content {
-    padding-top: 0;
-  }
-
-  .tag-relations {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 16px;
-
-    .relation {
+    .btn-create-tag {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.9rem;
-      color: #555;
+      padding: 10px 20px;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      font-weight: 600;
 
-      mat-icon {
-        font-size: 18px;
-        color: #757575;
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
     }
   }
 }
 
-/* Responsive Styles */
-@media (max-width: 600px) {
-  .header {
+.loading,
+.error {
+  text-align: center;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.loading {
+  background: #e8f5ff;
+  color: #2980b9;
+}
+
+.error {
+  background: #fde8e8;
+  color: #e74c3c;
+}
+
+/* Tags Grid */
+.tags-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+  padding: 30px 0;
+  justify-content: center;
+}
+
+/* Tag Card */
+.tag-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .card-link {
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    height: 100%;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    pointer-events: none;
   }
-  .page-title {
-    font-size: 1.5rem;
-  }
-  .actions {
-    width: 100%;
-    .mat-raised-button {
-      width: 100%;
-      text-align: center;
+
+  .tag-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    pointer-events: auto;
+
+    .btn-delete {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #e74c3c;
+        transform: scale(1.1);
+        mat-icon {
+          color: white;
+        }
+      }
+
+      mat-icon {
+        color: #95a5a6;
+        transition: color 0.2s ease;
+      }
     }
   }
-  .tags-container {
-    padding: 1rem;
+
+  .tag-image-container {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    position: relative;
+    overflow: hidden;
+    background-color: #ecf0f1;
+  }
+
+  .tag-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+
+    .tag-card:hover & {
+      transform: scale(1.05);
+    }
+  }
+
+  .carousel-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    pointer-events: auto;
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &.active {
+        background: #e67e22;
+        border-color: #e67e22;
+        transform: scale(1.2);
+      }
+
+      &:hover {
+        background: #e67e22;
+        border-color: #e67e22;
+      }
+    }
+  }
+
+  .no-media {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ecf0f1;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    padding: 15px;
+  }
+
+  .tag-details {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    pointer-events: auto;
+  }
+
+  .tag-name {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #34495e;
+    margin: 0 0 10px;
+  }
+
+  .tag-description {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    line-height: 1.5;
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tags-container .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+    padding: 0;
   }
   .tags-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 }

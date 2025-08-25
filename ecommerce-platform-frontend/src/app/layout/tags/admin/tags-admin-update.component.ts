@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -9,7 +9,9 @@ import { CategoryService } from '../../../services/category.service';
 import { ProductService } from '../../../services/product.service';
 import { MixtureService } from '../../../services/mixture.service';
 import { UpdateTagDTO } from '../../../dto/tag/update-tag-dto';
+import { MediaDTO } from '../../../dto/media/media-dto';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-tags-admin-update',
@@ -61,10 +63,18 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
   private initForm(): void {
     this.tagForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      priority: [0, [Validators.required, Validators.min(0)]],
+      active: [true],
+      media: this.fb.array([]),
       categories: [[]],
       products: [[]],
       mixtures: [[]]
     });
+  }
+
+  get mediaControls(): FormArray {
+    return this.tagForm.get('media') as FormArray;
   }
 
   private loadRelations(): void {
@@ -97,10 +107,14 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
         next: tag => {
           this.tagForm.patchValue({
             name: tag.name,
+            description: tag.description,
+            priority: tag.priority,
+            active: tag.active,
             categories: tag.categories.map(c => c.id),
             products: tag.products.map(p => p.id),
             mixtures: tag.mixtures.map(m => m.id)
           });
+          this.initMedia(tag.media);
           this.loading = false;
         },
         error: err => {
@@ -112,6 +126,49 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
       });
   }
 
+  private initMedia(media: MediaDTO[]): void {
+    media.forEach(m => {
+      // The backend sends base64 data directly, so we can use it as a preview.
+      // We must prefix it with the correct data URI scheme.
+      const preview = `data:${m.contentType};base64,${m.base64Data}`;
+      this.mediaControls.push(this.fb.group({
+        base64Data: [m.base64Data],
+        objectKey: [m.objectKey],
+        contentType: [m.contentType],
+        preview: [preview]
+      }));
+    });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    Array.from(input.files || []).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        this.mediaControls.push(this.fb.group({
+          base64Data: [base64],
+          objectKey: [`${Date.now()}_${file.name}`],
+          contentType: [file.type],
+          preview: [reader.result]
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  drop(event: CdkDragDrop<any[]>): void {
+    moveItemInArray(this.mediaControls.controls, event.previousIndex, event.currentIndex);
+  }
+
+  openMediaDeleteDialog(i: number): void {
+    this.dialog.open(ConfirmationDialogComponent, {
+      data: { title: 'Delete Media', message: 'Really delete this media?', warn: true }
+    }).afterClosed().subscribe(ok => {
+      if (ok) this.mediaControls.removeAt(i);
+    });
+  }
+
   onSave(): void {
     if (this.tagForm.invalid) {
       this.tagForm.markAllAsTouched();
@@ -120,7 +177,15 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
     }
 
     this.saving = true;
-    const payload: UpdateTagDTO = { id: this.tagId, ...this.tagForm.value };
+    const payload: UpdateTagDTO = {
+      id: this.tagId,
+      ...this.tagForm.value,
+      media: this.tagForm.value.media.map((m: any) => ({
+        base64Data: m.base64Data,
+        objectKey: m.objectKey,
+        contentType: m.contentType
+      }))
+    };
 
     this.tagService.updateTag(payload)
       .pipe(takeUntil(this.destroy$))

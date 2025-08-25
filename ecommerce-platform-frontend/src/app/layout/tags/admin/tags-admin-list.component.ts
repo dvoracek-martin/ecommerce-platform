@@ -1,23 +1,24 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, takeUntil } from 'rxjs';
-import { ResponseTagDTO } from '../../../dto/tag/response-tag-dto';
-import { TagService } from '../../../services/tag.service';
-import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
+import {MatDialog} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {Subject, takeUntil} from 'rxjs';
+import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
+import {TagService} from '../../../services/tag.service';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
 
 @Component({
   selector: 'app-tags-admin-list',
   templateUrl: './tags-admin-list.component.html',
-  standalone: false, // Keeping this as per your last request
+  standalone: false,
   styleUrls: ['./tags-admin-list.component.scss']
 })
 export class TagsAdminListComponent implements OnInit, OnDestroy {
   tags: ResponseTagDTO[] = [];
   isLoading = true;
   error: string | null = null;
-
+  activeSlideIndices: number[] = [];
+  private intervals: any[] = [];
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -25,13 +26,15 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadTags();
   }
 
   ngOnDestroy(): void {
+    this.intervals.forEach(i => clearInterval(i));
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -43,6 +46,7 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.tags = data;
+          this.initializeCarousels();
           this.isLoading = false;
         },
         error: (err) => {
@@ -51,6 +55,45 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
           this.snackBar.open('Failed to load tags.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
         }
       });
+  }
+
+  initializeCarousels(): void {
+    this.activeSlideIndices = [];
+    this.tags.forEach((tag, idx) => {
+      this.activeSlideIndices[idx] = 0;
+      const mediaCount = tag.media?.length || 0;
+      this.startCarousel(idx, mediaCount);
+    });
+  }
+
+  startCarousel(tagIndex: number, mediaCount: number): void {
+    if (mediaCount <= 1) return;
+    this.intervals[tagIndex] = setInterval(() => {
+      this.nextSlide(tagIndex, mediaCount);
+    }, 5000);
+  }
+
+  nextSlide(tagIndex: number, mediaCount: number): void {
+    this.activeSlideIndices[tagIndex] =
+      (this.activeSlideIndices[tagIndex] + 1) % mediaCount;
+  }
+
+  setActiveSlide(tagIndex: number, slideIndex: number): void {
+    this.activeSlideIndices[tagIndex] = slideIndex;
+    clearInterval(this.intervals[tagIndex]);
+    this.startCarousel(tagIndex, this.tags[tagIndex].media.length);
+  }
+
+  trackById(_idx: number, item: ResponseTagDTO): number {
+    return item.id;
+  }
+
+  trackByObjectKey(_idx: number, item: {
+    contentType: string,
+    base64Data: string,
+    objectKey: string
+  }): string {
+    return item.objectKey;
   }
 
   navigateToUpdate(tagId: number): void {
@@ -87,9 +130,5 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
           this.snackBar.open('Failed to delete tag.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
         }
       });
-  }
-
-  trackById(_idx: number, item: ResponseTagDTO): number {
-    return item.id;
   }
 }
