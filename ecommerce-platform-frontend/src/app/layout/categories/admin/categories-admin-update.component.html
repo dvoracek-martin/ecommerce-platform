@@ -78,7 +78,7 @@
             {{ 'CATEGORIES.ADMIN.UPLOAD_MEDIA' | translate }}
           </button>
 
-          <div cdkDropList formArrayName="uploadMediaDTOs" (cdkDropListDropped)="drop($event)" class="media-list">
+          <div cdkDropList formArrayName="media" (cdkDropListDropped)="drop($event)" class="media-list">
             <div class="media-item" *ngFor="let ctrl of mediaControls.controls; let i = index" [formGroupName]="i" cdkDrag>
               <div class="media-preview-container">
                 <img *ngIf="ctrl.get('preview')?.value && ctrl.get('contentType')?.value.startsWith('image/')"
@@ -106,7 +106,7 @@
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
-        <button mat-flat-button color="primary" type="submit" form="categoryForm" [disabled]="categoryForm.invalid || saving">
+        <button mat-flat-button color="primary" type="submit" form="categoryForm" [disabled]="categoryForm.invalid || saving || !categoryForm.dirty">
           <mat-icon>save</mat-icon>
           {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
         </button>

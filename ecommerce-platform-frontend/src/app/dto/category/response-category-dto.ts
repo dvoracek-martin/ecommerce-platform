@@ -1,19 +1,6 @@
-// src/app/dto/category/response-category-dto.ts
-
-import {ResponseMediaDTO} from '../media/response-media-dto';
 import {ResponseTagDTO} from '../tag/response-tag-dto';
+import {BaseUpdateOrResponseDTO} from '../base/base-update-or-response.dto';
 
-export interface ResponseCategoryDTO {
-  /** Primary key */
-  id: number;
-  /** Category name */
-  name: string;
-  /** Optional description */
-  description?: string;
-  priority: number;
-  active: boolean;
-  /** Uploaded media items (images/videos) */
-  responseMediaDTOs: ResponseMediaDTO[];
-  /** List of tags associated with this category */
-  tags: ResponseTagDTO[];
+export interface ResponseCategoryDTO extends BaseUpdateOrResponseDTO {
+  tagIds?: ResponseTagDTO[];
 }

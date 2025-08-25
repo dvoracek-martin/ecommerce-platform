@@ -42,7 +42,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     this.activeSlideIndices = []; // Reset
     this.categories.forEach((category, idx) => {
       this.activeSlideIndices[idx] = 0;
-      const mediaCount = category.responseMediaDTOs?.length || 0;
+      const mediaCount = category.media?.length || 0;
       this.startCarousel(idx, mediaCount);
     });
   }
@@ -63,7 +63,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   setActiveSlide(catIndex: number, slideIndex: number): void {
     this.activeSlideIndices[catIndex] = slideIndex;
     clearInterval(this.intervals[catIndex]);
-    this.startCarousel(catIndex, this.categories[catIndex].responseMediaDTOs.length);
+    this.startCarousel(catIndex, this.categories[catIndex].media.length);
   }
 
   ngOnDestroy(): void {

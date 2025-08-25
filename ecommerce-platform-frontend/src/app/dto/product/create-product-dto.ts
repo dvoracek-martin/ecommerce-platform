@@ -1,4 +1,4 @@
-import { UploadMediaDTO } from '../media/upload-media-dto';
+import { MediaDTO } from '../media/media-dto';
 import { TagDTO } from '../tag/tag-dto';
 
 export interface CreateProductDTO {
@@ -18,5 +18,5 @@ export interface CreateProductDTO {
   weightGrams: number;
   allergens?: string[];
   tagIds: number[];
-  uploadMediaDTOs?: UploadMediaDTO[];
+  media?: MediaDTO[];
 }

@@ -11,7 +11,7 @@ import { CreateCategoryDTO } from '../../../dto/category/create-category-dto';
 import { ResponseTagDTO } from '../../../dto/tag/response-tag-dto';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
 import { Subject, takeUntil } from 'rxjs';
-import { ResponseMediaDTO } from '../../../dto/media/response-media-dto';
+import { MediaDTO } from '../../../dto/media/media-dto';
 
 @Component({
   selector: 'app-categories-admin-create',
@@ -51,7 +51,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
       priority: [0, [Validators.required, Validators.min(0)]],
       active: [false],
       tagIds: [[]],
-      uploadMediaDTOs: this.fb.array([])
+      media: this.fb.array([])
     });
   }
 
@@ -65,7 +65,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
   }
 
   get mediaControls(): FormArray {
-    return this.categoryForm.get('uploadMediaDTOs') as FormArray;
+    return this.categoryForm.get('media') as FormArray;
   }
 
   onFileSelected(event: Event): void {

@@ -1,6 +1,6 @@
 package com.dvoracekmartin.catalogservice.application.dto.product;
 
-import com.dvoracekmartin.catalogservice.application.dto.media.UploadMediaDTO;
+import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -24,6 +24,6 @@ public record CreateProductDTO(
         Double weightGrams,
         List<String> allergens,
         List<Long> tagIds,
-        List<UploadMediaDTO> uploadMediaDTOs
+        List<MediaDTO> uploadMediaDTOs
 ) {
 }

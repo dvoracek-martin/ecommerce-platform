@@ -4,7 +4,7 @@ import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategory
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatalogItemDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.UpdateCategoryDTO;
-import com.dvoracekmartin.catalogservice.application.dto.media.ResponseMediaDTO;
+import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.UpdateMixtureDTO;
@@ -21,7 +21,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface CatalogMapper {
@@ -33,7 +32,7 @@ public interface CatalogMapper {
 
     ResponseProductDTO mapProductToResponseProductDTO(Product product);
 
-    default ResponseProductDTO mapProductToResponseProductDTO(Product product, List<ResponseMediaDTO> responseMedia) {
+    default ResponseProductDTO mapProductToResponseProductDTO(Product product, List<MediaDTO> responseMedia) {
         return new ResponseProductDTO(
                 product.getId(),
                 product.getName(),
@@ -88,9 +87,8 @@ public interface CatalogMapper {
     @Mapping(target = "categories", ignore = true)
     @Mapping(target = "mixtures", ignore = true)
     default Tag mapCreateTagDTOToTag(CreateTagDTO createTagDTO) {
+        // FIXME
         return new Tag(
-                null,
-                createTagDTO.name(),
                 null,
                 null,
                 null

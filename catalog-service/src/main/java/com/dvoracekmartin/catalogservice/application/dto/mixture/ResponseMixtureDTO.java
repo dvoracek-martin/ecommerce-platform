@@ -1,6 +1,6 @@
 package com.dvoracekmartin.catalogservice.application.dto.mixture;
 
-import com.dvoracekmartin.catalogservice.application.dto.media.ResponseMediaDTO;
+import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
 
 import java.math.BigDecimal;
@@ -21,6 +21,6 @@ public record ResponseMixtureDTO(
         List<String> tagDTOs,
         boolean isCustomizable,
         String customizationOptions,
-        List<ResponseMediaDTO> responseMediaDTOs
+        List<MediaDTO> mediaDTOS
 ) {
 }

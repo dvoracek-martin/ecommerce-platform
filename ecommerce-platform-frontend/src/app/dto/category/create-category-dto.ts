@@ -1,4 +1,5 @@
-import {uploadMediaDTO} from './upload-media-dto';
+import {MediaDTO} from '../media/media-dto';
+
 
 export interface CreateCategoryDTO {
   name: string;
@@ -6,5 +7,5 @@ export interface CreateCategoryDTO {
   priority: number;
   active: boolean;
   tagIds: number[];
-  uploadMediaDTOs: uploadMediaDTO[];
+  media: MediaDTO[];
 }

@@ -1,4 +1,3 @@
-// src/app/components/categories-admin-update/categories-admin-update.component.ts
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -35,8 +34,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     private tagService: TagService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
@@ -59,12 +57,12 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
       priority: [0, [Validators.required, Validators.min(0)]],
       active: [false],
       tagIds: [[]],
-      uploadMediaDTOs: this.fb.array([])
+      media: this.fb.array([])
     });
   }
 
   get mediaControls(): FormArray {
-    return this.categoryForm.get('uploadMediaDTOs') as FormArray;
+    return this.categoryForm.get('media') as FormArray;
   }
 
   get tagIdsControl(): FormControl {
@@ -100,17 +98,20 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
       active: cat.active
     });
 
-    const existingIds = cat.tags.map(t => t.id);
+    const existingIds = cat.tagIds.map(t => t.id);
     this.tagIdsControl.setValue(existingIds);
 
     this.mediaControls.clear();
-    (cat.responseMediaDTOs || []).forEach(m => {
+    (cat.media || []).forEach(m => {
       this.mediaControls.push(this.fb.group({
         objectKey: [m.objectKey],
         contentType: [m.contentType],
-        preview: [`data:${m.contentType};base64,${m.base64Data}`]
+        preview: [`data:${m.contentType};base64,${m.base64Data || ''}`],
+        base64Data: [m.base64Data || null] // existující soubory mohou mít null
       }));
     });
+    this.categoryForm.markAsPristine(); // Resets the dirty state after loading
+    this.categoryForm.markAsUntouched();
   }
 
   onFileSelected(event: Event): void {
@@ -125,6 +126,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
           contentType: [file.type],
           preview: [reader.result]
         }));
+        this.categoryForm.markAsDirty();
       };
       reader.readAsDataURL(file);
     });
@@ -134,12 +136,16 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     this.dialog.open(ConfirmationDialogComponent, {
       data: {title: 'Delete Media', message: 'Delete this media?', warn: true}
     }).afterClosed().subscribe(ok => {
-      if (ok) this.mediaControls.removeAt(i);
+      if (ok) {
+        this.mediaControls.removeAt(i);
+        this.categoryForm.markAsDirty();
+      }
     });
   }
 
   drop(event: CdkDragDrop<any[]>) {
     moveItemInArray(this.mediaControls.controls, event.previousIndex, event.currentIndex);
+    this.categoryForm.markAsDirty();
   }
 
   onSave() {
@@ -154,9 +160,23 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
 
     this.saving = true;
 
+    // Správně mapujeme media
+    const mediaPayload = this.mediaControls.controls.map(ctrl => {
+      const value = ctrl.value;
+      const mediaItem: any = {
+        objectKey: value.objectKey,
+        contentType: value.contentType
+      };
+      if (value.base64Data) {
+        mediaItem.base64Data = value.base64Data; // jen nové soubory
+      }
+      return mediaItem;
+    });
+
     const payload: UpdateCategoryDTO = {
       id: this.categoryId,
-      ...this.categoryForm.value
+      ...this.categoryForm.value,
+      media: mediaPayload
     };
 
     this.categoryService.updateCategory(payload)
@@ -169,6 +189,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
 
   private handleSaveSuccess(): void {
     this.saving = false;
+    this.categoryForm.markAsPristine(); // Reset state after a successful save
     this.snackBar.open('Category updated!', 'Close', {duration: 3000});
     this.router.navigate(['/admin/categories']);
   }

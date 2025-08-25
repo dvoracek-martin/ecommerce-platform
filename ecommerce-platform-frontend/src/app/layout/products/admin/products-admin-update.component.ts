@@ -83,7 +83,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       weightGrams: [null],
       allergens: this.fb.array([]),
       tagIds: [[]],
-      uploadMediaDTOs: this.fb.array([])
+      media: this.fb.array([])
     });
   }
 
@@ -95,7 +95,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
     return this.allergensControls.controls as FormControl[];
   }
   get mediaControls(): FormArray {
-    return this.productForm.get('uploadMediaDTOs') as FormArray;
+    return this.productForm.get('media') as FormArray;
   }
 
   // convenience getter for tagIds:
@@ -155,7 +155,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
     p.allergens.forEach(a => this.allergensControls.push(this.fb.control(a)));
 
     // media
-    p.responseMediaDTOs.forEach(m => {
+    p.media.forEach(m => {
       this.mediaControls.push(this.fb.group({
         base64Data: [m.base64Data],
         objectKey: [m.objectKey],

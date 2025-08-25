@@ -57,7 +57,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = getOrCreateCart(username, guestId);
 
         Optional<CartItem> existing = cart.getItems().stream()
-                .filter(item -> item.getProductId().equals(newItem.getProductId()))
+                .filter(item -> item.getItemId().equals(newItem.getItemId()))
                 .findFirst();
 
         if (existing.isPresent()) {
@@ -72,18 +72,18 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public Cart removeItem(String username, String guestId, Long productId) {
+    public Cart removeItem(String username, String guestId, Long getItemId) {
         Cart cart = getOrCreateCart(username, guestId);
-        cart.getItems().removeIf(item -> item.getProductId().equals(productId));
+        cart.getItems().removeIf(item -> item.getItemId().equals(getItemId));
         return cartRepository.save(cart);
     }
 
     @Override
     @Transactional
-    public Cart updateItemQuantity(String username, String guestId, Long productId, int quantity) {
+    public Cart updateItemQuantity(String username, String guestId, Long getItemId, int quantity) {
         Cart cart = getOrCreateCart(username, guestId);
         cart.getItems().stream()
-                .filter(item -> item.getProductId().equals(productId))
+                .filter(item -> item.getItemId().equals(getItemId))
                 .findFirst()
                 .ifPresent(item -> item.setQuantity(quantity));
         return cartRepository.save(cart);
@@ -104,13 +104,13 @@ public class CartServiceImpl implements CartService {
 
         guestCart.getItems().forEach(gi -> {
             Optional<CartItem> existing = userCart.getItems().stream()
-                    .filter(ui -> ui.getProductId().equals(gi.getProductId()))
+                    .filter(ui -> ui.getItemId().equals(gi.getItemId()))
                     .findFirst();
             if (existing.isPresent()) {
                 existing.get().setQuantity(existing.get().getQuantity() + gi.getQuantity());
             } else {
                 CartItem copy = new CartItem();
-                copy.setProductId(gi.getProductId());
+                copy.setItemId(gi.getItemId());
                 copy.setQuantity(gi.getQuantity());
                 copy.setCart(userCart);
                 userCart.getItems().add(copy);

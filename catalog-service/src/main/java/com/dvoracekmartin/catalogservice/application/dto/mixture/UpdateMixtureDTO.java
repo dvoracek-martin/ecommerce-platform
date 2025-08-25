@@ -1,6 +1,6 @@
 package com.dvoracekmartin.catalogservice.application.dto.mixture;
 
-import com.dvoracekmartin.catalogservice.application.dto.media.UploadMediaDTO;
+import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,6 +20,6 @@ public record UpdateMixtureDTO(
         List<Long> tagIds,
         boolean isCustomizable,
         String customizationOptions,
-        List<UploadMediaDTO> uploadMediaDTOs
+        List<MediaDTO> uploadMediaDTOs
 ) {
 }

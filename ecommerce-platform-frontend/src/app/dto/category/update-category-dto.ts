@@ -1,11 +1,5 @@
-import {uploadMediaDTO} from './upload-media-dto';
+import {BaseUpdateOrResponseDTO} from '../base/base-update-or-response.dto';
 
-export interface UpdateCategoryDTO {
-  id: number;
-  name: string;
-  description?: string;
-  priority: number;
-  active: boolean;
-  tagIds: number[];
-  uploadMediaDTOs: uploadMediaDTO[];
+export interface UpdateCategoryDTO extends BaseUpdateOrResponseDTO {
+  tagIds?: number[];
 }

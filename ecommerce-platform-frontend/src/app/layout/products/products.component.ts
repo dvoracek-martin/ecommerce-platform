@@ -49,7 +49,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.activeSlideIndices = [];
     this.products.forEach((product, idx) => {
       this.activeSlideIndices[idx] = 0;
-      const mediaCount = product.responseMediaDTOs?.length || 0;
+      const mediaCount = product.media?.length || 0;
       this.startCarousel(idx, mediaCount);
     });
   }
@@ -68,7 +68,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   setActiveSlide(index: number, slideIndex: number): void {
     this.activeSlideIndices[index] = slideIndex;
     clearInterval(this.intervals[index]);
-    this.startCarousel(index, this.products[index].responseMediaDTOs .length);
+    this.startCarousel(index, this.products[index].media .length);
   }
 
   addToCart(product: ResponseProductDTO): void {

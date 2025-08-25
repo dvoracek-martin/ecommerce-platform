@@ -1,4 +1,4 @@
-import { ResponseMediaDTO } from '../media/response-media-dto';
+import { MediaDTO } from '../media/media-dto';
 import { TagDTO } from '../tag/tag-dto';
 
 export interface ResponseProductDTO {
@@ -6,7 +6,7 @@ export interface ResponseProductDTO {
   name: string;
   description: string;
   price: number;
-  images?: string[]; // Optional, as you have responseMediaDTOs
+  images?: string[]; // Optional, as you have media
   categoryId: number;
   scentProfile?: string;
   botanicalName?: string;
@@ -19,5 +19,5 @@ export interface ResponseProductDTO {
   weightGrams?: number;
   allergens?: string[];
   tagsDTOs?: TagDTO[];
-  responseMediaDTOs?: ResponseMediaDTO[];
+  media?: MediaDTO[];
 }

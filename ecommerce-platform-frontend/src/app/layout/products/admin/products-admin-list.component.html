@@ -20,16 +20,16 @@
       class="product-card"
     >
       <div class="card-link" (click)="navigateToUpdate(product.id)">
-        <ng-container *ngIf="product.responseMediaDTOs?.length; else noMedia">
+        <ng-container *ngIf="product.media?.length; else noMedia">
           <div class="product-image-container">
             <img
-              *ngIf="product.responseMediaDTOs[activeSlideIndices[prodIndex]]?.contentType?.startsWith('image/')"
-              [src]="'data:' + product.responseMediaDTOs[activeSlideIndices[prodIndex]].contentType + ';base64,' + product.responseMediaDTOs[activeSlideIndices[prodIndex]].base64Data"
+              *ngIf="product.media[activeSlideIndices[prodIndex]]?.contentType?.startsWith('image/')"
+              [src]="'data:' + product.media[activeSlideIndices[prodIndex]].contentType + ';base64,' + product.media[activeSlideIndices[prodIndex]].base64Data"
               [alt]="product.name"
               class="product-image"
             />
             <video
-              *ngIf="product.responseMediaDTOs[activeSlideIndices[prodIndex]]?.contentType?.startsWith('video/')"
+              *ngIf="product.media[activeSlideIndices[prodIndex]]?.contentType?.startsWith('video/')"
               class="product-image"
               [attr.muted]="true"
               [muted]="true"
@@ -39,13 +39,13 @@
               playsinline
             >
               <source
-                [src]="'data:' + product.responseMediaDTOs[activeSlideIndices[prodIndex]].contentType + ';base64,' + product.responseMediaDTOs[activeSlideIndices[prodIndex]].base64Data"
-                [type]="product.responseMediaDTOs[activeSlideIndices[prodIndex]].contentType"
+                [src]="'data:' + product.media[activeSlideIndices[prodIndex]].contentType + ';base64,' + product.media[activeSlideIndices[prodIndex]].base64Data"
+                [type]="product.media[activeSlideIndices[prodIndex]].contentType"
               />
             </video>
-            <div *ngIf="product.responseMediaDTOs?.length > 1" class="carousel-dots">
+            <div *ngIf="product.media?.length > 1" class="carousel-dots">
               <button
-                *ngFor="let media of product.responseMediaDTOs; let i = index; trackBy: trackByObjectKey"
+                *ngFor="let media of product.media; let i = index; trackBy: trackByObjectKey"
                 class="dot"
                 [class.active]="activeSlideIndices[prodIndex] === i"
                 (click)="$event.stopPropagation(); setActiveSlide(prodIndex, i)"

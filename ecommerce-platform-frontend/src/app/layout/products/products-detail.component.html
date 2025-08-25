@@ -6,9 +6,9 @@
 <!--  <p class="price">Price: {{ product.price | currency }}</p>-->
   <p *ngIf="product.description">{{ product.description }}</p>
 
-  <div *ngIf="product.responseMediaDTOs?.length" class="images">
+  <div *ngIf="product.media?.length" class="images">
     <img
-      *ngFor="let media of product.responseMediaDTOs"
+      *ngFor="let media of product.media"
       ngSrc="'data:' + media.contentType + ';base64,' + media.base64Data"
       [alt]="product.name"
       class="product-image"

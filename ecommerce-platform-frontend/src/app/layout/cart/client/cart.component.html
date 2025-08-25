@@ -8,10 +8,10 @@
   <div class="cart-items" *ngIf="cartItemsWithProducts.length">
     <div *ngFor="let item of cartItemsWithProducts" class="cart-item">
       <div class="item-media" (click)="goToProduct(item.productId)">
-        <img *ngIf="item.product?.responseMediaDTOs?.length"
-             [src]="'data:' + item.product.responseMediaDTOs[0].contentType + ';base64,' + item.product.responseMediaDTOs[0].base64Data"
+        <img *ngIf="item.product?.media?.length"
+             [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
              [alt]="item.product.name">
-        <div *ngIf="!item.product?.responseMediaDTOs?.length" class="no-image">No Image</div>
+        <div *ngIf="!item.product?.media?.length" class="no-image">No Image</div>
       </div>
 
       <div class="item-info">

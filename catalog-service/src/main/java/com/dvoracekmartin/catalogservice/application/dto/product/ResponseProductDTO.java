@@ -1,6 +1,6 @@
 package com.dvoracekmartin.catalogservice.application.dto.product;
 
-import com.dvoracekmartin.catalogservice.application.dto.media.ResponseMediaDTO;
+import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
 
 import java.math.BigDecimal;
@@ -24,6 +24,6 @@ public record ResponseProductDTO(
         Double weightGrams,
         List<String> allergens,
         List<ResponseTagDTO> tagsDTOs,
-        List<ResponseMediaDTO> responseMediaDTOs
+        List<MediaDTO> mediaDTOS
 ) {
 }

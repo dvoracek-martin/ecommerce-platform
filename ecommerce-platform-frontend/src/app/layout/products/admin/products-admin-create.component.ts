@@ -65,7 +65,7 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
       weightGrams: [null],
       allergens: this.fb.array([]),
       tagIds: [[]],
-      uploadMediaDTOs: this.fb.array([])
+      media: this.fb.array([])
     });
   }
 
@@ -95,7 +95,7 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
   // --- Media Handling ---
 
   get mediaControls(): FormArray {
-    return this.productForm.get('uploadMediaDTOs') as FormArray;
+    return this.productForm.get('media') as FormArray;
   }
 
   onFileSelected(event: Event): void {

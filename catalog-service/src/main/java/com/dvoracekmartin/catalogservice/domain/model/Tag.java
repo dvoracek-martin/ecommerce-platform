@@ -27,4 +27,7 @@ public class Tag extends BaseEntity {
     @JsonBackReference
     @EqualsAndHashCode.Exclude
     private List<Mixture> mixtures;
+
+    public Tag(Object o, String name, Object o1, Object o2, Object o3) {
+    }
 }

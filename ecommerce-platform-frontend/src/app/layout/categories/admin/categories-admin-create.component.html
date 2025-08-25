@@ -79,7 +79,7 @@
             {{ 'CATEGORIES.ADMIN.UPLOAD_MEDIA' | translate }}
           </button>
 
-          <div cdkDropList formArrayName="uploadMediaDTOs" (cdkDropListDropped)="drop($event)"
+          <div cdkDropList formArrayName="media" (cdkDropListDropped)="drop($event)"
                class="media-list">
             <div class="media-item" *ngFor="let ctrl of mediaControls.controls; let i = index"
                  [formGroupName]="i" cdkDrag>

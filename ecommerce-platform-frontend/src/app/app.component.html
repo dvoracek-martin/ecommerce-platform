@@ -40,11 +40,11 @@
           <mat-list>
             <mat-list-item *ngFor="let product of searchResults?.products" (click)="goToProduct(product); $event.stopPropagation()">
               <div class="result-item">
-                <img *ngIf="product.responseMediaDTOs?.[0]"
-                     [src]="'data:' + product.responseMediaDTOs[0].contentType + ';base64,' + product.responseMediaDTOs[0].base64Data"
+                <img *ngIf="product.media?.[0]"
+                     [src]="'data:' + product.media[0].contentType + ';base64,' + product.media[0].base64Data"
                      [alt]="product.name"
                      class="result-thumbnail" />
-                <mat-icon class="result-icon" *ngIf="!product.responseMediaDTOs?.[0]">inventory_2</mat-icon>
+                <mat-icon class="result-icon" *ngIf="!product.media?.[0]">inventory_2</mat-icon>
                 <div class="result-text">{{ product.name }}</div>
               </div>
             </mat-list-item>
@@ -111,8 +111,8 @@
 
             <div class="cart-item" *ngFor="let item of cartItemsWithProducts">
               <ng-container *ngIf="item.product">
-                <img *ngIf="item.product.responseMediaDTOs?.[0]"
-                     [src]="'data:' + item.product.responseMediaDTOs[0].contentType + ';base64,' + item.product.responseMediaDTOs[0].base64Data"
+                <img *ngIf="item.product.media?.[0]"
+                     [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
                      [alt]="item.product.name"
                      class="item-image"
                      (click)="goToProduct(item.product); $event.stopPropagation()" />

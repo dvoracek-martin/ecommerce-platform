@@ -5,7 +5,7 @@ import {Router} from '@angular/router';
 import {CategoryService} from '../../services/category.service';
 import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
 import {forkJoin} from 'rxjs';
-import {ResponseMediaDTO} from '../../dto/media/response-media-dto';
+import {MediaDTO} from '../../dto/media/media-dto';
 import {TagDTO} from '../../dto/tag/tag-dto';
 
 interface ProductSummary {
@@ -112,7 +112,7 @@ export class MixingComponent implements OnInit, OnDestroy {
       if (!products) return;
       products.forEach(product => {
         this.activeSlideIndices[product.id] = 0;
-        const mediaCount = product.responseMediaDTOs?.length || 0;
+        const mediaCount = product.media?.length || 0;
         this.startCarousel(product.id, mediaCount);
       });
     });
@@ -176,7 +176,7 @@ export class MixingComponent implements OnInit, OnDestroy {
     });
   }
 
-  trackByObjectKey(_idx: number, item: ResponseMediaDTO): string {
+  trackByObjectKey(_idx: number, item: MediaDTO): string {
     return item.objectKey;
   }
 

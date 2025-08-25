@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
-import { ResponseMediaDTO } from '../../../dto/media/response-media-dto';
+import { MediaDTO } from '../../../dto/media/media-dto';
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {ProductService} from '../../../services/product.service'; // Assuming you'll reuse this
 
@@ -53,7 +53,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
     this.activeSlideIndices = [];
     this.products.forEach((product, idx) => {
       this.activeSlideIndices[idx] = 0;
-      const mediaCount = product.responseMediaDTOs?.length || 0;
+      const mediaCount = product.media?.length || 0;
       this.startCarousel(idx, mediaCount);
     });
   }
@@ -73,14 +73,14 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
   setActiveSlide(productIndex: number, slideIndex: number): void {
     this.activeSlideIndices[productIndex] = slideIndex;
     clearInterval(this.intervals[productIndex]);
-    this.startCarousel(productIndex, this.products[productIndex].responseMediaDTOs.length);
+    this.startCarousel(productIndex, this.products[productIndex].media.length);
   }
 
   trackById(_idx: number, item: ResponseProductDTO): number {
     return item.id;
   }
 
-  trackByObjectKey(_idx: number, item: ResponseMediaDTO): string {
+  trackByObjectKey(_idx: number, item: MediaDTO): string {
     return item.objectKey;
   }
 
