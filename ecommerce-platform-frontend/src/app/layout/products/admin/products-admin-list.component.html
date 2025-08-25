@@ -65,18 +65,6 @@
           <p class="product-description-truncated">
             {{ product.description }}
           </p>
-          <div class="product-specs">
-            <span *ngIf="product.scentProfile">
-              <mat-icon>local_florist</mat-icon>
-              {{ 'PRODUCTS.SCENT_PROFILE' | translate }}:
-              {{ product.scentProfile }}
-            </span>
-            <span *ngIf="product.volumeMl">
-              <mat-icon>science</mat-icon>
-              {{ 'PRODUCTS.VOLUME' | translate }}:
-              {{ product.volumeMl }} ml
-            </span>
-          </div>
         </div>
       </div>
 

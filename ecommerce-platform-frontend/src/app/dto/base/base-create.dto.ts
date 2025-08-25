@@ -1,7 +1,6 @@
 import {MediaDTO} from '../media/media-dto';
 
-export interface BaseUpdateOrResponseDTO {
-  id: number;
+export interface BaseCreateDTO {
   name: string;
   description?: string;
   priority: number;

@@ -185,43 +185,10 @@
                 <span class="info-label">Description:</span>
                 <p>{{ selectedProduct.description }}</p>
               </div>
-              <div *ngIf="selectedProduct.scentProfile" class="info-item">
-                <span class="info-label">Scent Profile:</span> {{ selectedProduct.scentProfile }}
-              </div>
-              <div *ngIf="selectedProduct.botanicalName" class="info-item">
-                <span class="info-label">Botanical Name:</span> {{ selectedProduct.botanicalName }}
-              </div>
-              <div *ngIf="selectedProduct.extractionMethod" class="info-item">
-                <span class="info-label">Extraction Method:</span> {{ selectedProduct.extractionMethod }}
-              </div>
-              <div *ngIf="selectedProduct.origin" class="info-item">
-                <span class="info-label">Origin:</span> {{ selectedProduct.origin }}
-              </div>
-              <div *ngIf="selectedProduct.usageInstructions" class="info-item">
-                <span class="info-label">Usage Instructions:</span>
-                <p>{{ selectedProduct.usageInstructions }}</p>
-              </div>
-              <div *ngIf="selectedProduct.volumeMl" class="info-item">
-                <span class="info-label">Volume:</span> {{ selectedProduct.volumeMl }} ml
-              </div>
-              <div *ngIf="selectedProduct.warnings" class="info-item">
-                <span class="info-label">Warnings:</span>
-                <p>{{ selectedProduct.warnings }}</p>
-              </div>
-              <div *ngIf="selectedProduct.medicinalUse" class="info-item">
-                <span class="info-label">Medicinal Use:</span>
-                <p>{{ selectedProduct.medicinalUse }}</p>
-              </div>
-              <div *ngIf="selectedProduct.weightGrams" class="info-item">
-                <span class="info-label">Weight:</span> {{ selectedProduct.weightGrams }} g
-              </div>
-              <div *ngIf="selectedProduct.allergens?.length" class="info-item">
-                <span class="info-label">Allergens:</span> {{ selectedProduct.allergens.join(', ') }}
-              </div>
-              <div *ngIf="selectedProduct.tagsDTOs?.length" class="info-item">
+              <div *ngIf="selectedProduct.responseTagDTOS?.length" class="info-item">
                 <span class="info-label">Tags:</span>
                 <div class="tags-container">
-                  <span *ngFor="let tag of selectedProduct.tagsDTOs" class="tag">{{ tag.name }}</span>
+                  <span *ngFor="let tag of selectedProduct.responseTagDTOS" class="tag">{{ tag.name }}</span>
                 </div>
               </div>
             </div>

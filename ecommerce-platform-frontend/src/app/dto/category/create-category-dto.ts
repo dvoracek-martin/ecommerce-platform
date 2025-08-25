@@ -1,11 +1,6 @@
-import {MediaDTO} from '../media/media-dto';
+import {ResponseTagDTO} from '../tag/response-tag-dto';
+import {BaseCreateDTO} from '../base/base-create.dto';
 
-
-export interface CreateCategoryDTO {
-  name: string;
-  description?: string;
-  priority: number;
-  active: boolean;
-  tagIds: number[];
-  media: MediaDTO[];
+export interface CreateCategoryDTO extends BaseCreateDTO {
+  tagIds?: ResponseTagDTO[];
 }

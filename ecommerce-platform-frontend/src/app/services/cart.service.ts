@@ -10,7 +10,7 @@ import {ProductService} from "./product.service";
 
 export interface CartItem {
   id?: number;
-  productId: number;
+  itemId: number;
   quantity: number;
   product?: ResponseProductDTO;
 }
@@ -63,7 +63,7 @@ export class CartService {
 
   private saveGuestCart(items: CartItem[]) {
     if (this.isBrowser) {
-      const simpleItems = items.map(item => ({productId: item.productId, quantity: item.quantity}));
+      const simpleItems = items.map(item => ({productId: item.itemId, quantity: item.quantity}));
       localStorage.setItem('guest_cart', JSON.stringify(simpleItems));
     }
   }
@@ -82,7 +82,7 @@ export class CartService {
             return of(cart);
           }
           const productObservables = cart.items.map(item =>
-            this.productService.getProductById(item.productId).pipe(
+            this.productService.getProductById(item.itemId).pipe(
               map(product => ({...item, product})),
               catchError(() => of({...item, product: undefined}))
             )
@@ -122,14 +122,14 @@ export class CartService {
 
   addItem(item: CartItem): Observable<Cart> {
     if (this.authService.isTokenValid()) {
-      return this.http.post<Cart>(`${this.apiUrl}/add`, {productId: item.productId, quantity: item.quantity})
+      return this.http.post<Cart>(`${this.apiUrl}/add`, {itemId: item.itemId, quantity: item.quantity})
         .pipe(
           switchMap(cart => {
             if (!cart || !cart.items || cart.items.length === 0) {
               return of(cart);
             }
             const productObservables = cart.items.map(cartItem =>
-              this.productService.getProductById(cartItem.productId).pipe(
+              this.productService.getProductById(cartItem.itemId).pipe(
                 map(product => ({...cartItem, product})),
                 catchError(() => of({...cartItem, product: undefined}))
               )
@@ -150,7 +150,7 @@ export class CartService {
         );
     } else {
       const currentCart = this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0};
-      const existingItem = currentCart.items.find(ci => ci.productId === item.productId);
+      const existingItem = currentCart.items.find(ci => ci.itemId === item.itemId);
       if (existingItem) {
         existingItem.quantity += item.quantity;
       } else {
@@ -166,7 +166,7 @@ export class CartService {
     if (this.authService.isTokenValid()) {
       const currentCart = this._cart.getValue();
       if (currentCart) {
-        const item = currentCart.items.find(i => i.productId === productId);
+        const item = currentCart.items.find(i => i.itemId === productId);
         if (item) {
           const oldQuantity = item.quantity;
           item.quantity = quantity;
@@ -190,7 +190,7 @@ export class CartService {
       return throwError(() => new Error('Item not found in cart.'));
     } else {
       const currentCart = this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0};
-      const item = currentCart.items.find(ci => ci.productId === productId);
+      const item = currentCart.items.find(ci => ci.itemId === productId);
       if (item) {
         item.quantity = quantity;
         this.saveGuestCart(currentCart.items);
@@ -205,9 +205,9 @@ export class CartService {
     if (this.authService.isTokenValid()) {
       const currentCart = this._cart.getValue();
       if (currentCart) {
-        const itemToRemove = currentCart.items.find(i => i.productId === productId);
+        const itemToRemove = currentCart.items.find(i => i.itemId === productId);
         const oldItems = [...currentCart.items];
-        currentCart.items = currentCart.items.filter(i => i.productId !== productId);
+        currentCart.items = currentCart.items.filter(i => i.itemId !== productId);
         this.calculateAndSetTotalPrice(currentCart);
 
         return this.http.delete<Cart>(`${this.apiUrl}/remove/${productId}`)
@@ -227,7 +227,7 @@ export class CartService {
       return throwError(() => new Error('Cart not found.'));
     } else {
       const currentCart = this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0};
-      currentCart.items = currentCart.items.filter(item => item.productId !== productId);
+      currentCart.items = currentCart.items.filter(item => item.itemId !== productId);
       this.saveGuestCart(currentCart.items);
       this.calculateAndSetTotalPrice(currentCart);
       this.showSnackbar('Item removed from cart!', 'success');
@@ -249,7 +249,7 @@ export class CartService {
             return of(cart);
           }
           const productObservables = cart.items.map(cartItem =>
-            this.productService.getProductById(cartItem.productId).pipe(
+            this.productService.getProductById(cartItem.itemId).pipe(
               map(product => ({ ...cartItem, product })),
               catchError(() => of({ ...cartItem, product: undefined }))
             )

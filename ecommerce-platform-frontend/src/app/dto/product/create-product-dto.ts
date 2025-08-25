@@ -1,22 +1,9 @@
-import { MediaDTO } from '../media/media-dto';
-import { TagDTO } from '../tag/tag-dto';
+import {BaseCreateDTO} from '../base/base-create.dto';
+import {CreateCategoryDTO} from '../category/create-category-dto';
 
-export interface CreateProductDTO {
-  name: string;
-  description?: string;
-  price: number;
-  images?: string[];
-  categoryId: number;
-  scentProfile: string;
-  botanicalName: string;
-  extractionMethod: string;
-  origin: string;
-  usageInstructions: string;
-  volumeMl: number;
-  warnings: string;
-  medicinalUse?: string;
-  weightGrams: number;
-  allergens?: string[];
-  tagIds: number[];
-  media?: MediaDTO[];
+export interface CreateProductDTO extends BaseCreateDTO {
+  price?: number;
+  weightGrams?: number;
+  createCategoryDTOs?: CreateCategoryDTO[];
+  tagIds?: number[];
 }

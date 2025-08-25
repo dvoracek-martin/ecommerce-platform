@@ -44,7 +44,7 @@ export class CartComponent implements OnInit {
           }
 
           const productObservables = cart.items.map(item =>
-            this.productService.getProductById(item.productId)
+            this.productService.getProductById(item.itemId)
               .pipe(catchError(() => of(null)))
           );
 

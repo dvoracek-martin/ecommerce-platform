@@ -72,7 +72,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   addToCart(product: ResponseProductDTO): void {
-    this.cartService.addItem({ productId: product.id!, quantity: 1, product: product }).subscribe({
+    this.cartService.addItem({ itemId: product.id!, quantity: 1, product: product }).subscribe({
       next: () => {
         console.log(`${product.name} added to cart`);
       },

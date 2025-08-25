@@ -7,7 +7,7 @@
 
   <div class="cart-items" *ngIf="cartItemsWithProducts.length">
     <div *ngFor="let item of cartItemsWithProducts" class="cart-item">
-      <div class="item-media" (click)="goToProduct(item.productId)">
+      <div class="item-media" (click)="goToProduct(item.itemId)">
         <img *ngIf="item.product?.media?.length"
              [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
              [alt]="item.product.name">
@@ -15,16 +15,16 @@
       </div>
 
       <div class="item-info">
-        <p class="item-name" (click)="goToProduct(item.productId)">
-          {{ item.product?.name || ('Product ' + item.productId) }}
+        <p class="item-name" (click)="goToProduct(item.itemId)">
+          {{ item.product?.name || ('Product ' + item.itemId) }}
         </p>
         <div class="item-price">
           Price: {{ item.product?.price | currency }}
         </div>
         <div class="item-quantity">
-          <label for="qty-{{item.productId}}">Quantity:</label>
-          <input id="qty-{{item.productId}}" type="number" min="1" [(ngModel)]="item.quantity"
-                 (change)="updateQuantity(item.productId, item.quantity)">
+          <label for="qty-{{item.itemId}}">Quantity:</label>
+          <input id="qty-{{item.itemId}}" type="number" min="1" [(ngModel)]="item.quantity"
+                 (change)="updateQuantity(item.itemId, item.quantity)">
         </div>
         <div class="item-total">
           Total: {{ getItemTotal(item) | currency }}
@@ -32,7 +32,7 @@
       </div>
 
       <div class="item-actions">
-        <button mat-stroked-button color="warn" (click)="removeItem(item.productId)">
+        <button mat-stroked-button color="warn" (click)="removeItem(item.itemId)">
           Remove
         </button>
       </div>

@@ -84,7 +84,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
     return item.objectKey;
   }
 
-  openDeleteDialog(productId: number): void {
+  openDeleteDialog(itemId: number): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: 'Delete Product',
@@ -94,7 +94,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.deleteProduct(productId);
+        this.deleteProduct(itemId);
       }
     });
   }
@@ -110,8 +110,8 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
     });
   }
 
-  navigateToUpdate(productId: number): void {
-    this.router.navigate([`/admin/products/update/${productId}`]);
+  navigateToUpdate(itemId: number): void {
+    this.router.navigate([`/admin/products/update/${itemId}`]);
   }
 
   navigateToCreate(): void {

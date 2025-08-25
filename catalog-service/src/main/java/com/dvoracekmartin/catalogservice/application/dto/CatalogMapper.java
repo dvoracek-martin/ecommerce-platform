@@ -32,26 +32,19 @@ public interface CatalogMapper {
 
     ResponseProductDTO mapProductToResponseProductDTO(Product product);
 
-    default ResponseProductDTO mapProductToResponseProductDTO(Product product, List<MediaDTO> responseMedia) {
+    default ResponseProductDTO mapProductToResponseProductDTO(Product product, List<MediaDTO> media) {
         return new ResponseProductDTO(
                 product.getId(),
                 product.getName(),
                 product.getDescription(),
-                product.getPrice(),
-                product.getImages(),
-                product.getCategory().getId(),
-                product.getScentProfile(),
-                product.getBotanicalName(),
-                product.getExtractionMethod(),
-                product.getOrigin(),
-                product.getUsageInstructions(),
-                product.getVolumeMl(),
-                product.getWarnings(),
-                product.getMedicinalUse(),
-                product.getWeightGrams(),
-                product.getAllergens(),
+                product.getPriority(),
+                product.isActive(),
+                media,
                 product.getTags().stream().map(this::mapTagToResponseTagDTO).toList(),
-                responseMedia);
+                product.getCategory().getId(),
+                product.getPrice(),
+                product.getWeightGrams()
+        );
     }
 
     ResponseMixtureDTO mapMixtureToResponseMixtureDTO(Mixture mixture);

@@ -182,7 +182,7 @@ export class AppComponent implements OnInit, OnDestroy {
           return of([]);
         }
         const productObservables = cart.items.map(item =>
-          this.productService.getProductById(item.productId).pipe(
+          this.productService.getProductById(item.itemId).pipe(
             catchError(() => {
               this.showSnackbar(`Failed to load product details for an item.`, 'warning');
               return of(null);
@@ -193,7 +193,7 @@ export class AppComponent implements OnInit, OnDestroy {
           map(products => cart.items.map((item, index) => {
             const product = products[index];
             // Preserve optimistic state if exists
-            const existingItem = this.cartItemsWithProducts.find(i => i.productId === item.productId);
+            const existingItem = this.cartItemsWithProducts.find(i => i.itemId === item.itemId);
             return {
               ...item,
               product,
@@ -247,24 +247,24 @@ export class AppComponent implements OnInit, OnDestroy {
     const newQuantity = action === 'increase' ? item.quantity + 1 : item.quantity - 1;
 
     if (newQuantity < 1) {
-      this.removeItem(item.productId);
+      this.removeItem(item.itemId);
       return;
     }
 
     // Optimistic update
     const updatedItems = this.cartItemsWithProducts.map(i =>
-      i.productId === item.productId
+      i.itemId === item.itemId
         ? { ...i, optimisticQuantity: newQuantity, updating: true }
         : i
     );
     this.cartItemsWithProducts = updatedItems;
 
     // Server update
-    this.cartService.updateItem(item.productId, newQuantity).subscribe(
+    this.cartService.updateItem(item.itemId, newQuantity).subscribe(
       () => {
         // Update with server response
         const finalItems = this.cartItemsWithProducts.map(i =>
-          i.productId === item.productId
+          i.itemId === item.itemId
             ? { ...i, quantity: newQuantity, optimisticQuantity: undefined, updating: false }
             : i
         );
@@ -273,7 +273,7 @@ export class AppComponent implements OnInit, OnDestroy {
       error => {
         // Revert on error
         const revertedItems = this.cartItemsWithProducts.map(i =>
-          i.productId === item.productId
+          i.itemId === item.itemId
             ? { ...i, optimisticQuantity: undefined, updating: false }
             : i
         );
@@ -295,17 +295,17 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Optimistic update
     const updatedItems = this.cartItemsWithProducts.map(i =>
-      i.productId === item.productId
+      i.itemId === item.itemId
         ? { ...i, optimisticQuantity: newQuantity, updating: true }
         : i
     );
     this.cartItemsWithProducts = updatedItems;
 
     // Server update
-    this.cartService.updateItem(item.productId, newQuantity).subscribe(
+    this.cartService.updateItem(item.itemId, newQuantity).subscribe(
       () => {
         const finalItems = this.cartItemsWithProducts.map(i =>
-          i.productId === item.productId
+          i.itemId === item.itemId
             ? { ...i, quantity: newQuantity, optimisticQuantity: undefined, updating: false }
             : i
         );
@@ -313,7 +313,7 @@ export class AppComponent implements OnInit, OnDestroy {
       },
       error => {
         const revertedItems = this.cartItemsWithProducts.map(i =>
-          i.productId === item.productId
+          i.itemId === item.itemId
             ? { ...i, optimisticQuantity: undefined, updating: false }
             : i
         );
@@ -325,8 +325,8 @@ export class AppComponent implements OnInit, OnDestroy {
     );
   }
 
-  removeItem(productId: number | undefined): void {
-    if (productId === undefined) return;
+  removeItem(itemId: number | undefined): void {
+    if (itemId === undefined) return;
 
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '300px',
@@ -339,9 +339,9 @@ export class AppComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // Optimistic removal
-        this.cartItemsWithProducts = this.cartItemsWithProducts.filter(item => item.productId !== productId);
+        this.cartItemsWithProducts = this.cartItemsWithProducts.filter(item => item.itemId !== itemId);
 
-        this.cartService.removeItem(productId).subscribe(
+        this.cartService.removeItem(itemId).subscribe(
           () => this.showSnackbar('Item removed from cart!', 'success'),
           error => {
             // Re-add item on error

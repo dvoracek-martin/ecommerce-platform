@@ -1,21 +1,12 @@
-import {MediaDTO} from '../media/media-dto';
+import {BaseUpdateOrResponseDTO} from '../base/base-update-or-response.dto';
+import {ResponseCategoryDTO} from '../category/response-category-dto';
+import {ResponseTagDTO} from '../tag/response-tag-dto';
 
-export interface UpdateProductDTO {
-  name: string;
-  description?: string;
-  price: number;
-  images?: string[];
-  categoryId: number;
-  scentProfile: string;
-  botanicalName: string;
-  extractionMethod: string;
-  origin: string;
-  usageInstructions: string;
-  volumeMl: number;
-  warnings: string;
-  medicinalUse?: string;
-  weightGrams: number;
-  allergens?: string[];
-  tagIds?: number[];
-  media?: MediaDTO[];
+
+export interface UpdateProductDTO extends BaseUpdateOrResponseDTO {
+  price?: number;
+  weightGrams?: number;
+  categoryId?: number;
+  responseCategoryDTOs?: ResponseCategoryDTO[];
+  responseTagDTOS?: ResponseTagDTO[];
 }

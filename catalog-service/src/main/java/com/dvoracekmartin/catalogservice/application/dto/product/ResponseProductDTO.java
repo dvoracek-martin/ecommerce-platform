@@ -1,29 +1,32 @@
 package com.dvoracekmartin.catalogservice.application.dto.product;
 
+import com.dvoracekmartin.catalogservice.application.dto.base.BaseUpdateOrResponseDTO;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.List;
 
-public record ResponseProductDTO(
-        Long id,
-        String name,
-        String description,
-        BigDecimal price,
-        List<String> images,
-        Long categoryId,
-        String scentProfile,
-        String botanicalName,
-        String extractionMethod,
-        String origin,
-        String usageInstructions,
-        Integer volumeMl,
-        String warnings,
-        String medicinalUse,
-        Double weightGrams,
-        List<String> allergens,
-        List<ResponseTagDTO> tagsDTOs,
-        List<MediaDTO> mediaDTOS
-) {
+@Getter
+@Setter
+public class ResponseProductDTO extends BaseUpdateOrResponseDTO {
+
+    private Double price;
+    private Double weightGrams;
+    private List<ResponseTagDTO> responseTagDTOS;
+    private Long categoryId;
+
+    public ResponseProductDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media,
+                              List<ResponseTagDTO> responseTagDTOS,
+                              Long categoryId,
+                              Double price,
+                              Double weightGrams
+    ) {
+        super(id, name, description, priority, active, media);
+        this.responseTagDTOS = responseTagDTOS;
+        this.categoryId = categoryId;
+        this.price = price;
+        this.weightGrams = weightGrams;
+    }
 }

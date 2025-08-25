@@ -1,29 +1,31 @@
 package com.dvoracekmartin.catalogservice.application.dto.product;
 
+import com.dvoracekmartin.catalogservice.application.dto.base.BaseCreateDTO;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.List;
 
-public record CreateProductDTO(
-        @NotBlank String name,
-        String description,
-        @NotNull BigDecimal price,
-        List<String> images,
-        Long categoryId,
-        String scentProfile,
-        String botanicalName,
-        String extractionMethod,
-        String origin,
-        String usageInstructions,
-        Integer volumeMl,
-        String warnings,
-        String medicinalUse,
-        Double weightGrams,
-        List<String> allergens,
-        List<Long> tagIds,
-        List<MediaDTO> uploadMediaDTOs
-) {
+@Setter
+@Getter
+public class CreateProductDTO extends BaseCreateDTO {
+
+    private Long categoryId;
+    private List<Long> tagIds;
+    private Double price;
+    private Double weightGrams;
+
+    public CreateProductDTO(String name, String description, int priority, boolean active, List<MediaDTO> media,
+                            Long categoryId,
+                            List<Long> tagIds,
+                            Double price,
+                            Double weightGrams
+    ) {
+        super(name, description, priority, active, media);
+        this.categoryId = categoryId;
+        this.tagIds = tagIds;
+        this.price = price;
+        this.weightGrams = weightGrams;
+    }
 }

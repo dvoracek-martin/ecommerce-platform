@@ -17,27 +17,12 @@
 
   <ul class="details-list">
     <li *ngIf="product.categoryId">Category ID: {{ product.categoryId }}</li>
-    <li *ngIf="product.scentProfile">Scent Profile: {{ product.scentProfile }}</li>
-    <li *ngIf="product.botanicalName">Botanical Name: {{ product.botanicalName }}</li>
-    <li *ngIf="product.extractionMethod">Extraction Method: {{ product.extractionMethod }}</li>
-    <li *ngIf="product.origin">Origin: {{ product.origin }}</li>
-    <li *ngIf="product.usageInstructions">Usage Instructions: {{ product.usageInstructions }}</li>
-    <li *ngIf="product.volumeMl">Volume: {{ product.volumeMl }} ml</li>
-    <li *ngIf="product.warnings">Warnings: {{ product.warnings }}</li>
-    <li *ngIf="product.medicinalUse">Medicinal Use: {{ product.medicinalUse }}</li>
     <li *ngIf="product.weightGrams">Weight: {{ product.weightGrams }} g</li>
   </ul>
 
-  <div *ngIf="product.allergens?.length" class="allergens">
-    <h4>Allergens</h4>
-    <ul>
-      <li *ngFor="let allergen of product.allergens">{{ allergen }}</li>
-    </ul>
-  </div>
-
-  <div *ngIf="product.tagsDTOs?.length" class="tags">
+  <div *ngIf="product.responseTagDTOS?.length" class="tags">
     <h4>Tags</h4>
-    <span *ngFor="let tag of product.tagsDTOs" class="tag" [style.background-color]="tag.color || '#ccc'">
+    <span *ngFor="let tag of product.responseTagDTOS" class="tag" [style.background-color]="'#ccc'">
       {{ tag.name }}
     </span>
   </div>
