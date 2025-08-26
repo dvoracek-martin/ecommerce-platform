@@ -1,10 +1,10 @@
-// src/main/java/com/dvoracek/cartservice/web/controller/v1/CartController.java
 package com.dvoracek.cartservice.web.controller.v1;
 
+import com.dvoracek.cartservice.application.dto.cart.CartDTO;
 import com.dvoracek.cartservice.application.service.CartService;
-import com.dvoracek.cartservice.domain.model.Cart;
 import com.dvoracek.cartservice.domain.model.CartItem;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -22,36 +22,36 @@ public class CartControllerV1 {
     }
 
     @GetMapping
-    public Cart getCart(@AuthenticationPrincipal Jwt jwt,
-                        @CookieValue(name = "gcid", required = false) String guestId) {
-        return cartService.getCart(usernameOrNull(jwt), guestId);
+    public ResponseEntity<CartDTO> getCart(@AuthenticationPrincipal Jwt jwt,
+                                           @CookieValue(name = "gcid", required = false) String guestId) {
+        return ResponseEntity.ok(cartService.getCart(usernameOrNull(jwt), guestId));
     }
 
     @PostMapping("/add")
-    public Cart addItem(@AuthenticationPrincipal Jwt jwt,
-                        @CookieValue(name = "gcid", required = false) String guestId,
-                        @RequestBody CartItem item) {
-        return cartService.addItem(usernameOrNull(jwt), guestId, item);
+    public ResponseEntity<CartDTO> addItem(@AuthenticationPrincipal Jwt jwt,
+                                           @CookieValue(name = "gcid", required = false) String guestId,
+                                           @RequestBody CartItem item) {
+        return ResponseEntity.ok(cartService.addItem(usernameOrNull(jwt), guestId, item));
     }
 
     @PostMapping("/update")
-    public Cart updateItem(@AuthenticationPrincipal Jwt jwt,
-                           @CookieValue(name = "gcid", required = false) String guestId,
-                           @RequestParam Long productId,
-                           @RequestParam int quantity) {
-        return cartService.updateItemQuantity(usernameOrNull(jwt), guestId, productId, quantity);
+    public ResponseEntity<CartDTO> updateItem(@AuthenticationPrincipal Jwt jwt,
+                                              @CookieValue(name = "gcid", required = false) String guestId,
+                                              @RequestParam Long productId,
+                                              @RequestParam int quantity) {
+        return ResponseEntity.ok(cartService.updateItemQuantity(usernameOrNull(jwt), guestId, productId, quantity));
     }
 
     @DeleteMapping("/remove/{productId}")
-    public Cart removeItem(@AuthenticationPrincipal Jwt jwt,
-                           @CookieValue(name = "gcid", required = false) String guestId,
-                           @PathVariable Long productId) {
-        return cartService.removeItem(usernameOrNull(jwt), guestId, productId);
+    public ResponseEntity<CartDTO> removeItem(@AuthenticationPrincipal Jwt jwt,
+                                              @CookieValue(name = "gcid", required = false) String guestId,
+                                              @PathVariable Long productId) {
+        return ResponseEntity.ok(cartService.removeItem(usernameOrNull(jwt), guestId, productId));
     }
 
     @PostMapping("/merge")
-    public Cart merge(@AuthenticationPrincipal Jwt jwt,
-                      @CookieValue(name = "gcid", required = false) String guestId) {
-        return cartService.mergeGuestIntoUser(usernameOrNull(jwt), guestId);
+    public ResponseEntity<CartDTO> merge(@AuthenticationPrincipal Jwt jwt,
+                                         @CookieValue(name = "gcid", required = false) String guestId) {
+        return ResponseEntity.ok(cartService.mergeGuestIntoUser(usernameOrNull(jwt), guestId));
     }
 }

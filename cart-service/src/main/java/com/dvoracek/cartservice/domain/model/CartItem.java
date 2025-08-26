@@ -15,7 +15,7 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long itemId; // ID of Product or Mixture
+    private Long itemId;
 
     @Enumerated(EnumType.STRING)
     private CartItemType itemType;

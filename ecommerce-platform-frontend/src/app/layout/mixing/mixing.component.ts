@@ -4,8 +4,12 @@ import {ProductService} from '../../services/product.service';
 import {Router} from '@angular/router';
 import {CategoryService} from '../../services/category.service';
 import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
-import {forkJoin} from 'rxjs';
+import {forkJoin, throwError} from 'rxjs';
 import {MediaDTO} from '../../dto/media/media-dto';
+import {CartService} from "../../services/cart.service";
+import {MixtureService} from "../../services/mixture.service";
+import {catchError, switchMap, tap} from "rxjs/operators";
+import {CartItemType} from '../../dto/cart/cart-item-type';
 
 interface ProductSummary {
   product: ResponseProductDTO;
@@ -46,7 +50,10 @@ export class MixingComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
-    private router: Router) {
+    private router: Router,
+    private cartService: CartService,
+    private mixtureService: MixtureService
+  ) {
   }
 
   ngOnInit(): void {
@@ -349,5 +356,49 @@ export class MixingComponent implements OnInit, OnDestroy {
     if (!categoryId) return 'N/A';
     const category = this.categories.find(cat => cat.id === categoryId);
     return category ? category.name : 'N/A';
+  }
+
+  // New method to check if the mixture grid is empty
+  isMixtureEmpty(): boolean {
+    return this.mixedProducts.every(p => p === null);
+  }
+
+  // Refactored method to add the mixture to the cart
+  addMixtureToCart(): void {
+    const productsInMixture = this.mixedProducts.filter(p => p !== null);
+
+    if (productsInMixture.length === 0) {
+      console.warn('Cannot add an empty mixture to the cart.');
+      return;
+    }
+
+    const productIds = productsInMixture.map(p => p!.id);
+    const request = {
+      name: this.mixtureName,
+      productIds: productIds
+    };
+
+    this.mixtureService.createMixture(request).pipe(
+      // Get the ID of the newly created mixture
+      switchMap(savedMixture => {
+        if (!savedMixture || !savedMixture.id) {
+          return throwError(() => new Error('Failed to save mixture and get ID.'));
+        }
+
+        // Add the mixture to the cart using its ID
+        return this.cartService.addItem({
+          itemId: savedMixture.id,
+          quantity: 1,
+          cartItemType: CartItemType.MIXTURE
+        });
+      }),
+      tap(() => {
+        console.log(`${this.mixtureName} added to cart!`);
+      }),
+      catchError(err => {
+        console.error('Failed to add mixture to cart', err);
+        return throwError(() => err);
+      })
+    ).subscribe();
   }
 }

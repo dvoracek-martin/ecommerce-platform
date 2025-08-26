@@ -7,12 +7,16 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {ResponseProductDTO} from "../dto/product/response-product-dto";
 import {AuthService} from '../auth/auth.service';
 import {ProductService} from "./product.service";
+import {ResponseMixtureDTO} from '../dto/mixtures/response-mixture-dto';
+import {CartItemType} from '../dto/cart/cart-item-type';
 
 export interface CartItem {
   id?: number;
   itemId: number;
   quantity: number;
   product?: ResponseProductDTO;
+  mixture?: ResponseMixtureDTO;
+  cartItemType: CartItemType;
 }
 
 export interface Cart {

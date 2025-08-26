@@ -1,5 +1,7 @@
 package com.dvoracek.cartservice.application.service;
 
+import com.dvoracek.cartservice.application.dto.cart.CartDTO;
+import com.dvoracek.cartservice.application.utils.CartMapper;
 import com.dvoracek.cartservice.domain.model.Cart;
 import com.dvoracek.cartservice.domain.model.CartItem;
 import com.dvoracek.cartservice.repository.CartRepository;
@@ -14,6 +16,14 @@ import java.util.Optional;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
+    private final CartMapper cartMapper;
+
+    @Override
+    @Transactional
+    public CartDTO getCart(String username, String guestId) {
+        Cart cart = getOrCreateCart(username, guestId);
+        return cartMapper.toDto(cart);
+    }
 
     @Override
     @Transactional
@@ -34,26 +44,14 @@ public class CartServiceImpl implements CartService {
                         return cartRepository.save(c);
                     });
         }
-        // fallback – shouldn't happen - cart is created by the filter
+        // Fallback for cases with neither a username nor a guestId
         Cart c = new Cart();
         return cartRepository.save(c);
     }
 
     @Override
     @Transactional
-    public Cart getCart(String username, String guestId) {
-        if (username != null && !username.isBlank()) {
-            return cartRepository.findByUsername(username).orElseGet(Cart::new);
-        }
-        if (guestId != null && !guestId.isBlank()) {
-            return cartRepository.findByGuestId(guestId).orElseGet(Cart::new);
-        }
-        return new Cart();
-    }
-
-    @Override
-    @Transactional
-    public Cart addItem(String username, String guestId, CartItem newItem) {
+    public CartDTO addItem(String username, String guestId, CartItem newItem) {
         Cart cart = getOrCreateCart(username, guestId);
 
         Optional<CartItem> existing = cart.getItems().stream()
@@ -67,38 +65,43 @@ public class CartServiceImpl implements CartService {
             cart.getItems().add(newItem);
         }
 
-        return cartRepository.save(cart);
+        Cart updatedCart = cartRepository.save(cart);
+        return cartMapper.toDto(updatedCart);
     }
 
     @Override
     @Transactional
-    public Cart removeItem(String username, String guestId, Long getItemId) {
+    public CartDTO removeItem(String username, String guestId, Long getItemId) {
         Cart cart = getOrCreateCart(username, guestId);
         cart.getItems().removeIf(item -> item.getItemId().equals(getItemId));
-        return cartRepository.save(cart);
+        Cart updatedCart = cartRepository.save(cart);
+        return cartMapper.toDto(updatedCart);
     }
 
     @Override
     @Transactional
-    public Cart updateItemQuantity(String username, String guestId, Long getItemId, int quantity) {
+    public CartDTO updateItemQuantity(String username, String guestId, Long getItemId, int quantity) {
         Cart cart = getOrCreateCart(username, guestId);
         cart.getItems().stream()
                 .filter(item -> item.getItemId().equals(getItemId))
                 .findFirst()
                 .ifPresent(item -> item.setQuantity(quantity));
-        return cartRepository.save(cart);
+        Cart updatedCart = cartRepository.save(cart);
+        return cartMapper.toDto(updatedCart);
     }
 
     @Override
     @Transactional
-    public Cart mergeGuestIntoUser(String username, String guestId) {
+    public CartDTO mergeGuestIntoUser(String username, String guestId) {
         if (username == null || username.isBlank() || guestId == null || guestId.isBlank()) {
-            return getCart(username, guestId);
+            return cartMapper.toDto(getOrCreateCart(username, guestId));
         }
         Cart userCart = getOrCreateCart(username, null);
         Optional<Cart> guestCartOpt = cartRepository.findByGuestId(guestId);
 
-        if (guestCartOpt.isEmpty()) return userCart;
+        if (guestCartOpt.isEmpty()) {
+            return cartMapper.toDto(userCart);
+        }
 
         Cart guestCart = guestCartOpt.get();
 
@@ -112,6 +115,7 @@ public class CartServiceImpl implements CartService {
                 CartItem copy = new CartItem();
                 copy.setItemId(gi.getItemId());
                 copy.setQuantity(gi.getQuantity());
+                copy.setItemType(gi.getItemType());
                 copy.setCart(userCart);
                 userCart.getItems().add(copy);
             }
@@ -119,6 +123,7 @@ public class CartServiceImpl implements CartService {
 
         cartRepository.delete(guestCart);
 
-        return cartRepository.save(userCart);
+        Cart updatedCart = cartRepository.save(userCart);
+        return cartMapper.toDto(updatedCart);
     }
 }
