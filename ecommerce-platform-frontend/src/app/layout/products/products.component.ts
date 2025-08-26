@@ -1,9 +1,10 @@
 // src/app/components/products/products.component.ts
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ResponseProductDTO } from '../../dto/product/response-product-dto';
-import { ProductService } from '../../services/product.service';
-import { Router } from '@angular/router';
-import { CartService } from '../../services/cart.service';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ResponseProductDTO} from '../../dto/product/response-product-dto';
+import {ProductService} from '../../services/product.service';
+import {Router} from '@angular/router';
+import {CartService} from '../../services/cart.service';
+import {CartItemType} from '../../dto/cart/cart-item-type';
 
 @Component({
   selector: 'app-products',
@@ -22,7 +23,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private cartService: CartService,
     private router: Router
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadProducts();
@@ -68,11 +70,16 @@ export class ProductsComponent implements OnInit, OnDestroy {
   setActiveSlide(index: number, slideIndex: number): void {
     this.activeSlideIndices[index] = slideIndex;
     clearInterval(this.intervals[index]);
-    this.startCarousel(index, this.products[index].media .length);
+    this.startCarousel(index, this.products[index].media.length);
   }
 
   addToCart(product: ResponseProductDTO): void {
-    this.cartService.addItem({ itemId: product.id!, quantity: 1, product: product }).subscribe({
+    this.cartService.addItem({
+      itemId: product.id!,
+      quantity: 1,
+      product: product,
+      cartItemType: CartItemType.PRODUCT
+    }).subscribe({
       next: () => {
         console.log(`${product.name} added to cart`);
       },
