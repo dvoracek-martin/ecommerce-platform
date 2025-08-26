@@ -11,6 +11,8 @@ import java.util.List;
 public interface ElasticsearchService {
     void indexAll(List<ResponseCategoryDTO> allCategories, List<ResponseProductDTO> allProducts, List<ResponseMixtureDTO> allMixtures, List<ResponseTagDTO> allTags);
 
+    ResponseSearchResultDTO searchProductsAndMixtures(String query);
+
     ResponseSearchResultDTO search(String query);
 
     void indexProduct(ResponseProductDTO responseProductDTO);

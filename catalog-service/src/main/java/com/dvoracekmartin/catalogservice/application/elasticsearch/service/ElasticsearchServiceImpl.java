@@ -5,7 +5,6 @@ import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixture
 import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.search.ResponseSearchResultDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
-import com.dvoracekmartin.catalogservice.application.elasticsearch.ElasticsearchMapper;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.document.CategoryDocument;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.document.MixtureDocument;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.document.ProductDocument;
@@ -14,9 +13,11 @@ import com.dvoracekmartin.catalogservice.application.elasticsearch.repository.Ca
 import com.dvoracekmartin.catalogservice.application.elasticsearch.repository.MixtureElasticsearchRepository;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.repository.ProductElasticsearchRepository;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.repository.TagElasticsearchRepository;
+import com.dvoracekmartin.catalogservice.application.elasticsearch.utils.ElasticsearchMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,6 +29,14 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     private final MixtureElasticsearchRepository mixtureElasticsearchRepository;
     private final TagElasticsearchRepository tagElasticsearchRepository;
     private final ElasticsearchMapper elasticsearchMapper;
+
+    /**
+     * Helper method to filter distinct elements by a key extractor
+     */
+    private <T> java.util.function.Predicate<T> distinctById(java.util.function.Function<? super T, ?> keyExtractor) {
+        java.util.Set<Object> seen = new java.util.concurrent.ConcurrentSkipListSet<>();
+        return t -> seen.add(keyExtractor.apply(t));
+    }
 
     public void indexAll(List<ResponseCategoryDTO> categories,
                          List<ResponseProductDTO> products,
@@ -56,6 +65,26 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         tagElasticsearchRepository.saveAll(tagDocs);
     }
 
+    @Override
+    public ResponseSearchResultDTO searchProductsAndMixtures(String query) {
+        List<ResponseProductDTO> products = productsElasticsearchRepository
+                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query)
+                .stream()
+                .map(this::toResponseProductDTO)
+                .filter(distinctById(ResponseProductDTO::getId))
+                .toList();
+
+        List<ResponseMixtureDTO> mixtures = mixtureElasticsearchRepository
+                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query)
+                .stream()
+                .map(this::toResponseMixtureDTO)
+                .filter(distinctById(ResponseMixtureDTO::getId))
+                .toList();
+
+        return new ResponseSearchResultDTO(products, new ArrayList<>(), mixtures, new ArrayList<>());
+    }
+
+
     public ResponseSearchResultDTO search(String query) {
         List<ResponseCategoryDTO> categories = categoryElasticsearchRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query)
                 .stream()
@@ -76,7 +105,6 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
                 .stream()
                 .map(this::toResponseTagDTO)
                 .toList();
-
 
         return new ResponseSearchResultDTO(products, categories, mixtures, tags);
     }

@@ -68,12 +68,11 @@ public class MinIOMediaUploader implements MediaUploader {
         }
     }
 
-    public String uploadBase64(String base64Data, String categoryName, String objectKey, String contentType, String bucketName, String objectName) {
+    public String uploadBase64(String base64Data, String entityId, String objectKey, String contentType, String bucketName, String folderName) {
         this.bucketName = bucketName;
-        categoryName = categoryName.replaceAll("\\s", "-");
         createBucketIfNotExists();
         String extension = getExtension(objectKey);
-        String finalObjectKey = findUniqueObjectName(categoryName + "/" + categoryName, extension);
+        String finalObjectKey = findUniqueObjectName(folderName + "/" + entityId, extension);
 
         try {
             byte[] dataBytes = Base64.getDecoder().decode(base64Data);
@@ -92,7 +91,6 @@ public class MinIOMediaUploader implements MediaUploader {
                     .toExternalForm();
             log.info("Uploaded object to: {}", publicUrl);
 
-            // Cache Eviction
             evictRelatedCaches(finalObjectKey);
 
             return publicUrl;
@@ -109,14 +107,12 @@ public class MinIOMediaUploader implements MediaUploader {
             URI uri = new URI(imageUrl);
             String path = uri.getPath();
 
-            // The first part of the path is the bucket name, the rest is the object key
             String[] pathParts = path.substring(1).split("/", 2);
 
             if (pathParts.length == 2) {
                 String bucketName = pathParts[0];
                 String objectKey = pathParts[1];
 
-                // Remove leading slash from the objectKey if present
                 if (objectKey.startsWith("/")) {
                     objectKey = objectKey.substring(1);
                 }
@@ -136,12 +132,9 @@ public class MinIOMediaUploader implements MediaUploader {
         }
     }
 
-
     private void evictRelatedCaches(String finalObjectKey) {
-        // 1. Evict individual media cache
         mediaRetriever.evictMediaCache(finalObjectKey);
 
-        // 2. Evict parent folder listing cache
         String parentFolder = extractParentFolder(finalObjectKey);
         mediaRetriever.evictFolderCache(parentFolder);
     }

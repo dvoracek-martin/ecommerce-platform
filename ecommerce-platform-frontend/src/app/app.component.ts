@@ -132,7 +132,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onSearchBlur(): void {
-    // We'll handle the blur through the backdrop click to prevent premature hiding
   }
 
   onSearchBackdropClick(): void {

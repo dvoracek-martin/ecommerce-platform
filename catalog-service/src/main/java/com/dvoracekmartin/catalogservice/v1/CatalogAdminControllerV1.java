@@ -186,12 +186,12 @@ public class CatalogAdminControllerV1 {
     }
 
     // === COMBINED ===
-
-    @GetMapping("/all-products-and-mixtures")
-    public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
-        log.info("Admin fetching all products and mixtures");
-        return catalogService.getAllProductsAndMixtures();
-    }
+//
+//    @GetMapping("/all-products-and-mixtures")
+//    public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
+//        log.info("Admin fetching all products and mixtures");
+//        return catalogService.getAllProductsAndMixtures();
+//    }
 
     // === SEARCH ===
 

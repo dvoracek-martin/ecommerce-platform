@@ -1,4 +1,4 @@
-package com.dvoracekmartin.catalogservice.application.elasticsearch;
+package com.dvoracekmartin.catalogservice.application.elasticsearch.utils;
 
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;

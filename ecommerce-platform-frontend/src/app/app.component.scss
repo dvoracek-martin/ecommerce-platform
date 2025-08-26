@@ -165,33 +165,29 @@
       cursor: pointer;
       height: auto !important;
       padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
 
       &:hover {
         background-color: #f8f9fa;
       }
 
-      .result-item {
-        display: flex;
-        align-items: center;
-        width: 100%;
+      .result-thumbnail {
+        width: 36px;
+        height: 36px;
+        object-fit: cover;
+        border-radius: 6px;
+      }
 
-        .result-thumbnail {
-          width: 36px;
-          height: 36px;
-          object-fit: cover;
-          border-radius: 6px;
-          margin-right: 12px;
-        }
+      .result-icon {
+        color: #7f8c8d;
+      }
 
-        .result-icon {
-          margin-right: 12px;
-          color: #7f8c8d;
-        }
-
-        .result-text {
-          font-size: 0.95rem;
-          color: #2c3e50;
-        }
+      .result-text {
+        font-size: 0.95rem;
+        color: #2c3e50;
+        flex-grow: 1;
       }
     }
   }

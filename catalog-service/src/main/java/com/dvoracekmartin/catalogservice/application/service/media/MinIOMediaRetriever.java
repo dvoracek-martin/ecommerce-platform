@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Service("mediaRetriever") // Ensure the bean name matches the condition in @Cacheable
+@Service("mediaRetriever")
 public class MinIOMediaRetriever implements MediaRetriever {
 
     @Value("${minio.endpoint}")
@@ -37,7 +37,6 @@ public class MinIOMediaRetriever implements MediaRetriever {
 
     @Value("${minio.secret-key}")
     private String secretKey;
-
 
     private S3Client s3Client;
 
@@ -99,7 +98,7 @@ public class MinIOMediaRetriever implements MediaRetriever {
         } while (listObjectsResponse.isTruncated());
 
         return keys.stream()
-                .filter(key -> !key.equals(folderName) && !key.equals(folderName + "/")) // Exclude the folder itself
+                .filter(key -> !key.equals(folderName) && !key.equals(folderName + "/"))
                 .collect(Collectors.toList());
     }
 
@@ -121,7 +120,7 @@ public class MinIOMediaRetriever implements MediaRetriever {
             Map<String, Object> realmAccess = jwt.getClaim("realm_access");
             if (realmAccess != null && realmAccess.containsKey("roles")) {
                 Collection<String> roles = (Collection<String>) realmAccess.get("roles");
-                if (roles.contains("user_client")) { // Adjust "user_client" as needed
+                if (roles.contains("user_client")) {
                     return true;
                 }
             }

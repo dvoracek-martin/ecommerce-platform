@@ -125,6 +125,6 @@ public class CatalogControllerV1 {
     @GetMapping("/search")
     public ResponseSearchResultDTO search(@RequestParam("q") String query) {
         log.info("Search query: {}", query);
-        return elasticsearchService.search(query);
+        return elasticsearchService.searchProductsAndMixtures(query);
     }
 }
