@@ -111,7 +111,8 @@ public class CatalogServiceImpl implements CatalogService {
         return "application/octet-stream";
     }
 
-    private record MediaUploadResult(List<String> imageUrls, List<MediaDTO> mediaDTOs) {}
+    private record MediaUploadResult(List<String> imageUrls, List<MediaDTO> mediaDTOs) {
+    }
 
     // Product methods
     @Override
@@ -156,6 +157,8 @@ public class CatalogServiceImpl implements CatalogService {
         product.setName(createProductDTO.getName());
         product.setPrice(createProductDTO.getPrice());
         product.setDescription(createProductDTO.getDescription());
+        product.setActive(createProductDTO.isActive());
+        product.setPriority(createProductDTO.getPriority());
         product.setWeightGrams(createProductDTO.getWeightGrams());
         product.setCategory(categoryRepository.findById(createProductDTO.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + createProductDTO.getCategoryId())));
@@ -197,6 +200,8 @@ public class CatalogServiceImpl implements CatalogService {
         existing.setDescription(updateProductDTO.getDescription());
         existing.setPrice(updateProductDTO.getPrice());
         existing.setWeightGrams(updateProductDTO.getWeightGrams());
+        existing.setActive(updateProductDTO.isActive());
+        existing.setPriority(updateProductDTO.getPriority());
 
         // Fix: Use mutable ArrayList
         if (updateProductDTO.getTagIds() != null) {

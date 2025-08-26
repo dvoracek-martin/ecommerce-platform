@@ -28,15 +28,6 @@
                 {{ 'CATEGORIES.ADMIN.NAME_REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
-
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'CATEGORIES.ADMIN.SELECT_TAGS' | translate }}</mat-label>
-              <mat-select formControlName="tagIds" multiple>
-                <mat-option *ngFor="let t of allTags" [value]="t.id">
-                  {{ t.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
           </div>
 
           <div class="form-row">
@@ -63,6 +54,21 @@
               </mat-checkbox>
             </div>
           </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>label</mat-icon>
+            {{ 'CATEGORIES.ADMIN.TAGS' | translate }}
+          </h3>
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>{{ 'CATEGORIES.ADMIN.SELECT_TAGS' | translate }}</mat-label>
+            <mat-select formControlName="tagIds" multiple>
+              <mat-option *ngFor="let t of allTags" [value]="t.id">
+                {{ t.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
 
