@@ -1,30 +1,22 @@
-import {
-  Component,
-  HostListener,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  AfterViewInit
-} from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
-import { AuthService } from './auth/auth.service';
-import { Router } from '@angular/router';
-import { SearchService } from './services/search.service';
-import { Subject, Subscription, forkJoin, of, Observable, BehaviorSubject } from 'rxjs';
-import { debounceTime, map, catchError, switchMap } from 'rxjs/operators';
-import { SearchResultDTO } from './dto/search/search-result-dto';
-import { ResponseCategoryDTO } from './dto/category/response-category-dto';
-import { ResponseProductDTO } from './dto/product/response-product-dto';
-import { ResponseMixtureDTO } from './dto/mixtures/response-mixture-dto';
-import { ResponseTagDTO } from './dto/tag/response-tag-dto';
-import { Cart, CartItem, CartService } from './services/cart.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ProductService } from "./services/product.service";
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from './shared/confirmation-dialog.component';
+import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
+import {MatIconRegistry} from '@angular/material/icon';
+import {DomSanitizer} from '@angular/platform-browser';
+import {AuthService} from './auth/auth.service';
+import {Router} from '@angular/router';
+import {SearchService} from './services/search.service';
+import {forkJoin, Observable, of, Subject, Subscription} from 'rxjs';
+import {catchError, debounceTime, map, switchMap} from 'rxjs/operators';
+import {SearchResultDTO} from './dto/search/search-result-dto';
+import {ResponseCategoryDTO} from './dto/category/response-category-dto';
+import {ResponseProductDTO} from './dto/product/response-product-dto';
+import {ResponseMixtureDTO} from './dto/mixtures/response-mixture-dto';
+import {ResponseTagDTO} from './dto/tag/response-tag-dto';
+import {Cart, CartItem, CartService} from './services/cart.service';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {ProductService} from "./services/product.service";
+import {MatDialog} from '@angular/material/dialog';
+import {ConfirmationDialogComponent} from './shared/confirmation-dialog.component';
 
 interface CartItemWithProduct extends CartItem {
   product?: ResponseProductDTO;
@@ -42,11 +34,11 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'ecommerce-platform-frontend';
 
   languages = [
-    { code: 'en', name: 'English', icon: 'flag_us' },
-    { code: 'de', name: 'Deutsch', icon: 'flag_ch' },
-    { code: 'fr', name: 'Français', icon: 'flag_ch' },
-    { code: 'cs', name: 'Česky', icon: 'flag_cz' },
-    { code: 'es', name: 'Español', icon: 'flag_es' }
+    {code: 'en', name: 'English', icon: 'flag_us'},
+    {code: 'de', name: 'Deutsch', icon: 'flag_ch'},
+    {code: 'fr', name: 'Français', icon: 'flag_ch'},
+    {code: 'cs', name: 'Česky', icon: 'flag_cz'},
+    {code: 'es', name: 'Español', icon: 'flag_es'}
   ];
   selectedLanguage = this.languages[0];
 
@@ -68,7 +60,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private closeCartPreviewTimeout: any = null;
   private cartPreviewCloseDelay = 300;
 
-  @ViewChild('cartButton', { read: ElementRef }) cartButtonRef!: ElementRef<HTMLElement>;
+  @ViewChild('cartButton', {read: ElementRef}) cartButtonRef!: ElementRef<HTMLElement>;
 
   constructor(
     public translate: TranslateService,
@@ -122,7 +114,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.searchSubject.complete();
   }
 
-  onSearchChange(): void { this.searchSubject.next(this.searchQuery); }
+  onSearchChange(): void {
+    this.searchSubject.next(this.searchQuery);
+  }
 
   onSearchFocus(): void {
     this.isSearchFocused = true;
@@ -139,10 +133,29 @@ export class AppComponent implements OnInit, OnDestroy {
     this.showResults = false;
   }
 
-  goToCategory(category: ResponseCategoryDTO): void { this.showResults = false; this.isSearchFocused = false; this.router.navigate([`/categories/${category.id}`]); }
-  goToProduct(product: ResponseProductDTO) { this.showResults = false; this.isSearchFocused = false; this.router.navigate([`/products/${product.id}`]); }
-  goToMixture(mixture: ResponseMixtureDTO) { this.showResults = false; this.isSearchFocused = false; this.router.navigate([`/mixtures/${mixture.id}`]); }
-  goToTag(tag: ResponseTagDTO) { this.showResults = false; this.isSearchFocused = false; this.router.navigate([`/tags/${tag.id}`]); }
+  goToCategory(category: ResponseCategoryDTO): void {
+    this.showResults = false;
+    this.isSearchFocused = false;
+    this.router.navigate([`/categories/${category.id}`]);
+  }
+
+  goToProduct(product: ResponseProductDTO) {
+    this.showResults = false;
+    this.isSearchFocused = false;
+    this.router.navigate([`/products/${product.id}`]);
+  }
+
+  goToMixture(mixture: ResponseMixtureDTO) {
+    this.showResults = false;
+    this.isSearchFocused = false;
+    this.router.navigate([`/mixtures/${mixture.id}`]);
+  }
+
+  goToTag(tag: ResponseTagDTO) {
+    this.showResults = false;
+    this.isSearchFocused = false;
+    this.router.navigate([`/tags/${tag.id}`]);
+  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -154,23 +167,59 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  changeLanguage(code: string): void { this.setLanguage(code); }
+  changeLanguage(code: string): void {
+    this.setLanguage(code);
+  }
+
   private setLanguage(code: string) {
     this.translate.use(code);
     this.selectedLanguage = this.languages.find(l => l.code === code)! || this.selectedLanguage;
   }
 
-  navigateToRoot(): void { this.router.navigate(['/']); }
-  navigateToProfile(): void { this.router.navigate(['/customer']); }
-  logout(): void { this.authService.logout(); this.router.navigate(['/']); }
-  navigateToAdminCategories(): void { this.router.navigate(['/admin/categories']); }
-  navigateToAdminProducts(): void { this.router.navigate(['/admin/products']); }
-  navigateToAdminMixtures(): void { this.router.navigate(['/admin/mixtures']); }
-  navigateToAdminCustomers(): void { this.router.navigate(['/admin/customers']); }
-  navigateToAdminOrders(): void { this.router.navigate(['/admin/orders']); }
-  navigateToAdminTags(): void { this.router.navigate(['/admin/tags']); }
-  onUserIconClick(): void { if (!this.authService.isTokenValid()) this.isPopupOpen = true; }
-  closeAuthPopup(): void { this.isPopupOpen = false; }
+  navigateToRoot(): void {
+    this.router.navigate(['/']);
+  }
+
+  navigateToProfile(): void {
+    this.router.navigate(['/customer']);
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/']);
+  }
+
+  navigateToAdminCategories(): void {
+    this.router.navigate(['/admin/categories']);
+  }
+
+  navigateToAdminProducts(): void {
+    this.router.navigate(['/admin/products']);
+  }
+
+  navigateToAdminMixtures(): void {
+    this.router.navigate(['/admin/mixtures']);
+  }
+
+  navigateToAdminCustomers(): void {
+    this.router.navigate(['/admin/customers']);
+  }
+
+  navigateToAdminOrders(): void {
+    this.router.navigate(['/admin/orders']);
+  }
+
+  navigateToAdminTags(): void {
+    this.router.navigate(['/admin/tags']);
+  }
+
+  onUserIconClick(): void {
+    if (!this.authService.isTokenValid()) this.isPopupOpen = true;
+  }
+
+  closeAuthPopup(): void {
+    this.isPopupOpen = false;
+  }
 
   listenToCartChanges(): void {
     this.cartSubscription = this.cartService.getCart().pipe(
@@ -206,7 +255,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.cartItemsWithProducts = itemsWithProducts as CartItemWithProduct[];
     }, err => {
       console.error('Failed to load cart with product details', err);
-      this.cart = { id: 0, username: '', items: [], totalPrice: 0 };
+      this.cart = {id: 0, username: '', items: [], totalPrice: 0};
       this.cartItemsWithProducts = [];
     });
   }
@@ -253,7 +302,7 @@ export class AppComponent implements OnInit, OnDestroy {
     // Optimistic update
     const updatedItems = this.cartItemsWithProducts.map(i =>
       i.itemId === item.itemId
-        ? { ...i, optimisticQuantity: newQuantity, updating: true }
+        ? {...i, optimisticQuantity: newQuantity, updating: true}
         : i
     );
     this.cartItemsWithProducts = updatedItems;
@@ -264,7 +313,7 @@ export class AppComponent implements OnInit, OnDestroy {
         // Update with server response
         const finalItems = this.cartItemsWithProducts.map(i =>
           i.itemId === item.itemId
-            ? { ...i, quantity: newQuantity, optimisticQuantity: undefined, updating: false }
+            ? {...i, quantity: newQuantity, optimisticQuantity: undefined, updating: false}
             : i
         );
         this.cartItemsWithProducts = finalItems;
@@ -273,7 +322,7 @@ export class AppComponent implements OnInit, OnDestroy {
         // Revert on error
         const revertedItems = this.cartItemsWithProducts.map(i =>
           i.itemId === item.itemId
-            ? { ...i, optimisticQuantity: undefined, updating: false }
+            ? {...i, optimisticQuantity: undefined, updating: false}
             : i
         );
         this.cartItemsWithProducts = revertedItems;
@@ -287,7 +336,12 @@ export class AppComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     const newQuantity = parseInt(input.value, 10);
 
-    if (isNaN(newQuantity) || newQuantity < 1) {
+    if (newQuantity === 0) {
+      this.removeItem(item.itemId);
+      return;
+    }
+
+    if (isNaN(newQuantity) || newQuantity < 0) {
       input.value = item.quantity.toString();
       return;
     }
@@ -295,7 +349,7 @@ export class AppComponent implements OnInit, OnDestroy {
     // Optimistic update
     const updatedItems = this.cartItemsWithProducts.map(i =>
       i.itemId === item.itemId
-        ? { ...i, optimisticQuantity: newQuantity, updating: true }
+        ? {...i, optimisticQuantity: newQuantity, updating: true}
         : i
     );
     this.cartItemsWithProducts = updatedItems;
@@ -305,7 +359,7 @@ export class AppComponent implements OnInit, OnDestroy {
       () => {
         const finalItems = this.cartItemsWithProducts.map(i =>
           i.itemId === item.itemId
-            ? { ...i, quantity: newQuantity, optimisticQuantity: undefined, updating: false }
+            ? {...i, quantity: newQuantity, optimisticQuantity: undefined, updating: false}
             : i
         );
         this.cartItemsWithProducts = finalItems;
@@ -313,7 +367,7 @@ export class AppComponent implements OnInit, OnDestroy {
       error => {
         const revertedItems = this.cartItemsWithProducts.map(i =>
           i.itemId === item.itemId
-            ? { ...i, optimisticQuantity: undefined, updating: false }
+            ? {...i, optimisticQuantity: undefined, updating: false}
             : i
         );
         this.cartItemsWithProducts = revertedItems;

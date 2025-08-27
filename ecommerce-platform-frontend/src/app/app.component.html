@@ -131,7 +131,7 @@
                   </button>
                   <input type="number"
                          [value]="item.optimisticQuantity || item.quantity"
-                         min="1"
+                         min="0"
                          (change)="onQuantityChange($event, item)"
                          (keydown)="$event.stopPropagation()"
                          class="quantity-input"

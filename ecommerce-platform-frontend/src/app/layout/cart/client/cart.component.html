@@ -1,4 +1,5 @@
 <div class="cart-container" *ngIf="cart">
+
   <h1>Your Shopping Cart</h1>
 
   <div *ngIf="!cartItemsWithProducts.length" class="empty-cart">
@@ -7,6 +8,7 @@
 
   <div class="cart-items" *ngIf="cartItemsWithProducts.length">
     <div *ngFor="let item of cartItemsWithProducts" class="cart-item">
+
       <div class="item-media" (click)="goToProduct(item.itemId)">
         <img *ngIf="item.product?.media?.length"
              [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
@@ -18,14 +20,20 @@
         <p class="item-name" (click)="goToProduct(item.itemId)">
           {{ item.product?.name || ('Product ' + item.itemId) }}
         </p>
+
         <div class="item-price">
           Price: {{ item.product?.price | currency }}
         </div>
+
         <div class="item-quantity">
           <label for="qty-{{item.itemId}}">Quantity:</label>
-          <input id="qty-{{item.itemId}}" type="number" min="1" [(ngModel)]="item.quantity"
-                 (change)="updateQuantity(item.itemId, item.quantity)">
+          <input id="qty-{{item.itemId}}"
+                 type="number"
+                 min="0"
+                 [(ngModel)]="item.quantity"
+                 (ngModelChange)="updateQuantity(item.itemId, $event)">
         </div>
+
         <div class="item-total">
           Total: {{ getItemTotal(item) | currency }}
         </div>
@@ -36,6 +44,7 @@
           Remove
         </button>
       </div>
+
     </div>
   </div>
 

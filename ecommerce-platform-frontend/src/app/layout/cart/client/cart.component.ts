@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { Cart, CartItem, CartService } from '../../../services/cart.service';
-import { ProductService } from '../../../services/product.service';
-import { forkJoin, of } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {Cart, CartItem, CartService} from '../../../services/cart.service';
+import {ProductService} from '../../../services/product.service';
+import {forkJoin, of} from 'rxjs';
+import {catchError, switchMap} from 'rxjs/operators';
+import {Router} from '@angular/router';
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 
 interface CartItemWithProduct extends CartItem {
@@ -17,6 +17,7 @@ interface CartItemWithProduct extends CartItem {
   styleUrls: ['./cart.component.scss']
 })
 export class CartComponent implements OnInit {
+
   cart: Cart | null = null;
   cartItemsWithProducts: CartItemWithProduct[] = [];
   isLoading = false;
@@ -25,7 +26,8 @@ export class CartComponent implements OnInit {
     private cartService: CartService,
     private productService: ProductService,
     private router: Router
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadCart();
@@ -62,9 +64,32 @@ export class CartComponent implements OnInit {
       }, () => this.isLoading = false);
   }
 
-  updateQuantity(productId: number, quantity: number) {
-    this.cartService.updateItem(productId, quantity).subscribe(() => this.loadCart());
+  updateQuantity(productId: number, newQuantity: number) {
+    const item = this.cartItemsWithProducts.find(i => i.itemId === productId);
+    if (!item) {
+      return;
+    }
+    if (newQuantity === null || isNaN(newQuantity)) {
+      return;
+    }
+
+    if (newQuantity === 0) {
+      if (window.confirm('Do you want to remove this item from your cart?')) {
+        this.removeItem(productId);
+      } else {
+        return;
+      }
+      return;
+    }
+    if (newQuantity < 0) {
+      return;
+    }
+
+    item.quantity = newQuantity;
+    this.cartService.updateItem(productId, newQuantity)
+      .subscribe(() => this.loadCart());
   }
+
 
   removeItem(productId: number) {
     this.cartService.removeItem(productId).subscribe(() => this.loadCart());
@@ -79,6 +104,9 @@ export class CartComponent implements OnInit {
   }
 
   getCartTotal(): number {
-    return this.cartItemsWithProducts.reduce((sum, item) => sum + this.getItemTotal(item), 0);
+    return this.cartItemsWithProducts.reduce(
+      (sum, item) => sum + this.getItemTotal(item),
+      0
+    );
   }
 }
