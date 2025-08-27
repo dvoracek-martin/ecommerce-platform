@@ -1,31 +1,105 @@
-<div *ngIf="loading" class="loading">Loading product details...</div>
-<div *ngIf="error" class="error">{{ error }}</div>
+<div class="product-detail-container">
+  <mat-card class="product-card">
+    <mat-card-header *ngIf="product">
+      <mat-card-title class="product-title">
+        <mat-icon class="title-icon">inventory_2</mat-icon>
+        {{ product.name }}
+      </mat-card-title>
+    </mat-card-header>
 
-<div *ngIf="product" class="product-detail">
-  <h2>{{ product.name }}</h2>
-<!--  <p class="price">Price: {{ product.price | currency }}</p>-->
-  <p *ngIf="product.description">{{ product.description }}</p>
+    <mat-divider></mat-divider>
 
-  <div *ngIf="product.media?.length" class="images">
-    <img
-      *ngFor="let media of product.media"
-      ngSrc="'data:' + media.contentType + ';base64,' + media.base64Data"
-      [alt]="product.name"
-      class="product-image"
-    />
-  </div>
+    <div *ngIf="loading" class="loading-section">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <div class="loading-text">Loading product details...</div>
+    </div>
 
-  <ul class="details-list">
-    <li *ngIf="product.categoryId">Category ID: {{ product.categoryId }}</li>
-    <li *ngIf="product.weightGrams">Weight: {{ product.weightGrams }} g</li>
-  </ul>
+    <div *ngIf="error" class="error-section">
+      <mat-icon color="warn" class="error-icon">error_outline</mat-icon>
+      <div class="error-text">{{ error }}</div>
+      <button mat-stroked-button color="warn" (click)="backToList()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Products
+      </button>
+    </div>
 
-  <div *ngIf="product.responseTagDTOS?.length" class="tags">
-    <h4>Tags</h4>
-    <span *ngFor="let tag of product.responseTagDTOS" class="tag" [style.background-color]="'#ccc'">
-      {{ tag.name }}
-    </span>
-  </div>
+    <div *ngIf="product" class="product-content">
+      <div class="product-main">
+        <!-- Product Images -->
+        <div *ngIf="product.media?.length" class="images-section">
+          <div class="images-grid">
+            <div *ngFor="let media of product.media" class="image-container">
+              <img
+                [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                [alt]="product.name"
+                class="product-image"
+              />
+            </div>
+          </div>
+        </div>
 
-  <button (click)="backToList()">Back to Products</button>
+        <!-- Product Details -->
+        <div class="details-section">
+          <!-- Price and Add to Cart -->
+          <div class="price-cart-row">
+            <div class="price" *ngIf="product.price">
+              {{ product.price | currency }}
+            </div>
+            <button mat-flat-button color="primary" class="add-to-cart-btn" (click)="addToCart()">
+              <mat-icon>add_shopping_cart</mat-icon>
+              Add to Cart
+            </button>
+          </div>
+
+          <!-- Description -->
+          <div class="description-section" *ngIf="product.description">
+            <h3 class="section-subtitle">
+              <mat-icon>description</mat-icon>
+              Description
+            </h3>
+            <p class="description">{{ product.description }}</p>
+          </div>
+
+          <!-- Product Details -->
+          <div class="info-section">
+            <h3 class="section-subtitle">
+              <mat-icon>info</mat-icon>
+              Product Details
+            </h3>
+
+            <div class="detail-row" *ngIf="product.weightGrams">
+              <span class="detail-label">Weight:</span>
+              <span class="detail-value">{{ product.weightGrams }} g</span>
+            </div>
+          </div>
+
+          <!-- Tags Section -->
+          <div *ngIf="product.responseTagDTOS?.length" class="tags-section">
+            <h3 class="section-subtitle">
+              <mat-icon>label</mat-icon>
+              Tags
+            </h3>
+            <div class="tags-container">
+              <mat-chip-set>
+                <mat-chip
+                  *ngFor="let tag of product.responseTagDTOS"
+                  class="tag-chip"
+                  color="primary"
+                >
+                  {{ tag.name }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-section" *ngIf="product">
+      <button mat-stroked-button (click)="backToList()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Products
+      </button>
+    </div>
+  </mat-card>
 </div>

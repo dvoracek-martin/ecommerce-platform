@@ -202,6 +202,7 @@ public class CatalogServiceImpl implements CatalogService {
         existing.setWeightGrams(updateProductDTO.getWeightGrams());
         existing.setActive(updateProductDTO.isActive());
         existing.setPriority(updateProductDTO.getPriority());
+        existing.setCategory(categoryRepository.findById(updateProductDTO.getCategoryId()).orElseThrow(()->new ResourceNotFoundException("Product not found with id: " + updateProductDTO.getCategoryId())));
 
         // Fix: Use mutable ArrayList
         if (updateProductDTO.getTagIds() != null) {
