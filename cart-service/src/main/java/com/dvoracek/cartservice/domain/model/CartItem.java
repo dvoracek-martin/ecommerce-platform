@@ -18,7 +18,7 @@ public class CartItem {
     private Long itemId;
 
     @Enumerated(EnumType.STRING)
-    private CartItemType itemType;
+    private CartItemType cartItemType;
 
     private int quantity;
 

@@ -1,15 +1,14 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ResponseProductDTO} from '../../dto/product/response-product-dto';
 import {ProductService} from '../../services/product.service';
+import {MixtureService} from '../../services/mixture.service';
+import {CartItem, CartService} from '../../services/cart.service';
 import {Router} from '@angular/router';
 import {CategoryService} from '../../services/category.service';
 import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
-import {forkJoin, throwError} from 'rxjs';
-import {MediaDTO} from '../../dto/media/media-dto';
-import {CartService} from "../../services/cart.service";
-import {MixtureService} from "../../services/mixture.service";
-import {catchError, switchMap, tap} from "rxjs/operators";
+import {forkJoin} from 'rxjs';
 import {CartItemType} from '../../dto/cart/cart-item-type';
+import {CreateMixtureDTO} from '../../dto/mixtures/create-mixture-dto';
 
 interface ProductSummary {
   product: ResponseProductDTO;
@@ -19,9 +18,9 @@ interface ProductSummary {
 
 @Component({
   selector: 'app-mixing',
-  standalone: false,
   templateUrl: './mixing.component.html',
-  styleUrl: './mixing.component.scss'
+  styleUrls: ['./mixing.component.scss'],
+  standalone: false
 })
 export class MixingComponent implements OnInit, OnDestroy {
   products: ResponseProductDTO[] = [];
@@ -42,17 +41,15 @@ export class MixingComponent implements OnInit, OnDestroy {
   selectedProduct: ResponseProductDTO | null = null;
 
   activeCategoryIndex = 0;
-
   premiumCategoryId: number | null = null;
-
   lastRemovedIndex: number | null = null;
 
   constructor(
     private productService: ProductService,
-    private categoryService: CategoryService,
-    private router: Router,
+    private mixtureService: MixtureService,
     private cartService: CartService,
-    private mixtureService: MixtureService
+    private categoryService: CategoryService,
+    private router: Router
   ) {
   }
 
@@ -64,6 +61,7 @@ export class MixingComponent implements OnInit, OnDestroy {
     Object.values(this.intervals).forEach(i => clearInterval(i));
   }
 
+  /** LOAD PRODUCTS & CATEGORIES */
   loadProducts(): void {
     this.isLoading = true;
     this.error = null;
@@ -73,16 +71,12 @@ export class MixingComponent implements OnInit, OnDestroy {
         this.categories = categories;
         this.getPremiumCategoryId();
 
-        const requests = categories.map(cat =>
-          this.productService.getAllProductsByCategoryId(cat.id)
-        );
-
+        const requests = categories.map(cat => this.productService.getAllProductsByCategoryId(cat.id));
         forkJoin(requests).subscribe({
           next: (results) => {
             categories.forEach((cat, index) => {
               this.productsByCategory[cat.id] = results[index];
             });
-
             this.initializeCarousels();
             this.isLoading = false;
           },
@@ -99,6 +93,7 @@ export class MixingComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** PREMIUM CATEGORY */
   getPremiumCategoryId(): void {
     if (this.categories.length > 0) {
       const highestPriorityCategory = this.categories.reduce((prev, current) =>
@@ -108,6 +103,7 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** CAROUSEL INITIALIZATION */
   initializeCarousels(): void {
     Object.values(this.intervals).forEach(i => clearInterval(i));
     this.intervals = {};
@@ -142,6 +138,7 @@ export class MixingComponent implements OnInit, OnDestroy {
     this.startCarousel(productId, mediaCount);
   }
 
+  /** TRACKBY */
   trackById(_idx: number, item: ResponseProductDTO): number {
     return item.id;
   }
@@ -154,50 +151,13 @@ export class MixingComponent implements OnInit, OnDestroy {
     return summary.product.id;
   }
 
-  nextCategory() {
-    if (this.activeCategoryIndex < this.categories.length - 1) {
-      this.activeCategoryIndex++;
-      this.scrollToTop();
-    }
-  }
-
-  prevCategory() {
-    if (this.activeCategoryIndex > 0) {
-      this.activeCategoryIndex--;
-      this.scrollToTop();
-    }
-  }
-
-  jumpToCategoryAndScroll(index: number) {
-    this.activeCategoryIndex = index;
-    setTimeout(() => {
-      this.scrollToTop();
-    }, 100);
-  }
-
-  scrollToTop(): void {
-    window.scroll({
-      top: 0,
-      behavior: 'smooth'
-    });
-  }
-
-  trackByObjectKey(_idx: number, item: MediaDTO): string {
-    return item.objectKey;
-  }
-
+  /** MIXING GRID LOGIC */
   isAddButtonDisabled(product: ResponseProductDTO): boolean {
     const isPremiumProduct = product.categoryId === this.premiumCategoryId;
-
     if (isPremiumProduct) {
       return this.mixedProducts[4] !== null;
     } else {
-      let nonPremiumCount = 0;
-      for (let i = 0; i < this.mixedProducts.length; i++) {
-        if (i !== 4 && this.mixedProducts[i] !== null) {
-          nonPremiumCount++;
-        }
-      }
+      const nonPremiumCount = this.mixedProducts.filter((item, index) => item !== null && index !== 4).length;
       return nonPremiumCount >= 8;
     }
   }
@@ -214,92 +174,29 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   addProductToMixture(product: ResponseProductDTO): void {
     const isPremiumProduct = product.categoryId === this.premiumCategoryId;
-
     const premiumSpotIndex = 4;
 
     if (isPremiumProduct) {
-      if (this.mixedProducts[premiumSpotIndex]) {
-        console.log('Only one premium product can be in the mixture. Remove the current one first.');
-        return;
-      }
+      if (this.mixedProducts[premiumSpotIndex]) return;
       this.mixedProducts[premiumSpotIndex] = product;
-      this.animateAdd(product, 'mixed-card-' + premiumSpotIndex);
     } else {
-      let targetIndex = -1;
-      if (this.lastRemovedIndex !== null && this.mixedProducts[this.lastRemovedIndex] === null && this.lastRemovedIndex !== premiumSpotIndex) {
-        targetIndex = this.lastRemovedIndex;
-        this.lastRemovedIndex = null;
-      } else {
-        targetIndex = this.mixedProducts.findIndex((item, index) => item === null && index !== premiumSpotIndex);
-      }
-
+      let targetIndex = this.lastRemovedIndex !== null && this.mixedProducts[this.lastRemovedIndex] === null && this.lastRemovedIndex !== premiumSpotIndex
+        ? this.lastRemovedIndex
+        : this.mixedProducts.findIndex((item, index) => item === null && index !== premiumSpotIndex);
       if (targetIndex > -1) {
         this.mixedProducts[targetIndex] = product;
-        this.animateAdd(product, `mixed-card-${targetIndex}`);
-      } else {
-        console.log('The mixture grid is full! (excluding the premium spot)');
-        return; // Early exit if no space is found
-      }
+        this.lastRemovedIndex = null;
+      } else return;
     }
 
     this.addingProductId = product.id;
-    setTimeout(() => {
-      this.addingProductId = null;
-    }, 1000);
-  }
-
-  private animateAdd(product: ResponseProductDTO, targetElementId: string): void {
-    const sourceElement = document.getElementById('product-card-' + product.id);
-    const targetElement = document.getElementById(targetElementId);
-
-    if (sourceElement && targetElement) {
-      const sourceRect = sourceElement.getBoundingClientRect();
-      const targetRect = targetElement.getBoundingClientRect();
-
-      const clone = sourceElement.cloneNode(true) as HTMLElement;
-      clone.style.position = 'fixed';
-      clone.style.top = `${sourceRect.top}px`;
-      clone.style.left = `${sourceRect.left}px`;
-      clone.style.width = `${sourceRect.width}px`;
-      clone.style.height = `${sourceRect.height}px`;
-      clone.style.zIndex = '1000';
-      clone.classList.add('animating-clone');
-
-      document.body.appendChild(clone);
-
-      const translateX = targetRect.left - sourceRect.left;
-      const translateY = targetRect.top - sourceRect.top;
-
-      setTimeout(() => {
-        clone.style.transform = `translate(${translateX}px, ${translateY}px) scale(${targetRect.width / sourceRect.width})`;
-        clone.style.opacity = '0.5';
-      }, 50);
-
-      setTimeout(() => {
-        document.body.removeChild(clone);
-      }, 800);
-    }
+    setTimeout(() => this.addingProductId = null, 1000);
   }
 
   removeProductFromMixture(index: number): void {
-    if (index > -1 && index < this.mixedProducts.length) {
-      const targetElement = document.getElementById(`mixed-card-${index}`);
-      if (targetElement) {
-        const productElement = targetElement.querySelector('.mixed-product-image, .mixed-product-name');
-        if (productElement) {
-          (productElement as HTMLElement).style.transition = 'transform 0.4s ease-in, opacity 0.4s ease-in';
-          (productElement as HTMLElement).style.transform = 'scale(0.5)';
-          (productElement as HTMLElement).style.opacity = '0';
-        }
-
-        setTimeout(() => {
-          this.mixedProducts.splice(index, 1, null);
-          this.lastRemovedIndex = index;
-        }, 400);
-      } else {
-        this.mixedProducts.splice(index, 1, null);
-        this.lastRemovedIndex = index;
-      }
+    if (index >= 0 && index < this.mixedProducts.length) {
+      this.mixedProducts.splice(index, 1, null);
+      this.lastRemovedIndex = index;
     }
   }
 
@@ -314,26 +211,19 @@ export class MixingComponent implements OnInit, OnDestroy {
     this.mixedProducts.forEach(product => {
       if (!product) return;
       const categoryName = categoryMap.get(product.categoryId) || 'Uncategorized';
-      if (!groupedProducts[categoryName]) {
-        groupedProducts[categoryName] = [];
-      }
-
-      const existingProduct = groupedProducts[categoryName].find(p => p.product.id === product.id);
-      if (existingProduct) {
-        existingProduct.count++;
-        existingProduct.totalPrice += product.price;
+      if (!groupedProducts[categoryName]) groupedProducts[categoryName] = [];
+      const existing = groupedProducts[categoryName].find(p => p.product.id === product.id);
+      if (existing) {
+        existing.count++;
+        existing.totalPrice += product.price!;
       } else {
-        groupedProducts[categoryName].push({
-          product: product,
-          count: 1,
-          totalPrice: product.price
-        });
+        groupedProducts[categoryName].push({product, count: 1, totalPrice: product.price!});
       }
     });
-
     return groupedProducts;
   }
 
+  /** MIXTURE NAME EDIT */
   editName() {
     this.isEditingName = true;
   }
@@ -342,6 +232,7 @@ export class MixingComponent implements OnInit, OnDestroy {
     this.isEditingName = false;
   }
 
+  /** PRODUCT INFO POPUP */
   showProductInfo(product: ResponseProductDTO): void {
     this.selectedProduct = product;
     this.showInfoPopup = true;
@@ -352,53 +243,69 @@ export class MixingComponent implements OnInit, OnDestroy {
     this.selectedProduct = null;
   }
 
-  getCategoryName(categoryId: number | undefined): string {
-    if (!categoryId) return 'N/A';
-    const category = this.categories.find(cat => cat.id === categoryId);
-    return category ? category.name : 'N/A';
-  }
-
-  // New method to check if the mixture grid is empty
-  isMixtureEmpty(): boolean {
-    return this.mixedProducts.every(p => p === null);
-  }
-
-  // Refactored method to add the mixture to the cart
-  addMixtureToCart(): void {
-    const productsInMixture = this.mixedProducts.filter(p => p !== null);
-
-    if (productsInMixture.length === 0) {
-      console.warn('Cannot add an empty mixture to the cart.');
-      return;
+  /** CATEGORY NAVIGATION */
+  prevCategory(): void {
+    if (this.activeCategoryIndex > 0) {
+      this.activeCategoryIndex--;
+      this.scrollToActiveCategory();
     }
+  }
 
-    const productIds = productsInMixture.map(p => p!.id);
-    const request = {
+  nextCategory(): void {
+    if (this.activeCategoryIndex < this.categories.length - 1) {
+      this.activeCategoryIndex++;
+      this.scrollToActiveCategory();
+    }
+  }
+
+  jumpToCategoryAndScroll(index: number): void {
+    if (index >= 0 && index < this.categories.length) {
+      this.activeCategoryIndex = index;
+      this.scrollToActiveCategory();
+    }
+  }
+
+  scrollToActiveCategory(): void {
+    const categoryElement = document.querySelectorAll('.category-section')[this.activeCategoryIndex] as HTMLElement;
+    if (categoryElement) categoryElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+  }
+
+  addMixtureToCart(): void {
+    const mixtureProducts = this.mixedProducts.filter(p => p !== null) as ResponseProductDTO[];
+    if (mixtureProducts.length === 0) return;
+
+    // Create the mixture object
+    const createMixtureRequest: CreateMixtureDTO = {
       name: this.mixtureName,
-      productIds: productIds
+      price: this.calculateTotalPrice(),
+      categoryId: this.premiumCategoryId || 0,
+      productIds: mixtureProducts.map(p => p.id),
+      weightGrams: undefined,
+      tagIds: [],
+      description: '',
+      priority: 0,
+      active: false,
+      media: [],
     };
 
-    this.mixtureService.createMixture(request).pipe(
-      // Get the ID of the newly created mixture
-      switchMap(savedMixture => {
-        if (!savedMixture || !savedMixture.id) {
-          return throwError(() => new Error('Failed to save mixture and get ID.'));
-        }
-
-        // Add the mixture to the cart using its ID
-        return this.cartService.addItem({
-          itemId: savedMixture.id,
+    // Send as an array (wrapped in []) instead of with a "mixture" wrapper
+    this.mixtureService.saveMixture([createMixtureRequest]).subscribe({
+      next: mixtures => {
+        const mixture = mixtures[0]; // Get the first (and only) mixture from the response array
+        const cartItem: CartItem = {
+          itemId: mixture.id!,
           quantity: 1,
+          mixture: mixture,
           cartItemType: CartItemType.MIXTURE
+        };
+        this.cartService.addItem(cartItem).subscribe({
+          next: () => console.log('Mixture added to cart successfully.'),
+          error: err => console.error('Failed to add mixture to cart:', err)
         });
-      }),
-      tap(() => {
-        console.log(`${this.mixtureName} added to cart!`);
-      }),
-      catchError(err => {
-        console.error('Failed to add mixture to cart', err);
-        return throwError(() => err);
-      })
-    ).subscribe();
+      },
+      error: err => console.error('Failed to save mixture:', err)
+    });
   }
+
+
 }

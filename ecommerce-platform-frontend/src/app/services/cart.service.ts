@@ -1,7 +1,7 @@
 import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable, of, throwError, forkJoin} from 'rxjs';
-import {catchError, tap, switchMap, map} from 'rxjs/operators';
+import {BehaviorSubject, forkJoin, Observable, of, throwError} from 'rxjs';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {isPlatformBrowser} from '@angular/common';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ResponseProductDTO} from "../dto/product/response-product-dto";
@@ -126,18 +126,18 @@ export class CartService {
 
   addItem(item: CartItem): Observable<Cart> {
     if (this.authService.isTokenValid()) {
-      return this.http.post<Cart>(`${this.apiUrl}/add`, {itemId: item.itemId, quantity: item.quantity})
+      return this.http.post<Cart>(`${this.apiUrl}/add`, item)
         .pipe(
           switchMap(cart => {
-            if (!cart || !cart.items || cart.items.length === 0) {
-              return of(cart);
-            }
+            if (!cart || !cart.items || cart.items.length === 0) return of(cart);
+
             const productObservables = cart.items.map(cartItem =>
               this.productService.getProductById(cartItem.itemId).pipe(
                 map(product => ({...cartItem, product})),
                 catchError(() => of({...cartItem, product: undefined}))
               )
             );
+
             return forkJoin(productObservables).pipe(
               map(itemsWithProducts => ({...cart, items: itemsWithProducts}))
             );
@@ -254,12 +254,12 @@ export class CartService {
           }
           const productObservables = cart.items.map(cartItem =>
             this.productService.getProductById(cartItem.itemId).pipe(
-              map(product => ({ ...cartItem, product })),
-              catchError(() => of({ ...cartItem, product: undefined }))
+              map(product => ({...cartItem, product})),
+              catchError(() => of({...cartItem, product: undefined}))
             )
           );
           return forkJoin(productObservables).pipe(
-            map(itemsWithProducts => ({ ...cart, items: itemsWithProducts }))
+            map(itemsWithProducts => ({...cart, items: itemsWithProducts}))
           );
         }),
         tap(cart => {

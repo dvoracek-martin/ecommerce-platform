@@ -115,7 +115,7 @@ public class CartServiceImpl implements CartService {
                 CartItem copy = new CartItem();
                 copy.setItemId(gi.getItemId());
                 copy.setQuantity(gi.getQuantity());
-                copy.setItemType(gi.getItemType());
+                copy.setCartItemType(gi.getCartItemType());
                 copy.setCart(userCart);
                 userCart.getItems().add(copy);
             }

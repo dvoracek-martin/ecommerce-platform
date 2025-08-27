@@ -2,15 +2,19 @@ package com.dvoracekmartin.catalogservice.v1;
 
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatalogItemDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.catalogservice.application.dto.mixture.UpdateMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.search.ResponseSearchResultDTO;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchServiceImpl;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
 import com.dvoracekmartin.catalogservice.application.service.media.MediaRetriever;
 import com.dvoracekmartin.catalogservice.config.RateLimit;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -108,6 +112,12 @@ public class CatalogControllerV1 {
     @GetMapping("/products/{id}")
     public ResponseEntity<ResponseProductDTO> getProductById(@PathVariable Long id) {
         return ResponseEntity.ok(catalogService.getProductById(id));
+    }
+
+    @PostMapping("/mixtures")
+    public ResponseEntity<List<ResponseMixtureDTO>> createMixture(@Valid @RequestBody List<CreateMixtureDTO> createMixtureDTO) {
+        log.info("Admin creating mixtures: {}", createMixtureDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(catalogService.createMixture(createMixtureDTO));
     }
 
     @GetMapping("/mixtures/{id}")

@@ -43,7 +43,10 @@ public class SecurityConfig {
                                 "/api/catalog/v1/all-mixtures",
                                 "all-products-by-category-id/{categoryId}",
                                 "/api/catalog/v1/search",
-                                "/api/catalog/v1/active-categories"
+                                "/api/catalog/v1/active-categories",
+                                "/api/catalog/v1/all-mixtures",
+                                "/api/catalog/v1/all-mixtures/{id}",
+                                "/api/catalog/v1/mixtures"
                         ).permitAll()
 
                         // All other endpoints require authentication (roles enforced at Gateway)

@@ -1,12 +1,11 @@
 <div class="app-container">
   <div class="main-container">
 
+    <!-- Sticky Header with Categories -->
     <div class="sticky-header-mixing">
       <h1>{{ 'MIXING.TITLE' | translate }}</h1>
       <div class="category-nav-wrapper">
-        <button class="carousel-btn left" (click)="prevCategory()" [disabled]="activeCategoryIndex === 0">
-          ‹
-        </button>
+        <button class="carousel-btn left" (click)="prevCategory()" [disabled]="activeCategoryIndex === 0">‹</button>
         <div class="category-nav-row">
           <div *ngFor="let category of categories; let i = index"
                class="category-nav-item"
@@ -23,19 +22,15 @@
             <div class="category-name">{{ category.name }}</div>
           </div>
         </div>
-        <button class="carousel-btn right" (click)="nextCategory()" [disabled]="activeCategoryIndex === categories.length - 1">
-          ›
-        </button>
+        <button class="carousel-btn right" (click)="nextCategory()" [disabled]="activeCategoryIndex === categories.length - 1">›</button>
       </div>
     </div>
 
-    <div *ngIf="isLoading" class="loading">
-      {{ 'PRODUCTS.LOADING' | translate }}
-    </div>
-    <div *ngIf="error" class="error">
-      {{ 'PRODUCTS.ERROR_LOADING' | translate:{error: error} }}
-    </div>
+    <!-- Loading & Error -->
+    <div *ngIf="isLoading" class="loading">{{ 'PRODUCTS.LOADING' | translate }}</div>
+    <div *ngIf="error" class="error">{{ 'PRODUCTS.ERROR_LOADING' | translate:{error: error} }}</div>
 
+    <!-- Products Carousel -->
     <div class="main-content-wrapper" *ngIf="!isLoading && !error">
       <div class="products-carousel-wrapper">
         <div class="products-carousel-container">
@@ -93,6 +88,7 @@
     </div>
   </div>
 
+  <!-- Mixture Grid -->
   <div class="mixture-container">
     <div class="mixture-name-container">
       <h2 *ngIf="!isEditingName" (click)="editName()">{{ mixtureName }}</h2>
@@ -130,6 +126,7 @@
       </ng-container>
     </div>
 
+    <!-- Mixture Summary -->
     <div class="mixture-summary">
       <h3>Summary</h3>
       <ng-container *ngFor="let item of getProductsByCategoryInMixture() | keyvalue">
@@ -146,11 +143,12 @@
         Total: {{ calculateTotalPrice() | currency }}
       </div>
       <div class="mixture-actions">
-        <button class="btn btn-checkout">Add to cart</button>
+        <button class="btn btn-checkout" (click)="addMixtureToCart()">Add to cart</button>
       </div>
     </div>
   </div>
 
+  <!-- Product Info Popup -->
   <div *ngIf="showInfoPopup" class="popup-overlay" (click)="closePopup()">
     <div class="popup-content" (click)="$event.stopPropagation()">
       <button class="popup-close-btn" (click)="closePopup()">

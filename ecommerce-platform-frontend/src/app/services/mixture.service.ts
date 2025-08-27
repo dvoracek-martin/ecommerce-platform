@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {ResponseProductDTO} from '../dto/product/response-product-dto';
 import {ResponseMixtureDTO} from "../dto/mixtures/response-mixture-dto";
+import {CreateMixtureDTO} from '../dto/mixtures/create-mixture-dto';
 
 // A DTO for the request to create a new mixture
 export interface CreateMixtureRequest {
@@ -34,4 +35,12 @@ export class MixtureService {
   public getAllMixturesAdmin(): Observable<ResponseProductDTO[]> {
     return this.http.get<ResponseProductDTO[]>(`${this.apiUrl}/all-mixtures`);
   }
+
+  saveMixture(mixtures: CreateMixtureDTO[]): Observable<ResponseMixtureDTO[]> {
+    return this.http.post<ResponseMixtureDTO[]>(
+      `${this.apiUrl}`,
+      mixtures // Send the array directly, not wrapped in an object
+    );
+  }
+
 }
