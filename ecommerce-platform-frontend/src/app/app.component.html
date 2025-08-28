@@ -105,12 +105,13 @@
            *ngIf="isCartPreviewOpen"
            (mouseenter)="onCartPreviewMouseEnter()"
            (mouseleave)="onCartPreviewMouseLeave()">
-        <ng-container *ngIf="cartItemsWithProducts?.length > 0; else emptyCart">
+        <ng-container *ngIf="cartItemsWithDetails?.length > 0; else emptyCart">
           <div class="cart-preview">
             <h4>{{ 'CART.SUMMARY' | translate }}</h4>
 
-            <div class="cart-item" *ngFor="let item of cartItemsWithProducts">
-              <ng-container *ngIf="item.product">
+            <div class="cart-item" *ngFor="let item of cartItemsWithDetails">
+              <!-- Product Display -->
+              <ng-container *ngIf="item.cartItemType === 'PRODUCT' && item.product">
                 <img *ngIf="item.product.media?.[0]"
                      [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
                      [alt]="item.product.name"
@@ -122,7 +123,6 @@
                   <span class="item-price-per-unit">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }} each</span>
                   <span class="item-total-price">{{ getItemTotal(item) | currency:'USD':'symbol':'1.2-2' }}</span>
                 </div>
-
                 <div class="quantity-controls">
                   <button mat-icon-button color="warn"
                           (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()"
@@ -146,13 +146,24 @@
                     <div class="spinner"></div>
                   </div>
                 </div>
+              </ng-container>
 
-                <div class="item-actions">
-                  <button mat-icon-button color="warn" (click)="removeItem(item.itemId); $event.stopPropagation()">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+              <!-- Mixture Display -->
+              <ng-container *ngIf="item.cartItemType === 'MIXTURE' && item.mixture">
+                <mat-icon class="item-image mixture-icon">science</mat-icon>
+                <div class="item-info">
+                  <span class="item-name">{{ item.mixture.name }}</span>
+                  <span class="item-total-price">{{ getItemTotal(item) | currency:'USD':'symbol':'1.2-2' }}</span>
                 </div>
               </ng-container>
+
+
+
+              <div class="item-actions">
+                <button mat-icon-button color="warn" (click)="removeItem(item.itemId); $event.stopPropagation()">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
             </div>
 
             <div class="cart-footer">
