@@ -93,6 +93,7 @@
     <div class="cart-container">
       <button #cartButton mat-icon-button class="cart-button"
               [matBadge]="totalCartItemCount$ | async"
+              (click)="goToCart()"
               matBadgeColor="accent"
               matBadgePosition="above after"
               [matBadgeHidden]="(totalCartItemCount$ | async) === 0"

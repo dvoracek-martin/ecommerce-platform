@@ -1,0 +1,522 @@
+/* Overall Container */
+.checkout-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0; // Padding handled by mat-card
+  font-family: 'Inter', sans-serif; /* Ensure consistent font */
+}
+
+/* Material Card for Checkout Content */
+.checkout-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  background-color: #ffffff; /* Explicitly set light background */
+  color: #333333; /* Ensure dark text on light background */
+  padding: 30px; // Inner padding for the card content
+
+  .mat-card-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .step-title {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px; // Spacing between icon and text if icons are added later
+  }
+}
+
+/* Progress Steps */
+.checkout-progress {
+  margin-bottom: 40px;
+  padding: 20px 0;
+
+  .progress-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      flex-shrink: 0; /* Prevent steps from shrinking */
+
+      .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #ecf0f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: #7f8c8d;
+        transition: all 0.3s ease;
+      }
+
+      .step-label {
+        margin-top: 8px;
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        transition: all 0.3s ease;
+        text-align: center;
+        max-width: 100px; /* Limit label width */
+      }
+
+      &.active, &.completed {
+        .step-number {
+          background: #3498db;
+          color: white;
+        }
+
+        .step-label {
+          color: #2c3e50;
+          font-weight: 500;
+        }
+      }
+
+      &.completed .step-number {
+        background: #2ecc71;
+      }
+    }
+
+    .step-connector {
+      flex-grow: 1; /* Allow connector to take available space */
+      height: 2px;
+      background: #ecf0f1;
+      margin: 0 10px;
+      min-width: 20px; /* Minimum width for connector */
+      max-width: 80px; /* Maximum width for connector */
+    }
+  }
+}
+
+/* Order Success (retained from original, updated for MatCard) */
+.order-success-header {
+  .success-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #2c3e50;
+    .title-icon {
+      font-size: 2.5rem;
+      color: #2ecc71;
+      margin-right: 10px;
+    }
+  }
+}
+
+.order-success-content {
+  text-align: center;
+  padding: 40px 20px;
+
+  p {
+    color: #555555; /* Slightly darker for better readability */
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+  }
+
+  .order-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+
+    .mat-flat-button {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-continue {
+      background: #3498db;
+      color: white;
+      &:hover {
+        background: #2980b9;
+      }
+    }
+
+    .btn-view-order {
+      background: none;
+      border: 2px solid #3498db;
+      color: #3498db;
+      &:hover {
+        background: #3498db;
+        color: white;
+      }
+    }
+  }
+}
+
+
+/* Login Prompt (retained from original, updated for MatButton and MatDivider) */
+.login-prompt {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+
+  h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: #555555; /* Slightly darker for better readability */
+    margin-bottom: 16px;
+  }
+
+  .btn-login {
+    background: #e67e22;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    &:hover {
+      background: #d35400;
+    }
+  }
+
+  .mat-divider.separator {
+    height: 1px;
+    background: #e9ecef;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    span {
+      padding: 0 16px;
+      color: #7f8c8d;
+      background-color: #f8f9fa; /* Match background for "or" text */
+      position: relative;
+      top: -10px; /* Adjust vertical position */
+    }
+  }
+}
+
+
+/* Form Grid and Sections (New/Adjusted for Material) */
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Space between form sections */
+
+  .form-section {
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #ffffff; /* Explicitly set light background */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+
+    .section-subtitle {
+      font-size: 1.2rem;
+      color: #34495e;
+      margin-top: 0;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      mat-icon {
+        color: #3498db;
+      }
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+      gap: 16px;
+      margin-bottom: 10px;
+
+      .form-field {
+        width: 100%;
+      }
+    }
+
+    /* Adjust checkbox spacing */
+    .same-billing-checkbox {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      color: #333333; /* Ensure dark text on light background */
+    }
+  }
+}
+
+
+/* Billing Address Section Specifics */
+.billing-address-section {
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fcfcfc; /* Slightly different background for visual distinction */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+
+  .section-subtitle {
+    mat-icon {
+      color: #e67e22; /* Different color for billing address icon */
+    }
+  }
+}
+
+
+/* Material Specific Adjustments */
+mat-form-field {
+  .mat-form-field-wrapper {
+    padding-bottom: 0.5em; /* Adjust spacing to prevent labels from overlapping errors */
+  }
+  .mat-form-field-infix {
+    padding: 0.8em 0;
+  }
+  .mat-input-element {
+    font-size: 1rem;
+    padding: 4px 0;
+    color: #333333; /* Ensure dark text on light background */
+  }
+  .mat-form-field-label {
+    color: #555555; /* Ensure labels are visible */
+  }
+}
+
+.mat-error {
+  font-size: 0.8rem;
+  margin-top: 5px;
+  color: #f44336; /* Default Material error color */
+}
+
+mat-checkbox {
+  .mat-checkbox-layout {
+    white-space: normal;
+  }
+  &.terms-checkbox {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+.flag-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+
+/* Form Actions (retained, but with Material buttons) */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  padding: 0 20px; /* Add padding consistent with sections */
+
+  .mat-flat-button, .mat-button {
+    padding: 8px 16px; /* Adjust padding for Material buttons */
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      font-size: 20px;
+    }
+  }
+
+  .btn-prev {
+    background: none;
+    border: 1px solid #7f8c8d;
+    color: #7f8c8d;
+    &:hover {
+      background: rgba(127, 140, 141, 0.1); /* Light hover for outlined button */
+    }
+  }
+
+  .btn-next, .btn-place-order {
+    background: #3498db;
+    color: white;
+    border: none;
+    &:hover:not(:disabled) {
+      background: #2980b9;
+    }
+    &:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+    }
+  }
+}
+
+
+/* Review Step - Order Summary & Info Cards */
+.order-summary-card, .shipping-info-card, .billing-info-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  color: #333333; /* Ensure dark text on light background */
+
+  h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  p {
+    margin-bottom: 8px;
+    color: #555555;
+    line-height: 1.5;
+    strong {
+      color: #2c3e50;
+    }
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.order-items {
+  .order-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e9ecef;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .item-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-right: 16px;
+      flex-shrink: 0;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      mat-icon {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ecf0f1;
+        color: #7f8c8d;
+        font-size: 36px;
+      }
+    }
+
+    .item-details {
+      flex: 1;
+
+      .item-name {
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 4px;
+      }
+
+      .item-quantity {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+      }
+    }
+
+    .item-price {
+      font-weight: 600;
+      color: #e67e22;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.order-totals {
+  margin-top: 20px;
+  padding-top: 20px;
+  // border-top is handled by mat-divider
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+
+    &.final {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #2c3e50;
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .checkout-card {
+    padding: 15px;
+  }
+
+  .checkout-progress {
+    .progress-steps {
+      flex-wrap: wrap; /* Allow steps to wrap on smaller screens */
+      justify-content: space-around;
+      gap: 10px 0; /* Vertical gap between wrapped steps */
+
+      .step {
+        width: 30%; /* Give some width for each step */
+      }
+      .step-connector {
+        flex-grow: 0;
+        width: 30px; /* Shorter connector on mobile */
+      }
+    }
+  }
+
+  .form-grid .form-section .form-row {
+    grid-template-columns: 1fr; /* Stack fields vertically on mobile */
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 16px;
+    padding: 0; /* Remove padding for full width buttons */
+
+    .mat-flat-button, .mat-button {
+      width: 100%;
+    }
+  }
+
+  .order-success-content .order-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-progress .progress-steps {
+    .step {
+      width: 45%; /* Two steps per row */
+    }
+    .step-connector {
+      display: none; /* Hide connectors on very small screens or re-think layout */
+    }
+  }
+  .step-title {
+    font-size: 1.5rem;
+  }
+}

@@ -7,116 +7,119 @@
     </div>
   </div>
 
-  <div *ngIf="isLoading" class="loading">
-    <div class="spinner"></div>
-    <span>{{ 'CART.LOADING' | translate }}</span>
-  </div>
-
-  <div *ngIf="!isLoading && cartItemsWithDetails.length === 0" class="empty-cart">
-    <div class="empty-icon">
-      <span class="material-icons">shopping_basket</span>
-    </div>
-    <h3>{{ 'CART.EMPTY' | translate }}</h3>
-    <p>{{ 'CART.EMPTY_DESCRIPTION' | translate }}</p>
-    <button class="btn-primary" routerLink="/products">{{ 'CART.SHOP_NOW' | translate }}</button>
-  </div>
-
-  <div class="cart-items" *ngIf="!isLoading && cartItemsWithDetails.length > 0">
-    <div *ngFor="let item of cartItemsWithDetails" class="cart-item" [class.mixture-item]="item.cartItemType === CartItemType.MIXTURE">
-      <div class="item-media" (click)="item.cartItemType === CartItemType.PRODUCT ? goToProduct(item.itemId) : goToMixture(item.itemId)">
-        <ng-container *ngIf="item.product || item.mixture">
-          <img *ngIf="(item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0])"
-               [src]="item.product?.media?.[0] ? 'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data :
-                     (item.mixture?.products?.[0]?.media?.[0] ? 'data:' + item.mixture.products[0].media[0].contentType + ';base64,' + item.mixture.products[0].media[0].base64Data : '')"
-               alt="{{ item.product?.name || item.mixture?.name }}" />
-        </ng-container>
-        <div *ngIf="!((item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0]))" class="no-image">
-          <span class="material-icons" *ngIf="item.cartItemType === CartItemType.PRODUCT">inventory_2</span>
-          <span class="material-icons" *ngIf="item.cartItemType === CartItemType.MIXTURE">blender</span>
-        </div>
+  <div class="cart-layout-wrapper">
+    <div class="cart-main-content-wrapper">
+      <div *ngIf="isLoading" class="loading">
+        <div class="spinner"></div>
+        <span>{{ 'CART.LOADING' | translate }}</span>
       </div>
 
-      <div class="item-info">
-        <div class="item-header">
-          <h3 class="item-name" (click)="item.cartItemType === CartItemType.PRODUCT ? goToProduct(item.itemId) : goToMixture(item.itemId)">
-            {{ item.product?.name || item.mixture?.name }}
-          </h3>
-          <div class="item-price">{{ (item.product?.price || item.mixture?.price || 0) | currency }}</div>
+      <div *ngIf="!isLoading && cartItemsWithDetails.length === 0" class="empty-cart">
+        <div class="empty-icon">
+          <span class="material-icons">shopping_basket</span>
         </div>
+        <h3>{{ 'CART.EMPTY' | translate }}</h3>
+        <p>{{ 'CART.EMPTY_DESCRIPTION' | translate }}</p>
+        <button class="btn-primary" routerLink="/products">{{ 'CART.SHOP_NOW' | translate }}</button>
+      </div>
 
-        <div class="item-description" *ngIf="item.product?.description">
-          {{ truncateText(item.product.description, 100) }}
-        </div>
+      <div class="cart-items" *ngIf="!isLoading && cartItemsWithDetails.length > 0">
+        <div *ngFor="let item of cartItemsWithDetails" class="cart-item" [class.mixture-item]="item.cartItemType === CartItemType.MIXTURE">
+          <div class="item-media" (click)="item.cartItemType === CartItemType.PRODUCT ? goToProduct(item.itemId) : goToMixture(item.itemId)">
+            <ng-container *ngIf="item.product || item.mixture">
+              <img *ngIf="(item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0])"
+                   [src]="item.product?.media?.[0] ? 'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data :
+                         (item.mixture?.products?.[0]?.media?.[0] ? 'data:' + item.mixture.products[0].media[0].contentType + ';base64,' + item.mixture.products[0].media[0].base64Data : '')"
+                   alt="{{ item.product?.name || item.mixture?.name }}" />
+            </ng-container>
+            <div *ngIf="!((item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0]))" class="no-image">
+              <span class="material-icons" *ngIf="item.cartItemType === CartItemType.PRODUCT">inventory_2</span>
+              <span class="material-icons" *ngIf="item.cartItemType === CartItemType.MIXTURE">blender</span>
+            </div>
+          </div>
 
-        <!-- Enhanced Mixture Display with product names and prices -->
-        <div *ngIf="item.cartItemType === CartItemType.MIXTURE && item.mixture" class="mixture-display">
-          <h4>{{ 'CART.MIXTURE_CONTAINS' | translate }}</h4>
-          <div class="mixture-products-list">
-            <div *ngFor="let product of item.mixture.products" class="mixture-product-item">
-              <div class="mixture-product-info">
-                <div class="mixture-product-name">{{ product.name }}</div>
-                <div class="mixture-product-price">{{ product.price | currency }}</div>
+          <div class="item-info">
+            <div class="item-header">
+              <h3 class="item-name" (click)="item.cartItemType === CartItemType.PRODUCT ? goToProduct(item.itemId) : goToMixture(item.itemId)">
+                {{ item.product?.name || item.mixture?.name }}
+              </h3>
+              <div class="item-price">{{ (item.product?.price || item.mixture?.price || 0) | currency }}</div>
+            </div>
+
+            <div class="item-description" *ngIf="item.product?.description">
+              {{ truncateText(item.product.description, 100) }}
+            </div>
+
+            <div *ngIf="item.cartItemType === CartItemType.MIXTURE && item.mixture" class="mixture-display">
+              <h4>{{ 'CART.MIXTURE_CONTAINS' | translate }}</h4>
+              <div class="mixture-products-list">
+                <div *ngFor="let product of item.mixture.products" class="mixture-product-item">
+                  <div class="mixture-product-info">
+                    <div class="mixture-product-name">{{ product.name }}</div>
+                    <div class="mixture-product-price">{{ product.price | currency }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="item-controls">
+              <div class="item-quantity">
+                <label>{{ 'CART.QUANTITY' | translate }}:</label>
+                <div class="quantity-selector">
+                  <button class="quantity-btn decrease" (click)="updateQuantity(item.itemId, item.quantity - 1, item.cartItemType)">
+                    <span class="material-icons">remove</span>
+                  </button>
+                  <input #quantityInput type="number" [value]="item.quantity" min="0"
+                         (change)="updateQuantity(item.itemId, quantityInput.value, item.cartItemType)"
+                         (keyup)="updateQuantity(item.itemId, quantityInput.value, item.cartItemType)" />
+                  <button class="quantity-btn increase" (click)="updateQuantity(item.itemId, item.quantity + 1, item.cartItemType)">
+                    <span class="material-icons">add</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="item-total">
+                {{ getItemTotal(item) | currency }}
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="item-controls">
-          <div class="item-quantity">
-            <label>{{ 'CART.QUANTITY' | translate }}:</label>
-            <div class="quantity-selector">
-              <button class="quantity-btn decrease" (click)="updateQuantity(item.itemId, item.quantity - 1, item.cartItemType)">
-                <span class="material-icons">remove</span>
-              </button>
-              <input #quantityInput type="number" [value]="item.quantity" min="0"
-                     (change)="updateQuantity(item.itemId, quantityInput.value, item.cartItemType)"
-                     (keyup)="updateQuantity(item.itemId, quantityInput.value, item.cartItemType)" />
-              <button class="quantity-btn increase" (click)="updateQuantity(item.itemId, item.quantity + 1, item.cartItemType)">
-                <span class="material-icons">add</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="item-total">
-            {{ getItemTotal(item) | currency }}
+          <div class="item-actions">
+            <button class="btn-remove" (click)="removeItem(item.itemId)" [title]="'CART.REMOVE' | translate">
+              <span class="material-icons">delete_outline</span>
+            </button>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="item-actions">
-        <button class="btn-remove" (click)="removeItem(item.itemId)" [title]="'CART.REMOVE' | translate">
-          <span class="material-icons">delete_outline</span>
+    <div class="cart-footer" *ngIf="!isLoading && cartItemsWithDetails.length > 0">
+      <div class="continue-shopping">
+        <button class="btn-outline" routerLink="/products">
+          <span class="material-icons">arrow_back</span>
+          {{ 'CART.CONTINUE_SHOPPING' | translate }}
         </button>
       </div>
-    </div>
-  </div>
 
-  <div class="cart-footer" *ngIf="!isLoading && cartItemsWithDetails.length > 0">
-    <div class="continue-shopping">
-      <button class="btn-outline" routerLink="/products">
-        <span class="material-icons">arrow_back</span>
-        {{ 'CART.CONTINUE_SHOPPING' | translate }}
-      </button>
-    </div>
+      <div class="cart-summary-total">
+        <div class="summary-row">
+          <span>{{ 'CART.SUBTOTAL' | translate }}:</span>
+          <span>{{ getCartTotal() | currency }}</span>
+        </div>
+        <div class="summary-row">
+          <span>{{ 'CART.SHIPPING' | translate }}:</span>
+          <span>{{ 'CART.FREE_SHIPPING' | translate }}</span>
+        </div>
+        <div class="summary-row total">
+          <span>{{ 'CART.TOTAL' | translate }}:</span>
+          <span>{{ getCartTotal() | currency }}</span>
+        </div>
 
-    <div class="cart-summary-total">
-      <div class="summary-row">
-        <span>{{ 'CART.SUBTOTAL' | translate }}:</span>
-        <span>{{ getCartTotal() | currency }}</span>
+        <button class="btn-checkout" (click)="proceedToCheckout()">
+          {{ 'CART.CHECKOUT' | translate }}
+          <span class="material-icons">arrow_forward</span>
+        </button>
       </div>
-      <div class="summary-row">
-        <span>{{ 'CART.SHIPPING' | translate }}:</span>
-        <span>{{ 'CART.FREE_SHIPPING' | translate }}</span>
-      </div>
-      <div class="summary-row total">
-        <span>{{ 'CART.TOTAL' | translate }}:</span>
-        <span>{{ getCartTotal() | currency }}</span>
-      </div>
-
-      <button class="btn-checkout" (click)="proceedToCheckout()">
-        {{ 'CART.CHECKOUT' | translate }}
-        <span class="material-icons">arrow_forward</span>
-      </button>
     </div>
   </div>
 </div>
