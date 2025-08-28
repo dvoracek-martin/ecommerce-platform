@@ -50,8 +50,7 @@ export class MixingComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private categoryService: CategoryService,
     private router: Router
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     this.loadProducts();
@@ -247,24 +246,26 @@ export class MixingComponent implements OnInit, OnDestroy {
   prevCategory(): void {
     if (this.activeCategoryIndex > 0) {
       this.activeCategoryIndex--;
-      this.scrollToActiveCategory();
+      // FIX: odstraněno scrollToActiveCategory()
     }
   }
 
   nextCategory(): void {
     if (this.activeCategoryIndex < this.categories.length - 1) {
       this.activeCategoryIndex++;
-      this.scrollToActiveCategory();
+      // FIX: odstraněno scrollToActiveCategory()
     }
   }
 
   jumpToCategoryAndScroll(index: number): void {
     if (index >= 0 && index < this.categories.length) {
       this.activeCategoryIndex = index;
-      this.scrollToActiveCategory();
+      // FIX: odstraněno scrollToActiveCategory()
     }
   }
 
+  // Původní funkce nechávám, kdyby ses k ní chtěl vrátit,
+  // ale už se nikde nevolá
   scrollToActiveCategory(): void {
     const categoryElement = document.querySelectorAll('.category-section')[this.activeCategoryIndex] as HTMLElement;
     if (categoryElement) categoryElement.scrollIntoView({behavior: 'smooth', block: 'start'});
@@ -274,7 +275,6 @@ export class MixingComponent implements OnInit, OnDestroy {
     const mixtureProducts = this.mixedProducts.filter(p => p !== null) as ResponseProductDTO[];
     if (mixtureProducts.length === 0) return;
 
-    // Create the mixture object
     const createMixtureRequest: CreateMixtureDTO = {
       name: this.mixtureName,
       price: this.calculateTotalPrice(),
@@ -288,10 +288,9 @@ export class MixingComponent implements OnInit, OnDestroy {
       media: [],
     };
 
-    // Send as an array (wrapped in []) instead of with a "mixture" wrapper
     this.mixtureService.saveMixture([createMixtureRequest]).subscribe({
       next: mixtures => {
-        const mixture = mixtures[0]; // Get the first (and only) mixture from the response array
+        const mixture = mixtures[0];
         const cartItem: CartItem = {
           itemId: mixture.id!,
           quantity: 1,
@@ -306,6 +305,4 @@ export class MixingComponent implements OnInit, OnDestroy {
       error: err => console.error('Failed to save mixture:', err)
     });
   }
-
-
 }
