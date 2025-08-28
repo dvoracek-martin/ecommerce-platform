@@ -36,6 +36,32 @@ export class AuthService {
     }
   }
 
+  login(email: string, password: string) {
+    const body = new URLSearchParams();
+    body.set('grant_type', 'password');
+    body.set('client_id', this.clientId);
+    body.set('username', email.trim().toLowerCase());
+    body.set('password', password);
+
+    return this.http.post(this.keycloakTokenUrl, body.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }).pipe(
+      tap((response: any) => {
+        this.storeToken(response);
+        this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
+      }),
+      catchError((err) => {
+        const errorMessage = err.error?.error_description || err.statusText;
+        this.snackBar.open(`Login failed: ${errorMessage}`, 'Close', { duration: 5000 });
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getCurrentUserId(): string | null {
+    return this.getUserId();
+  }
+
   getRoles(): string[] {
     const token = this.token;
     if (!token) return [];

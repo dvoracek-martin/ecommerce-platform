@@ -41,21 +41,11 @@ export class UserLoginComponent {
     this.loading = true;
     const { email, password } = this.loginForm.value;
 
-    const body = new URLSearchParams();
-    body.set('grant_type', 'password');
-    body.set('client_id', this.clientId);
-    body.set('username', email.trim().toLowerCase());
-    body.set('password', password);
-
-    this.http.post(this.keycloakTokenUrl, body.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    }).subscribe({
-      next: (response: any) => {
-        this.authService.storeToken(response);
+    this.authService.login(email, password).subscribe({
+      next: () => {
         this.loginSuccess.emit();
-        this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
 
-        // merge cart
+        // Merge cart after successful login
         this.cartService.mergeGuestCart().subscribe({
           next: () => {
             this.snackBar.open('Guest cart merged successfully.', 'Close', { duration: 5000 });
@@ -65,9 +55,8 @@ export class UserLoginComponent {
           }
         });
       },
-      error: (err) => {
-        const errorMessage = err.error?.error_description || err.statusText;
-        this.snackBar.open(`Login failed: ${errorMessage}`, 'Close', { duration: 5000 });
+      error: () => {
+        // Error handling is already done in the AuthService
       }
     }).add(() => this.loading = false);
   }

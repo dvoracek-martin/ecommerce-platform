@@ -48,6 +48,7 @@ import {TagsAdminUpdateComponent} from './layout/tags/admin/tags-admin-update.co
 import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.component';
 import {MatTable} from '@angular/material/table';
 import {MatBadgeModule} from '@angular/material/badge';
+import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
 
 @NgModule({
   declarations: [
@@ -80,6 +81,7 @@ import {MatBadgeModule} from '@angular/material/badge';
     CategoriesAdminListComponent,
     CategoriesAdminUpdateComponent,
     ConfirmationDialogComponent,
+    CheckoutComponent,
   ],
   imports: [
     BrowserModule,

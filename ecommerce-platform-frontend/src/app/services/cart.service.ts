@@ -317,4 +317,37 @@ export class CartService {
         })
       );
   }
+
+  clearCart(): Observable<Cart> {
+    if (this.authService.isTokenValid()) {
+      return this.http.delete<Cart>(`${this.apiUrl}/clear`)
+        .pipe(
+          tap(cart => {
+            // Reset the cart to empty state
+            const emptyCart: Cart = {
+              id: cart.id,
+              username: cart.username,
+              items: [],
+              totalPrice: 0
+            };
+            this._cart.next(emptyCart);
+            this.showSnackbar('Cart cleared successfully!', 'success');
+          }),
+          catchError(error => {
+            this.showSnackbar('Failed to clear cart.', 'error');
+            console.error('Failed to clear user cart:', error);
+            return throwError(() => error);
+          })
+        );
+    } else {
+      // For guest, clear local storage and reset cart
+      if (this.isBrowser) {
+        localStorage.removeItem('guest_cart');
+      }
+      const emptyCart: Cart = { id: 0, username: 'guest', items: [], totalPrice: 0 };
+      this._cart.next(emptyCart);
+      this.showSnackbar('Guest cart cleared successfully!', 'success');
+      return of(emptyCart);
+    }
+  }
 }

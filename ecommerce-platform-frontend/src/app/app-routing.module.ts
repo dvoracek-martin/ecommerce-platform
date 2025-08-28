@@ -35,6 +35,7 @@ import {
 import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.component';
 import {TagsAdminUpdateComponent} from './layout/tags/admin/tags-admin-update.component';
 import {ProductDetailComponent} from './layout/products/products-detail.component';
+import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
 
 const routes: Routes = [
   // Public / authenticated client routes
@@ -52,6 +53,7 @@ const routes: Routes = [
   // Client‑side pages (require login)
   {path: 'customer', component: CustomersComponent, canActivate: [AuthGuard]},
   {path: 'orders', component: OrdersComponent, canActivate: [AuthGuard]},
+  {path: 'checkout', component: CheckoutComponent},
   // {path: 'cart', component: CartComponent, canActivate: [AuthGuard]},
 
   // Admin routes (only for user_admin role)
@@ -73,7 +75,7 @@ const routes: Routes = [
       {path: 'tags', component: TagsAdminListComponent,},
       {path: 'tags/update/:id', component: TagsAdminUpdateComponent,},
       {path: 'tags/create', component: TagsAdminCreateComponent,},
-      {path: 'orders', component: OrdersAdminComponent}
+      {path: 'orders', component: OrdersAdminComponent},
     ]
   },
 
