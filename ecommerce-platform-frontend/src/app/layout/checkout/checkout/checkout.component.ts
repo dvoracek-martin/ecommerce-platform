@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AuthService} from '../../../auth/auth.service';
@@ -64,7 +64,7 @@ interface Customer {
 })
 export class CheckoutComponent implements OnInit {
   currentStep = 1;
-  totalSteps = 3;
+  totalSteps = 4; // Updated from 3 to 4 to include the new step
   isLoggedIn = false;
   orderComplete = false;
   orderId: string | null = null;
@@ -73,6 +73,20 @@ export class CheckoutComponent implements OnInit {
   private initialBillingAddress: BillingAddress | null = null;
   private initialAddress: Address | null = null;
 
+  // New properties for shipping and payment methods
+  selectedShippingMethod: string = '';
+  selectedPaymentMethod: string = '';
+  shippingMethods = [
+    { id: 'standard', name: 'Standard Shipping', price: 9.99, deliveryTime: '3-5 business days' },
+    { id: 'express', name: 'Express Shipping', price: 19.99, deliveryTime: '2-3 business days' },
+    { id: 'premium', name: 'Premium Delivery', price: 29.99, deliveryTime: 'Next business day' }
+  ];
+
+  paymentMethods = [
+    { id: 'credit_card', name: 'Credit Card' },
+    { id: 'paypal', name: 'PayPal' },
+    { id: 'bank_transfer', name: 'Bank Transfer' }
+  ];
 
   customerForm: FormGroup;
   cartItems: CartItemWithDetails[] = [];
@@ -90,7 +104,8 @@ export class CheckoutComponent implements OnInit {
     private snackBar: MatSnackBar,
     public translate: TranslateService,
     private matIconRegistry: MatIconRegistry,
-    private domSanitizer: DomSanitizer
+    private domSanitizer: DomSanitizer,
+    private cdRef: ChangeDetectorRef
   ) {
     this.matIconRegistry.addSvgIcon(
       'flag_ch',
@@ -124,6 +139,9 @@ export class CheckoutComponent implements OnInit {
         zipCode: [''],
         country: [this.DEFAULT_COUNTRY]
       }),
+      // New form controls for shipping and payment methods
+      shippingMethod: ['', Validators.required],
+      paymentMethod: ['', Validators.required],
       agreeToTerms: [false, Validators.requiredTrue]
     });
   }
@@ -279,7 +297,6 @@ export class CheckoutComponent implements OnInit {
         billingAddressGroup.get('phone')?.setValidators([Validators.pattern(/^\+?[0-9\s-]+$/)]);
         billingAddressGroup.get('taxId')?.setValidators([Validators.pattern(/^[A-Za-z0-9]+$/)]);
 
-
         // Update validity for all billing controls AFTER setting their validators
         billingControls.forEach(controlName => {
           billingAddressGroup.get(controlName)?.updateValueAndValidity();
@@ -290,6 +307,23 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
+  // New methods for shipping and payment selection
+  selectShippingMethod(method: string): void {
+    this.selectedShippingMethod = method;
+    this.customerForm.get('shippingMethod')?.setValue(method);
+
+    // Update shipping cost based on selection
+    const selectedMethod = this.shippingMethods.find(m => m.id === method);
+    if (selectedMethod) {
+      this.shippingCost = selectedMethod.price;
+      this.finalTotal = this.cartTotal + this.shippingCost;
+    }
+  }
+
+  selectPaymentMethod(method: string): void {
+    this.selectedPaymentMethod = method;
+    this.customerForm.get('paymentMethod')?.setValue(method);
+  }
 
   login(): void {
     this.router.navigate(['/login'], {
@@ -321,41 +355,58 @@ export class CheckoutComponent implements OnInit {
 
   nextStep(): void {
     if (this.currentStep === 1) {
-      // Use isCurrentStepValid() instead of customerForm.invalid
       if (!this.isCurrentStepValid()) {
         this.customerForm.markAllAsTouched();
         this.showSnackbar('CHECKOUT.FIX_FORM_ERRORS');
         return;
       }
+    } else if (this.currentStep === 2) {
+      // Validate shipping and payment methods for step 2
+      if (!this.isCurrentStepValid()) {
+        this.customerForm.markAllAsTouched();
+        this.showSnackbar('CHECKOUT.SELECT_SHIPPING_PAYMENT');
+        return;
+      }
     }
+
     if (this.currentStep < this.totalSteps) {
       this.currentStep++;
+      this.cdRef.detectChanges();
     }
   }
 
   prevStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
+      this.cdRef.detectChanges();
     }
   }
 
   goToStep(step: number): void {
     if (step < this.currentStep) {
       this.currentStep = step;
+      this.cdRef.detectChanges();
       return;
     }
 
-    if (this.currentStep === 1 && step === 2) {
-      // Use isCurrentStepValid() instead of customerForm.invalid
+    // Check if we can navigate to the requested step
+    if (step === 2 && this.currentStep === 1) {
       if (!this.isCurrentStepValid()) {
         this.customerForm.markAllAsTouched();
         this.showSnackbar('CHECKOUT.COMPLETE_STEP_ONE');
+        return;
+      }
+    } else if (step === 3 && this.currentStep === 2) {
+      if (!this.isCurrentStepValid()) {
+        this.customerForm.markAllAsTouched();
+        this.showSnackbar('CHECKOUT.SELECT_SHIPPING_PAYMENT');
         return;
       }
     }
 
     if (step >= 1 && step <= this.totalSteps) {
       this.currentStep = step;
+      this.cdRef.detectChanges();
     }
   }
 
@@ -371,7 +422,10 @@ export class CheckoutComponent implements OnInit {
       customer: this.createCustomerPayload(),
       items: this.cartItems,
       total: this.finalTotal,
-      status: 'confirmed'
+      status: 'confirmed',
+      // Add shipping and payment method to order data
+      shippingMethod: this.customerForm.get('shippingMethod')?.value,
+      paymentMethod: this.customerForm.get('paymentMethod')?.value
     };
 
     this.orderService.createOrder(orderData).subscribe({
@@ -448,7 +502,13 @@ export class CheckoutComponent implements OnInit {
     }
 
     if (this.currentStep === 2) {
-      // For step 2, check the entire form including terms agreement
+      // For step 2, check shipping and payment methods
+      return this.customerForm.get('shippingMethod')?.valid &&
+        this.customerForm.get('paymentMethod')?.valid;
+    }
+
+    if (this.currentStep === 3) {
+      // For step 3, check the entire form including terms agreement
       return this.customerForm.valid;
     }
 

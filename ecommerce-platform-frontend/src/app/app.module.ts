@@ -49,6 +49,7 @@ import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.compon
 import {MatTable} from '@angular/material/table';
 import {MatBadgeModule} from '@angular/material/badge';
 import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
+import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 
 @NgModule({
   declarations: [
@@ -109,7 +110,9 @@ import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
     MatDialogClose,
     TranslatePipe,
     DragDropModule,
-    MatTable
+    MatTable,
+    MatRadioGroup,
+    MatRadioButton
   ],
   providers: [
     {

@@ -520,3 +520,143 @@ mat-checkbox {
     font-size: 1.5rem;
   }
 }
+/* Add these styles to your existing SCSS file */
+
+/* Shipping & Payment Methods */
+.method-section {
+  margin-bottom: 30px;
+
+  .section-subtitle {
+    font-size: 1.3rem;
+    color: #34495e;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      color: #3498db;
+    }
+  }
+}
+
+.method-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.method-card {
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  position: relative;
+
+  &:hover {
+    border-color: #3498db;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+  }
+
+  &.selected {
+    border-color: #3498db;
+    background-color: #f8fafc;
+
+    .method-icon {
+      background: #3498db;
+      color: white;
+    }
+
+    &.express .method-icon {
+      background: #e67e22;
+    }
+
+    &.premium .method-icon {
+      background: #9b59b6;
+    }
+
+    &.paypal .method-icon {
+      background: #003087;
+    }
+
+    &.bank .method-icon {
+      background: #2ecc71;
+    }
+  }
+
+  .method-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    background: #f1f3f4;
+    color: #7f8c8d;
+    transition: all 0.3s ease;
+
+    mat-icon {
+      font-size: 24px;
+    }
+  }
+
+  .method-details {
+    flex: 1;
+
+    h4 {
+      font-size: 1.1rem;
+      color: #2c3e50;
+      margin: 0 0 8px 0;
+      font-weight: 600;
+    }
+
+    p {
+      color: #7f8c8d;
+      margin: 0 0 8px 0;
+      font-size: 0.9rem;
+    }
+
+    .method-price {
+      font-weight: 700;
+      color: #e67e22;
+      font-size: 1.1rem;
+    }
+  }
+
+  .method-select {
+    margin-left: 10px;
+
+    .mat-radio-button {
+      display: flex;
+    }
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .method-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .method-card {
+    flex-direction: column;
+    text-align: center;
+
+    .method-icon {
+      margin-right: 0;
+      margin-bottom: 16px;
+    }
+
+    .method-select {
+      margin-left: 0;
+      margin-top: 16px;
+    }
+  }
+}

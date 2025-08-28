@@ -100,6 +100,23 @@
     "ZIP_CODE_NUMBERS_ONLY": "ZIP code must contain numbers only",
     "ZIP_CODE_REQUIRED": "ZIP code is required"
   },
+  "CHECKOUT": {
+    "SHIPPING_PAYMENT": "Shipping & Payment",
+    "SHIPPING_METHOD": "Shipping Method",
+    "PAYMENT_METHOD": "Payment Method",
+    "STANDARD_SHIPPING": "Standard Shipping",
+    "STANDARD_SHIPPING_DESC": "3-5 business days",
+    "EXPRESS_SHIPPING": "Express Shipping",
+    "EXPRESS_SHIPPING_DESC": "2-3 business days",
+    "PREMIUM_SHIPPING": "Premium Delivery",
+    "PREMIUM_SHIPPING_DESC": "Next business day",
+    "CREDIT_CARD": "Credit Card",
+    "CREDIT_CARD_DESC": "Pay securely with your credit card",
+    "PAYPAL": "PayPal",
+    "PAYPAL_DESC": "Fast and secure payment with PayPal",
+    "BANK_TRANSFER": "Bank Transfer",
+    "BANK_TRANSFER_DESC": "Direct bank transfer"
+  },
   "DIALOG": {
     "CONFIRM_DELETE_TITLE": "Confirm Deletion",
     "CONFIRM_DELETE_MESSAGE": "Are you sure you want to remove this item from your cart?",
