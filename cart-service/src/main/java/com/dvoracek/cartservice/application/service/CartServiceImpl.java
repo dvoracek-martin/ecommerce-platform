@@ -92,36 +92,31 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartDTO mergeGuestIntoUser(String username, String guestId) {
-        if (username == null || username.isBlank() || guestId == null || guestId.isBlank()) {
-            return cartMapper.toDto(getOrCreateCart(username, guestId));
+    public CartDTO mergeGuestIntoUser(String username, CartItem[] guestItems) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("User must be logged in to merge cart.");
         }
+
         Cart userCart = getOrCreateCart(username, null);
-        Optional<Cart> guestCartOpt = cartRepository.findByGuestId(guestId);
 
-        if (guestCartOpt.isEmpty()) {
-            return cartMapper.toDto(userCart);
-        }
-
-        Cart guestCart = guestCartOpt.get();
-
-        guestCart.getItems().forEach(gi -> {
-            Optional<CartItem> existing = userCart.getItems().stream()
-                    .filter(ui -> ui.getItemId().equals(gi.getItemId()))
-                    .findFirst();
-            if (existing.isPresent()) {
-                existing.get().setQuantity(existing.get().getQuantity() + gi.getQuantity());
-            } else {
-                CartItem copy = new CartItem();
-                copy.setItemId(gi.getItemId());
-                copy.setQuantity(gi.getQuantity());
-                copy.setCartItemType(gi.getCartItemType());
-                copy.setCart(userCart);
-                userCart.getItems().add(copy);
+        if (guestItems != null) {
+            for (CartItem gi : guestItems) {
+                Optional<CartItem> existing = userCart.getItems().stream()
+                        .filter(ui -> ui.getItemId().equals(gi.getItemId()) &&
+                                ui.getCartItemType() == gi.getCartItemType())
+                        .findFirst();
+                if (existing.isPresent()) {
+                    existing.get().setQuantity(existing.get().getQuantity() + gi.getQuantity());
+                } else {
+                    CartItem copy = new CartItem();
+                    copy.setItemId(gi.getItemId());
+                    copy.setQuantity(gi.getQuantity());
+                    copy.setCartItemType(gi.getCartItemType());
+                    copy.setCart(userCart);
+                    userCart.getItems().add(copy);
+                }
             }
-        });
-
-        cartRepository.delete(guestCart);
+        }
 
         Cart updatedCart = cartRepository.save(userCart);
         return cartMapper.toDto(updatedCart);

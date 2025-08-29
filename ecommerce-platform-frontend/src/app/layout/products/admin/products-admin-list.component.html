@@ -7,11 +7,18 @@
     </button>
   </div>
 
-  <div *ngIf="isLoading" class="loading">
-    {{ 'PRODUCTS.LOADING' | translate }}
+  <div *ngIf="isLoading" class="loading-section">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <div class="loading-text">{{ 'PRODUCTS.LOADING' | translate }}</div>
   </div>
-  <div *ngIf="error" class="error">
-    {{ 'PRODUCTS.ERROR_LOADING' | translate : { error: error } }}
+
+  <div *ngIf="error" class="error-section">
+    <mat-icon color="warn" class="error-icon">error_outline</mat-icon>
+    <div class="error-text">{{ error }}</div>
+    <button mat-stroked-button color="warn" (click)="navigateHome()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to the main page
+    </button>
   </div>
 
   <div *ngIf="!isLoading && !error" class="products-grid">
@@ -65,6 +72,15 @@
           <p class="product-description-truncated">
             {{ product.description }}
           </p>
+
+          <!-- Enhanced Tags Section - Added similar to products component -->
+          <div *ngIf="product.responseTagDTOS?.length" class="product-tags">
+            <div class="tags-container">
+              <span *ngFor="let tag of product.responseTagDTOS" class="tag">
+                {{ tag.name }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 

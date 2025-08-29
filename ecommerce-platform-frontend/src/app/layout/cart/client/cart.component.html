@@ -9,9 +9,9 @@
 
   <div class="cart-layout-wrapper">
     <div class="cart-main-content-wrapper">
-      <div *ngIf="isLoading" class="loading">
-        <div class="spinner"></div>
-        <span>{{ 'CART.LOADING' | translate }}</span>
+      <div *ngIf="isLoading" class="loading-section">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <div class="loading-text">{{ 'CART.LOADING' | translate }}</div>
       </div>
 
       <div *ngIf="!isLoading && cartItemsWithDetails.length === 0" class="empty-cart">
@@ -106,7 +106,7 @@
 
     <div class="cart-footer" *ngIf="!isLoading && cartItemsWithDetails.length > 0">
       <div class="continue-shopping">
-        <button class="btn-outline" routerLink="/products">
+        <button class="btn-outline" (click)="navigateHome()">
           <span class="material-icons">arrow_back</span>
           {{ 'CART.CONTINUE_SHOPPING' | translate }}
         </button>
@@ -116,10 +116,6 @@
         <div class="summary-row">
           <span>{{ 'CART.SUBTOTAL' | translate }}:</span>
           <span>{{ getCartTotal() | currency }}</span>
-        </div>
-        <div class="summary-row">
-          <span>{{ 'CART.SHIPPING' | translate }}:</span>
-          <span>{{ 'CART.FREE_SHIPPING' | translate }}</span>
         </div>
         <div class="summary-row total">
           <span>{{ 'CART.TOTAL' | translate }}:</span>

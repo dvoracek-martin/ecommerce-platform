@@ -26,9 +26,20 @@
       </div>
     </div>
 
-    <!-- Loading & Error -->
-    <div *ngIf="isLoading" class="loading">{{ 'PRODUCTS.LOADING' | translate }}</div>
-    <div *ngIf="error" class="error">{{ 'PRODUCTS.ERROR_LOADING' | translate:{error: error} }}</div>
+    <div *ngIf="isLoading" class="loading-section">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <div class="loading-text">Loading product details...</div>
+    </div>
+
+    <div *ngIf="error" class="error-section">
+      <mat-icon color="warn" class="error-icon">error_outline</mat-icon>
+      <div class="error-text">{{ error }}</div>
+      <button mat-stroked-button color="warn" (click)="navigateHome()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to the main page
+      </button>
+    </div>
+
 
     <!-- Products Carousel -->
     <div class="main-content-wrapper" *ngIf="!isLoading && !error">

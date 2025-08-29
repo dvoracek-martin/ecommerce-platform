@@ -22,8 +22,8 @@ export class ProductService {
     return this.http.get<ResponseProductDTO[]>(`${this.apiUrl}/all-products`);
   }
 
-  getAllProductsByCategoryId(id: number): Observable<ResponseProductDTO[]> {
-    return this.http.get<ResponseProductDTO[]>(`${this.apiUrl}/all-products-by-category-id/${id}`);
+  getActiveProductsByCategoryId(id: number): Observable<ResponseProductDTO[]> {
+    return this.http.get<ResponseProductDTO[]>(`${this.apiUrl}/active-products-by-category-id/${id}`);
   }
 
   getProductById(id: number): Observable<ResponseProductDTO> {

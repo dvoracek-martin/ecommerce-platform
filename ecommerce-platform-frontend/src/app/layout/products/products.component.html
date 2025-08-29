@@ -1,8 +1,19 @@
 <div class="products-container">
   <h1>{{ 'PRODUCTS.TITLE' | translate }}</h1>
 
-  <div *ngIf="isLoading" class="loading">{{ 'PRODUCTS.LOADING' | translate }}</div>
-  <div *ngIf="error" class="error">{{ error }}</div>
+  <div *ngIf="isLoading" class="loading-section">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <div class="loading-text">{{ 'PRODUCTS.LOADING' | translate }}</div>
+  </div>
+
+  <div *ngIf="error" class="error-section">
+    <mat-icon color="warn" class="error-icon">error_outline</mat-icon>
+    <div class="error-text">{{ error }}</div>
+    <button mat-stroked-button color="warn" (click)="navigateHome()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to the main page
+    </button>
+  </div>
 
   <div class="products-grid">
     <div *ngFor="let product of products; let productIndex = index; trackBy: trackById"
@@ -43,6 +54,15 @@
       <div class="product-details">
         <h2 class="product-name">{{ product.name }}</h2>
         <p class="product-description">{{ product.description }}</p>
+
+        <!-- Enhanced Tags Section - Matching mixing component style -->
+        <div *ngIf="product.responseTagDTOS?.length" class="product-tags">
+          <div class="tags-container">
+            <span *ngFor="let tag of product.responseTagDTOS" class="tag">
+              {{ tag.name }}
+            </span>
+          </div>
+        </div>
       </div>
 
       <div class="product-bottom">

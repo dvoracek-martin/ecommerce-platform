@@ -104,4 +104,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
   goToProduct(product: ResponseProductDTO) {
     this.router.navigate([`/products/${product.id}`]);
   }
+
+  navigateHome() {
+    this.router.navigate(['/']);
+  }
 }

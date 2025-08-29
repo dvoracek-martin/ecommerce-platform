@@ -10,5 +10,5 @@ public interface CartService {
     CartDTO addItem(String username, String guestId, CartItem newItem);
     CartDTO removeItem(String username, String guestId, Long getItemId);
     CartDTO updateItemQuantity(String username, String guestId, Long getItemId, int quantity);
-    CartDTO mergeGuestIntoUser(String username, String guestId);
+    CartDTO mergeGuestIntoUser(String username, CartItem[] guestId);
 }

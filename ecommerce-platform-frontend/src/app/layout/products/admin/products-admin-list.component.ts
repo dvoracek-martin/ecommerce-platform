@@ -117,4 +117,8 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
   navigateToCreate(): void {
     this.router.navigate(['/admin/products/create']);
   }
+
+  navigateHome() {
+    this.router.navigate(['/']);
+  }
 }

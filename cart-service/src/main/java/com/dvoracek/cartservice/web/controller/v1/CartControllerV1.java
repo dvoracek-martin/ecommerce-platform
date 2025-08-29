@@ -37,9 +37,9 @@ public class CartControllerV1 {
     @PostMapping("/update")
     public ResponseEntity<CartDTO> updateItem(@AuthenticationPrincipal Jwt jwt,
                                               @CookieValue(name = "gcid", required = false) String guestId,
-                                              @RequestParam Long productId,
+                                              @RequestParam Long itemId,
                                               @RequestParam int quantity) {
-        return ResponseEntity.ok(cartService.updateItemQuantity(usernameOrNull(jwt), guestId, productId, quantity));
+        return ResponseEntity.ok(cartService.updateItemQuantity(usernameOrNull(jwt), guestId, itemId, quantity));
     }
 
     @DeleteMapping("/remove/{productId}")
@@ -51,7 +51,8 @@ public class CartControllerV1 {
 
     @PostMapping("/merge")
     public ResponseEntity<CartDTO> merge(@AuthenticationPrincipal Jwt jwt,
-                                         @CookieValue(name = "gcid", required = false) String guestId) {
-        return ResponseEntity.ok(cartService.mergeGuestIntoUser(usernameOrNull(jwt), guestId));
+                                         @RequestBody CartItem[] guestItems) {
+        return ResponseEntity.ok(cartService.mergeGuestIntoUser(usernameOrNull(jwt), guestItems));
     }
+
 }

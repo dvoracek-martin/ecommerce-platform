@@ -224,4 +224,8 @@ export class CartComponent implements OnInit {
       panelClass
     });
   }
+
+  navigateHome() {
+    this.router.navigate(['/']);
+  }
 }

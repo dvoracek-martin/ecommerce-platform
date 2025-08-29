@@ -70,7 +70,7 @@ export class MixingComponent implements OnInit, OnDestroy {
         this.categories = categories;
         this.getPremiumCategoryId();
 
-        const requests = categories.map(cat => this.productService.getAllProductsByCategoryId(cat.id));
+        const requests = categories.map(cat => this.productService.getActiveProductsByCategoryId(cat.id));
         forkJoin(requests).subscribe({
           next: (results) => {
             categories.forEach((cat, index) => {
@@ -304,5 +304,9 @@ export class MixingComponent implements OnInit, OnDestroy {
       },
       error: err => console.error('Failed to save mixture:', err)
     });
+  }
+
+  navigateHome() {
+    this.router.navigate(['/']);
   }
 }
