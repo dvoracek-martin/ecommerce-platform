@@ -72,11 +72,8 @@
                             [disabled]="item.updating">
                       <span class="material-icons">remove</span>
                     </button>
-                    <input #quantityInput type="number"
-                           [value]="item.optimisticQuantity ?? item.quantity"
-                           min="0"
-                           (change)="updateQuantity(item.itemId, quantityInput.value, item.cartItemType)"
-                           [disabled]="item.updating" />
+                    <input #quantityInput type="number" [value]="item.optimisticQuantity ?? item.quantity" min="0"
+                           (change)="onQuantityChange($event, item)" />
                     <button class="quantity-btn increase"
                             (click)="updateQuantity(item.itemId, (item.optimisticQuantity ?? item.quantity) + 1, item.cartItemType)"
                             [disabled]="item.updating">

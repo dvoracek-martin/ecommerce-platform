@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Cart, CartItem, CartService } from '../../../services/cart.service';
 import { ProductService } from '../../../services/product.service';
 import { MixtureService } from '../../../services/mixture.service';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, Subscription } from 'rxjs';
 import { catchError, switchMap, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
@@ -26,11 +26,12 @@ interface CartItemWithDetails extends CartItem {
   standalone: false,
   styleUrls: ['./cart.component.scss']
 })
-export class CartComponent implements OnInit {
+export class CartComponent implements OnInit, OnDestroy {
   cart: Cart | null = null;
   cartItemsWithDetails: CartItemWithDetails[] = [];
   isLoading = false;
   CartItemType = CartItemType;
+  private cartSubscription!: Subscription;
 
   constructor(
     private cartService: CartService,
@@ -46,42 +47,79 @@ export class CartComponent implements OnInit {
     this.loadCart();
   }
 
+  ngOnDestroy(): void {
+    if (this.cartSubscription) {
+      this.cartSubscription.unsubscribe();
+    }
+  }
+
   loadCart() {
     this.isLoading = true;
-    this.cartService.getCart()
-      .pipe(
-        switchMap(cart => {
-          this.cart = cart;
 
-          if (!cart.items?.length) {
-            this.cartItemsWithDetails = [];
-            return of([]);
+    // Use the same approach as the app component
+    this.cartSubscription = this.cartService.getCart().pipe(
+      switchMap(cart => {
+        this.cart = cart;
+        if (!cart?.items?.length) {
+          this.cartItemsWithDetails = [];
+          return of([]);
+        }
+
+        const detailObservables = cart.items.map(item => {
+          if (item.cartItemType === CartItemType.PRODUCT) {
+            return this.productService.getProductById(item.itemId).pipe(
+              map(product => ({ ...item, product })),
+              catchError(() => {
+                this.showSnackbar(`Failed to load product details for an item.`, 'warning');
+                return of({ ...item, product: undefined });
+              })
+            );
+          } else if (item.cartItemType === CartItemType.MIXTURE) {
+            return this.mixtureService.getMixtureById(item.itemId).pipe(
+              map(mixture => ({ ...item, mixture })),
+              catchError(() => {
+                this.showSnackbar(`Failed to load mixture details for an item.`, 'warning');
+                return of({ ...item, mixture: undefined });
+              })
+            );
           }
+          return of(item);
+        });
 
-          const detailObservables = cart.items.map(item => {
-            if (item.cartItemType === CartItemType.PRODUCT) {
-              return this.productService.getProductById(item.itemId)
-                .pipe(
-                  map(product => ({...item, product, optimisticQuantity: item.quantity, updating: false})),
-                  catchError(() => of({...item, product: undefined, optimisticQuantity: item.quantity, updating: false}))
-                );
-            } else if (item.cartItemType === CartItemType.MIXTURE) {
-              return this.mixtureService.getMixtureById(item.itemId)
-                .pipe(
-                  map(mixture => ({...item, mixture, optimisticQuantity: item.quantity, updating: false})),
-                  catchError(() => of({...item, mixture: undefined, optimisticQuantity: item.quantity, updating: false}))
-                );
-            }
-            return of({...item, optimisticQuantity: item.quantity, updating: false});
-          });
+        return forkJoin(detailObservables).pipe(
+          map(items => items.map(item => {
+            const existingItem = this.cartItemsWithDetails.find(i => i.itemId === item.itemId);
+            return {
+              ...item,
+              optimisticQuantity: existingItem?.optimisticQuantity || item.quantity,
+              updating: existingItem?.updating || false
+            };
+          }))
+        );
+      })
+    ).subscribe(itemsWithDetails => {
+      this.cartItemsWithDetails = itemsWithDetails;
+      this.isLoading = false;
+    }, err => {
+      console.error('Failed to load cart with details', err);
+      this.cart = { id: 0, username: '', items: [], totalPrice: 0 };
+      this.cartItemsWithDetails = [];
+      this.isLoading = false;
+    });
+  }
 
-          return forkJoin(detailObservables);
-        })
-      )
-      .subscribe((itemsWithDetails: any[]) => {
-        this.cartItemsWithDetails = itemsWithDetails as CartItemWithDetails[];
-        this.isLoading = false;
-      }, () => this.isLoading = false);
+  // New method to handle input changes
+  onQuantityChange(event: Event, item: CartItemWithDetails) {
+    const input = event.target as HTMLInputElement;
+    const quantity = parseInt(input.value, 10);
+
+    if (isNaN(quantity) || quantity < 0) {
+      // Reset to current value if invalid
+      input.value = (item.optimisticQuantity ?? item.quantity).toString();
+      return;
+    }
+
+    this.updateQuantity(item.itemId, quantity, item.cartItemType);
   }
 
   updateQuantity(itemId: number, newQuantity: any, cartItemType: CartItemType) {
@@ -95,10 +133,16 @@ export class CartComponent implements OnInit {
       return;
     }
 
+    // Check if quantity is the same as current to prevent duplicate calls
+    const currentQuantity = item.optimisticQuantity !== undefined ? item.optimisticQuantity : item.quantity;
+    if (quantity === currentQuantity) {
+      return;
+    }
+
     if (quantity === 0) {
-      this.showConfirmationDialog(() => {
-        this.removeItem(itemId);
-      });
+      // Directly call removeItem without showing confirmation dialog here
+      // The confirmation will be handled in removeItem
+      this.removeItem(itemId);
       return;
     }
     if (quantity < 0) {
@@ -116,6 +160,9 @@ export class CartComponent implements OnInit {
           item.quantity = quantity;
           item.optimisticQuantity = undefined;
           item.updating = false;
+
+          // Reload cart to ensure consistency with app component
+          this.loadCart();
         },
         error => {
           // Error: revert the optimistic update
@@ -144,7 +191,11 @@ export class CartComponent implements OnInit {
         this.cartItemsWithDetails = this.cartItemsWithDetails.filter(item => item.itemId !== itemId);
 
         this.cartService.removeItem(itemId).subscribe(
-          () => this.showSnackbar('Item removed from cart!', 'success'),
+          () => {
+            this.showSnackbar('Item removed from cart!', 'success');
+            // Reload cart to ensure consistency with app component
+            this.loadCart();
+          },
           error => {
             // Re-add item on error
             this.loadCart(); // Reload cart items
@@ -173,7 +224,6 @@ export class CartComponent implements OnInit {
         }
       });
     } else {
-      // ✅ fallback bezpečně s null coalescing
       const message = this.translate?.instant('DIALOG.CONFIRM_DELETE_MESSAGE') || 'Are you sure you want to delete this item?';
       if (confirm(message)) {
         callback();

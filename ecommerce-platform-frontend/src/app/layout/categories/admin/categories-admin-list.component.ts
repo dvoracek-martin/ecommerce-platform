@@ -119,4 +119,8 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
     console.log('navigating to update category with ID:', categoryId);
     this.router.navigate([`/admin/categories/update/${categoryId}`]);
   }
+
+  navigateHome() {
+    this.router.navigate(['/']);
+  }
 }
