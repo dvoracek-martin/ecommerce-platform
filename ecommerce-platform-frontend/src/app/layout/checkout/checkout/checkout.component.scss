@@ -1,18 +1,90 @@
+/* Terms link styling */
+.terms-link {
+  background: none;
+  border: none;
+  color: #3498db;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  margin: 0 4px;
+  font: inherit;
+
+  &:hover {
+    color: #2980b9;
+  }
+}
+
+/* Light theme modal - override Material dark theme */
+.light-theme-modal {
+  .mat-dialog-container {
+    background: #ffffff !important;
+    color: #333333 !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .mat-dialog-title {
+    font-size: 1.5rem !important;
+    color: #2c3e50 !important;
+    margin: 0 !important;
+    padding: 20px 24px !important;
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+  }
+
+  .mat-dialog-content {
+    padding: 20px 24px !important;
+    margin: 0 !important;
+    max-height: 60vh !important;
+    overflow-y: auto !important;
+    color: #555555 !important;
+
+    p {
+      margin-bottom: 12px !important;
+      line-height: 1.5 !important;
+
+      &:last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+  }
+
+  .mat-dialog-actions {
+    padding: 16px 24px !important;
+    margin: 0 !important;
+    background: #f8f9fa !important;
+    border-top: 1px solid #e0e0e0 !important;
+    justify-content: flex-end !important;
+
+    .btn-close {
+      background: #3498db !important;
+      color: white !important;
+      border-radius: 6px !important;
+      padding: 8px 16px !important;
+
+      &:hover {
+        background: #2980b9 !important;
+      }
+    }
+  }
+}
+
 /* Overall Container */
 .checkout-container {
   max-width: 1000px;
   margin: 20px auto;
-  padding: 0; // Padding handled by mat-card
-  font-family: 'Inter', sans-serif; /* Ensure consistent font */
+  padding: 0;
+  font-family: 'Inter', sans-serif;
 }
 
 /* Material Card for Checkout Content */
 .checkout-card {
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  background-color: #ffffff; /* Explicitly set light background */
-  color: #333333; /* Ensure dark text on light background */
-  padding: 30px; // Inner padding for the card content
+  background-color: #ffffff;
+  color: #333333;
+  padding: 30px;
 
   .mat-card-header {
     margin-bottom: 20px;
@@ -26,7 +98,7 @@
     margin-bottom: 24px;
     display: flex;
     align-items: center;
-    gap: 10px; // Spacing between icon and text if icons are added later
+    gap: 10px;
   }
 }
 
@@ -45,7 +117,7 @@
       flex-direction: column;
       align-items: center;
       cursor: pointer;
-      flex-shrink: 0; /* Prevent steps from shrinking */
+      flex-shrink: 0;
 
       .step-number {
         width: 40px;
@@ -66,7 +138,7 @@
         color: #7f8c8d;
         transition: all 0.3s ease;
         text-align: center;
-        max-width: 100px; /* Limit label width */
+        max-width: 100px;
       }
 
       &.active, &.completed {
@@ -87,17 +159,17 @@
     }
 
     .step-connector {
-      flex-grow: 1; /* Allow connector to take available space */
+      flex-grow: 1;
       height: 2px;
       background: #ecf0f1;
       margin: 0 10px;
-      min-width: 20px; /* Minimum width for connector */
-      max-width: 80px; /* Maximum width for connector */
+      min-width: 20px;
+      max-width: 80px;
     }
   }
 }
 
-/* Order Success (retained from original, updated for MatCard) */
+/* Order Success */
 .order-success-header {
   .success-title {
     display: flex;
@@ -118,7 +190,7 @@
   padding: 40px 20px;
 
   p {
-    color: #555555; /* Slightly darker for better readability */
+    color: #555555;
     margin-bottom: 30px;
     font-size: 1.1rem;
   }
@@ -156,8 +228,7 @@
   }
 }
 
-
-/* Login Prompt (retained from original, updated for MatButton and MatDivider) */
+/* Login Prompt */
 .login-prompt {
   text-align: center;
   margin-bottom: 30px;
@@ -173,7 +244,7 @@
   }
 
   p {
-    color: #555555; /* Slightly darker for better readability */
+    color: #555555;
     margin-bottom: 16px;
   }
 
@@ -199,25 +270,24 @@
     span {
       padding: 0 16px;
       color: #7f8c8d;
-      background-color: #f8f9fa; /* Match background for "or" text */
+      background-color: #f8f9fa;
       position: relative;
-      top: -10px; /* Adjust vertical position */
+      top: -10px;
     }
   }
 }
 
-
-/* Form Grid and Sections (New/Adjusted for Material) */
+/* Form Grid and Sections */
 .form-grid {
   display: flex;
   flex-direction: column;
-  gap: 20px; /* Space between form sections */
+  gap: 20px;
 
   .form-section {
     padding: 20px;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    background-color: #ffffff; /* Explicitly set light background */
+    background-color: #ffffff;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 
     .section-subtitle {
@@ -236,7 +306,7 @@
 
     .form-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 16px;
       margin-bottom: 10px;
 
@@ -245,36 +315,33 @@
       }
     }
 
-    /* Adjust checkbox spacing */
     .same-billing-checkbox {
       margin-top: 10px;
       margin-bottom: 10px;
-      color: #333333; /* Ensure dark text on light background */
+      color: #333333;
     }
   }
 }
-
 
 /* Billing Address Section Specifics */
 .billing-address-section {
   padding: 20px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  background-color: #fcfcfc; /* Slightly different background for visual distinction */
+  background-color: #fcfcfc;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 
   .section-subtitle {
     mat-icon {
-      color: #e67e22; /* Different color for billing address icon */
+      color: #e67e22;
     }
   }
 }
 
-
 /* Material Specific Adjustments */
 mat-form-field {
   .mat-form-field-wrapper {
-    padding-bottom: 0.5em; /* Adjust spacing to prevent labels from overlapping errors */
+    padding-bottom: 0.5em;
   }
   .mat-form-field-infix {
     padding: 0.8em 0;
@@ -282,17 +349,17 @@ mat-form-field {
   .mat-input-element {
     font-size: 1rem;
     padding: 4px 0;
-    color: #333333; /* Ensure dark text on light background */
+    color: #333333;
   }
   .mat-form-field-label {
-    color: #555555; /* Ensure labels are visible */
+    color: #555555;
   }
 }
 
 .mat-error {
   font-size: 0.8rem;
   margin-top: 5px;
-  color: #f44336; /* Default Material error color */
+  color: #f44336;
 }
 
 mat-checkbox {
@@ -311,16 +378,15 @@ mat-checkbox {
   margin-right: 8px;
 }
 
-
-/* Form Actions (retained, but with Material buttons) */
+/* Form Actions */
 .form-actions {
   display: flex;
   justify-content: space-between;
   margin-top: 30px;
-  padding: 0 20px; /* Add padding consistent with sections */
+  padding: 0 20px;
 
   .mat-flat-button, .mat-button {
-    padding: 8px 16px; /* Adjust padding for Material buttons */
+    padding: 8px 16px;
     border-radius: 8px;
     font-weight: 600;
     transition: all 0.3s ease;
@@ -338,7 +404,7 @@ mat-checkbox {
     border: 1px solid #7f8c8d;
     color: #7f8c8d;
     &:hover {
-      background: rgba(127, 140, 141, 0.1); /* Light hover for outlined button */
+      background: rgba(127, 140, 141, 0.1);
     }
   }
 
@@ -356,14 +422,13 @@ mat-checkbox {
   }
 }
 
-
 /* Review Step - Order Summary & Info Cards */
 .order-summary-card, .shipping-info-card, .billing-info-card {
   background: #f8f9fa;
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 20px;
-  color: #333333; /* Ensure dark text on light background */
+  color: #333333;
 
   h3 {
     font-size: 1.3rem;
@@ -392,9 +457,15 @@ mat-checkbox {
     align-items: center;
     padding: 12px 0;
     border-bottom: 1px solid #e9ecef;
+    position: relative;
 
     &:last-child {
       border-bottom: none;
+    }
+
+    &.updating {
+      opacity: 0.7;
+      pointer-events: none;
     }
 
     .item-image {
@@ -404,6 +475,7 @@ mat-checkbox {
       overflow: hidden;
       margin-right: 16px;
       flex-shrink: 0;
+      cursor: pointer;
 
       img {
         width: 100%;
@@ -430,11 +502,59 @@ mat-checkbox {
         font-weight: 500;
         color: #2c3e50;
         margin-bottom: 4px;
+        cursor: pointer;
       }
 
-      .item-quantity {
-        font-size: 0.9rem;
-        color: #7f8c8d;
+      .item-quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        label {
+          font-size: 0.9rem;
+          color: #555;
+        }
+
+        .quantity-selector {
+          display: flex;
+          align-items: center;
+          border: 1px solid #bdc3c7;
+          border-radius: 20px;
+          overflow: hidden;
+
+          .quantity-btn {
+            background: none;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #34495e;
+            transition: background-color 0.3s;
+
+            &:hover:not(:disabled) {
+              background-color: #ecf0f1;
+            }
+
+            &:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+            }
+          }
+
+          .quantity-input {
+            width: 40px;
+            text-align: center;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            padding: 5px 0;
+
+            &:disabled {
+              background-color: #f8f9fa;
+            }
+          }
+        }
       }
     }
 
@@ -442,6 +562,54 @@ mat-checkbox {
       font-weight: 600;
       color: #e67e22;
       flex-shrink: 0;
+      margin: 0 16px;
+    }
+
+    .item-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .btn-remove {
+        background: none;
+        border: none;
+        color: #e74c3c;
+        cursor: pointer;
+        font-size: 1.5rem;
+        transition: color 0.3s, transform 0.3s;
+
+        &:hover:not(:disabled) {
+          color: #c0392b;
+          transform: scale(1.1);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+
+      .spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
     }
   }
 }
@@ -449,7 +617,6 @@ mat-checkbox {
 .order-totals {
   margin-top: 20px;
   padding-top: 20px;
-  // border-top is handled by mat-divider
 
   .total-row {
     display: flex;
@@ -474,28 +641,28 @@ mat-checkbox {
 
   .checkout-progress {
     .progress-steps {
-      flex-wrap: wrap; /* Allow steps to wrap on smaller screens */
+      flex-wrap: wrap;
       justify-content: space-around;
-      gap: 10px 0; /* Vertical gap between wrapped steps */
+      gap: 10px 0;
 
       .step {
-        width: 30%; /* Give some width for each step */
+        width: 30%;
       }
       .step-connector {
         flex-grow: 0;
-        width: 30px; /* Shorter connector on mobile */
+        width: 30px;
       }
     }
   }
 
   .form-grid .form-section .form-row {
-    grid-template-columns: 1fr; /* Stack fields vertically on mobile */
+    grid-template-columns: 1fr;
   }
 
   .form-actions {
     flex-direction: column;
     gap: 16px;
-    padding: 0; /* Remove padding for full width buttons */
+    padding: 0;
 
     .mat-flat-button, .mat-button {
       width: 100%;
@@ -505,22 +672,42 @@ mat-checkbox {
   .order-success-content .order-actions {
     flex-direction: column;
   }
+
+  .order-items .order-item {
+    flex-wrap: wrap;
+
+    .item-details {
+      min-width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .item-price {
+      margin-left: auto;
+    }
+  }
 }
 
 @media (max-width: 480px) {
   .checkout-progress .progress-steps {
     .step {
-      width: 45%; /* Two steps per row */
+      width: 45%;
     }
     .step-connector {
-      display: none; /* Hide connectors on very small screens or re-think layout */
+      display: none;
     }
   }
   .step-title {
     font-size: 1.5rem;
   }
+
+  .order-items .order-item {
+    .item-quantity-controls {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+    }
+  }
 }
-/* Add these styles to your existing SCSS file */
 
 /* Shipping & Payment Methods */
 .method-section {
@@ -660,3 +847,22 @@ mat-checkbox {
     }
   }
 }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.form-actions {
+  display: flex;
+  margin-top: 24px;
+}
+
+.form-actions.align-right {
+  justify-content: flex-end; /* This aligns the content to the right */
+}
+
+.form-actions.space-between {
+  justify-content: space-between;
+}
+
+

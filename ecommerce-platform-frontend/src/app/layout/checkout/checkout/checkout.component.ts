@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AuthService} from '../../../auth/auth.service';
@@ -12,10 +12,19 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {ResponseMixtureDTO} from '../../../dto/mixtures/response-mixture-dto';
+import {MatDialog} from '@angular/material/dialog';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {ProductService} from '../../../services/product.service';
+import {MixtureService} from '../../../services/mixture.service';
+import {CartItemType} from '../../../dto/cart/cart-item-type';
+import {forkJoin, of} from 'rxjs';
+import {catchError, map, switchMap} from 'rxjs/operators';
 
 interface CartItemWithDetails extends CartItem {
   product?: ResponseProductDTO;
   mixture?: ResponseMixtureDTO;
+  optimisticQuantity?: number;
+  updating?: boolean;
 }
 
 interface Address {
@@ -63,8 +72,10 @@ interface Customer {
   ]
 })
 export class CheckoutComponent implements OnInit {
+  @ViewChild('termsModal') termsModal!: TemplateRef<any>;
+
   currentStep = 1;
-  totalSteps = 4; // Updated from 3 to 4 to include the new step
+  totalSteps = 4;
   isLoggedIn = false;
   orderComplete = false;
   orderId: string | null = null;
@@ -72,8 +83,9 @@ export class CheckoutComponent implements OnInit {
   showBillingAddress = false;
   private initialBillingAddress: BillingAddress | null = null;
   private initialAddress: Address | null = null;
+  isAuthPopupOpen = false;
+  CartItemType = CartItemType;
 
-  // New properties for shipping and payment methods
   selectedShippingMethod: string = '';
   selectedPaymentMethod: string = '';
   shippingMethods = [
@@ -105,7 +117,10 @@ export class CheckoutComponent implements OnInit {
     public translate: TranslateService,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private dialog: MatDialog,
+    private productService: ProductService,
+    private mixtureService: MixtureService
   ) {
     this.matIconRegistry.addSvgIcon(
       'flag_ch',
@@ -126,8 +141,6 @@ export class CheckoutComponent implements OnInit {
       }),
       sameBillingAddress: [true],
       billingAddress: this.fb.group({
-        // Initialize all controls here explicitly, without required validators
-        // These validators will be set dynamically in setupBillingAddressValidation
         firstName: [''],
         lastName: [''],
         companyName: [''],
@@ -139,7 +152,6 @@ export class CheckoutComponent implements OnInit {
         zipCode: [''],
         country: [this.DEFAULT_COUNTRY]
       }),
-      // New form controls for shipping and payment methods
       shippingMethod: ['', Validators.required],
       paymentMethod: ['', Validators.required],
       agreeToTerms: [false, Validators.requiredTrue]
@@ -154,6 +166,7 @@ export class CheckoutComponent implements OnInit {
         this.customerForm.patchValue({
           email: this.authService.getEmail()
         });
+        this.isAuthPopupOpen = false;
       }
     });
     this.loadCart();
@@ -205,8 +218,6 @@ export class CheckoutComponent implements OnInit {
         zipCode: customer.address?.zipCode || '',
         country: customer.address?.country || this.DEFAULT_COUNTRY
       },
-      // Do NOT directly patch sameBillingAddress here, let the valueChanges subscription handle it.
-      // This ensures the validators are set up correctly based on the patched value.
       billingAddress: customer.billingAddress ? customer.billingAddress : {
         firstName: '', lastName: '', companyName: '', taxId: '',
         street: '', houseNumber: '', city: '', zipCode: '', country: this.DEFAULT_COUNTRY,
@@ -214,11 +225,7 @@ export class CheckoutComponent implements OnInit {
       }
     });
 
-    // Explicitly set the sameBillingAddress value to trigger its valueChanges subscription
-    // This is critical for applying correct validators after initial data load.
     this.customerForm.get('sameBillingAddress')?.setValue(sameBillingAddress, {emitEvent: true});
-
-    // Force an update on the entire form's validity after patching
     this.customerForm.updateValueAndValidity();
   }
 
@@ -252,31 +259,26 @@ export class CheckoutComponent implements OnInit {
       this.showBillingAddress = !checked;
       const billingAddressGroup = this.customerForm.get('billingAddress') as FormGroup;
 
-      // Define all controls in billingAddressGroup for easier iteration
       const billingControls = [
         'firstName', 'lastName', 'phone', 'street', 'houseNumber', 'city',
         'zipCode', 'country', 'companyName', 'taxId'
       ];
 
       if (checked) {
-        // Clear validators and reset values when same as shipping
         billingControls.forEach(controlName => {
           const control = billingAddressGroup.get(controlName);
           control?.clearValidators();
-          // Reset to initial value if available, otherwise clear to empty string
           if (this.initialBillingAddress && this.initialBillingAddress[controlName as keyof BillingAddress]) {
             control?.reset(this.initialBillingAddress[controlName as keyof BillingAddress]);
           } else {
-            control?.reset(''); // Reset to empty string
+            control?.reset('');
           }
           control?.updateValueAndValidity();
         });
       } else {
-        // Apply validators and patch values when different
         if (this.initialBillingAddress) {
           billingAddressGroup.patchValue(this.initialBillingAddress);
         } else {
-          // Reset to default empty state if no initial billing address data
           billingAddressGroup.reset({
             firstName: '', lastName: '', companyName: '', taxId: '',
             street: '', houseNumber: '', city: '', zipCode: '', country: this.DEFAULT_COUNTRY,
@@ -284,7 +286,6 @@ export class CheckoutComponent implements OnInit {
           });
         }
 
-        // Apply REQUIRED validators for core billing address fields
         billingAddressGroup.get('firstName')?.setValidators(Validators.required);
         billingAddressGroup.get('lastName')?.setValidators(Validators.required);
         billingAddressGroup.get('street')?.setValidators(Validators.required);
@@ -293,26 +294,58 @@ export class CheckoutComponent implements OnInit {
         billingAddressGroup.get('zipCode')?.setValidators([Validators.required, Validators.pattern('^[0-9]+$')]);
         billingAddressGroup.get('country')?.setValidators(Validators.required);
 
-        // Apply PATTERN validators (these are not 'required' by themselves)
         billingAddressGroup.get('phone')?.setValidators([Validators.pattern(/^\+?[0-9\s-]+$/)]);
         billingAddressGroup.get('taxId')?.setValidators([Validators.pattern(/^[A-Za-z0-9]+$/)]);
 
-        // Update validity for all billing controls AFTER setting their validators
         billingControls.forEach(controlName => {
           billingAddressGroup.get(controlName)?.updateValueAndValidity();
         });
       }
-      // CRITICAL: Force the entire customerForm to re-evaluate its validity
       this.customerForm.updateValueAndValidity();
     });
   }
 
-  // New methods for shipping and payment selection
+  private copyShippingToBilling(): void {
+    const shippingAddress = this.customerForm.get('address')?.value;
+    const billingAddress = {
+      firstName: this.customerForm.get('firstName')?.value,
+      lastName: this.customerForm.get('lastName')?.value,
+      companyName: '',
+      taxId: '',
+      phone: shippingAddress.phone,
+      street: shippingAddress.street,
+      houseNumber: shippingAddress.houseNumber,
+      city: shippingAddress.city,
+      zipCode: shippingAddress.zipCode,
+      country: shippingAddress.country
+    };
+
+    this.customerForm.get('billingAddress')?.patchValue(billingAddress);
+  }
+
+  openTermsModal(): void {
+    this.dialog.open(this.termsModal, {
+      width: '600px',
+      maxHeight: '80vh',
+      panelClass: 'light-theme-modal'
+    });
+  }
+
+  openAuthPopup(): void {
+    this.isAuthPopupOpen = true;
+  }
+
+  closeAuthPopup(): void {
+    this.isAuthPopupOpen = false;
+    if (this.authService.isAuthenticated$) {
+      this.fetchUserData();
+    }
+  }
+
   selectShippingMethod(method: string): void {
     this.selectedShippingMethod = method;
     this.customerForm.get('shippingMethod')?.setValue(method);
 
-    // Update shipping cost based on selection
     const selectedMethod = this.shippingMethods.find(m => m.id === method);
     if (selectedMethod) {
       this.shippingCost = selectedMethod.price;
@@ -325,23 +358,38 @@ export class CheckoutComponent implements OnInit {
     this.customerForm.get('paymentMethod')?.setValue(method);
   }
 
-  login(): void {
-    this.router.navigate(['/login'], {
-      queryParams: {returnUrl: this.router.url}
-    });
-  }
-
   loadCart(): void {
-    this.cartService.getCart().subscribe(cart => {
-      // Check if cart is null or undefined
-      if (!cart) {
-        this.cartItems = [];
-        this.cartTotal = 0;
-      } else {
-        this.cartItems = cart.items || [];
-        this.cartTotal = cart.totalPrice || 0;
-      }
+    this.cartService.getCart().pipe(
+      switchMap(cart => {
+        if (!cart) {
+          this.cartItems = [];
+          this.cartTotal = 0;
+          return of([]);
+        } else {
+          this.cartItems = cart.items || [];
+          this.cartTotal = cart.totalPrice || 0;
 
+          // Load product and mixture details for each item
+          const detailObservables = this.cartItems.map(item => {
+            if (item.cartItemType === CartItemType.PRODUCT) {
+              return this.productService.getProductById(item.itemId).pipe(
+                map(product => ({ ...item, product, optimisticQuantity: item.quantity, updating: false })),
+                catchError(() => of({ ...item, product: undefined, optimisticQuantity: item.quantity, updating: false }))
+              );
+            } else if (item.cartItemType === CartItemType.MIXTURE) {
+              return this.mixtureService.getMixtureById(item.itemId).pipe(
+                map(mixture => ({ ...item, mixture, optimisticQuantity: item.quantity, updating: false })),
+                catchError(() => of({ ...item, mixture: undefined, optimisticQuantity: item.quantity, updating: false }))
+              );
+            }
+            return of({ ...item, optimisticQuantity: item.quantity, updating: false });
+          });
+
+          return forkJoin(detailObservables);
+        }
+      })
+    ).subscribe((itemsWithDetails: any[]) => {
+      this.cartItems = itemsWithDetails as CartItemWithDetails[];
       this.shippingCost = this.cartTotal > 50 ? 0 : 9.99;
       this.finalTotal = this.cartTotal + this.shippingCost;
     }, error => {
@@ -353,6 +401,94 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
+  // New method to handle quantity changes on the review page
+  changeQuantity(index: number, change: number): void {
+    const item = this.cartItems[index];
+    const newQuantity = item.quantity + change;
+
+    if (newQuantity >= 1) {
+      this.updateItemQuantity(item, newQuantity);
+    }
+  }
+
+  // Method to update item quantity and handle optimistic updates
+  updateItemQuantity(item: CartItemWithDetails, newQuantity: number): void {
+    // Optimistic update
+    item.optimisticQuantity = newQuantity;
+    item.updating = true;
+
+    // Server update
+    this.cartService.updateItem(item.itemId, newQuantity, item.cartItemType).subscribe(
+      () => {
+        // Update with server response
+        item.quantity = newQuantity;
+        item.optimisticQuantity = undefined;
+        item.updating = false;
+        this.recalculateTotals();
+        this.showSnackbar('CHECKOUT.QUANTITY_UPDATED_SUCCESS');
+      },
+      error => {
+        // Revert on error
+        item.optimisticQuantity = undefined;
+        item.updating = false;
+        this.showSnackbar('CHECKOUT.UPDATE_QUANTITY_ERROR');
+        console.error('Update quantity error:', error);
+      }
+    );
+  }
+
+  // Method to remove an item from the cart
+  removeItem(itemId: number, cartItemType: CartItemType): void {
+    if (itemId === undefined) return;
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '300px',
+      data: {
+        title: this.translate.instant('DIALOG.CONFIRM_DELETE_TITLE'),
+        message: this.translate.instant('DIALOG.CONFIRM_DELETE_MESSAGE')
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Optimistic removal
+        this.cartItems = this.cartItems.filter(item => !(item.itemId === itemId && item.cartItemType === cartItemType));
+
+        this.cartService.removeItem(itemId).subscribe(
+          () => {
+            this.showSnackbar('CHECKOUT.ITEM_REMOVED');
+            this.recalculateTotals();
+          },
+          error => {
+            // Re-add item on error
+            this.loadCart(); // Reload cart items
+            this.showSnackbar('CHECKOUT.REMOVE_ITEM_ERROR');
+            console.error('Remove item error:', error);
+          }
+        );
+      }
+    });
+  }
+
+  private recalculateTotals(): void {
+    this.cartService.getCart().subscribe(cart => {
+      if (!cart) {
+        this.cartTotal = 0;
+      } else {
+        this.cartTotal = cart.totalPrice || 0;
+      }
+      this.shippingCost = this.cartTotal > 50 ? 0 : 9.99;
+      this.finalTotal = this.cartTotal + this.shippingCost;
+      this.cdRef.detectChanges();
+    });
+  }
+
+  getItemTotal(item: CartItemWithDetails): number {
+    const quantity = item.optimisticQuantity !== undefined ? item.optimisticQuantity : item.quantity;
+    const price = item.product?.price || item.mixture?.price || 0;
+    return price * quantity;
+  }
+
   nextStep(): void {
     if (this.currentStep === 1) {
       if (!this.isCurrentStepValid()) {
@@ -360,8 +496,11 @@ export class CheckoutComponent implements OnInit {
         this.showSnackbar('CHECKOUT.FIX_FORM_ERRORS');
         return;
       }
+
+      if (!this.isLoggedIn && this.customerForm.get('sameBillingAddress')?.value) {
+        this.copyShippingToBilling();
+      }
     } else if (this.currentStep === 2) {
-      // Validate shipping and payment methods for step 2
       if (!this.isCurrentStepValid()) {
         this.customerForm.markAllAsTouched();
         this.showSnackbar('CHECKOUT.SELECT_SHIPPING_PAYMENT');
@@ -389,7 +528,6 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    // Check if we can navigate to the requested step
     if (step === 2 && this.currentStep === 1) {
       if (!this.isCurrentStepValid()) {
         this.customerForm.markAllAsTouched();
@@ -423,7 +561,6 @@ export class CheckoutComponent implements OnInit {
       items: this.cartItems,
       total: this.finalTotal,
       status: 'confirmed',
-      // Add shipping and payment method to order data
       shippingMethod: this.customerForm.get('shippingMethod')?.value,
       paymentMethod: this.customerForm.get('paymentMethod')?.value
     };
@@ -486,7 +623,6 @@ export class CheckoutComponent implements OnInit {
 
   isCurrentStepValid(): boolean {
     if (this.currentStep === 1) {
-      // Check only step 1 fields
       const basicInfoValid = this.customerForm.get('firstName')?.valid &&
         this.customerForm.get('lastName')?.valid &&
         this.customerForm.get('email')?.valid;
@@ -502,13 +638,11 @@ export class CheckoutComponent implements OnInit {
     }
 
     if (this.currentStep === 2) {
-      // For step 2, check shipping and payment methods
       return this.customerForm.get('shippingMethod')?.valid &&
         this.customerForm.get('paymentMethod')?.valid;
     }
 
     if (this.currentStep === 3) {
-      // For step 3, check the entire form including terms agreement
       return this.customerForm.valid;
     }
 

@@ -65,16 +65,28 @@
             <div class="item-controls">
               <div class="item-quantity">
                 <label>{{ 'CART.QUANTITY' | translate }}:</label>
-                <div class="quantity-selector">
-                  <button class="quantity-btn decrease" (click)="updateQuantity(item.itemId, item.quantity - 1, item.cartItemType)">
-                    <span class="material-icons">remove</span>
-                  </button>
-                  <input #quantityInput type="number" [value]="item.quantity" min="0"
-                         (change)="updateQuantity(item.itemId, quantityInput.value, item.cartItemType)"
-                         (keyup)="updateQuantity(item.itemId, quantityInput.value, item.cartItemType)" />
-                  <button class="quantity-btn increase" (click)="updateQuantity(item.itemId, item.quantity + 1, item.cartItemType)">
-                    <span class="material-icons">add</span>
-                  </button>
+                <div class="quantity-controls-container">
+                  <div class="quantity-selector">
+                    <button class="quantity-btn decrease"
+                            (click)="updateQuantity(item.itemId, (item.optimisticQuantity ?? item.quantity) - 1, item.cartItemType)"
+                            [disabled]="item.updating">
+                      <span class="material-icons">remove</span>
+                    </button>
+                    <input #quantityInput type="number"
+                           [value]="item.optimisticQuantity ?? item.quantity"
+                           min="0"
+                           (change)="updateQuantity(item.itemId, quantityInput.value, item.cartItemType)"
+                           [disabled]="item.updating" />
+                    <button class="quantity-btn increase"
+                            (click)="updateQuantity(item.itemId, (item.optimisticQuantity ?? item.quantity) + 1, item.cartItemType)"
+                            [disabled]="item.updating">
+                      <span class="material-icons">add</span>
+                    </button>
+                  </div>
+
+                  <div class="quantity-loading" *ngIf="item.updating">
+                    <div class="spinner"></div>
+                  </div>
                 </div>
               </div>
 
@@ -83,9 +95,8 @@
               </div>
             </div>
           </div>
-
           <div class="item-actions">
-            <button class="btn-remove" (click)="removeItem(item.itemId)" [title]="'CART.REMOVE' | translate">
+            <button class="btn-remove" (click)="removeItem(item.itemId)" [title]="'CART.REMOVE' | translate" [disabled]="item.updating">
               <span class="material-icons">delete_outline</span>
             </button>
           </div>

@@ -8,7 +8,7 @@
 }
 
 .cart-container {
-  max-width: 1400px; /* Erweitert den Maximalbereich, um Platz für die Seitenleiste zu schaffen */
+  max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -117,21 +117,18 @@
   }
 }
 
-/* ---------------------------------------------------- */
-/* New Layout Wrapper for Main Content and Sticky Sidebar */
-/* ---------------------------------------------------- */
 .cart-layout-wrapper {
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* Aligns items to the top */
-  gap: 30px; /* Space between main content and sidebar */
+  align-items: flex-start;
+  gap: 30px;
   width: 100%;
 }
 
 .cart-main-content-wrapper {
-  flex: 1; /* Takes up available space */
-  max-width: 900px; /* Adjust as needed for your content */
-  min-height: 60vh; /* Ensure it has enough height for scrolling */
+  flex: 1;
+  max-width: 900px;
+  min-height: 60vh;
 }
 
 .cart-items {
@@ -252,6 +249,12 @@
     color: #555;
   }
 
+  .quantity-controls-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .quantity-selector {
     display: flex;
     align-items: center;
@@ -268,8 +271,13 @@
       color: #34495e;
       transition: background-color 0.3s;
 
-      &:hover {
+      &:hover:not(:disabled) {
         background-color: #ecf0f1;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
       }
     }
 
@@ -280,6 +288,22 @@
       font-size: 1rem;
       font-weight: 600;
       color: #2c3e50;
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+    }
+  }
+
+  .quantity-loading {
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
     }
   }
 }
@@ -304,21 +328,23 @@
     font-size: 1.5rem;
     transition: color 0.3s, transform 0.3s;
 
-    &:hover {
+    &:hover:not(:disabled) {
       color: #c0392b;
       transform: scale(1.1);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
     }
   }
 }
 
-/* ---------------------------------------------------- */
-/* Sticky Right Sidebar (Cart Footer)                  */
-/* ---------------------------------------------------- */
 .cart-footer {
   position: sticky;
-  top: 70px; /* Adjust this value to control when it "sticks" from the top */
-  align-self: flex-start; /* Ensures it starts at the top of its flex container */
-  width: 300px; /* Fixed width for the sidebar */
+  top: 70px;
+  align-self: flex-start;
+  width: 300px;
   min-width: 280px;
   background-color: #ffffff;
   border-radius: 12px;
@@ -327,12 +353,12 @@
   display: flex;
   flex-direction: column;
   z-index: 10;
-  max-height: calc(100vh - 100px); /* Adjust based on your header height */
-  overflow-y: auto; /* Allows scrolling if content is too long */
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
 }
 
 .continue-shopping {
-  margin-bottom: 20px; /* Space between continue shopping and summary */
+  margin-bottom: 20px;
 
   .btn-outline {
     background: none;
@@ -346,8 +372,9 @@
     align-items: center;
     gap: 8px;
     transition: all 0.3s;
-    width: 100%; /* Make button full width in sidebar */
+    width: 100%;
     justify-content: center;
+    cursor: pointer;
 
     &:hover {
       background-color: #3498db;
@@ -357,10 +384,10 @@
 }
 
 .cart-summary-total {
-  width: 100%; /* Take full width of the sidebar */
+  width: 100%;
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Allow it to grow in the column */
+  flex-grow: 1;
 }
 
 .summary-row {
@@ -387,7 +414,7 @@
   font-weight: 600;
   border: none;
   cursor: pointer;
-  margin-top: auto; /* Pushes the button to the bottom if summary is short */
+  margin-top: auto;
   transition: background-color 0.3s;
   display: flex;
   justify-content: center;
@@ -399,26 +426,25 @@
   }
 }
 
-/* Responsive Design */
 @media (max-width: 992px) {
   .cart-layout-wrapper {
-    flex-direction: column; /* Stacks main content and sidebar vertically */
-    align-items: center; /* Centers them */
+    flex-direction: column;
+    align-items: center;
   }
 
   .cart-main-content-wrapper {
-    max-width: 100%; /* Allows main content to take full width */
+    max-width: 100%;
   }
 
   .cart-footer {
-    position: static; /* No longer sticky on smaller screens */
+    position: static;
     width: 100%;
-    max-width: 600px; /* Or adjust based on your preference */
-    margin-top: 30px; /* Space between main content and footer */
+    max-width: 600px;
+    margin-top: 30px;
   }
 
   .continue-shopping .btn-outline {
-    width: auto; /* Reset width for better mobile display */
+    width: auto;
   }
 }
 

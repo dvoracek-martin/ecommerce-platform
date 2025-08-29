@@ -17,7 +17,7 @@
           (input)="onSearchChange()"
           (focus)="onSearchFocus()"
           (blur)="onSearchBlur()"
-          autocomplete="off" />
+          autocomplete="off"/>
       </mat-form-field>
     </div>
 
@@ -26,7 +26,8 @@
         <div class="search-section" *ngIf="searchResults?.categories?.length">
           <h4 class="section-title">{{ 'SEARCH.CATEGORIES' | translate }}</h4>
           <mat-list>
-            <mat-list-item *ngFor="let category of searchResults?.categories" (click)="goToCategory(category); $event.stopPropagation()">
+            <mat-list-item *ngFor="let category of searchResults?.categories"
+                           (click)="goToCategory(category); $event.stopPropagation()">
               <div class="result-item">
                 <mat-icon class="result-icon">category</mat-icon>
                 <div class="result-text">{{ category.name }}</div>
@@ -38,12 +39,13 @@
         <div class="search-section" *ngIf="searchResults?.products?.length">
           <h4 class="section-title">{{ 'SEARCH.PRODUCTS' | translate }}</h4>
           <mat-list>
-            <mat-list-item *ngFor="let product of searchResults?.products" (click)="goToProduct(product); $event.stopPropagation()">
+            <mat-list-item *ngFor="let product of searchResults?.products"
+                           (click)="goToProduct(product); $event.stopPropagation()">
               <div class="result-item">
                 <img *ngIf="product.media?.[0]"
                      [src]="'data:' + product.media[0].contentType + ';base64,' + product.media[0].base64Data"
                      [alt]="product.name"
-                     class="result-thumbnail" />
+                     class="result-thumbnail"/>
                 <mat-icon class="result-icon" *ngIf="!product.media?.[0]">inventory_2</mat-icon>
                 <div class="result-text">{{ product.name }}</div>
               </div>
@@ -54,7 +56,8 @@
         <div class="search-section" *ngIf="searchResults?.mixtures?.length">
           <h4 class="section-title">{{ 'SEARCH.MIXTURES' | translate }}</h4>
           <mat-list>
-            <mat-list-item *ngFor="let mixture of searchResults?.mixtures" (click)="goToMixture(mixture); $event.stopPropagation()">
+            <mat-list-item *ngFor="let mixture of searchResults?.mixtures"
+                           (click)="goToMixture(mixture); $event.stopPropagation()">
               <div class="result-item">
                 <mat-icon class="result-icon">science</mat-icon>
                 <div class="result-text">{{ mixture.name }}</div>
@@ -83,7 +86,8 @@
         <mat-icon class="language-icon" svgIcon="{{ selectedLanguage.icon }}"></mat-icon>
       </button>
       <mat-menu #langMenu="matMenu" class="language-menu">
-        <button (click)="changeLanguage(lang.code)" *ngFor="let lang of languages" mat-menu-item class="language-menu-item">
+        <button (click)="changeLanguage(lang.code)" *ngFor="let lang of languages" mat-menu-item
+                class="language-menu-item">
           <mat-icon svgIcon="{{ lang.icon }}" class="menu-language-icon"></mat-icon>
           <span>{{ lang.name }}</span>
         </button>
@@ -111,17 +115,17 @@
             <h4>{{ 'CART.SUMMARY' | translate }}</h4>
 
             <div class="cart-item" *ngFor="let item of cartItemsWithDetails">
-              <!-- Product Display -->
               <ng-container *ngIf="item.cartItemType === 'PRODUCT' && item.product">
                 <img *ngIf="item.product.media?.[0]"
                      [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
                      [alt]="item.product.name"
                      class="item-image"
-                     (click)="goToProduct(item.product); $event.stopPropagation()" />
+                     (click)="goToProduct(item.product); $event.stopPropagation()"/>
 
                 <div class="item-info">
                   <span class="item-name">{{ item.product.name }}</span>
-                  <span class="item-price-per-unit">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }} each</span>
+                  <span class="item-price-per-unit">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }}
+                    each</span>
                   <span class="item-total-price">{{ getItemTotal(item) | currency:'USD':'symbol':'1.2-2' }}</span>
                 </div>
                 <div class="quantity-controls">
@@ -149,7 +153,6 @@
                 </div>
               </ng-container>
 
-              <!-- Mixture Display -->
               <ng-container *ngIf="item.cartItemType === 'MIXTURE' && item.mixture">
                 <mat-icon class="item-image mixture-icon">science</mat-icon>
                 <div class="item-info">
@@ -158,18 +161,18 @@
                 </div>
               </ng-container>
 
-
-
               <div class="item-actions">
                 <button mat-icon-button color="warn" (click)="removeItem(item.itemId); $event.stopPropagation()">
-                  <mat-icon>delete</mat-icon>
+                  <span class="material-icons">delete_outline</span>
                 </button>
               </div>
             </div>
 
             <div class="cart-footer">
               <div class="cart-total">{{ cart?.totalPrice | currency:'USD':'symbol':'1.2-2' }}</div>
-              <button mat-flat-button color="primary" (click)="goToCart(); $event.stopPropagation()">{{ 'CART.VIEW_CART' | translate }}</button>
+              <button mat-flat-button color="primary"
+                      (click)="goToCart(); $event.stopPropagation()">{{ 'CART.VIEW_CART' | translate }}
+              </button>
             </div>
           </div>
         </ng-container>
@@ -194,7 +197,8 @@
           </div>
         </div>
 
-        <div class="modern-menu-section" *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_admin')">
+        <div class="modern-menu-section"
+             *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_admin')">
           <h4 class="modern-section-title">{{ 'MENU.ADMIN.TITLE' | translate }}</h4>
           <button mat-menu-item (click)="navigateToAdminCategories()" class="modern-menu-item">
             <div class="modern-menu-icon-wrapper">
@@ -234,7 +238,8 @@
           </button>
         </div>
 
-        <div class="modern-menu-section" *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_client')">
+        <div class="modern-menu-section"
+             *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_client')">
           <h4 class="modern-section-title">{{ 'MENU.CLIENT.TITLE' | translate }}</h4>
           <button mat-menu-item (click)="navigateToProfile()" class="modern-menu-item">
             <div class="modern-menu-icon-wrapper">

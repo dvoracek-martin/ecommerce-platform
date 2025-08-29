@@ -277,7 +277,7 @@ export class CartService {
       return of(this._cart.getValue() as Cart);
     }
 
-    return this.http.post<Cart>(`${this.apiUrl}/merge-guest-cart`, guestCartItems)
+    return this.http.post<Cart>(`${this.apiUrl}/merge`, guestCartItems)
       .pipe(
         switchMap(cart => {
           if (!cart || !cart.items || cart.items.length === 0) {
