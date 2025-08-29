@@ -136,6 +136,16 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     @Override
+    public List<ResponseProductDTO> getActiveProductsByCategoryId(Long categoryId) {
+        mediaUploader.createBucketIfNotExists(BucketName.PRODUCTS.getName());
+        return productRepository.findAllByCategoryIdAndActiveTrue(categoryId).stream()
+                .map(this::mapProductToResponseDTO)
+                .sorted(Comparator.comparingInt(ResponseProductDTO::getPriority)
+                        .thenComparingLong(ResponseProductDTO::getId))
+                .toList();
+    }
+
+    @Override
     public List<ResponseProductDTO> createProduct(@Valid List<CreateProductDTO> createProductDTOList) {
         List<CreateProductDTO> validDTOs = createProductDTOList.stream()
                 .filter(dto -> !productRepository.existsByName(dto.getName()))
@@ -202,7 +212,7 @@ public class CatalogServiceImpl implements CatalogService {
         existing.setWeightGrams(updateProductDTO.getWeightGrams());
         existing.setActive(updateProductDTO.isActive());
         existing.setPriority(updateProductDTO.getPriority());
-        existing.setCategory(categoryRepository.findById(updateProductDTO.getCategoryId()).orElseThrow(()->new ResourceNotFoundException("Product not found with id: " + updateProductDTO.getCategoryId())));
+        existing.setCategory(categoryRepository.findById(updateProductDTO.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + updateProductDTO.getCategoryId())));
 
         // Fix: Use mutable ArrayList
         if (updateProductDTO.getTagIds() != null) {

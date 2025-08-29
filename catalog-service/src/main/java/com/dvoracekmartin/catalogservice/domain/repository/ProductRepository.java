@@ -10,4 +10,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByName(@NotBlank String name);
 
     Collection<Product> findAllByCategoryId(Long categoryId);
+
+    Collection<Product> findAllByCategoryIdAndActiveTrue(Long categoryId);
+
 }

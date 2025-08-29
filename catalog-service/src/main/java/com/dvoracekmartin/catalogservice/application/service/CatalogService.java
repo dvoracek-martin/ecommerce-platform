@@ -80,4 +80,6 @@ public interface CatalogService {
 //    List<ResponseCatalogItemDTO> getAllProductsAndMixtures();
 
     List<ResponseProductDTO> getAllProductsByCategoryId(Long categoryId);
+
+    List<ResponseProductDTO> getActiveProductsByCategoryId(Long categoryId);
 }
