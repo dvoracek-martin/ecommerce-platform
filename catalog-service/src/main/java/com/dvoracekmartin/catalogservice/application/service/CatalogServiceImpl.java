@@ -280,15 +280,7 @@ public class CatalogServiceImpl implements CatalogService {
 
     @Override
     public List<ResponseMixtureDTO> createMixture(@Valid List<CreateMixtureDTO> createMixtureDTOList) {
-        List<CreateMixtureDTO> validDTOs = createMixtureDTOList.stream()
-                .filter(dto -> !mixtureRepository.existsByName(dto.getName()))
-                .collect(Collectors.toList());
-
-        if (validDTOs.isEmpty()) {
-            throw new IllegalArgumentException("All mixtures already exist!");
-        }
-
-        return validDTOs.stream()
+        return createMixtureDTOList.stream()
                 .map(this::createSingleMixture)
                 .sorted(Comparator.comparingInt(ResponseMixtureDTO::getPriority)
                         .thenComparingLong(ResponseMixtureDTO::getId))

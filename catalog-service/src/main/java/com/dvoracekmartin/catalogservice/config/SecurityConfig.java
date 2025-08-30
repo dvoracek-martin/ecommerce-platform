@@ -26,42 +26,29 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Disable CSRF for stateless APIs
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // Disable CORS (handled by Gateway)
                 .cors(AbstractHttpConfigurer::disable)
-
-                // Authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints (no auth required)
+                        // Public endpoints
                         .requestMatchers(
                                 "/api/catalog/v1/all-products",
                                 "/api/catalog/v1/products/{id}",
                                 "/api/catalog/v1/all-products-and-mixtures",
                                 "/api/catalog/v1/all-categories",
                                 "/api/catalog/v1/all-mixtures",
-                                "all-products-by-category-id/{categoryId}",
+                                "/api/catalog/v1/all-products-by-category-id/{categoryId}",
+                                "/api/catalog/v1/active-products-by-category-id/{categoryId}",
                                 "/api/catalog/v1/search",
                                 "/api/catalog/v1/active-categories",
-                                "/api/catalog/v1/all-mixtures",
                                 "/api/catalog/v1/all-mixtures/{id}",
-                                "/api/catalog/v1/mixtures"
+                                "/api/catalog/v1/mixtures",
+                                "/api/catalog/v1/mixtures/{id}"
                         ).permitAll()
-
-                        // All other endpoints require authentication (roles enforced at Gateway)
+                        // Everything else JWT
                         .anyRequest().authenticated()
                 )
-
-                // Stateless session
-                .sessionManagement(sm -> sm
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-
-                // JWT validation (trusts Gateway's auth decisions)
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.decoder(jwtDecoder()))
-                );
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));
 
         return http.build();
     }
