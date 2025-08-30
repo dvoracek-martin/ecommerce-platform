@@ -8,11 +8,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/cart/v1")
 @RequiredArgsConstructor
+@Validated
 public class CartControllerV1 {
 
     private final CartService cartService;
@@ -53,6 +57,20 @@ public class CartControllerV1 {
     public ResponseEntity<CartDTO> merge(@AuthenticationPrincipal Jwt jwt,
                                          @RequestBody CartItem[] guestItems) {
         return ResponseEntity.ok(cartService.mergeGuestIntoUser(usernameOrNull(jwt), guestItems));
+    }
+
+    @PostMapping("/apply-discount")
+    public ResponseEntity<CartDTO> applyDiscount(@AuthenticationPrincipal Jwt jwt,
+                                                 @CookieValue(name = "gcid", required = false) String guestId,
+                                                 @RequestBody Map<String, String> request) {
+        String code = request.get("code");
+        return ResponseEntity.ok(cartService.applyDiscount(usernameOrNull(jwt), guestId, code));
+    }
+
+    @DeleteMapping("/remove-discount")
+    public ResponseEntity<CartDTO> removeDiscount(@AuthenticationPrincipal Jwt jwt,
+                                                  @CookieValue(name = "gcid", required = false) String guestId) {
+        return ResponseEntity.ok(cartService.removeDiscount(usernameOrNull(jwt), guestId));
     }
 
 }

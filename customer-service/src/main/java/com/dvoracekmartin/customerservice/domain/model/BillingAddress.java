@@ -7,8 +7,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "billing_address")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class BillingAddress {
 

@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Cart, CartItem, CartService } from '../../../services/cart.service';
 import { ProductService } from '../../../services/product.service';
 import { MixtureService } from '../../../services/mixture.service';
 import { forkJoin, of, Subscription } from 'rxjs';
-import { catchError, switchMap, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
 import { ResponseMixtureDTO } from '../../../dto/mixtures/response-mixture-dto';
@@ -30,8 +30,13 @@ export class CartComponent implements OnInit, OnDestroy {
   cart: Cart | null = null;
   cartItemsWithDetails: CartItemWithDetails[] = [];
   isLoading = false;
+  showLoadingIndicator = false;
   CartItemType = CartItemType;
   private cartSubscription!: Subscription;
+  private loadingTimeout: any;
+
+  // Discount code properties
+  discountCode: string = '';
 
   constructor(
     private cartService: CartService,
@@ -51,12 +56,19 @@ export class CartComponent implements OnInit, OnDestroy {
     if (this.cartSubscription) {
       this.cartSubscription.unsubscribe();
     }
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
+    }
   }
 
   loadCart() {
     this.isLoading = true;
 
-    // Use the same approach as the app component
+    // Set a timeout to show loading indicator only after 1 second
+    this.loadingTimeout = setTimeout(() => {
+      this.showLoadingIndicator = true;
+    }, 1000);
+
     this.cartSubscription = this.cartService.getCart().pipe(
       switchMap(cart => {
         this.cart = cart;
@@ -98,17 +110,31 @@ export class CartComponent implements OnInit, OnDestroy {
         );
       })
     ).subscribe(itemsWithDetails => {
+      // Clear the timeout and hide loading indicator
+      if (this.loadingTimeout) {
+        clearTimeout(this.loadingTimeout);
+        this.loadingTimeout = null;
+      }
+      this.showLoadingIndicator = false;
+      this.isLoading = false;
+
       this.cartItemsWithDetails = itemsWithDetails;
-      this.isLoading = false;
     }, err => {
-      console.error('Failed to load cart with details', err);
-      this.cart = { id: 0, username: '', items: [], totalPrice: 0 };
-      this.cartItemsWithDetails = [];
+      // Clear the timeout and hide loading indicator on error too
+      if (this.loadingTimeout) {
+        clearTimeout(this.loadingTimeout);
+        this.loadingTimeout = null;
+      }
+      this.showLoadingIndicator = false;
       this.isLoading = false;
+
+      console.error('Failed to load cart with details', err);
+      this.cart = { id: 0, username: '', items: [], totalPrice: 0, discount: 0 };
+      this.cartItemsWithDetails = [];
     });
   }
 
-  // New method to handle input changes
+
   onQuantityChange(event: Event, item: CartItemWithDetails) {
     const input = event.target as HTMLInputElement;
     const quantity = parseInt(input.value, 10);
@@ -245,13 +271,6 @@ export class CartComponent implements OnInit, OnDestroy {
     return price * quantity;
   }
 
-  getCartTotal(): number {
-    return this.cartItemsWithDetails.reduce(
-      (sum, item) => sum + this.getItemTotal(item),
-      0
-    );
-  }
-
   proceedToCheckout() {
     this.router.navigate(['/checkout']);
   }
@@ -263,11 +282,57 @@ export class CartComponent implements OnInit, OnDestroy {
     return text.substr(0, maxLength) + '...';
   }
 
-  showSnackbar(message: string, type: 'success' | 'error' | 'warning'): void {
+  applyDiscount(): void {
+    if (this.discountCode.trim() && !this.isDiscountApplied()) {
+      this.cartService.applyDiscount(this.discountCode).subscribe(
+        () => {
+          this.discountCode = '';
+        },
+        error => {
+          console.error('Failed to apply discount:', error);
+        }
+      );
+    } else if (this.isDiscountApplied()) {
+      this.showSnackbar('Discount already applied', 'warning');
+    } else {
+      this.showSnackbar('Please enter a discount code', 'warning');
+    }
+  }
+
+  removeDiscount(): void {
+    this.cartService.removeDiscount().subscribe(
+      () => {
+        // Discount removed successfully
+      },
+      error => {
+        console.error('Failed to remove discount:', error);
+      }
+    );
+  }
+
+  isDiscountApplied(): boolean {
+    return this.cart?.discount !== undefined && this.cart.discount > 0;
+  }
+
+  getDiscountedTotal(): number {
+    const subtotal = this.getCartTotal();
+    const discount = this.cart?.discount || 0;
+    return subtotal - discount;
+  }
+
+  getCartTotal(): number {
+    return this.cartItemsWithDetails.reduce(
+      (sum, item) => sum + this.getItemTotal(item),
+      0
+    );
+  }
+
+  showSnackbar(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
     let panelClass: string[] = [];
     if (type === 'success') panelClass = ['success-snackbar'];
     else if (type === 'error') panelClass = ['error-snackbar'];
     else if (type === 'warning') panelClass = ['warning-snackbar'];
+    else if (type === 'info') panelClass = ['info-snackbar'];
 
     this.snackBar.open(message, 'Close', {
       duration: 3000,

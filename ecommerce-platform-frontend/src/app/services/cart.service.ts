@@ -1,15 +1,15 @@
-import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, forkJoin, Observable, of, throwError} from 'rxjs';
-import {catchError, map, switchMap, tap} from 'rxjs/operators';
-import {isPlatformBrowser} from '@angular/common';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {ResponseProductDTO} from "../dto/product/response-product-dto";
-import {AuthService} from '../auth/auth.service';
-import {ProductService} from "./product.service";
-import {ResponseMixtureDTO} from '../dto/mixtures/response-mixture-dto';
-import {CartItemType} from '../dto/cart/cart-item-type';
-import {MixtureService} from './mixture.service';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, forkJoin, Observable, of, throwError } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { isPlatformBrowser } from '@angular/common';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ResponseProductDTO } from "../dto/product/response-product-dto";
+import { AuthService } from '../auth/auth.service';
+import { ProductService } from "./product.service";
+import { ResponseMixtureDTO } from '../dto/mixtures/response-mixture-dto';
+import { CartItemType } from '../dto/cart/cart-item-type';
+import { MixtureService } from './mixture.service';
 
 export interface CartItem {
   id?: number;
@@ -25,9 +25,11 @@ export interface Cart {
   username: string;
   items: CartItem[];
   totalPrice: number;
+  discount?: number;
+  discountCode?: string;
 }
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class CartService {
   private apiUrl = 'http://localhost:8080/api/cart/v1';
   private isBrowser: boolean;
@@ -56,87 +58,110 @@ export class CartService {
   }
 
   private calculateAndSetTotalPrice(cart: Cart): void {
-    const totalPrice = cart.items.reduce((sum, item) => {
+    const subtotal = cart.items.reduce((sum, item) => {
       const price = item.product?.price || item.mixture?.price || 0;
       return sum + price * item.quantity;
     }, 0);
-    cart.totalPrice = totalPrice;
+
+    // Apply discount if exists
+    cart.totalPrice = subtotal - (cart.discount || 0);
     this._cart.next(cart);
   }
 
   private loadGuestCartFromStorage(): void {
-    const items = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-    const guestCart: Cart = {id: 0, username: 'guest', items: items, totalPrice: 0};
-    this.calculateAndSetTotalPrice(guestCart);
+    try {
+      const guestCartData = JSON.parse(localStorage.getItem('guest_cart') || '{}');
+      const guestCart: Cart = {
+        id: 0,
+        username: 'guest',
+        items: guestCartData.items || [],
+        totalPrice: 0,
+        discount: guestCartData.discount || 0,
+        discountCode: guestCartData.discountCode
+      };
+      this.calculateAndSetTotalPrice(guestCart);
+    } catch (e) {
+      // Fallback for old format
+      const items = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+      const guestCart: Cart = { id: 0, username: 'guest', items: items, totalPrice: 0, discount: 0 };
+      this.calculateAndSetTotalPrice(guestCart);
+    }
   }
 
-  private saveGuestCart(items: CartItem[]) {
+  private saveGuestCart(cart: Cart): void {
     if (this.isBrowser) {
-      const simpleItems = items.map(item => ({
+      const simpleItems = cart.items.map(item => ({
         itemId: item.itemId,
         quantity: item.quantity,
         cartItemType: item.cartItemType
       }));
-      localStorage.setItem('guest_cart', JSON.stringify(simpleItems));
+
+      const guestCartData = {
+        items: simpleItems,
+        discount: cart.discount,
+        discountCode: cart.discountCode
+      };
+
+      localStorage.setItem('guest_cart', JSON.stringify(guestCartData));
     }
   }
 
   private loadUserCart(): void {
     if (!this.authService.isTokenValid()) {
       this.showSnackbar('Please log in to view your cart.', 'warning');
-      this._cart.next({id: 0, username: 'guest', items: [], totalPrice: 0});
+      this._cart.next({ id: 0, username: 'guest', items: [], totalPrice: 0, discount: 0 });
       return;
     }
 
     this.http.get<Cart>(this.apiUrl)
       .pipe(
-        switchMap(cart => {
-          if (!cart || !cart.items || cart.items.length === 0) {
-            return of(cart);
-          }
-
-          const detailObservables = cart.items.map(item => {
-            if (item.cartItemType === CartItemType.PRODUCT) {
-              return this.productService.getProductById(item.itemId).pipe(
-                map(product => ({...item, product})),
-                catchError(() => of({...item, product: undefined}))
-              );
-            } else if (item.cartItemType === CartItemType.MIXTURE) {
-              return this.mixtureService.getMixtureById(item.itemId).pipe(
-                map(mixture => ({...item, mixture})),
-                catchError(() => of({...item, mixture: undefined}))
-              );
-            }
-            return of(item);
-          });
-
-          return forkJoin(detailObservables).pipe(
-            map(itemsWithDetails => ({...cart, items: itemsWithDetails}))
-          );
-        }),
+        switchMap(cart => this.enrichCartWithDetails(cart)),
         tap(cart => {
-          this.calculateAndSetTotalPrice(cart);
+          this._cart.next(cart);
         }),
         catchError(error => {
           this.showSnackbar('Failed to load cart. Please try again.', 'error');
           console.error('Failed to load user cart:', error);
-          this._cart.next({id: 0, username: 'guest', items: [], totalPrice: 0});
+          this._cart.next({ id: 0, username: 'guest', items: [], totalPrice: 0, discount: 0 });
           return throwError(() => error);
         })
       )
       .subscribe();
   }
 
-  private showSnackbar(message: string, type: 'success' | 'error' | 'warning'): void {
-    let panelClass = [];
-    if (type === 'success') {
-      panelClass = ['success-snackbar'];
-    } else if (type === 'error') {
-      panelClass = ['error-snackbar'];
-    } else if (type === 'warning') {
-      panelClass = ['warning-snackbar'];
+  private enrichCartWithDetails(cart: Cart): Observable<Cart> {
+    if (!cart || !cart.items || cart.items.length === 0) {
+      return of(cart);
     }
-    this.snackBar.open(message, 'Close', {duration: 3000, panelClass: panelClass});
+
+    const detailObservables = cart.items.map(item => {
+      if (item.cartItemType === CartItemType.PRODUCT) {
+        return this.productService.getProductById(item.itemId).pipe(
+          map(product => ({ ...item, product })),
+          catchError(() => of({ ...item, product: undefined }))
+        );
+      } else if (item.cartItemType === CartItemType.MIXTURE) {
+        return this.mixtureService.getMixtureById(item.itemId).pipe(
+          map(mixture => ({ ...item, mixture })),
+          catchError(() => of({ ...item, mixture: undefined }))
+        );
+      }
+      return of(item);
+    });
+
+    return forkJoin(detailObservables).pipe(
+      map(itemsWithDetails => ({ ...cart, items: itemsWithDetails }))
+    );
+  }
+
+  private showSnackbar(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
+    let panelClass = [];
+    if (type === 'success') panelClass = ['success-snackbar'];
+    else if (type === 'error') panelClass = ['error-snackbar'];
+    else if (type === 'warning') panelClass = ['warning-snackbar'];
+    else if (type === 'info') panelClass = ['info-snackbar'];
+
+    this.snackBar.open(message, 'Close', { duration: 3000, panelClass });
   }
 
   getCart(): Observable<Cart | null> {
@@ -147,30 +172,9 @@ export class CartService {
     if (this.authService.isTokenValid()) {
       return this.http.post<Cart>(`${this.apiUrl}/add`, item)
         .pipe(
-          switchMap(cart => {
-            if (!cart || !cart.items || cart.items.length === 0) return of(cart);
-
-            const detailObservables = cart.items.map(cartItem => {
-              if (cartItem.cartItemType === CartItemType.PRODUCT) {
-                return this.productService.getProductById(cartItem.itemId).pipe(
-                  map(product => ({...cartItem, product})),
-                  catchError(() => of({...cartItem, product: undefined}))
-                );
-              } else if (cartItem.cartItemType === CartItemType.MIXTURE) {
-                return this.mixtureService.getMixtureById(cartItem.itemId).pipe(
-                  map(mixture => ({...cartItem, mixture})),
-                  catchError(() => of({...cartItem, mixture: undefined}))
-                );
-              }
-              return of(cartItem);
-            });
-
-            return forkJoin(detailObservables).pipe(
-              map(itemsWithDetails => ({...cart, items: itemsWithDetails}))
-            );
-          }),
+          switchMap(cart => this.enrichCartWithDetails(cart)),
           tap(cart => {
-            this.calculateAndSetTotalPrice(cart);
+            this._cart.next(cart);
             this.showSnackbar('Item added to cart!', 'success');
           }),
           catchError(error => {
@@ -180,16 +184,25 @@ export class CartService {
           })
         );
     } else {
-      const currentCart = this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0};
+      const currentCart = this._cart.getValue() || {
+        id: 0,
+        username: 'guest',
+        items: [],
+        totalPrice: 0,
+        discount: 0
+      };
+
       const existingItem = currentCart.items.find(ci =>
         ci.itemId === item.itemId && ci.cartItemType === item.cartItemType
       );
+
       if (existingItem) {
         existingItem.quantity += item.quantity;
       } else {
         currentCart.items.push(item);
       }
-      this.saveGuestCart(currentCart.items);
+
+      this.saveGuestCart(currentCart);
       this.calculateAndSetTotalPrice(currentCart);
       return of(currentCart);
     }
@@ -207,7 +220,11 @@ export class CartService {
 
           return this.http.post<Cart>(`${this.apiUrl}/update?itemId=${itemId}&quantity=${quantity}&cartItemType=${cartItemType}`, {})
             .pipe(
-              tap(() => this.showSnackbar('Cart item quantity updated!', 'success')),
+              switchMap(cart => this.enrichCartWithDetails(cart)),
+              tap(cart => {
+                this._cart.next(cart);
+                this.showSnackbar('Cart item quantity updated!', 'success');
+              }),
               catchError(error => {
                 this.showSnackbar('Failed to update item quantity.', 'error');
                 console.error('Failed to update user cart item:', error);
@@ -222,16 +239,25 @@ export class CartService {
       }
       return throwError(() => new Error('Item not found in cart.'));
     } else {
-      const currentCart = this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0};
+      const currentCart = this._cart.getValue() || {
+        id: 0,
+        username: 'guest',
+        items: [],
+        totalPrice: 0,
+        discount: 0
+      };
+
       const item = currentCart.items.find(ci =>
         ci.itemId === itemId && ci.cartItemType === cartItemType
       );
+
       if (item) {
         item.quantity = quantity;
-        this.saveGuestCart(currentCart.items);
+        this.saveGuestCart(currentCart);
         this.calculateAndSetTotalPrice(currentCart);
         this.showSnackbar('Guest cart item quantity updated!', 'success');
       }
+
       return of(currentCart);
     }
   }
@@ -247,7 +273,11 @@ export class CartService {
 
         return this.http.delete<Cart>(`${this.apiUrl}/remove/${itemId}`)
           .pipe(
-            tap(() => this.showSnackbar('Item removed from cart!', 'success')),
+            switchMap(cart => this.enrichCartWithDetails(cart)),
+            tap(cart => {
+              this._cart.next(cart);
+              this.showSnackbar('Item removed from cart!', 'success');
+            }),
             catchError(error => {
               this.showSnackbar('Failed to remove item from cart.', 'error');
               console.error('Failed to remove item from user cart:', error);
@@ -261,50 +291,109 @@ export class CartService {
       }
       return throwError(() => new Error('Cart not found.'));
     } else {
-      const currentCart = this._cart.getValue() || {id: 0, username: 'guest', items: [], totalPrice: 0};
+      const currentCart = this._cart.getValue() || {
+        id: 0,
+        username: 'guest',
+        items: [],
+        totalPrice: 0,
+        discount: 0
+      };
+
       currentCart.items = currentCart.items.filter(item => item.itemId !== itemId);
-      this.saveGuestCart(currentCart.items);
+      this.saveGuestCart(currentCart);
       this.calculateAndSetTotalPrice(currentCart);
       this.showSnackbar('Item removed from cart!', 'success');
       return of(currentCart);
     }
   }
 
-  mergeGuestCart(): Observable<Cart> {
-    const guestCartItems = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+  applyDiscount(code: string): Observable<Cart> {
+    if (this.authService.isTokenValid()) {
+      return this.http.post<Cart>(`${this.apiUrl}/apply-discount`, { code })
+        .pipe(
+          switchMap(cart => this.enrichCartWithDetails(cart)),
+          tap(cart => {
+            this._cart.next(cart);
+            this.showSnackbar('Discount applied successfully!', 'success');
+          }),
+          catchError(error => {
+            this.showSnackbar('Failed to apply discount.', 'error');
+            console.error('Failed to apply discount:', error);
+            return throwError(() => error);
+          })
+        );
+    } else {
+      // For guest users, simulate discount locally
+      const currentCart = this._cart.getValue() || {
+        id: 0,
+        username: 'guest',
+        items: [],
+        totalPrice: 0,
+        discount: 0
+      };
 
-    if (guestCartItems.length === 0) {
+      // Apply 20% discount for any code (demo purposes)
+      const subtotal = currentCart.items.reduce((sum, item) => {
+        const price = item.product?.price || item.mixture?.price || 0;
+        return sum + price * item.quantity;
+      }, 0);
+
+      currentCart.discount = subtotal * 0.2;
+      currentCart.discountCode = code;
+      this.saveGuestCart(currentCart);
+      this.calculateAndSetTotalPrice(currentCart);
+      this.showSnackbar('Discount applied successfully!', 'success');
+      return of(currentCart);
+    }
+  }
+
+  removeDiscount(): Observable<Cart> {
+    if (this.authService.isTokenValid()) {
+      return this.http.delete<Cart>(`${this.apiUrl}/remove-discount`)
+        .pipe(
+          switchMap(cart => this.enrichCartWithDetails(cart)),
+          tap(cart => {
+            this._cart.next(cart);
+            this.showSnackbar('Discount removed', 'info');
+          }),
+          catchError(error => {
+            this.showSnackbar('Failed to remove discount.', 'error');
+            console.error('Failed to remove discount:', error);
+            return throwError(() => error);
+          })
+        );
+    } else {
+      // For guest users, remove discount locally
+      const currentCart = this._cart.getValue() || {
+        id: 0,
+        username: 'guest',
+        items: [],
+        totalPrice: 0,
+        discount: 0
+      };
+
+      currentCart.discount = 0;
+      delete currentCart.discountCode;
+      this.saveGuestCart(currentCart);
+      this.calculateAndSetTotalPrice(currentCart);
+      this.showSnackbar('Discount removed', 'info');
+      return of(currentCart);
+    }
+  }
+
+  mergeGuestCart(): Observable<Cart> {
+    const guestCartData = JSON.parse(localStorage.getItem('guest_cart') || '{}');
+    const guestItems = guestCartData.items || [];
+
+    if (guestItems.length === 0) {
       return of(this._cart.getValue() as Cart);
     }
 
-    return this.http.post<Cart>(`${this.apiUrl}/merge`, guestCartItems)
+    return this.http.post<Cart>(`${this.apiUrl}/merge`, guestItems)
       .pipe(
-        switchMap(cart => {
-          if (!cart || !cart.items || cart.items.length === 0) {
-            return of(cart);
-          }
-
-          const detailObservables = cart.items.map(cartItem => {
-            if (cartItem.cartItemType === CartItemType.PRODUCT) {
-              return this.productService.getProductById(cartItem.itemId).pipe(
-                map(product => ({...cartItem, product})),
-                catchError(() => of({...cartItem, product: undefined}))
-              );
-            } else if (cartItem.cartItemType === CartItemType.MIXTURE) {
-              return this.mixtureService.getMixtureById(cartItem.itemId).pipe(
-                map(mixture => ({...cartItem, mixture})),
-                catchError(() => of({...cartItem, mixture: undefined}))
-              );
-            }
-            return of(cartItem);
-          });
-
-          return forkJoin(detailObservables).pipe(
-            map(itemsWithDetails => ({...cart, items: itemsWithDetails}))
-          );
-        }),
+        switchMap(cart => this.enrichCartWithDetails(cart)),
         tap(cart => {
-          this.calculateAndSetTotalPrice(cart);
+          this._cart.next(cart);
           if (this.isBrowser) {
             localStorage.removeItem('guest_cart');
           }
@@ -322,15 +411,9 @@ export class CartService {
     if (this.authService.isTokenValid()) {
       return this.http.delete<Cart>(`${this.apiUrl}/clear`)
         .pipe(
+          switchMap(cart => this.enrichCartWithDetails(cart)),
           tap(cart => {
-            // Reset the cart to empty state
-            const emptyCart: Cart = {
-              id: cart.id,
-              username: cart.username,
-              items: [],
-              totalPrice: 0
-            };
-            this._cart.next(emptyCart);
+            this._cart.next(cart);
             this.showSnackbar('Cart cleared successfully!', 'success');
           }),
           catchError(error => {
@@ -344,7 +427,15 @@ export class CartService {
       if (this.isBrowser) {
         localStorage.removeItem('guest_cart');
       }
-      const emptyCart: Cart = { id: 0, username: 'guest', items: [], totalPrice: 0 };
+
+      const emptyCart: Cart = {
+        id: 0,
+        username: 'guest',
+        items: [],
+        totalPrice: 0,
+        discount: 0
+      };
+
       this._cart.next(emptyCart);
       this.showSnackbar('Guest cart cleared successfully!', 'success');
       return of(emptyCart);

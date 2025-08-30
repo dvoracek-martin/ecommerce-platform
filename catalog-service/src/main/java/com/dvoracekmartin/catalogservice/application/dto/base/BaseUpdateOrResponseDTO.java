@@ -3,15 +3,15 @@ package com.dvoracekmartin.catalogservice.application.dto.base;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 public abstract class BaseUpdateOrResponseDTO {
+
+    public BaseUpdateOrResponseDTO() {}
 
     @NotBlank
     private Long id;

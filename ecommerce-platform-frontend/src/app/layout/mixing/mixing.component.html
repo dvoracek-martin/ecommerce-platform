@@ -104,14 +104,21 @@
     <div class="mixture-name-container">
       <h2 *ngIf="!isEditingName" (click)="editName()">{{ mixtureName }}</h2>
       <input *ngIf="isEditingName"
+             #nameInput
              type="text"
              [(ngModel)]="mixtureName"
              (blur)="saveName()"
              (keyup.enter)="saveName()"
-             class="editable-name"/>
+             class="editable-name"
+             placeholder="Enter mixture name"/>
       <button *ngIf="!isEditingName" class="btn-edit" (click)="editName()">
         <mat-icon>edit</mat-icon>
       </button>
+    </div>
+
+    <!-- Warning message for default name -->
+    <div *ngIf="isDefaultName()" class="name-warning">
+      <span>Please name your mixture</span>
     </div>
 
     <div class="mixture-grid">
@@ -154,7 +161,11 @@
         Total: {{ calculateTotalPrice() | currency }}
       </div>
       <div class="mixture-actions">
-        <button class="btn btn-checkout" (click)="addMixtureToCart()">Add to cart</button>
+        <button class="btn btn-checkout"
+                [disabled]="isDefaultName() || getNonNullMixedProductsCount() === 0"
+                (click)="addMixtureToCart()">
+          Add to cart
+        </button>
       </div>
     </div>
   </div>

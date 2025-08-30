@@ -26,8 +26,8 @@
 .main-container {
   flex: 1;
   max-width: 1200px;
-  position: sticky; /* Changed to sticky */
-  top: 70px; /* Aligns with the mixture-container */
+  position: sticky;
+  top: 70px;
   background-color: #ffffff;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -50,7 +50,6 @@ h1 {
   color: #34495e;
   text-align: center;
 }
-
 
 .loading {
   display: flex;
@@ -428,6 +427,11 @@ h1 {
     text-align: center;
     width: 100%;
     outline: none;
+
+    &::placeholder {
+      color: #bdc3c7;
+      font-style: italic;
+    }
   }
 
   .btn-edit {
@@ -443,6 +447,26 @@ h1 {
       color: #3498db;
       transform: scale(1.1);
     }
+  }
+}
+
+/* Name warning style */
+.name-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background-color: #fff3e0;
+  border-left: 4px solid #ff9800;
+  border-radius: 4px;
+  color: #e65100;
+  font-size: 0.85rem;
+  margin-top: -10px;
+
+  mat-icon {
+    font-size: 1.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
   }
 }
 
@@ -633,15 +657,11 @@ h1 {
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
-  }
 
-  .btn-save {
-    background: #3498db;
-    color: white;
-
-    &:hover {
-      background: #2980b9;
-      transform: translateY(-2px);
+    &:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+      opacity: 0.7;
     }
   }
 
@@ -649,14 +669,14 @@ h1 {
     background: #e67e22;
     color: white;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: #d35400;
       transform: translateY(-2px);
     }
   }
 }
 
-/* Popup styles (no change) */
+/* Popup styles */
 .popup-overlay {
   position: fixed;
   top: 0;

@@ -2,14 +2,15 @@ package com.dvoracekmartin.catalogservice.application.dto.category;
 
 import com.dvoracekmartin.catalogservice.application.dto.base.BaseCreateDTO;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class CreateCategoryDTO extends BaseCreateDTO {
+
 
     private List<Long> tagIds;
 

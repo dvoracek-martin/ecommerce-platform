@@ -9,7 +9,8 @@
 
   <div class="cart-layout-wrapper">
     <div class="cart-main-content-wrapper">
-      <div *ngIf="isLoading" class="loading-section">
+      <!-- Show loading indicator only after 1 second delay -->
+      <div *ngIf="showLoadingIndicator" class="loading-section">
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         <div class="loading-text">{{ 'CART.LOADING' | translate }}</div>
       </div>
@@ -24,13 +25,15 @@
       </div>
 
       <div class="cart-items" *ngIf="!isLoading && cartItemsWithDetails.length > 0">
-        <div *ngFor="let item of cartItemsWithDetails" class="cart-item" [class.mixture-item]="item.cartItemType === CartItemType.MIXTURE">
-          <div class="item-media" (click)="item.cartItemType === CartItemType.PRODUCT ? goToProduct(item.itemId) : goToMixture(item.itemId)">
+        <div *ngFor="let item of cartItemsWithDetails" class="cart-item"
+             [class.mixture-item]="item.cartItemType === CartItemType.MIXTURE">
+          <div class="item-media"
+               (click)="item.cartItemType === CartItemType.PRODUCT ? goToProduct(item.itemId) : goToMixture(item.itemId)">
             <ng-container *ngIf="item.product || item.mixture">
               <img *ngIf="(item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0])"
                    [src]="item.product?.media?.[0] ? 'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data :
                          (item.mixture?.products?.[0]?.media?.[0] ? 'data:' + item.mixture.products[0].media[0].contentType + ';base64,' + item.mixture.products[0].media[0].base64Data : '')"
-                   alt="{{ item.product?.name || item.mixture?.name }}" />
+                   alt="{{ item.product?.name || item.mixture?.name }}"/>
             </ng-container>
             <div *ngIf="!((item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0]))" class="no-image">
               <span class="material-icons" *ngIf="item.cartItemType === CartItemType.PRODUCT">inventory_2</span>
@@ -40,7 +43,8 @@
 
           <div class="item-info">
             <div class="item-header">
-              <h3 class="item-name" (click)="item.cartItemType === CartItemType.PRODUCT ? goToProduct(item.itemId) : goToMixture(item.itemId)">
+              <h3 class="item-name"
+                  (click)="item.cartItemType === CartItemType.PRODUCT ? goToProduct(item.itemId) : goToMixture(item.itemId)">
                 {{ item.product?.name || item.mixture?.name }}
               </h3>
               <div class="item-price">{{ (item.product?.price || item.mixture?.price || 0) | currency }}</div>
@@ -73,7 +77,7 @@
                       <span class="material-icons">remove</span>
                     </button>
                     <input #quantityInput type="number" [value]="item.optimisticQuantity ?? item.quantity" min="0"
-                           (change)="onQuantityChange($event, item)" />
+                           (change)="onQuantityChange($event, item)"/>
                     <button class="quantity-btn increase"
                             (click)="updateQuantity(item.itemId, (item.optimisticQuantity ?? item.quantity) + 1, item.cartItemType)"
                             [disabled]="item.updating">
@@ -93,13 +97,15 @@
             </div>
           </div>
           <div class="item-actions">
-            <button class="btn-remove" (click)="removeItem(item.itemId)" [title]="'CART.REMOVE' | translate" [disabled]="item.updating">
+            <button class="btn-remove" (click)="removeItem(item.itemId)" [title]="'CART.REMOVE' | translate"
+                    [disabled]="item.updating">
               <span class="material-icons">delete_outline</span>
             </button>
           </div>
         </div>
       </div>
     </div>
+
 
     <div class="cart-footer" *ngIf="!isLoading && cartItemsWithDetails.length > 0">
       <div class="continue-shopping">
@@ -114,15 +120,52 @@
           <span>{{ 'CART.SUBTOTAL' | translate }}:</span>
           <span>{{ getCartTotal() | currency }}</span>
         </div>
-        <div class="summary-row total">
-          <span>{{ 'CART.TOTAL' | translate }}:</span>
-          <span>{{ getCartTotal() | currency }}</span>
+
+        <!-- Cart Summary Section -->
+        <div class="cart-summary-total">
+          <div class="summary-row">
+            <span>{{ 'CART.SUBTOTAL' | translate }}:</span>
+            <span>{{ getCartTotal() | currency }}</span>
+          </div>
+
+          <!-- Discount Code Field -->
+          <div class="discount-section" *ngIf="!isDiscountApplied()">
+            <div class="discount-input-group">
+              <input
+                type="text"
+                [(ngModel)]="discountCode"
+                placeholder="Discount code"
+                class="discount-input"
+                (keyup.enter)="applyDiscount()"
+              >
+              <button class="btn-apply" (click)="applyDiscount()">Apply</button>
+            </div>
+          </div>
+
+          <!-- Applied Discount Display -->
+          <div class="discount-applied" *ngIf="isDiscountApplied()">
+            <div class="summary-row discount">
+              <span>Discount ({{ cart?.discountCode }}):</span>
+              <span>-{{ cart?.discount | currency }}</span>
+            </div>
+            <div class="remove-discount">
+              <button class="btn-remove-discount" (click)="removeDiscount()">
+                Remove
+              </button>
+            </div>
+          </div>
+
+          <div class="summary-row total">
+            <span>{{ 'CART.TOTAL' | translate }}:</span>
+            <span>{{ getDiscountedTotal() | currency }}</span>
+          </div>
+
+          <button class="btn-checkout" (click)="proceedToCheckout()">
+            {{ 'CART.CHECKOUT' | translate }}
+            <span class="material-icons">arrow_forward</span>
+          </button>
         </div>
 
-        <button class="btn-checkout" (click)="proceedToCheckout()">
-          {{ 'CART.CHECKOUT' | translate }}
-          <span class="material-icons">arrow_forward</span>
-        </button>
       </div>
     </div>
   </div>

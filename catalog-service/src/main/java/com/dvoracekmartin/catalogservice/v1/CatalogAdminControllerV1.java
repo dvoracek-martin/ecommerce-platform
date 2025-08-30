@@ -1,7 +1,6 @@
 package com.dvoracekmartin.catalogservice.v1;
 
 import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategoryDTO;
-import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatalogItemDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.UpdateCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;

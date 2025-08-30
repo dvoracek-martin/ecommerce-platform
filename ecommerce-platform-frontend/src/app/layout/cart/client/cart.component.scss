@@ -458,7 +458,114 @@
     }
   }
 }
+//* Compact Discount Section */
+.discount-section {
+  margin: 15px 0;
 
+  .discount-input-group {
+    display: flex;
+    gap: 8px;
+
+    .discount-input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #bdc3c7;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      transition: border-color 0.3s;
+      background-color: #f8f9fa;
+
+      &:focus {
+        outline: none;
+        border-color: #3498db;
+        background-color: #fff;
+      }
+
+      &::placeholder {
+        color: #95a5a6;
+        font-size: 13px;
+      }
+    }
+
+    .btn-apply {
+      padding: 10px 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      transition: background-color 0.3s;
+      white-space: nowrap;
+
+      &:hover {
+        background-color: #2980b9;
+      }
+
+      &:disabled {
+        background-color: #bdc3c7;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+.discount-applied {
+  margin: 10px 0;
+
+  .summary-row.discount {
+    color: #27ae60;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+
+  .remove-discount {
+    .btn-remove-discount {
+      background: none;
+      border: none;
+      color: #e74c3c;
+      cursor: pointer;
+      font-size: 13px;
+      text-decoration: underline;
+      padding: 0;
+
+      &:hover {
+        color: #c0392b;
+      }
+    }
+  }
+}
+
+// Adjust the total row spacing
+.summary-row.total {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #27ae60;
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+  margin-top: 12px;
+  margin-bottom: 15px;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .discount-input-group {
+    flex-direction: column;
+
+    .btn-apply {
+      width: 100%;
+    }
+  }
+}
+
+.info-snackbar {
+  background-color: #2196f3; // Blue color for info messages
+  color: white;
+}
 @media (max-width: 600px) {
   .cart-container {
     padding: 10px;

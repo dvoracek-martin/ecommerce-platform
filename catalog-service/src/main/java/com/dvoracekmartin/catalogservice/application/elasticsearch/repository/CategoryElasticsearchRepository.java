@@ -9,6 +9,8 @@ import java.util.List;
 @Lazy
 public interface CategoryElasticsearchRepository extends ElasticsearchRepository<CategoryDocument, String> {
     List<CategoryDocument> findByNameContainingIgnoreCase(String name);
+
     List<CategoryDocument> findByDescriptionContainingIgnoreCase(String description);
+
     List<CategoryDocument> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String name, String description);
 }

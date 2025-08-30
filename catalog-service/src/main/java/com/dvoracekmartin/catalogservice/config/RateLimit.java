@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RateLimit {
     int limit() default 500;
+
     int durationInSeconds() default 60;
 }

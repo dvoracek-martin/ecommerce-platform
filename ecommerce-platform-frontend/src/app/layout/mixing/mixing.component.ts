@@ -1,14 +1,15 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ResponseProductDTO} from '../../dto/product/response-product-dto';
-import {ProductService} from '../../services/product.service';
-import {MixtureService} from '../../services/mixture.service';
-import {CartItem, CartService} from '../../services/cart.service';
-import {Router} from '@angular/router';
-import {CategoryService} from '../../services/category.service';
-import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
-import {forkJoin} from 'rxjs';
-import {CartItemType} from '../../dto/cart/cart-item-type';
-import {CreateMixtureDTO} from '../../dto/mixtures/create-mixture-dto';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ResponseProductDTO } from '../../dto/product/response-product-dto';
+import { ProductService } from '../../services/product.service';
+import { MixtureService } from '../../services/mixture.service';
+import { CartItem, CartService } from '../../services/cart.service';
+import { Router } from '@angular/router';
+import { CategoryService } from '../../services/category.service';
+import { ResponseCategoryDTO } from '../../dto/category/response-category-dto';
+import { forkJoin } from 'rxjs';
+import { CartItemType } from '../../dto/cart/cart-item-type';
+import { CreateMixtureDTO } from '../../dto/mixtures/create-mixture-dto';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface ProductSummary {
   product: ResponseProductDTO;
@@ -34,8 +35,9 @@ export class MixingComponent implements OnInit, OnDestroy {
   mixedProducts: (ResponseProductDTO | null)[] = new Array(9).fill(null);
 
   addingProductId: number | null = null;
-  mixtureName: string = 'Your Mixture';
+  mixtureName: string = 'Custom Mixture';
   isEditingName: boolean = false;
+  private readonly defaultMixtureName = 'Custom Mixture';
 
   showInfoPopup: boolean = false;
   selectedProduct: ResponseProductDTO | null = null;
@@ -44,12 +46,15 @@ export class MixingComponent implements OnInit, OnDestroy {
   premiumCategoryId: number | null = null;
   lastRemovedIndex: number | null = null;
 
+  @ViewChild('nameInput') nameInput!: ElementRef;
+
   constructor(
     private productService: ProductService,
     private mixtureService: MixtureService,
     private cartService: CartService,
     private categoryService: CategoryService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -225,10 +230,24 @@ export class MixingComponent implements OnInit, OnDestroy {
   /** MIXTURE NAME EDIT */
   editName() {
     this.isEditingName = true;
+
+    // Use setTimeout to ensure the input is rendered before selecting text
+    setTimeout(() => {
+      if (this.nameInput && this.nameInput.nativeElement) {
+        this.nameInput.nativeElement.select();
+      }
+    });
   }
 
   saveName() {
     this.isEditingName = false;
+  }
+
+  /** Check if name is default */
+  isDefaultName(): boolean {
+    return this.mixtureName === this.defaultMixtureName ||
+      this.mixtureName.trim() === '' ||
+      this.mixtureName === 'Your Mixture';
   }
 
   /** PRODUCT INFO POPUP */
@@ -246,32 +265,32 @@ export class MixingComponent implements OnInit, OnDestroy {
   prevCategory(): void {
     if (this.activeCategoryIndex > 0) {
       this.activeCategoryIndex--;
-      // FIX: odstraněno scrollToActiveCategory()
     }
   }
 
   nextCategory(): void {
     if (this.activeCategoryIndex < this.categories.length - 1) {
       this.activeCategoryIndex++;
-      // FIX: odstraněno scrollToActiveCategory()
     }
   }
 
   jumpToCategoryAndScroll(index: number): void {
     if (index >= 0 && index < this.categories.length) {
       this.activeCategoryIndex = index;
-      // FIX: odstraněno scrollToActiveCategory()
     }
   }
 
-  // Původní funkce nechávám, kdyby ses k ní chtěl vrátit,
-  // ale už se nikde nevolá
-  scrollToActiveCategory(): void {
-    const categoryElement = document.querySelectorAll('.category-section')[this.activeCategoryIndex] as HTMLElement;
-    if (categoryElement) categoryElement.scrollIntoView({behavior: 'smooth', block: 'start'});
-  }
-
   addMixtureToCart(): void {
+    // Check if name is default
+    if (this.isDefaultName()) {
+      this.snackBar.open('Please give your mixture a unique name', 'OK', {
+        duration: 3000,
+        panelClass: ['warning-snackbar']
+      });
+      this.editName(); // Focus on editing the name
+      return;
+    }
+
     const mixtureProducts = this.mixedProducts.filter(p => p !== null) as ResponseProductDTO[];
     if (mixtureProducts.length === 0) return;
 
@@ -298,12 +317,36 @@ export class MixingComponent implements OnInit, OnDestroy {
           cartItemType: CartItemType.MIXTURE
         };
         this.cartService.addItem(cartItem).subscribe({
-          next: () => console.log('Mixture added to cart successfully.'),
-          error: err => console.error('Failed to add mixture to cart:', err)
+          next: () => {
+            this.snackBar.open('Mixture added to cart successfully!', 'OK', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+
+            // Navigate to cart page after successful addition
+            this.router.navigate(['/cart']);
+          },
+          error: err => {
+            console.error('Failed to add mixture to cart:', err);
+            this.snackBar.open('Failed to add mixture to cart', 'OK', {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            });
+          }
         });
       },
-      error: err => console.error('Failed to save mixture:', err)
+      error: err => {
+        console.error('Failed to save mixture:', err);
+        this.snackBar.open('Failed to create mixture', 'OK', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      }
     });
+  }
+
+  getNonNullMixedProductsCount(): number {
+    return this.mixedProducts.filter(p => p !== null).length;
   }
 
   navigateHome() {

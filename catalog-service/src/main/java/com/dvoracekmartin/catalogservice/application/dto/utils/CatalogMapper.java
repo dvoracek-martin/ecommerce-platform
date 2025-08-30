@@ -1,6 +1,5 @@
 package com.dvoracekmartin.catalogservice.application.dto.utils;
 
-import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatalogItemDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;

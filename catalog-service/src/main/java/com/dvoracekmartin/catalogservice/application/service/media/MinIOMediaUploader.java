@@ -22,20 +22,15 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class MinIOMediaUploader implements MediaUploader {
 
+    private final MediaRetriever mediaRetriever;
     @Value("${minio.endpoint}")
     private String minioEndpoint;
-
     @Value("${minio.access-key}")
     private String accessKey;
-
     @Value("${minio.secret-key}")
     private String secretKey;
-
     private String bucketName;
-
     private S3Client s3Client;
-
-    private final MediaRetriever mediaRetriever;
 
     @PostConstruct
     private void initializeClient() {

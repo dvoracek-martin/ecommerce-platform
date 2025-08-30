@@ -2,15 +2,14 @@ package com.dvoracekmartin.catalogservice.application.dto.mixture;
 
 import com.dvoracekmartin.catalogservice.application.dto.base.BaseUpdateOrResponseDTO;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.List;
 
-@Setter
-@Getter
-public class UpdateMixtureDTO extends BaseUpdateOrResponseDTO{
+@Data
+public class UpdateMixtureDTO extends BaseUpdateOrResponseDTO {
     private Double price;
     private Double weightGrams;
     private Long categoryId;

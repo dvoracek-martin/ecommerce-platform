@@ -4,9 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -50,7 +48,8 @@ public class MinIOMediaRetriever implements MediaRetriever {
                 .forcePathStyle(true)
                 .build();
     }
-// TODO caching commented out for testing
+
+    // TODO caching commented out for testing
 //    @Cacheable(
 //            value = "mediaContent",
 //            key = "#objectKey",
@@ -76,7 +75,7 @@ public class MinIOMediaRetriever implements MediaRetriever {
     }
 
 
-//    @Cacheable(value = "folderContents", key = "#folderName",
+    //    @Cacheable(value = "folderContents", key = "#folderName",
 //    condition = "@mediaRetriever.isUserClient()")
     public List<String> listMediaKeysInFolder(String folderName, String bucketName) {
         ListObjectsV2Request listObjectsRequest = ListObjectsV2Request.builder()

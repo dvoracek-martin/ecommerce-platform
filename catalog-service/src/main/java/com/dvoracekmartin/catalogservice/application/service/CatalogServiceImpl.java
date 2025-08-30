@@ -111,9 +111,6 @@ public class CatalogServiceImpl implements CatalogService {
         return "application/octet-stream";
     }
 
-    private record MediaUploadResult(List<String> imageUrls, List<MediaDTO> mediaDTOs) {
-    }
-
     // Product methods
     @Override
     public List<ResponseProductDTO> getAllProducts() {
@@ -737,5 +734,8 @@ public class CatalogServiceImpl implements CatalogService {
         }
         log.warn("Failed to retrieve stock for product ID: {}", productId);
         return null;
+    }
+
+    private record MediaUploadResult(List<String> imageUrls, List<MediaDTO> mediaDTOs) {
     }
 }

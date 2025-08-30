@@ -7,8 +7,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "customer")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class Customer {
 

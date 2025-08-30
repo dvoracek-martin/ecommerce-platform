@@ -3,13 +3,11 @@ package com.dvoracekmartin.catalogservice.application.dto.category;
 import com.dvoracekmartin.catalogservice.application.dto.base.BaseUpdateOrResponseDTO;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class ResponseCategoryDTO extends BaseUpdateOrResponseDTO {
 
     private List<ResponseTagDTO> tagIds;

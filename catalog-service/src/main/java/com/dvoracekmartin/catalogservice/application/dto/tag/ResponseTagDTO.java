@@ -5,13 +5,11 @@ import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCatego
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class ResponseTagDTO extends BaseUpdateOrResponseDTO {
 
     List<ResponseCategoryDTO> categories;

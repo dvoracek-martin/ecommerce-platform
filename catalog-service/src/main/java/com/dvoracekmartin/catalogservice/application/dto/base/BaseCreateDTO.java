@@ -4,15 +4,15 @@ import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 public abstract class BaseCreateDTO {
+
+    public BaseCreateDTO() {}
 
     @NotBlank
     @Size(min = 3)

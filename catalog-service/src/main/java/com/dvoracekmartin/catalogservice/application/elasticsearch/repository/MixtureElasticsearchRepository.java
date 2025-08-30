@@ -9,6 +9,8 @@ import java.util.List;
 @Lazy
 public interface MixtureElasticsearchRepository extends ElasticsearchRepository<MixtureDocument, String> {
     List<MixtureDocument> findByNameContainingIgnoreCase(String name);
+
     List<MixtureDocument> findByDescriptionContainingIgnoreCase(String description);
+
     List<MixtureDocument> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String name, String description);
 }

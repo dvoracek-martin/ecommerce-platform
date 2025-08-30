@@ -9,8 +9,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "address")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class Address {
 
