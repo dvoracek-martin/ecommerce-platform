@@ -1,0 +1,103 @@
+.light-terms-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+
+  .modal-header {
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+
+    .modal-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+
+      .title-icon {
+        color: #3b82f6;
+        font-size: 24px;
+      }
+    }
+  }
+
+  .modal-content {
+    padding: 20px 24px;
+    color: #64748b;
+    line-height: 1.6;
+    overflow-y: auto;
+    flex-grow: 1;
+
+    .terms-content {
+      p {
+        margin-bottom: 16px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .modal-actions {
+    padding: 16px 24px 24px;
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid #e2e8f0;
+
+    .close-btn {
+      background-color: #f97316;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      min-width: 100px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+
+      &:hover {
+        background-color: #ea580c;
+        transform: translateY(-2px);
+      }
+
+      // Remove focus outline and replace with custom style
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+      }
+    }
+  }
+}
+
+// Global styles for light theme modal
+.light-theme-modal {
+  .mat-mdc-dialog-container {
+    --mdc-dialog-container-color: transparent;
+    padding: 0;
+  }
+
+  .mdc-dialog__surface {
+    border-radius: 16px;
+    box-shadow: none;
+    background: transparent;
+  }
+}
+
+// Light backdrop
+.light-theme-modal-backdrop {
+  background: rgba(255, 255, 255, 0.8);
+}

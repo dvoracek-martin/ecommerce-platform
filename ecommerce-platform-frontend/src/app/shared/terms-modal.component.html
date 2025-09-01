@@ -1,0 +1,24 @@
+<div class="light-terms-modal">
+  <div class="modal-header">
+    <h2 class="modal-title">
+      <mat-icon class="title-icon">description</mat-icon>
+      {{ 'CHECKOUT.TERMS_AND_CONDITIONS' | translate }}
+    </h2>
+  </div>
+
+  <div class="modal-content">
+    <div class="terms-content">
+      <p>{{ 'CHECKOUT.TERMS_CONTENT_PART1' | translate }}</p>
+      <p>{{ 'CHECKOUT.TERMS_CONTENT_PART2' | translate }}</p>
+      <p>{{ 'CHECKOUT.TERMS_CONTENT_PART3' | translate }}</p>
+      <p>{{ 'CHECKOUT.TERMS_CONTENT_PART4' | translate }}</p>
+      <p>{{ 'CHECKOUT.TERMS_CONTENT_PART5' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="modal-actions">
+    <button mat-raised-button (click)="onClose()" class="close-btn">
+      {{ 'COMMON.CLOSE' | translate }}
+    </button>
+  </div>
+</div>
