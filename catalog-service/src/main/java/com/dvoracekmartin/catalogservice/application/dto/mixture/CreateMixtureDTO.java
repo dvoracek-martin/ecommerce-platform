@@ -2,14 +2,12 @@ package com.dvoracekmartin.catalogservice.application.dto.mixture;
 
 import com.dvoracekmartin.catalogservice.application.dto.base.BaseCreateDTO;
 import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
 
-@Setter
-@Getter
+@Data
 public class CreateMixtureDTO extends BaseCreateDTO {
 
     private Double price;

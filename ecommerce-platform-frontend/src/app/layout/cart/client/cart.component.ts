@@ -200,11 +200,13 @@ export class CartComponent implements OnInit, OnDestroy {
       );
   }
 
+  // In your cart.component.ts, update the removeItem method
   removeItem(itemId: number | undefined): void {
     if (itemId === undefined) return;
 
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '300px',
+      panelClass: 'light-dialog-container', // Add this line
       data: {
         title: this.translate.instant('DIALOG.CONFIRM_DELETE_TITLE'),
         message: this.translate.instant('DIALOG.CONFIRM_DELETE_MESSAGE')
@@ -232,7 +234,6 @@ export class CartComponent implements OnInit, OnDestroy {
       }
     });
   }
-
   // Helper method to show confirmation dialog
   private showConfirmationDialog(callback: () => void): void {
     if (this.dialog && typeof this.dialog.open === 'function') {

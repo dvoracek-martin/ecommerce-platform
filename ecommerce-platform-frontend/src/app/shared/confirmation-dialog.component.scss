@@ -1,23 +1,98 @@
-mat-dialog-content {
-  padding: 16px 24px;
-  font-size: 16px;
-  color: #666;
-}
+.light-dialog-container {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  width: 100%;
 
-mat-dialog-actions {
-  padding: 16px 24px;
-  border-top: 1px solid #eee;
-  gap: 8px;
+  .dialog-title {
+    padding: 24px 24px 16px;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-bottom: 1px solid #e2e8f0;
 
-  button[mat-raised-button] {
-    min-width: 80px;
+    &.warn {
+      color: #e11d48;
+    }
+
+    .title-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .dialog-content {
+    padding: 20px 24px;
+    color: #64748b;
+    line-height: 1.6;
+    text-align: center;
+    margin: 0;
+  }
+
+  .dialog-actions {
+    padding: 16px 24px 24px;
+    margin: 0;
+    justify-content: center;
+    gap: 12px;
+
+    .action-button {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      min-width: 100px;
+      transition: all 0.3s ease;
+
+      &.cancel-btn {
+        background-color: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+
+        &:hover {
+          background-color: #e2e8f0;
+        }
+      }
+
+      &.confirm-btn {
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+
+        &.primary-btn {
+          background-color: #f97316;
+          color: white;
+
+          &:hover {
+            background-color: #ea580c;
+          }
+        }
+
+        &.warn-btn {
+          background-color: #e11d48;
+          color: white;
+
+          &:hover {
+            background-color: #be123c;
+          }
+        }
+
+        &:hover {
+          transform: translateY(-2px);
+        }
+      }
+    }
   }
 }
 
-.mat-mdc-dialog-title {
-  margin: 0;
-  padding: 16px 24px;
-  background: #f8f9fa;
-  font-weight: 600;
-  color: #333;
+// Global overrides for Angular Material dialog
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 16px !important;
+  overflow: hidden;
 }

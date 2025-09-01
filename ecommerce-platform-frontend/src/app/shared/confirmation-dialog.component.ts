@@ -13,8 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 export interface ConfirmationDialogData {
   title: string;
   message: string;
-  type?: 'warn' | 'info' | 'success'; // Add type for styling
-  html?: boolean; // Allow HTML content
+  type?: 'warn' | 'info' | 'success';
+  html?: boolean;
 }
 
 @Component({

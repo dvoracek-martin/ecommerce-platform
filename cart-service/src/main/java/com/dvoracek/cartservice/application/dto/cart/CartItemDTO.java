@@ -1,6 +1,6 @@
 package com.dvoracek.cartservice.application.dto.cart;
 
-import com.dvoracek.cartservice.domain.model.CartItemType;
+import com.dvoracek.cartservice.domain.model.cart.CartItemType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

@@ -8,3 +8,50 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+.light-dialog-container .mat-mdc-dialog-container {
+  --mdc-dialog-container-color: white;
+  --mdc-dialog-subhead-color: #333;
+  --mdc-dialog-supporting-text-color: #666;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.light-theme-modal-backdrop {
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+.light-theme-modal .mat-mdc-dialog-container {
+  --mdc-dialog-container-color: transparent !important;
+  background: transparent !important;
+}
+
+.light-theme-modal-backdrop {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+// Button style overrides for light theme
+.light-theme-modal {
+  .mat-mdc-raised-button {
+    background-color: #f97316;
+    color: white;
+
+    &:not(:disabled) {
+      &:hover {
+        background-color: #ea580c;
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+      }
+    }
+
+    .mdc-button__label {
+      color: white;
+    }
+  }
+}

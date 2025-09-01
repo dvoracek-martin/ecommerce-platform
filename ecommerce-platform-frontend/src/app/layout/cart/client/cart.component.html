@@ -115,58 +115,52 @@
         </button>
       </div>
 
+
+      <!-- Cart Summary Section -->
       <div class="cart-summary-total">
         <div class="summary-row">
           <span>{{ 'CART.SUBTOTAL' | translate }}:</span>
           <span>{{ getCartTotal() | currency }}</span>
         </div>
 
-        <!-- Cart Summary Section -->
-        <div class="cart-summary-total">
-          <div class="summary-row">
-            <span>{{ 'CART.SUBTOTAL' | translate }}:</span>
-            <span>{{ getCartTotal() | currency }}</span>
+        <!-- Discount Code Field -->
+        <div class="discount-section" *ngIf="!isDiscountApplied()">
+          <div class="discount-input-group">
+            <input
+              type="text"
+              [(ngModel)]="discountCode"
+              placeholder="Discount code"
+              class="discount-input"
+              (keyup.enter)="applyDiscount()"
+            >
+            <button class="btn-apply" (click)="applyDiscount()">Apply</button>
           </div>
-
-          <!-- Discount Code Field -->
-          <div class="discount-section" *ngIf="!isDiscountApplied()">
-            <div class="discount-input-group">
-              <input
-                type="text"
-                [(ngModel)]="discountCode"
-                placeholder="Discount code"
-                class="discount-input"
-                (keyup.enter)="applyDiscount()"
-              >
-              <button class="btn-apply" (click)="applyDiscount()">Apply</button>
-            </div>
-          </div>
-
-          <!-- Applied Discount Display -->
-          <div class="discount-applied" *ngIf="isDiscountApplied()">
-            <div class="summary-row discount">
-              <span>Discount ({{ cart?.discountCode }}):</span>
-              <span>-{{ cart?.discount | currency }}</span>
-            </div>
-            <div class="remove-discount">
-              <button class="btn-remove-discount" (click)="removeDiscount()">
-                Remove
-              </button>
-            </div>
-          </div>
-
-          <div class="summary-row total">
-            <span>{{ 'CART.TOTAL' | translate }}:</span>
-            <span>{{ getDiscountedTotal() | currency }}</span>
-          </div>
-
-          <button class="btn-checkout" (click)="proceedToCheckout()">
-            {{ 'CART.CHECKOUT' | translate }}
-            <span class="material-icons">arrow_forward</span>
-          </button>
         </div>
 
+        <!-- Applied Discount Display -->
+        <div class="discount-applied" *ngIf="isDiscountApplied()">
+          <div class="summary-row discount">
+            <span>Discount ({{ cart?.discountCode }}):</span>
+            <span>-{{ cart?.discount | currency }}</span>
+          </div>
+          <div class="remove-discount">
+            <button class="btn-remove-discount" (click)="removeDiscount()">
+              Remove
+            </button>
+          </div>
+        </div>
+
+        <div class="summary-row total">
+          <span>{{ 'CART.TOTAL' | translate }}:</span>
+          <span>{{ getDiscountedTotal() | currency }}</span>
+        </div>
+
+        <button class="btn-checkout" (click)="proceedToCheckout()">
+          {{ 'CART.CHECKOUT' | translate }}
+          <span class="material-icons">arrow_forward</span>
+        </button>
       </div>
+
     </div>
   </div>
 </div>

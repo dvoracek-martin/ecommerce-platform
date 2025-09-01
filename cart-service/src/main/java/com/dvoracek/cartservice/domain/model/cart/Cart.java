@@ -1,6 +1,7 @@
 // src/main/java/com/dvoracek/cartservice/domain/model/Cart.java
-package com.dvoracek.cartservice.domain.model;
+package com.dvoracek.cartservice.domain.model.cart;
 
+import com.dvoracek.cartservice.domain.model.discount.Discount;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;

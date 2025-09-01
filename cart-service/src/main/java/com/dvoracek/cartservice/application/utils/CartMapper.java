@@ -3,9 +3,9 @@ package com.dvoracek.cartservice.application.utils;
 import com.dvoracek.cartservice.application.dto.cart.CartDTO;
 import com.dvoracek.cartservice.application.dto.cart.CartItemDTO;
 import com.dvoracek.cartservice.application.dto.discount.ResponseDiscountDTO;
-import com.dvoracek.cartservice.domain.model.Cart;
-import com.dvoracek.cartservice.domain.model.CartItem;
-import com.dvoracek.cartservice.domain.model.Discount;
+import com.dvoracek.cartservice.domain.model.cart.Cart;
+import com.dvoracek.cartservice.domain.model.cart.CartItem;
+import com.dvoracek.cartservice.domain.model.discount.Discount;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

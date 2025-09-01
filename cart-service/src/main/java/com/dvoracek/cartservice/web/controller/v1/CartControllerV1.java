@@ -2,7 +2,8 @@ package com.dvoracek.cartservice.web.controller.v1;
 
 import com.dvoracek.cartservice.application.dto.cart.CartDTO;
 import com.dvoracek.cartservice.application.service.CartService;
-import com.dvoracek.cartservice.domain.model.CartItem;
+import com.dvoracek.cartservice.application.dto.discount.DiscountApplicationResultDTO;
+import com.dvoracek.cartservice.domain.model.cart.CartItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -60,11 +61,17 @@ public class CartControllerV1 {
     }
 
     @PostMapping("/apply-discount")
-    public ResponseEntity<CartDTO> applyDiscount(@AuthenticationPrincipal Jwt jwt,
-                                                 @CookieValue(name = "gcid", required = false) String guestId,
-                                                 @RequestBody Map<String, String> request) {
+    public ResponseEntity<DiscountApplicationResultDTO> applyDiscount(@AuthenticationPrincipal Jwt jwt,
+                                           @CookieValue(name = "gcid", required = false) String guestId,
+                                           @RequestBody Map<String, String> request) {
         String code = request.get("code");
-        return ResponseEntity.ok(cartService.applyDiscount(usernameOrNull(jwt), guestId, code));
+        DiscountApplicationResultDTO result = cartService.applyDiscount(usernameOrNull(jwt), guestId, code);
+
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.badRequest().body(result);
+        }
     }
 
     @DeleteMapping("/remove-discount")
@@ -73,4 +80,9 @@ public class CartControllerV1 {
         return ResponseEntity.ok(cartService.removeDiscount(usernameOrNull(jwt), guestId));
     }
 
+    @DeleteMapping("/clear")
+    public ResponseEntity<CartDTO> clearCart(@AuthenticationPrincipal Jwt jwt,
+                                             @CookieValue(name = "gcid", required = false) String guestId) {
+        return ResponseEntity.ok(cartService.clearCart(usernameOrNull(jwt), guestId));
+    }
 }

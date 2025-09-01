@@ -1,6 +1,6 @@
 package com.dvoracek.cartservice.repository;
 
-import com.dvoracek.cartservice.domain.model.Cart;
+import com.dvoracek.cartservice.domain.model.cart.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

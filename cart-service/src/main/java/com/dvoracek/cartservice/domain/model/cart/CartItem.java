@@ -1,4 +1,4 @@
-package com.dvoracek.cartservice.domain.model;
+package com.dvoracek.cartservice.domain.model.cart;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;

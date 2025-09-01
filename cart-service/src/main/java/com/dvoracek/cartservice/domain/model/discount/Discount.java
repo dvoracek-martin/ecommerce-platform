@@ -1,9 +1,11 @@
-package com.dvoracek.cartservice.domain.model;
+package com.dvoracek.cartservice.domain.model.discount;
 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 
 
 @Entity
@@ -23,6 +25,15 @@ public class Discount {
 
     @Column(nullable = false)
     private boolean active = true;
+
+    @Column(nullable = false)
+    private LocalDateTime validFrom;
+
+    @Column(nullable = false)
+    private LocalDateTime validTill;
+
+    @Column(nullable = false)
+    private Long timesUsed;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

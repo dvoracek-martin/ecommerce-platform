@@ -3,8 +3,9 @@ package com.dvoracek.cartservice.application.service;
 import com.dvoracek.cartservice.application.dto.cart.CartDTO;
 import com.dvoracek.cartservice.application.dto.discount.CreateDiscountDTO;
 import com.dvoracek.cartservice.application.dto.discount.ResponseDiscountDTO;
-import com.dvoracek.cartservice.domain.model.Cart;
-import com.dvoracek.cartservice.domain.model.CartItem;
+import com.dvoracek.cartservice.application.dto.discount.DiscountApplicationResultDTO;
+import com.dvoracek.cartservice.domain.model.cart.Cart;
+import com.dvoracek.cartservice.domain.model.cart.CartItem;
 
 public interface CartService {
     CartDTO getCart(String username, String guestId);
@@ -19,9 +20,11 @@ public interface CartService {
 
     CartDTO mergeGuestIntoUser(String username, CartItem[] guestId);
 
-    CartDTO applyDiscount(String username, String guestId, String discountCode);
+    DiscountApplicationResultDTO applyDiscount(String username, String guestId, String discountCode);
 
     CartDTO removeDiscount(String username, String guestId);
 
     ResponseDiscountDTO createDiscount(CreateDiscountDTO createDiscountDTO);
+
+    CartDTO clearCart(String s, String guestId);
 }

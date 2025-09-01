@@ -4,18 +4,19 @@ import com.dvoracek.cartservice.application.dto.cart.CartDTO;
 import com.dvoracek.cartservice.application.dto.discount.CreateDiscountDTO;
 import com.dvoracek.cartservice.application.dto.discount.ResponseDiscountDTO;
 import com.dvoracek.cartservice.application.utils.CartMapper;
-import com.dvoracek.cartservice.domain.model.Cart;
-import com.dvoracek.cartservice.domain.model.CartItem;
-import com.dvoracek.cartservice.domain.model.Discount;
-import com.dvoracek.cartservice.domain.model.DiscountType;
+import com.dvoracek.cartservice.application.dto.discount.DiscountApplicationResultDTO;
+import com.dvoracek.cartservice.domain.model.cart.Cart;
+import com.dvoracek.cartservice.domain.model.cart.CartItem;
+import com.dvoracek.cartservice.domain.model.discount.Discount;
+import com.dvoracek.cartservice.domain.model.discount.DiscountType;
 import com.dvoracek.cartservice.repository.CartRepository;
 import com.dvoracek.cartservice.repository.DiscountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -136,31 +137,6 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartDTO applyDiscount(String username, String guestId, String discountCode) {
-        Cart cart = getOrCreateCart(username, guestId);
-
-        // Check if discount is already applied
-        if (cart.getDiscount() != null && cart.getDiscount().getCode().equals(discountCode)) {
-            return cartMapper.toDto(cart);
-        }
-
-        // Find active discount by code
-        Optional<Discount> discountOpt = discountRepository.findByCodeAndActiveTrue(discountCode);
-        if (!discountOpt.isPresent()) {
-            // TODO respond to frontend if the code is invalid
-            throw new IllegalArgumentException("Invalid discount code");
-        }
-
-        Discount discount = discountOpt.get();
-        cart.setDiscount(discount);
-        cart.setDiscountCode(discount.getCode());
-
-        Cart updatedCart = cartRepository.save(cart);
-        return cartMapper.toDto(updatedCart);
-    }
-
-    @Override
-    @Transactional
     public CartDTO removeDiscount(String username, String guestId) {
         Cart cart = getOrCreateCart(username, guestId);
 
@@ -169,6 +145,49 @@ public class CartServiceImpl implements CartService {
 
         Cart updatedCart = cartRepository.save(cart);
         return cartMapper.toDto(updatedCart);
+    }
+
+    @Override
+    @Transactional
+    public DiscountApplicationResultDTO applyDiscount(String username, String guestId, String discountCode) {
+        Cart cart = getOrCreateCart(username, guestId);
+        CartDTO cartDto = cartMapper.toDto(cart);
+
+        // Check if discount is already applied
+        if (cart.getDiscount() != null && cart.getDiscount().getCode().equals(discountCode)) {
+            return DiscountApplicationResultDTO.success(cartDto,
+                    cartMapper.discountToResponseDiscountDTO(cart.getDiscount()));
+        }
+
+        // Find active discount by code
+        Optional<Discount> discountOpt = discountRepository.findByCodeAndActiveTrue(discountCode);
+        if (!discountOpt.isPresent()) {
+            return DiscountApplicationResultDTO.error("Invalid discount code", cartDto);
+        }
+
+        Discount discount = discountOpt.get();
+
+        // Check validity period
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        if (currentDateTime.isBefore(discount.getValidFrom())) {
+            return DiscountApplicationResultDTO.error("Discount code is not yet valid", cartDto);
+        }
+
+        if (currentDateTime.isAfter(discount.getValidTill())) {
+            return DiscountApplicationResultDTO.error("Discount code has expired", cartDto);
+        }
+
+        // Apply discount to cart
+        cart.setDiscount(discount);
+        cart.setDiscountCode(discount.getCode());
+
+        // Increment usage count
+        discount.setTimesUsed(discount.getTimesUsed() + 1);
+        discountRepository.save(discount);
+
+        Cart updatedCart = cartRepository.save(cart);
+        return DiscountApplicationResultDTO.success(cartMapper.toDto(updatedCart),
+                cartMapper.discountToResponseDiscountDTO(discount));
     }
 
     @Override
@@ -187,24 +206,28 @@ public class CartServiceImpl implements CartService {
         }
 
         // Validate discount value
-        if (createDiscountDTO.getValue().compareTo(0L) <= 0) {
+        if (createDiscountDTO.getDiscountValue().compareTo(0L) <= 0) {
             throw new IllegalArgumentException("Discount value must be positive");
         }
 
         // For percentage discounts, validate value is reasonable
         if (createDiscountDTO.getType().equals(DiscountType.PERCENTAGE.name()) &&
-                createDiscountDTO.getValue().compareTo(Long.valueOf(100)) > 0) {
+                createDiscountDTO.getDiscountValue().compareTo(Long.valueOf(100)) > 0) {
             throw new IllegalArgumentException("Percentage discount cannot exceed 100%");
         }
 
         Discount discount = new Discount();
         discount.setCode(code.toUpperCase());
-        discount.setDiscountValue(createDiscountDTO.getValue());
+        discount.setDiscountValue(createDiscountDTO.getDiscountValue());
         discount.setType(DiscountType.valueOf(createDiscountDTO.getType()));
         discount.setActive(true);
+        discount.setTimesUsed(0L);
+        discount.setValidFrom(createDiscountDTO.getValidFrom());
+        discount.setValidTill(createDiscountDTO.getValidTill());
 
         return cartMapper.discountToResponseDiscountDTO(discountRepository.save(discount));
     }
+
 
     private String generateUniqueDiscountCode() {
         String code;
@@ -223,6 +246,18 @@ public class CartServiceImpl implements CartService {
         return code;
     }
 
+    @Override
+    @Transactional
+    public CartDTO clearCart(String username, String guestId) {
+        Cart cart = getOrCreateCart(username, guestId);
+        cart.getItems().clear();
+        cart.setDiscount(null);
+        cart.setDiscountCode(null);
+        Cart updatedCart = cartRepository.save(cart);
+        return cartMapper.toDto(updatedCart);
+    }
+
+
     private String generateRandomCode() {
         StringBuilder sb = new StringBuilder(CODE_LENGTH);
         for (int i = 0; i < CODE_LENGTH; i++) {
@@ -230,4 +265,5 @@ public class CartServiceImpl implements CartService {
         }
         return sb.toString();
     }
+
 }

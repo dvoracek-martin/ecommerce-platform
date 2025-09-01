@@ -19,6 +19,7 @@ import {MixtureService} from '../../../services/mixture.service';
 import {CartItemType} from '../../../dto/cart/cart-item-type';
 import {forkJoin, of} from 'rxjs';
 import {catchError, map, switchMap} from 'rxjs/operators';
+import {TermsModalComponent} from '../../../shared/terms-modal.component';
 
 interface CartItemWithDetails extends CartItem {
   product?: ResponseProductDTO;
@@ -89,15 +90,15 @@ export class CheckoutComponent implements OnInit {
   selectedShippingMethod: string = '';
   selectedPaymentMethod: string = '';
   shippingMethods = [
-    { id: 'standard', name: 'Standard Shipping', price: 9.99, deliveryTime: '3-5 business days' },
-    { id: 'express', name: 'Express Shipping', price: 19.99, deliveryTime: '2-3 business days' },
-    { id: 'premium', name: 'Premium Delivery', price: 29.99, deliveryTime: 'Next business day' }
+    {id: 'standard', name: 'Standard Shipping', price: 9.99, deliveryTime: '3-5 business days'},
+    {id: 'express', name: 'Express Shipping', price: 19.99, deliveryTime: '2-3 business days'},
+    {id: 'premium', name: 'Premium Delivery', price: 29.99, deliveryTime: 'Next business day'}
   ];
 
   paymentMethods = [
-    { id: 'credit_card', name: 'Credit Card' },
-    { id: 'paypal', name: 'PayPal' },
-    { id: 'bank_transfer', name: 'Bank Transfer' }
+    {id: 'credit_card', name: 'Credit Card'},
+    {id: 'paypal', name: 'PayPal'},
+    {id: 'bank_transfer', name: 'Bank Transfer'}
   ];
 
   customerForm: FormGroup;
@@ -255,6 +256,8 @@ export class CheckoutComponent implements OnInit {
   }
 
   private setupBillingAddressValidation(): void {
+    this.showBillingAddress = !this.customerForm.get('sameBillingAddress')?.value;
+
     this.customerForm.get('sameBillingAddress')?.valueChanges.subscribe(checked => {
       this.showBillingAddress = !checked;
       const billingAddressGroup = this.customerForm.get('billingAddress') as FormGroup;
@@ -265,25 +268,18 @@ export class CheckoutComponent implements OnInit {
       ];
 
       if (checked) {
+        // Copy shipping address to billing address
+        this.copyShippingToBilling();
+
         billingControls.forEach(controlName => {
           const control = billingAddressGroup.get(controlName);
           control?.clearValidators();
-          if (this.initialBillingAddress && this.initialBillingAddress[controlName as keyof BillingAddress]) {
-            control?.reset(this.initialBillingAddress[controlName as keyof BillingAddress]);
-          } else {
-            control?.reset('');
-          }
           control?.updateValueAndValidity();
         });
       } else {
+        // Restore original billing address data
         if (this.initialBillingAddress) {
           billingAddressGroup.patchValue(this.initialBillingAddress);
-        } else {
-          billingAddressGroup.reset({
-            firstName: '', lastName: '', companyName: '', taxId: '',
-            street: '', houseNumber: '', city: '', zipCode: '', country: this.DEFAULT_COUNTRY,
-            phone: ''
-          });
         }
 
         billingAddressGroup.get('firstName')?.setValidators(Validators.required);
@@ -293,7 +289,6 @@ export class CheckoutComponent implements OnInit {
         billingAddressGroup.get('city')?.setValidators(Validators.required);
         billingAddressGroup.get('zipCode')?.setValidators([Validators.required, Validators.pattern('^[0-9]+$')]);
         billingAddressGroup.get('country')?.setValidators(Validators.required);
-
         billingAddressGroup.get('phone')?.setValidators([Validators.pattern(/^\+?[0-9\s-]+$/)]);
         billingAddressGroup.get('taxId')?.setValidators([Validators.pattern(/^[A-Za-z0-9]+$/)]);
 
@@ -324,10 +319,11 @@ export class CheckoutComponent implements OnInit {
   }
 
   openTermsModal(): void {
-    this.dialog.open(this.termsModal, {
+    this.dialog.open(TermsModalComponent, {
       width: '600px',
       maxHeight: '80vh',
-      panelClass: 'light-theme-modal'
+      panelClass: 'light-theme-modal',
+      backdropClass: 'light-theme-modal-backdrop'
     });
   }
 
@@ -367,22 +363,23 @@ export class CheckoutComponent implements OnInit {
           return of([]);
         } else {
           this.cartItems = cart.items || [];
-          this.cartTotal = cart.totalPrice || 0;
+          // Calculate cart total from items instead of relying on cart.totalPrice
+          this.cartTotal = this.calculateCartTotal(this.cartItems);
 
           // Load product and mixture details for each item
           const detailObservables = this.cartItems.map(item => {
             if (item.cartItemType === CartItemType.PRODUCT) {
               return this.productService.getProductById(item.itemId).pipe(
-                map(product => ({ ...item, product, optimisticQuantity: item.quantity, updating: false })),
-                catchError(() => of({ ...item, product: undefined, optimisticQuantity: item.quantity, updating: false }))
+                map(product => ({...item, product, optimisticQuantity: item.quantity, updating: false})),
+                catchError(() => of({...item, product: undefined, optimisticQuantity: item.quantity, updating: false}))
               );
             } else if (item.cartItemType === CartItemType.MIXTURE) {
               return this.mixtureService.getMixtureById(item.itemId).pipe(
-                map(mixture => ({ ...item, mixture, optimisticQuantity: item.quantity, updating: false })),
-                catchError(() => of({ ...item, mixture: undefined, optimisticQuantity: item.quantity, updating: false }))
+                map(mixture => ({...item, mixture, optimisticQuantity: item.quantity, updating: false})),
+                catchError(() => of({...item, mixture: undefined, optimisticQuantity: item.quantity, updating: false}))
               );
             }
-            return of({ ...item, optimisticQuantity: item.quantity, updating: false });
+            return of({...item, optimisticQuantity: item.quantity, updating: false});
           });
 
           return forkJoin(detailObservables);
@@ -390,6 +387,8 @@ export class CheckoutComponent implements OnInit {
       })
     ).subscribe((itemsWithDetails: any[]) => {
       this.cartItems = itemsWithDetails as CartItemWithDetails[];
+      // Recalculate total after loading details
+      this.cartTotal = this.calculateCartTotal(this.cartItems);
       this.shippingCost = this.cartTotal > 50 ? 0 : 9.99;
       this.finalTotal = this.cartTotal + this.shippingCost;
     }, error => {
@@ -401,6 +400,14 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
+  // Add this method to calculate cart total from items
+  private calculateCartTotal(items: CartItemWithDetails[]): number {
+    return items.reduce((total, item) => {
+      const price = item.product?.price || item.mixture?.price || 0;
+      return total + (price * item.quantity);
+    }, 0);
+  }
+
   // New method to handle quantity changes on the review page
   changeQuantity(index: number, change: number): void {
     const item = this.cartItems[index];
@@ -410,7 +417,6 @@ export class CheckoutComponent implements OnInit {
       this.updateItemQuantity(item, newQuantity);
     }
   }
-
   // Method to update item quantity and handle optimistic updates
   updateItemQuantity(item: CartItemWithDetails, newQuantity: number): void {
     // Optimistic update
@@ -431,6 +437,7 @@ export class CheckoutComponent implements OnInit {
         // Revert on error
         item.optimisticQuantity = undefined;
         item.updating = false;
+        this.recalculateTotals();
         this.showSnackbar('CHECKOUT.UPDATE_QUANTITY_ERROR');
         console.error('Update quantity error:', error);
       }
@@ -471,16 +478,10 @@ export class CheckoutComponent implements OnInit {
   }
 
   private recalculateTotals(): void {
-    this.cartService.getCart().subscribe(cart => {
-      if (!cart) {
-        this.cartTotal = 0;
-      } else {
-        this.cartTotal = cart.totalPrice || 0;
-      }
-      this.shippingCost = this.cartTotal > 50 ? 0 : 9.99;
-      this.finalTotal = this.cartTotal + this.shippingCost;
-      this.cdRef.detectChanges();
-    });
+    this.cartTotal = this.calculateCartTotal(this.cartItems);
+    this.shippingCost = this.cartTotal > 50 ? 0 : 9.99;
+    this.finalTotal = this.cartTotal + this.shippingCost;
+    this.cdRef.detectChanges();
   }
 
   getItemTotal(item: CartItemWithDetails): number {
@@ -586,7 +587,7 @@ export class CheckoutComponent implements OnInit {
       firstName: formValue.firstName,
       lastName: formValue.lastName,
       email: formValue.email,
-      address: { ...formValue.address },
+      address: {...formValue.address},
       billingAddress: null
     };
 
