@@ -26,16 +26,15 @@ import {OrdersAdminComponent} from './layout/orders/admin/orders-admin.component
 import {UnauthorizedComponent} from './layout/unauthorized/client/unauthorized.component';
 import {CategoriesAdminListComponent} from './layout/categories/admin/categories-admin-list.component';
 import {CategoriesAdminUpdateComponent} from './layout/categories/admin/categories-admin-update.component';
-import {
-  ProductsAdminCreateComponent
-} from './layout/products/admin/products-admin-create.component';
-import {
-  ProductsAdminUpdateComponent
-} from './layout/products/admin/products-admin-update.component';;
+import {ProductsAdminCreateComponent} from './layout/products/admin/products-admin-create.component';
+import {ProductsAdminUpdateComponent} from './layout/products/admin/products-admin-update.component';
 import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.component';
 import {TagsAdminUpdateComponent} from './layout/tags/admin/tags-admin-update.component';
 import {ProductDetailComponent} from './layout/products/products-detail.component';
 import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
+import {OrderDetailComponent} from './layout/orders/client/order-detail.component';
+
+;
 
 const routes: Routes = [
   // Public / authenticated client routes
@@ -49,11 +48,12 @@ const routes: Routes = [
   {path: 'products/:id', component: ProductDetailComponent},
   {path: 'mixing', component: MixingComponent},
   {path: 'cart', component: CartComponent},
+  {path: 'checkout', component: CheckoutComponent},
 
   // Client‑side pages (require login)
   {path: 'customer', component: CustomersComponent, canActivate: [AuthGuard]},
   {path: 'orders', component: OrdersComponent, canActivate: [AuthGuard]},
-  {path: 'checkout', component: CheckoutComponent},
+  {path: 'orders/:id', component: OrderDetailComponent, canActivate: [AuthGuard]},
   // {path: 'cart', component: CartComponent, canActivate: [AuthGuard]},
 
   // Admin routes (only for user_admin role)

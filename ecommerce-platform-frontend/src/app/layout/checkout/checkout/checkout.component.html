@@ -41,7 +41,7 @@
         <button mat-flat-button color="primary" class="btn-continue" (click)="continueShopping()">
           {{ 'CHECKOUT.CONTINUE_SHOPPING' | translate }}
         </button>
-        <button mat-flat-button color="accent" *ngIf="orderId" class="btn-view-order" (click)="viewOrder()">
+        <button mat-flat-button color="accent" *ngIf="orderId" type="button" class="btn-view-order" (click)="viewOrder()">
           {{ 'CHECKOUT.VIEW_ORDER' | translate }}
         </button>
       </div>

@@ -429,6 +429,7 @@ export class CheckoutComponent implements OnInit {
       this.updateItemQuantity(item, newQuantity);
     }
   }
+
   // Method to update item quantity and handle optimistic updates
   updateItemQuantity(item: CartItemWithDetails, newQuantity: number): void {
     // Optimistic update
@@ -669,6 +670,8 @@ export class CheckoutComponent implements OnInit {
   viewOrder(): void {
     if (this.orderId) {
       this.router.navigate(['/orders', this.orderId]);
+    } else {
+      this.router.navigate(['/orders']);
     }
   }
 
