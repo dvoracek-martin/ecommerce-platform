@@ -408,6 +408,18 @@ export class CheckoutComponent implements OnInit {
     }, 0);
   }
 
+  onQuantityInputChange(event: Event, index: number): void {
+    const input = event.target as HTMLInputElement;
+    const newQuantity = parseInt(input.value, 10);
+
+    if (isNaN(newQuantity) || newQuantity < 1) {
+      input.value = this.cartItems[index].quantity.toString();
+      return;
+    }
+
+    this.updateItemQuantity(this.cartItems[index], newQuantity);
+  }
+
   // New method to handle quantity changes on the review page
   changeQuantity(index: number, change: number): void {
     const item = this.cartItems[index];

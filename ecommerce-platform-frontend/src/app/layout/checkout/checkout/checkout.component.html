@@ -31,7 +31,6 @@
   <mat-card class="checkout-card">
     <mat-card-header *ngIf="orderComplete" class="order-success-header">
       <mat-card-title class="success-title">
-        <mat-icon class="title-icon">check_circle</mat-icon>
         {{ 'CHECKOUT.ORDER_SUCCESS' | translate }}
       </mat-card-title>
     </mat-card-header>
@@ -407,7 +406,12 @@
                     <button mat-icon-button (click)="changeQuantity(i, -1)" [disabled]="item.quantity === 1">
                       <mat-icon>remove</mat-icon>
                     </button>
-                    <span class="quantity-value">{{ item.quantity }}</span>
+                    <input type="number"
+                           [value]="item.quantity"
+                           min="1"
+                           (change)="onQuantityInputChange($event, i)"
+                           (keydown)="$event.stopPropagation()"
+                           class="quantity-input">
                     <button mat-icon-button (click)="changeQuantity(i, 1)">
                       <mat-icon>add</mat-icon>
                     </button>
