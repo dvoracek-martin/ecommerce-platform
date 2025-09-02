@@ -32,6 +32,9 @@ public class SecurityConfig {
     @Value("${global.controller.path.cart.base}")
     private String cartBasePath;
 
+    @Value("${global.controller.path.orders.base}")
+    private String orderBasePath;
+
     public SecurityConfig(JwtAuthConverter jwtAuthConverter) {
         this.jwtAuthConverter = jwtAuthConverter;
     }
@@ -49,16 +52,19 @@ public class SecurityConfig {
                         .pathMatchers(catalogBasePath + apiVersion + "/admin/**").hasRole("user_admin")
                         .pathMatchers(customerBasePath + apiVersion + "/admin/**").hasRole("user_admin")
                         .pathMatchers(cartBasePath + apiVersion + "/admin/**").hasRole("user_admin")
+                        .pathMatchers(orderBasePath + apiVersion + "/admin/**").hasRole("user_admin")
 
                         // 3. Permit all GET requests to non-admin paths after admin rules are applied
                         .pathMatchers(HttpMethod.GET, catalogBasePath + apiVersion + "/**").permitAll()
                         .pathMatchers(HttpMethod.GET, userBasePath + apiVersion + "/**").permitAll()
                         .pathMatchers(HttpMethod.GET, customerBasePath + apiVersion + "/**").permitAll()
                         .pathMatchers(HttpMethod.GET, cartBasePath + apiVersion + "/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, orderBasePath + apiVersion + "/**").permitAll()
 
 
                         // 4. Permit POST requests to non-admin paths in specific cases
                         .pathMatchers(HttpMethod.POST, catalogBasePath + apiVersion + "/mixtures").permitAll()
+                        .pathMatchers(HttpMethod.POST, userBasePath + apiVersion + "/create").permitAll()
 
                         // 5. Any other exchange requires authentication
                         .anyExchange().authenticated()

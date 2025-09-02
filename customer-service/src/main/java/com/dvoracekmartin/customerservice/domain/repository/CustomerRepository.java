@@ -7,4 +7,6 @@ public interface CustomerRepository extends JpaRepository<Customer, String> {
     Customer findByUsername(String username);
 
     boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
 }
