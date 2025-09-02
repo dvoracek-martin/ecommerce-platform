@@ -2,7 +2,7 @@ package com.dvoracek.cartservice.web.controller.v1;
 
 import com.dvoracek.cartservice.application.dto.discount.CreateDiscountDTO;
 import com.dvoracek.cartservice.application.dto.discount.ResponseDiscountDTO;
-import com.dvoracek.cartservice.application.service.CartService;
+import com.dvoracek.cartservice.domain.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;

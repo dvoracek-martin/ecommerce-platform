@@ -1,9 +1,9 @@
 package com.dvoracekmartin.catalogservice.application.elasticsearch.utils;
 
-import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
-import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
-import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
-import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
+import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.document.CategoryDocument;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.document.MixtureDocument;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.document.ProductDocument;

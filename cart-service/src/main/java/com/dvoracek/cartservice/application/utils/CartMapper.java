@@ -1,7 +1,7 @@
 package com.dvoracek.cartservice.application.utils;
 
-import com.dvoracek.cartservice.application.dto.cart.CartDTO;
-import com.dvoracek.cartservice.application.dto.cart.CartItemDTO;
+import com.dvoracekmartin.common.dto.cart.CartDTO;
+import com.dvoracekmartin.common.dto.cart.CartItemDTO;
 import com.dvoracek.cartservice.application.dto.discount.ResponseDiscountDTO;
 import com.dvoracek.cartservice.domain.model.cart.Cart;
 import com.dvoracek.cartservice.domain.model.cart.CartItem;

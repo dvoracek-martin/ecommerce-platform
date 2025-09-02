@@ -1,7 +1,7 @@
 package com.dvoracekmartin.catalogservice.application.dto.tag;
 
-import com.dvoracekmartin.catalogservice.application.dto.base.BaseCreateDTO;
-import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
+import com.dvoracekmartin.common.dto.base.BaseCreateDTO;
+import com.dvoracekmartin.common.dto.media.MediaDTO;
 import lombok.Data;
 
 import java.util.List;

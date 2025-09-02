@@ -1,5 +1,6 @@
 package com.dvoracek.cartservice.domain.model.cart;
 
+import com.dvoracekmartin.common.dto.cart.CartItemType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;

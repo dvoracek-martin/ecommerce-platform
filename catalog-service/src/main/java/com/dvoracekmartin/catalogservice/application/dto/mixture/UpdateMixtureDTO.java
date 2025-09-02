@@ -1,10 +1,8 @@
 package com.dvoracekmartin.catalogservice.application.dto.mixture;
 
-import com.dvoracekmartin.catalogservice.application.dto.base.BaseUpdateOrResponseDTO;
-import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
+import com.dvoracekmartin.common.dto.base.BaseUpdateOrResponseDTO;
+import com.dvoracekmartin.common.dto.media.MediaDTO;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 

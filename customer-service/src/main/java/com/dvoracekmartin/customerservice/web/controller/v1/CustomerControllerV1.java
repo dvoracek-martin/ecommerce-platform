@@ -1,12 +1,14 @@
 package com.dvoracekmartin.customerservice.web.controller.v1;
 
-import com.dvoracekmartin.customerservice.application.dto.ResponseCustomerDTO;
+import com.dvoracekmartin.common.dto.customer.ResponseCustomerDTO;
+import com.dvoracekmartin.customerservice.application.dto.CreateGuestCustomerDTO;
 import com.dvoracekmartin.customerservice.application.dto.UpdateCustomerDTO;
 import com.dvoracekmartin.customerservice.application.service.CustomerService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,6 +48,13 @@ public class CustomerControllerV1 {
         log.info("Deleting customer: {}", customerId);
         customerService.deleteCustomer(customerId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/guest")
+    public ResponseEntity<ResponseCustomerDTO> createGuestCustomer(@Valid @RequestBody CreateGuestCustomerDTO createGuestCustomerDTO) {
+        log.info("Creating guest customer");
+        ResponseCustomerDTO createdCustomer = customerService.createGuestCustomer(createGuestCustomerDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCustomer);
     }
 
     private void checkOwnership(String customerId) {

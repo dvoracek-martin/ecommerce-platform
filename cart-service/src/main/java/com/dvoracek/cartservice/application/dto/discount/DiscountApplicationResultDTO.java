@@ -1,6 +1,6 @@
 package com.dvoracek.cartservice.application.dto.discount;
 
-import com.dvoracek.cartservice.application.dto.cart.CartDTO;
+import com.dvoracekmartin.common.dto.cart.CartDTO;
 import lombok.Data;
 
 @Data

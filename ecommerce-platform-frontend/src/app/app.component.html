@@ -169,7 +169,7 @@
             </div>
 
             <div class="cart-footer">
-              <div class="cart-total">{{ cart?.totalPrice | currency:'USD':'symbol':'1.2-2' }}</div>
+              <div class="cart-total">{{ getCartTotal() | currency:'USD':'symbol':'1.2-2' }}</div>
               <button mat-flat-button color="primary"
                       (click)="goToCart(); $event.stopPropagation()">{{ 'CART.VIEW_CART' | translate }}
               </button>
@@ -247,9 +247,14 @@
             </div>
             <span>{{ 'MENU.CLIENT.PROFILE' | translate }}</span>
           </button>
-        </div>
 
-        <div class="modern-menu-section">
+          <button mat-menu-item (click)="navigateToOrders()" class="modern-menu-item">
+            <div class="modern-menu-icon-wrapper">
+              <mat-icon class="modern-menu-icon">list_alt</mat-icon>
+            </div>
+            <span>{{ 'MENU.ADMIN.ORDERS' | translate }}</span>
+          </button>
+
           <button mat-menu-item (click)="logout()" class="modern-menu-item logout-item">
             <div class="modern-menu-icon-wrapper">
               <mat-icon class="modern-menu-icon">logout</mat-icon>

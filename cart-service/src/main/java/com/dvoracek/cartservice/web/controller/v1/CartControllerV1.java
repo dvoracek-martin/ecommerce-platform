@@ -1,7 +1,7 @@
 package com.dvoracek.cartservice.web.controller.v1;
 
-import com.dvoracek.cartservice.application.dto.cart.CartDTO;
-import com.dvoracek.cartservice.application.service.CartService;
+import com.dvoracekmartin.common.dto.cart.CartDTO;
+import com.dvoracek.cartservice.domain.service.CartService;
 import com.dvoracek.cartservice.application.dto.discount.DiscountApplicationResultDTO;
 import com.dvoracek.cartservice.domain.model.cart.CartItem;
 import lombok.RequiredArgsConstructor;

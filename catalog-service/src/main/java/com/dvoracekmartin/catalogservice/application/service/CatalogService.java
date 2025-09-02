@@ -1,17 +1,17 @@
 package com.dvoracekmartin.catalogservice.application.service;
 
 import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategoryDTO;
-import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.UpdateCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
-import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.UpdateMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.CreateProductDTO;
-import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductStockDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
-import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
+import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.UpdateTagDTO;
 import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import jakarta.validation.Valid;

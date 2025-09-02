@@ -4,17 +4,14 @@ package com.dvoracek.cartservice.domain.model.cart;
 import com.dvoracek.cartservice.domain.model.discount.Discount;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @Table(indexes = {
         @Index(name = "ix_cart_username", columnList = "username", unique = true),

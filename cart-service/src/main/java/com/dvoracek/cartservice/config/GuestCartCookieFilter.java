@@ -53,7 +53,6 @@ public class GuestCartCookieFilter extends OncePerRequestFilter {
                 cookie.setHttpOnly(true);
                 cookie.setPath("/");
                 cookie.setMaxAge(MAX_AGE_SECONDS);
-                // SameSite=Lax (Spring neumí přímo – přidáme hlavičku ručně)
                 res.addCookie(cookie);
                 res.addHeader(HttpHeaders.SET_COOKIE,
                         GUEST_COOKIE + "=" + newId + "; Max-Age=" + MAX_AGE_SECONDS +

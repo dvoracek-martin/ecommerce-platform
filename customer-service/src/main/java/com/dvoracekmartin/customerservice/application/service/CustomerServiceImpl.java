@@ -1,8 +1,9 @@
 package com.dvoracekmartin.customerservice.application.service;
 
 import com.dvoracekmartin.customerservice.application.dto.CreateCustomerDTO;
+import com.dvoracekmartin.customerservice.application.dto.CreateGuestCustomerDTO;
 import com.dvoracekmartin.customerservice.application.dto.CustomerMapper;
-import com.dvoracekmartin.customerservice.application.dto.ResponseCustomerDTO;
+import com.dvoracekmartin.common.dto.customer.ResponseCustomerDTO;
 import com.dvoracekmartin.customerservice.application.dto.UpdateCustomerDTO;
 import com.dvoracekmartin.customerservice.domain.model.Customer;
 import com.dvoracekmartin.customerservice.domain.repository.CustomerRepository;
@@ -83,5 +84,28 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void deleteCustomer(String customerId) {
         customerRepository.deleteById(customerId);
+    }
+
+
+    @Override
+    @Transactional
+    public ResponseCustomerDTO createGuestCustomer(CreateGuestCustomerDTO createGuestCustomerDTO) {
+        // Check if customer with email already exists
+        if (customerRepository.existsByEmail(createGuestCustomerDTO.getEmail())) {
+            throw new IllegalArgumentException("Customer with this email already exists");
+        }
+
+        // Map DTO to Customer entity
+        Customer customer = customerMapper.createGuestCustomerDTOToCustomer(createGuestCustomerDTO);
+
+        // Set additional properties for guest customer
+        customer.setGuest(true);
+        customer.setActive(true);
+
+        // Save the customer
+        Customer savedCustomer = customerRepository.save(customer);
+
+        // Map to response DTO and return
+        return customerMapper.customerToResponseCustomerDTO(savedCustomer);
     }
 }

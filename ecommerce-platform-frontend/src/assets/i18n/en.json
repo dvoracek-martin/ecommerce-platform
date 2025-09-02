@@ -115,7 +115,10 @@
     "PAYPAL": "PayPal",
     "PAYPAL_DESC": "Fast and secure payment with PayPal",
     "BANK_TRANSFER": "Bank Transfer",
-    "BANK_TRANSFER_DESC": "Direct bank transfer"
+    "BANK_TRANSFER_DESC": "Direct bank transfer",
+    "EMPTY_CART_TITLE": "Your cart is empty",
+    "EMPTY_CART_MESSAGE": "You need to add some products to your cart before you can checkout."
+
   },
   "DIALOG": {
     "CONFIRM_DELETE_TITLE": "Confirm Deletion",

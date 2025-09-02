@@ -225,6 +225,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isPopupOpen = false;
   }
 
+  getCartTotal(): number {
+    return this.cartItemsWithDetails.reduce((total, item) => {
+      return total + this.getItemTotal(item);
+    }, 0);
+  }
+
   listenToCartChanges(): void {
     this.cartSubscription = this.cartService.getCart().pipe(
       switchMap(cart => {
@@ -260,8 +266,8 @@ export class AppComponent implements OnInit, OnDestroy {
             const existingItem = this.cartItemsWithDetails.find(i => i.itemId === item.itemId);
             return {
               ...item,
-              optimisticQuantity: existingItem?.optimisticQuantity || item.quantity,
-              updating: existingItem?.updating || false
+              optimisticQuantity: existingItem?.optimisticQuantity ?? item.quantity,
+              updating: existingItem?.updating ?? false
             };
           }))
         );
@@ -274,7 +280,6 @@ export class AppComponent implements OnInit, OnDestroy {
       this.cartItemsWithDetails = [];
     });
   }
-
   onCartButtonMouseEnter(): void {
     this.cancelCloseCartPreview();
     this.isCartPreviewOpen = true;
@@ -443,5 +448,9 @@ export class AppComponent implements OnInit, OnDestroy {
     const quantity = item.optimisticQuantity !== undefined ? item.optimisticQuantity : item.quantity;
     const price = item.product?.price || item.mixture?.price || 0;
     return price * quantity;
+  }
+
+  navigateToOrders() {
+    this.router.navigate(['/orders']);
   }
 }

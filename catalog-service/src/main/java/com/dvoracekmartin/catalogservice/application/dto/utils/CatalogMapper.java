@@ -1,13 +1,13 @@
 package com.dvoracekmartin.catalogservice.application.dto.utils;
 
-import com.dvoracekmartin.catalogservice.application.dto.category.ResponseCategoryDTO;
-import com.dvoracekmartin.catalogservice.application.dto.media.MediaDTO;
+import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.common.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
-import com.dvoracekmartin.catalogservice.application.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.UpdateMixtureDTO;
-import com.dvoracekmartin.catalogservice.application.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
-import com.dvoracekmartin.catalogservice.application.dto.tag.ResponseTagDTO;
+import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.domain.model.Category;
 import com.dvoracekmartin.catalogservice.domain.model.Mixture;
 import com.dvoracekmartin.catalogservice.domain.model.Product;

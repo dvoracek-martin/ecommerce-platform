@@ -1,0 +1,17 @@
+package com.dvoracekmartin.orderservice.application.dto;
+
+import com.dvoracekmartin.common.dto.cart.CartItemDTO;
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+public class OrderRequest {
+    private String customerId;
+    private List<CartItemDTO> items;
+    private Double shippingCost;
+    private Double cartTotal;
+    private Double finalTotal;
+    private String shippingMethod;
+    private String paymentMethod;
+}

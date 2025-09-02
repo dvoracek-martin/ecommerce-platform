@@ -1,498 +1,529 @@
 <div class="checkout-container">
-  <div class="checkout-progress">
-    <div class="progress-steps">
-      <div class="step" [class.active]="currentStep === 1 && !orderComplete"
-           [class.completed]="currentStep > 1 || orderComplete">
-        <div class="step-number">1</div>
-        <div class="step-label">{{ 'CHECKOUT.USER_INFO' | translate }}</div>
-      </div>
-      <div class="step-connector" [class.completed]="currentStep > 1 || orderComplete"></div>
-      <div class="step" [class.active]="currentStep === 2 && !orderComplete"
-           [class.completed]="currentStep > 2 || orderComplete">
-        <div class="step-number">2</div>
-        <div class="step-label">{{ 'CHECKOUT.SHIPPING_PAYMENT' | translate }}</div>
-      </div>
-      <div class="step-connector" [class.completed]="currentStep > 2 || orderComplete"></div>
-      <div class="step" [class.active]="currentStep === 3 && !orderComplete"
-           [class.completed]="currentStep > 3 || orderComplete">
-        <div class="step-number">3</div>
-        <div class="step-label">{{ 'CHECKOUT.REVIEW' | translate }}</div>
-      </div>
-      <div class="step-connector" [class.completed]="currentStep > 3 || orderComplete"></div>
-      <div class="step" [class.active]="currentStep === 4 || orderComplete"
-           [class.completed]="orderComplete">
-        <div class="step-number">4</div>
-        <div class="step-label">{{ 'CHECKOUT.CONFIRMATION' | translate }}</div>
+  <!-- Empty Cart Message -->
+  <div *ngIf="isCartEmpty && currentStep !== 4" class="empty-cart-message">
+    <mat-card class="empty-cart-card light-theme-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>remove_shopping_cart</mat-icon>
+          {{ 'CHECKOUT.EMPTY_CART_TITLE' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ 'CHECKOUT.EMPTY_CART_MESSAGE' | translate }}</p>
+      </mat-card-content>
+      <mat-card-actions class="empty-cart-actions">
+        <button mat-flat-button color="primary" (click)="continueShopping()">
+          {{ 'CHECKOUT.CONTINUE_SHOPPING' | translate }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!isCartEmpty">
+    <div class="checkout-progress">
+      <div class="progress-steps">
+        <div class="step" [class.active]="currentStep === 1 && !orderComplete"
+             [class.completed]="currentStep > 1 || orderComplete">
+          <div class="step-number">1</div>
+          <div class="step-label">{{ 'CHECKOUT.USER_INFO' | translate }}</div>
+        </div>
+        <div class="step-connector" [class.completed]="currentStep > 1 || orderComplete"></div>
+        <div class="step" [class.active]="currentStep === 2 && !orderComplete"
+             [class.completed]="currentStep > 2 || orderComplete">
+          <div class="step-number">2</div>
+          <div class="step-label">{{ 'CHECKOUT.SHIPPING_PAYMENT' | translate }}</div>
+        </div>
+        <div class="step-connector" [class.completed]="currentStep > 2 || orderComplete"></div>
+        <div class="step" [class.active]="currentStep === 3 && !orderComplete"
+             [class.completed]="currentStep > 3 || orderComplete">
+          <div class="step-number">3</div>
+          <div class="step-label">{{ 'CHECKOUT.REVIEW' | translate }}</div>
+        </div>
+        <div class="step-connector" [class.completed]="currentStep > 3 || orderComplete"></div>
+        <div class="step" [class.active]="currentStep === 4 || orderComplete"
+             [class.completed]="orderComplete">
+          <div class="step-number">4</div>
+          <div class="step-label">{{ 'CHECKOUT.CONFIRMATION' | translate }}</div>
+        </div>
       </div>
     </div>
   </div>
 
+  <div *ngIf="!isCartEmpty">
+    <mat-card class="checkout-card">
+      <mat-card-header *ngIf="orderComplete" class="order-success-header">
+        <mat-card-title class="success-title">
+          {{ 'CHECKOUT.ORDER_SUCCESS' | translate }}
+        </mat-card-title>
+      </mat-card-header>
 
-  <mat-card class="checkout-card">
-    <mat-card-header *ngIf="orderComplete" class="order-success-header">
-      <mat-card-title class="success-title">
-        {{ 'CHECKOUT.ORDER_SUCCESS' | translate }}
-      </mat-card-title>
-    </mat-card-header>
+      <mat-card-content *ngIf="orderComplete" class="order-success-content">
+        <p>{{ 'CHECKOUT.ORDER_SUCCESS_MESSAGE' | translate }}</p>
+        <div class="order-actions">
+          <button mat-flat-button color="primary" class="btn-continue" (click)="continueShopping()">
+            {{ 'CHECKOUT.CONTINUE_SHOPPING' | translate }}
+          </button>
+          <button mat-flat-button color="accent" *ngIf="orderId" type="button" class="btn-view-order"
+                  (click)="viewOrder()">
+            {{ 'CHECKOUT.VIEW_ORDER' | translate }}
+          </button>
+        </div>
+      </mat-card-content>
 
-    <mat-card-content *ngIf="orderComplete" class="order-success-content">
-      <p>{{ 'CHECKOUT.ORDER_SUCCESS_MESSAGE' | translate }}</p>
-      <div class="order-actions">
-        <button mat-flat-button color="primary" class="btn-continue" (click)="continueShopping()">
-          {{ 'CHECKOUT.CONTINUE_SHOPPING' | translate }}
-        </button>
-        <button mat-flat-button color="accent" *ngIf="orderId" type="button" class="btn-view-order" (click)="viewOrder()">
-          {{ 'CHECKOUT.VIEW_ORDER' | translate }}
-        </button>
-      </div>
-    </mat-card-content>
+      <mat-card-content *ngIf="!orderComplete" class="checkout-steps-content">
+        <form [formGroup]="customerForm">
+          <div *ngIf="currentStep === 1" class="checkout-step">
+            <h2 class="step-title">{{ 'CHECKOUT.USER_INFORMATION' | translate }}</h2>
 
-    <mat-card-content *ngIf="!orderComplete" class="checkout-steps-content">
-      <form [formGroup]="customerForm">
-        <div *ngIf="currentStep === 1" class="checkout-step">
-          <h2 class="step-title">{{ 'CHECKOUT.USER_INFORMATION' | translate }}</h2>
-
-          <div *ngIf="!isLoggedIn" class="login-prompt">
-            <h3>{{ 'CHECKOUT.LOGIN_PROMPT' | translate }}</h3>
-            <p>{{ 'CHECKOUT.LOGIN_BENEFITS' | translate }}</p>
-            <button mat-flat-button color="primary" class="btn-login" (click)="openAuthPopup()">
-              {{ 'AUTH.LOGIN' | translate }}
-            </button>
-            <mat-divider class="separator">
-              <span>{{ 'CHECKOUT.OR' | translate }}</span>
-            </mat-divider>
-          </div>
-
-          <div class="form-grid">
-            <div class="form-section">
-              <h3 class="section-subtitle">
-                <mat-icon>badge</mat-icon>
-                {{ 'CHECKOUT.BASIC_INFO' | translate }}
-              </h3>
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'CHECKOUT.FIRST_NAME' | translate }}</mat-label>
-                  <input matInput formControlName="firstName" required>
-                  <mat-icon matSuffix>person</mat-icon>
-                  <mat-error
-                    *ngIf="customerForm.get('firstName')?.hasError('required') && customerForm.get('firstName')?.dirty">
-                    {{ 'CHECKOUT.FIRST_NAME_REQUIRED' | translate }}
-                  </mat-error>
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'CHECKOUT.LAST_NAME' | translate }}</mat-label>
-                  <input matInput formControlName="lastName" required>
-                  <mat-icon matSuffix>people</mat-icon>
-                  <mat-error
-                    *ngIf="customerForm.get('lastName')?.hasError('required') && customerForm.get('lastName')?.dirty">
-                    {{ 'CHECKOUT.LAST_NAME_REQUIRED' | translate }}
-                  </mat-error>
-                </mat-form-field>
-              </div>
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'CHECKOUT.EMAIL' | translate }}</mat-label>
-                  <input matInput type="email" formControlName="email" required>
-                  <mat-icon matSuffix>email</mat-icon>
-                  <mat-error
-                    *ngIf="customerForm.get('email')?.hasError('required') && customerForm.get('email')?.dirty">
-                    {{ 'CHECKOUT.EMAIL_REQUIRED' | translate }}
-                  </mat-error>
-                  <mat-error *ngIf="customerForm.get('email')?.hasError('email') && customerForm.get('email')?.dirty">
-                    {{ 'CHECKOUT.EMAIL_INVALID' | translate }}
-                  </mat-error>
-                </mat-form-field>
-              </div>
+            <div *ngIf="!isLoggedIn" class="login-prompt">
+              <h3>{{ 'CHECKOUT.LOGIN_PROMPT' | translate }}</h3>
+              <p>{{ 'CHECKOUT.LOGIN_BENEFITS' | translate }}</p>
+              <button mat-flat-button color="primary" class="btn-login" (click)="openAuthPopup()">
+                {{ 'AUTH.LOGIN' | translate }}
+              </button>
+              <mat-divider class="separator">
+                <span>{{ 'CHECKOUT.OR' | translate }}</span>
+              </mat-divider>
             </div>
 
-            <div class="form-section" formGroupName="address">
-              <h3 class="section-subtitle">
-                <mat-icon>location_on</mat-icon>
-                {{ 'CHECKOUT.SHIPPING_ADDRESS' | translate }}
-              </h3>
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'CHECKOUT.PHONE' | translate }}</mat-label>
-                  <input matInput type="tel" formControlName="phone" required>
-                  <mat-icon matSuffix>phone</mat-icon>
-                  <mat-error
-                    *ngIf="customerForm.get('address.phone')?.hasError('required') && customerForm.get('address.phone')?.dirty">
-                    {{ 'CHECKOUT.PHONE_REQUIRED' | translate }}
-                  </mat-error>
-                  <mat-error
-                    *ngIf="customerForm.get('address.phone')?.hasError('pattern') && customerForm.get('address.phone')?.dirty">
-                    {{ 'CHECKOUT.PHONE_INVALID' | translate }}
-                  </mat-error>
-                </mat-form-field>
-              </div>
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'CHECKOUT.STREET' | translate }}</mat-label>
-                  <input matInput formControlName="street" required>
-                  <mat-icon matSuffix>home</mat-icon>
-                  <mat-error
-                    *ngIf="customerForm.get('address.street')?.hasError('required') && customerForm.get('address.street')?.dirty">
-                    {{ 'CHECKOUT.STREET_REQUIRED' | translate }}
-                  </mat-error>
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'CHECKOUT.HOUSE_NUMBER' | translate }}</mat-label>
-                  <input matInput formControlName="houseNumber" required>
-                  <mat-icon matSuffix>numbers</mat-icon>
-                  <mat-error
-                    *ngIf="customerForm.get('address.houseNumber')?.hasError('required') && customerForm.get('address.houseNumber')?.dirty">
-                    {{ 'CHECKOUT.HOUSE_NUMBER_REQUIRED' | translate }}
-                  </mat-error>
-                </mat-form-field>
-              </div>
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'CHECKOUT.CITY' | translate }}</mat-label>
-                  <input matInput formControlName="city" required>
-                  <mat-icon matSuffix>location_city</mat-icon>
-                  <mat-error
-                    *ngIf="customerForm.get('address.city')?.hasError('required') && customerForm.get('address.city')?.dirty">
-                    {{ 'CHECKOUT.CITY_REQUIRED' | translate }}
-                  </mat-error>
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'CHECKOUT.ZIP_CODE' | translate }}</mat-label>
-                  <input matInput formControlName="zipCode" required>
-                  <mat-icon matSuffix>pin</mat-icon>
-                  <mat-error
-                    *ngIf="customerForm.get('address.zipCode')?.hasError('required') && customerForm.get('address.zipCode')?.dirty">
-                    {{ 'CHECKOUT.ZIP_CODE_REQUIRED' | translate }}
-                  </mat-error>
-                  <mat-error
-                    *ngIf="customerForm.get('address.zipCode')?.hasError('pattern') && customerForm.get('address.zipCode')?.dirty">
-                    {{ 'CHECKOUT.ZIP_CODE_INVALID' | translate }}
-                  </mat-error>
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'CHECKOUT.COUNTRY' | translate }}</mat-label>
-                  <mat-select formControlName="country" required>
-                    <mat-option value="">{{ 'CHECKOUT.SELECT_COUNTRY' | translate }}</mat-option>
-                    <mat-option value="Switzerland">
-                      <mat-icon class="flag-icon" svgIcon="flag_ch"></mat-icon>
-                      Switzerland
-                    </mat-option>
-                  </mat-select>
-                  <mat-error
-                    *ngIf="customerForm.get('address.country')?.hasError('required') && customerForm.get('address.country')?.dirty">
-                    {{ 'CHECKOUT.COUNTRY_REQUIRED' | translate }}
-                  </mat-error>
-                </mat-form-field>
-              </div>
-            </div>
-
-            <div class="form-section">
-              <mat-checkbox formControlName="sameBillingAddress" class="same-billing-checkbox">
-                {{ 'CHECKOUT.SAME_BILLING_ADDRESS' | translate }}
-              </mat-checkbox>
-            </div>
-
-            <div *ngIf="showBillingAddress" @slideDown class="billing-address-section">
-              <h3 class="section-subtitle">
-                <mat-icon>business</mat-icon>
-                {{ 'CHECKOUT.BILLING_ADDRESS' | translate }}
-              </h3>
-              <div class="form-grid" formGroupName="billingAddress">
+            <div class="form-grid">
+              <div class="form-section">
+                <h3 class="section-subtitle">
+                  <mat-icon>badge</mat-icon>
+                  {{ 'CHECKOUT.BASIC_INFO' | translate }}
+                </h3>
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CHECKOUT.FIRST_NAME' | translate }}</mat-label>
-                    <input matInput formControlName="firstName">
+                    <input matInput formControlName="firstName" required>
                     <mat-icon matSuffix>person</mat-icon>
                     <mat-error
-                      *ngIf="customerForm.get('billingAddress.firstName')?.hasError('required') && customerForm.get('billingAddress.firstName')?.dirty">
+                      *ngIf="customerForm.get('firstName')?.hasError('required') && customerForm.get('firstName')?.dirty">
                       {{ 'CHECKOUT.FIRST_NAME_REQUIRED' | translate }}
                     </mat-error>
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CHECKOUT.LAST_NAME' | translate }}</mat-label>
-                    <input matInput formControlName="lastName">
+                    <input matInput formControlName="lastName" required>
                     <mat-icon matSuffix>people</mat-icon>
                     <mat-error
-                      *ngIf="customerForm.get('billingAddress.lastName')?.hasError('required') && customerForm.get('billingAddress.lastName')?.dirty">
+                      *ngIf="customerForm.get('lastName')?.hasError('required') && customerForm.get('lastName')?.dirty">
                       {{ 'CHECKOUT.LAST_NAME_REQUIRED' | translate }}
                     </mat-error>
                   </mat-form-field>
                 </div>
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field">
-                    <mat-label>{{ 'CHECKOUT.PHONE' | translate }}</mat-label>
-                    <input matInput type="tel" formControlName="phone">
-                    <mat-icon matSuffix>phone</mat-icon>
+                    <mat-label>{{ 'CHECKOUT.EMAIL' | translate }}</mat-label>
+                    <input matInput type="email" formControlName="email" required>
+                    <mat-icon matSuffix>email</mat-icon>
                     <mat-error
-                      *ngIf="customerForm.get('billingAddress.phone')?.hasError('pattern') && customerForm.get('billingAddress.phone')?.dirty">
-                      {{ 'CHECKOUT.PHONE_INVALID' | translate }}
+                      *ngIf="customerForm.get('email')?.hasError('required') && customerForm.get('email')?.dirty">
+                      {{ 'CHECKOUT.EMAIL_REQUIRED' | translate }}
                     </mat-error>
-                    <mat-error
-                      *ngIf="customerForm.get('billingAddress.phone')?.hasError('required') && customerForm.get('billingAddress.phone')?.dirty">
-                      {{ 'CHECKOUT.PHONE_REQUIRED' | translate }}
+                    <mat-error *ngIf="customerForm.get('email')?.hasError('email') && customerForm.get('email')?.dirty">
+                      {{ 'CHECKOUT.EMAIL_INVALID' | translate }}
                     </mat-error>
-                  </mat-form-field>
-                  <mat-form-field appearance="outline" class="form-field">
-                    <mat-label>{{ 'CHECKOUT.COMPANY_NAME' | translate }}</mat-label>
-                    <input matInput formControlName="companyName">
-                    <mat-icon matSuffix>business</mat-icon>
                   </mat-form-field>
                 </div>
+              </div>
+
+              <div class="form-section" formGroupName="address">
+                <h3 class="section-subtitle">
+                  <mat-icon>location_on</mat-icon>
+                  {{ 'CHECKOUT.SHIPPING_ADDRESS' | translate }}
+                </h3>
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field">
-                    <mat-label>{{ 'CHECKOUT.TAX_ID' | translate }}</mat-label>
-                    <input matInput formControlName="taxId">
-                    <mat-icon matSuffix>badge</mat-icon>
+                    <mat-label>{{ 'CHECKOUT.PHONE' | translate }}</mat-label>
+                    <input matInput type="tel" formControlName="phone" required>
+                    <mat-icon matSuffix>phone</mat-icon>
                     <mat-error
-                      *ngIf="customerForm.get('billingAddress.taxId')?.hasError('pattern') && customerForm.get('billingAddress.taxId')?.dirty">
-                      {{ 'CHECKOUT.TAX_ID_INVALID' | translate }}
+                      *ngIf="customerForm.get('address.phone')?.hasError('required') && customerForm.get('address.phone')?.dirty">
+                      {{ 'CHECKOUT.PHONE_REQUIRED' | translate }}
+                    </mat-error>
+                    <mat-error
+                      *ngIf="customerForm.get('address.phone')?.hasError('pattern') && customerForm.get('address.phone')?.dirty">
+                      {{ 'CHECKOUT.PHONE_INVALID' | translate }}
                     </mat-error>
                   </mat-form-field>
                 </div>
-
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CHECKOUT.STREET' | translate }}</mat-label>
-                    <input matInput formControlName="street">
+                    <input matInput formControlName="street" required>
                     <mat-icon matSuffix>home</mat-icon>
                     <mat-error
-                      *ngIf="customerForm.get('billingAddress.street')?.hasError('required') && customerForm.get('billingAddress.street')?.dirty">
+                      *ngIf="customerForm.get('address.street')?.hasError('required') && customerForm.get('address.street')?.dirty">
                       {{ 'CHECKOUT.STREET_REQUIRED' | translate }}
                     </mat-error>
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CHECKOUT.HOUSE_NUMBER' | translate }}</mat-label>
-                    <input matInput formControlName="houseNumber">
+                    <input matInput formControlName="houseNumber" required>
                     <mat-icon matSuffix>numbers</mat-icon>
                     <mat-error
-                      *ngIf="customerForm.get('billingAddress.houseNumber')?.hasError('required') && customerForm.get('billingAddress.houseNumber')?.dirty">
+                      *ngIf="customerForm.get('address.houseNumber')?.hasError('required') && customerForm.get('address.houseNumber')?.dirty">
                       {{ 'CHECKOUT.HOUSE_NUMBER_REQUIRED' | translate }}
                     </mat-error>
                   </mat-form-field>
                 </div>
-
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CHECKOUT.CITY' | translate }}</mat-label>
-                    <input matInput formControlName="city">
+                    <input matInput formControlName="city" required>
                     <mat-icon matSuffix>location_city</mat-icon>
                     <mat-error
-                      *ngIf="customerForm.get('billingAddress.city')?.hasError('required') && customerForm.get('billingAddress.city')?.dirty">
+                      *ngIf="customerForm.get('address.city')?.hasError('required') && customerForm.get('address.city')?.dirty">
                       {{ 'CHECKOUT.CITY_REQUIRED' | translate }}
                     </mat-error>
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CHECKOUT.ZIP_CODE' | translate }}</mat-label>
-                    <input matInput formControlName="zipCode">
+                    <input matInput formControlName="zipCode" required>
                     <mat-icon matSuffix>pin</mat-icon>
                     <mat-error
-                      *ngIf="customerForm.get('billingAddress.zipCode')?.hasError('required') && customerForm.get('billingAddress.zipCode')?.dirty">
+                      *ngIf="customerForm.get('address.zipCode')?.hasError('required') && customerForm.get('address.zipCode')?.dirty">
                       {{ 'CHECKOUT.ZIP_CODE_REQUIRED' | translate }}
                     </mat-error>
                     <mat-error
-                      *ngIf="customerForm.get('billingAddress.zipCode')?.hasError('pattern') && customerForm.get('billingAddress.zipCode')?.dirty">
+                      *ngIf="customerForm.get('address.zipCode')?.hasError('pattern') && customerForm.get('address.zipCode')?.dirty">
                       {{ 'CHECKOUT.ZIP_CODE_INVALID' | translate }}
                     </mat-error>
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CHECKOUT.COUNTRY' | translate }}</mat-label>
-                    <mat-select formControlName="country">
+                    <mat-select formControlName="country" required>
                       <mat-option value="">{{ 'CHECKOUT.SELECT_COUNTRY' | translate }}</mat-option>
                       <mat-option value="Switzerland">
                         <mat-icon class="flag-icon" svgIcon="flag_ch"></mat-icon>
                         Switzerland
                       </mat-option>
-                      <mat-option value="US">{{ 'COUNTRIES.US' | translate }}</mat-option>
-                      <mat-option value="UK">{{ 'COUNTRIES.UK' | translate }}</mat-option>
-                      <mat-option value="DE">{{ 'COUNTRIES.GERMANY' | translate }}</mat-option>
                     </mat-select>
                     <mat-error
-                      *ngIf="customerForm.get('billingAddress.country')?.hasError('required') && customerForm.get('billingAddress.country')?.dirty">
+                      *ngIf="customerForm.get('address.country')?.hasError('required') && customerForm.get('address.country')?.dirty">
                       {{ 'CHECKOUT.COUNTRY_REQUIRED' | translate }}
                     </mat-error>
                   </mat-form-field>
                 </div>
               </div>
+
+              <div class="form-section">
+                <mat-checkbox formControlName="sameBillingAddress" class="same-billing-checkbox">
+                  {{ 'CHECKOUT.SAME_BILLING_ADDRESS' | translate }}
+                </mat-checkbox>
+              </div>
+
+              <div *ngIf="showBillingAddress" @slideDown class="billing-address-section">
+                <h3 class="section-subtitle">
+                  <mat-icon>business</mat-icon>
+                  {{ 'CHECKOUT.BILLING_ADDRESS' | translate }}
+                </h3>
+                <div class="form-grid" formGroupName="billingAddress">
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>{{ 'CHECKOUT.FIRST_NAME' | translate }}</mat-label>
+                      <input matInput formControlName="firstName">
+                      <mat-icon matSuffix>person</mat-icon>
+                      <mat-error
+                        *ngIf="customerForm.get('billingAddress.firstName')?.hasError('required') && customerForm.get('billingAddress.firstName')?.dirty">
+                        {{ 'CHECKOUT.FIRST_NAME_REQUIRED' | translate }}
+                      </mat-error>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>{{ 'CHECKOUT.LAST_NAME' | translate }}</mat-label>
+                      <input matInput formControlName="lastName">
+                      <mat-icon matSuffix>people</mat-icon>
+                      <mat-error
+                        *ngIf="customerForm.get('billingAddress.lastName')?.hasError('required') && customerForm.get('billingAddress.lastName')?.dirty">
+                        {{ 'CHECKOUT.LAST_NAME_REQUIRED' | translate }}
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>{{ 'CHECKOUT.PHONE' | translate }}</mat-label>
+                      <input matInput type="tel" formControlName="phone">
+                      <mat-icon matSuffix>phone</mat-icon>
+                      <mat-error
+                        *ngIf="customerForm.get('billingAddress.phone')?.hasError('pattern') && customerForm.get('billingAddress.phone')?.dirty">
+                        {{ 'CHECKOUT.PHONE_INVALID' | translate }}
+                      </mat-error>
+                      <mat-error
+                        *ngIf="customerForm.get('billingAddress.phone')?.hasError('required') && customerForm.get('billingAddress.phone')?.dirty">
+                        {{ 'CHECKOUT.PHONE_REQUIRED' | translate }}
+                      </mat-error>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>{{ 'CHECKOUT.COMPANY_NAME' | translate }}</mat-label>
+                      <input matInput formControlName="companyName">
+                      <mat-icon matSuffix>business</mat-icon>
+                    </mat-form-field>
+                  </div>
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>{{ 'CHECKOUT.TAX_ID' | translate }}</mat-label>
+                      <input matInput formControlName="taxId">
+                      <mat-icon matSuffix>badge</mat-icon>
+                      <mat-error
+                        *ngIf="customerForm.get('billingAddress.taxId')?.hasError('pattern') && customerForm.get('billingAddress.taxId')?.dirty">
+                        {{ 'CHECKOUT.TAX_ID_INVALID' | translate }}
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>{{ 'CHECKOUT.STREET' | translate }}</mat-label>
+                      <input matInput formControlName="street">
+                      <mat-icon matSuffix>home</mat-icon>
+                      <mat-error
+                        *ngIf="customerForm.get('billingAddress.street')?.hasError('required') && customerForm.get('billingAddress.street')?.dirty">
+                        {{ 'CHECKOUT.STREET_REQUIRED' | translate }}
+                      </mat-error>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>{{ 'CHECKOUT.HOUSE_NUMBER' | translate }}</mat-label>
+                      <input matInput formControlName="houseNumber">
+                      <mat-icon matSuffix>numbers</mat-icon>
+                      <mat-error
+                        *ngIf="customerForm.get('billingAddress.houseNumber')?.hasError('required') && customerForm.get('billingAddress.houseNumber')?.dirty">
+                        {{ 'CHECKOUT.HOUSE_NUMBER_REQUIRED' | translate }}
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>{{ 'CHECKOUT.CITY' | translate }}</mat-label>
+                      <input matInput formControlName="city">
+                      <mat-icon matSuffix>location_city</mat-icon>
+                      <mat-error
+                        *ngIf="customerForm.get('billingAddress.city')?.hasError('required') && customerForm.get('billingAddress.city')?.dirty">
+                        {{ 'CHECKOUT.CITY_REQUIRED' | translate }}
+                      </mat-error>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>{{ 'CHECKOUT.ZIP_CODE' | translate }}</mat-label>
+                      <input matInput formControlName="zipCode">
+                      <mat-icon matSuffix>pin</mat-icon>
+                      <mat-error
+                        *ngIf="customerForm.get('billingAddress.zipCode')?.hasError('required') && customerForm.get('billingAddress.zipCode')?.dirty">
+                        {{ 'CHECKOUT.ZIP_CODE_REQUIRED' | translate }}
+                      </mat-error>
+                      <mat-error
+                        *ngIf="customerForm.get('billingAddress.zipCode')?.hasError('pattern') && customerForm.get('billingAddress.zipCode')?.dirty">
+                        {{ 'CHECKOUT.ZIP_CODE_INVALID' | translate }}
+                      </mat-error>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>{{ 'CHECKOUT.COUNTRY' | translate }}</mat-label>
+                      <mat-select formControlName="country">
+                        <mat-option value="">{{ 'CHECKOUT.SELECT_COUNTRY' | translate }}</mat-option>
+                        <mat-option value="Switzerland">
+                          <mat-icon class="flag-icon" svgIcon="flag_ch"></mat-icon>
+                          Switzerland
+                        </mat-option>
+                        <mat-option value="US">{{ 'COUNTRIES.US' | translate }}</mat-option>
+                        <mat-option value="UK">{{ 'COUNTRIES.UK' | translate }}</mat-option>
+                        <mat-option value="DE">{{ 'COUNTRIES.GERMANY' | translate }}</mat-option>
+                      </mat-select>
+                      <mat-error
+                        *ngIf="customerForm.get('billingAddress.country')?.hasError('required') && customerForm.get('billingAddress.country')?.dirty">
+                        {{ 'CHECKOUT.COUNTRY_REQUIRED' | translate }}
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions align-right">
+                <button mat-flat-button color="primary" type="button" class="btn-next"
+                        (click)="nextStep()" [disabled]="!isCurrentStepValid()">
+                  {{ 'CHECKOUT.CONTINUE_TO_SHIPPING' | translate }}
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="currentStep === 2" class="checkout-step">
+            <h2 class="step-title">{{ 'CHECKOUT.SHIPPING_PAYMENT' | translate }}</h2>
+
+            <div class="method-section">
+              <h3 class="section-subtitle">
+                <mat-icon>local_shipping</mat-icon>
+                {{ 'CHECKOUT.SHIPPING_METHOD' | translate }}
+              </h3>
+              <mat-radio-group formControlName="shippingMethod" class="method-cards">
+                <div *ngFor="let method of shippingMethods" class="method-card"
+                     [class.selected]="selectedShippingMethod === method.id"
+                     (click)="selectShippingMethod(method.id)">
+                  <div class="method-icon">
+                    <mat-icon>local_shipping</mat-icon>
+                  </div>
+                  <div class="method-details">
+                    <h4>{{ method.name | translate }}</h4>
+                    <p>{{ method.deliveryTime | translate }}</p>
+                    <div class="method-price">{{ method.price | currency }}</div>
+                  </div>
+                  <div class="method-select">
+                    <mat-radio-button [value]="method.id"></mat-radio-button>
+                  </div>
+                </div>
+              </mat-radio-group>
             </div>
 
-            <div class="form-actions align-right">
-              <button mat-flat-button color="primary" type="button" class="btn-next"
-                      (click)="nextStep()" [disabled]="!isCurrentStepValid()">
-                {{ 'CHECKOUT.CONTINUE_TO_SHIPPING' | translate }}
+            <div class="method-section">
+              <h3 class="section-subtitle">
+                <mat-icon>credit_card</mat-icon>
+                {{ 'CHECKOUT.PAYMENT_METHOD' | translate }}
+              </h3>
+              <mat-radio-group formControlName="paymentMethod" class="method-cards">
+                <div *ngFor="let method of paymentMethods" class="method-card"
+                     [class.selected]="selectedPaymentMethod === method.id"
+                     (click)="selectPaymentMethod(method.id)">
+                  <div class="method-icon">
+                    <mat-icon>credit_card</mat-icon>
+                  </div>
+                  <div class="method-details">
+                    <h4>{{ method.name | translate }}</h4>
+                    <p>{{ method.name | translate }} description</p>
+                  </div>
+                  <div class="method-select">
+                    <mat-radio-button [value]="method.id"></mat-radio-button>
+                  </div>
+                </div>
+              </mat-radio-group>
+            </div>
+
+            <div class="form-actions space-between">
+              <button mat-flat-button class="btn-back" (click)="prevStep()">
+                <mat-icon>arrow_back</mat-icon>
+                {{ 'CHECKOUT.BACK' | translate }}
+              </button>
+              <button mat-flat-button color="primary" type="button" class="btn-next" (click)="nextStep()"
+                      [disabled]="!isCurrentStepValid()">
+                {{ 'CHECKOUT.CONTINUE_TO_REVIEW' | translate }}
                 <mat-icon>arrow_forward</mat-icon>
               </button>
             </div>
           </div>
-        </div>
 
-        <div *ngIf="currentStep === 2" class="checkout-step">
-          <h2 class="step-title">{{ 'CHECKOUT.SHIPPING_PAYMENT' | translate }}</h2>
+          <div *ngIf="currentStep === 3" class="checkout-step">
+            <h2 class="step-title">{{ 'CHECKOUT.REVIEW_ORDER' | translate }}</h2>
 
-          <div class="method-section">
-            <h3 class="section-subtitle">
-              <mat-icon>local_shipping</mat-icon>
-              {{ 'CHECKOUT.SHIPPING_METHOD' | translate }}
-            </h3>
-            <mat-radio-group formControlName="shippingMethod" class="method-cards">
-              <div *ngFor="let method of shippingMethods" class="method-card"
-                   [class.selected]="selectedShippingMethod === method.id"
-                   (click)="selectShippingMethod(method.id)">
-                <div class="method-icon">
-                  <mat-icon>local_shipping</mat-icon>
-                </div>
-                <div class="method-details">
-                  <h4>{{ method.name | translate }}</h4>
-                  <p>{{ method.deliveryTime | translate }}</p>
-                  <div class="method-price">{{ method.price | currency }}</div>
-                </div>
-                <div class="method-select">
-                  <mat-radio-button [value]="method.id"></mat-radio-button>
-                </div>
-              </div>
-            </mat-radio-group>
-          </div>
+            <div class="order-summary-card mat-elevation-z2">
+              <h3>{{ 'CHECKOUT.ORDER_SUMMARY' | translate }}</h3>
+              <div class="order-items">
+                <div *ngFor="let item of cartItems; let i = index" class="order-item">
+                  <div class="item-image">
+                    <img *ngIf="item.product?.media?.[0]"
+                         [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
+                         [alt]="item.product.name">
+                    <mat-icon *ngIf="!item.product?.media?.[0]">inventory_2</mat-icon>
+                  </div>
+                  <div class="item-details">
+                    <div class="item-name">{{ item.product?.name || item.mixture?.name }}</div>
 
-          <div class="method-section">
-            <h3 class="section-subtitle">
-              <mat-icon>credit_card</mat-icon>
-              {{ 'CHECKOUT.PAYMENT_METHOD' | translate }}
-            </h3>
-            <mat-radio-group formControlName="paymentMethod" class="method-cards">
-              <div *ngFor="let method of paymentMethods" class="method-card"
-                   [class.selected]="selectedPaymentMethod === method.id"
-                   (click)="selectPaymentMethod(method.id)">
-                <div class="method-icon">
-                  <mat-icon>credit_card</mat-icon>
-                </div>
-                <div class="method-details">
-                  <h4>{{ method.name | translate }}</h4>
-                  <p>{{ method.name | translate }} description</p>
-                </div>
-                <div class="method-select">
-                  <mat-radio-button [value]="method.id"></mat-radio-button>
-                </div>
-              </div>
-            </mat-radio-group>
-          </div>
-
-          <div class="form-actions space-between">
-            <button mat-flat-button class="btn-back" (click)="prevStep()">
-              <mat-icon>arrow_back</mat-icon>
-              {{ 'CHECKOUT.BACK' | translate }}
-            </button>
-            <button mat-flat-button color="primary" type="button" class="btn-next" (click)="nextStep()" [disabled]="!isCurrentStepValid()">
-              {{ 'CHECKOUT.CONTINUE_TO_REVIEW' | translate }}
-              <mat-icon>arrow_forward</mat-icon>
-            </button>
-          </div>
-        </div>
-
-        <div *ngIf="currentStep === 3" class="checkout-step">
-          <h2 class="step-title">{{ 'CHECKOUT.REVIEW_ORDER' | translate }}</h2>
-
-          <div class="order-summary-card mat-elevation-z2">
-            <h3>{{ 'CHECKOUT.ORDER_SUMMARY' | translate }}</h3>
-            <div class="order-items">
-              <div *ngFor="let item of cartItems; let i = index" class="order-item">
-                <div class="item-image">
-                  <img *ngIf="item.product?.media?.[0]"
-                       [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
-                       [alt]="item.product.name">
-                  <mat-icon *ngIf="!item.product?.media?.[0]">inventory_2</mat-icon>
-                </div>
-                <div class="item-details">
-                  <div class="item-name">{{ item.product?.name || item.mixture?.name }}</div>
-
-                  <div class="item-quantity-control">
-                    <button mat-icon-button (click)="changeQuantity(i, -1)" [disabled]="item.quantity === 1">
-                      <mat-icon>remove</mat-icon>
-                    </button>
-                    <input type="number"
-                           [value]="item.quantity"
-                           min="1"
-                           (change)="onQuantityInputChange($event, i)"
-                           (keydown)="$event.stopPropagation()"
-                           class="quantity-input">
-                    <button mat-icon-button (click)="changeQuantity(i, 1)">
-                      <mat-icon>add</mat-icon>
+                    <div class="item-quantity-control">
+                      <button mat-icon-button (click)="changeQuantity(i, -1)" [disabled]="item.quantity === 1">
+                        <mat-icon>remove</mat-icon>
+                      </button>
+                      <input type="number"
+                             [value]="item.quantity"
+                             min="1"
+                             (change)="onQuantityInputChange($event, i)"
+                             (keydown)="$event.stopPropagation()"
+                             class="quantity-input">
+                      <button mat-icon-button (click)="changeQuantity(i, 1)">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="item-price">{{ (item.product?.price || item.mixture?.price || 0) * item.quantity | currency }}
+                  </div>
+                  <div class="item-actions">
+                    <button mat-icon-button color="warn" (click)="removeItem(item.itemId, item.cartItemType)">
+                      <mat-icon>delete_outline</mat-icon>
                     </button>
                   </div>
                 </div>
-                <div class="item-price">{{ (item.product?.price || item.mixture?.price || 0) * item.quantity | currency }}</div>
-                <div class="item-actions">
-                  <button mat-icon-button color="warn" (click)="removeItem(item.itemId, item.cartItemType)">
-                    <mat-icon>delete_outline</mat-icon>
-                  </button>
+              </div>
+
+              <mat-divider></mat-divider>
+
+              <div class="order-totals">
+                <div class="total-row">
+                  <span>{{ 'CHECKOUT.SUBTOTAL' | translate }}</span>
+                  <span>{{ cartTotal | currency }}</span>
+                </div>
+                <div class="total-row">
+                  <span>{{ 'CHECKOUT.SHIPPING' | translate }}</span>
+                  <span>{{ shippingCost | currency }}</span>
+                </div>
+                <mat-divider></mat-divider>
+                <div class="total-row final">
+                  <span>{{ 'CHECKOUT.TOTAL' | translate }}</span>
+                  <span>{{ finalTotal | currency }}</span>
                 </div>
               </div>
             </div>
 
-            <mat-divider></mat-divider>
+            <div class="shipping-info-card mat-elevation-z2">
+              <h3>{{ 'CHECKOUT.SHIPPING_INFO' | translate }}</h3>
+              <p><strong>{{ customerForm.get('firstName')?.value }} {{ customerForm.get('lastName')?.value }}</strong>
+              </p>
+              <p>{{ customerForm.get('address.street')?.value }} {{ customerForm.get('address.houseNumber')?.value }}</p>
+              <p>{{ customerForm.get('address.zipCode')?.value }} {{ customerForm.get('address.city')?.value }}</p>
+              <p>{{ customerForm.get('address.country')?.value }}</p>
+              <p>Email: {{ customerForm.get('email')?.value }}</p>
+              <p>Phone: {{ customerForm.get('address.phone')?.value }}</p>
+            </div>
 
-            <div class="order-totals">
-              <div class="total-row">
-                <span>{{ 'CHECKOUT.SUBTOTAL' | translate }}</span>
-                <span>{{ cartTotal | currency }}</span>
-              </div>
-              <div class="total-row">
-                <span>{{ 'CHECKOUT.SHIPPING' | translate }}</span>
-                <span>{{ shippingCost | currency }}</span>
-              </div>
-              <mat-divider></mat-divider>
-              <div class="total-row final">
-                <span>{{ 'CHECKOUT.TOTAL' | translate }}</span>
-                <span>{{ finalTotal | currency }}</span>
-              </div>
+            <div class="billing-info-card mat-elevation-z2">
+              <h3>{{ 'CHECKOUT.BILLING_INFO' | translate }}</h3>
+              <p>
+                <strong>{{ customerForm.get('billingAddress.firstName')?.value }} {{ customerForm.get('billingAddress.lastName')?.value }}</strong>
+              </p>
+              <p *ngIf="customerForm.get('billingAddress.companyName')?.value">{{ 'CHECKOUT.COMPANY_NAME' | translate }}
+                : {{ customerForm.get('billingAddress.companyName')?.value }}</p>
+              <p *ngIf="customerForm.get('billingAddress.taxId')?.value">{{ 'CHECKOUT.TAX_ID' | translate }}
+                : {{ customerForm.get('billingAddress.taxId')?.value }}</p>
+              <p>{{ customerForm.get('billingAddress.street')?.value }} {{ customerForm.get('billingAddress.houseNumber')?.value }}</p>
+              <p>{{ customerForm.get('billingAddress.zipCode')?.value }} {{ customerForm.get('billingAddress.city')?.value }}</p>
+              <p>{{ customerForm.get('billingAddress.country')?.value }}</p>
+              <p>Phone: {{ customerForm.get('billingAddress.phone')?.value }}</p>
+            </div>
+
+            <mat-checkbox formControlName="agreeToTerms" class="terms-checkbox">
+              <button type="button" class="terms-link"
+                      (click)="openTermsModal()">{{ 'CHECKOUT.TERMS_AND_CONDITIONS' | translate }}
+              </button>
+              <mat-error *ngIf="customerForm.get('agreeToTerms')?.invalid && customerForm.get('agreeToTerms')?.dirty">
+                {{ 'CHECKOUT.TERMS_REQUIRED' | translate }}
+              </mat-error>
+            </mat-checkbox>
+
+            <div class="form-actions space-between">
+              <button mat-flat-button class="btn-back" (click)="prevStep()">
+                <mat-icon>arrow_back</mat-icon>
+                {{ 'CHECKOUT.BACK' | translate }}
+              </button>
+
+              <button mat-flat-button color="accent" type="button" class="btn-place-order"
+                      (click)="placeOrder()" [disabled]="!isCurrentStepValid()">
+                {{ 'CHECKOUT.PLACE_ORDER' | translate }}
+                <mat-icon>shopping_cart_checkout</mat-icon>
+              </button>
             </div>
           </div>
-
-          <div class="shipping-info-card mat-elevation-z2">
-            <h3>{{ 'CHECKOUT.SHIPPING_INFO' | translate }}</h3>
-            <p><strong>{{ customerForm.get('firstName')?.value }} {{ customerForm.get('lastName')?.value }}</strong></p>
-            <p>{{ customerForm.get('address.street')?.value }} {{ customerForm.get('address.houseNumber')?.value }}</p>
-            <p>{{ customerForm.get('address.zipCode')?.value }} {{ customerForm.get('address.city')?.value }}</p>
-            <p>{{ customerForm.get('address.country')?.value }}</p>
-            <p>Email: {{ customerForm.get('email')?.value }}</p>
-            <p>Phone: {{ customerForm.get('address.phone')?.value }}</p>
-          </div>
-
-          <div class="billing-info-card mat-elevation-z2">
-            <h3>{{ 'CHECKOUT.BILLING_INFO' | translate }}</h3>
-            <p>
-              <strong>{{ customerForm.get('billingAddress.firstName')?.value }} {{ customerForm.get('billingAddress.lastName')?.value }}</strong>
-            </p>
-            <p *ngIf="customerForm.get('billingAddress.companyName')?.value">{{ 'CHECKOUT.COMPANY_NAME' | translate }}: {{ customerForm.get('billingAddress.companyName')?.value }}</p>
-            <p *ngIf="customerForm.get('billingAddress.taxId')?.value">{{ 'CHECKOUT.TAX_ID' | translate }}: {{ customerForm.get('billingAddress.taxId')?.value }}</p>
-            <p>{{ customerForm.get('billingAddress.street')?.value }} {{ customerForm.get('billingAddress.houseNumber')?.value }}</p>
-            <p>{{ customerForm.get('billingAddress.zipCode')?.value }} {{ customerForm.get('billingAddress.city')?.value }}</p>
-            <p>{{ customerForm.get('billingAddress.country')?.value }}</p>
-            <p>Phone: {{ customerForm.get('billingAddress.phone')?.value }}</p>
-          </div>
-
-          <mat-checkbox formControlName="agreeToTerms" class="terms-checkbox">
-            <button type="button" class="terms-link" (click)="openTermsModal()">{{ 'CHECKOUT.TERMS_AND_CONDITIONS' | translate }}</button>
-            <mat-error *ngIf="customerForm.get('agreeToTerms')?.invalid && customerForm.get('agreeToTerms')?.dirty">
-              {{ 'CHECKOUT.TERMS_REQUIRED' | translate }}
-            </mat-error>
-          </mat-checkbox>
-
-          <div class="form-actions space-between">
-            <button mat-flat-button class="btn-back" (click)="prevStep()">
-              <mat-icon>arrow_back</mat-icon>
-              {{ 'CHECKOUT.BACK' | translate }}
-            </button>
-
-            <button mat-flat-button color="accent" type="button" class="btn-place-order"
-                    (click)="placeOrder()" [disabled]="!isCurrentStepValid()">
-              {{ 'CHECKOUT.PLACE_ORDER' | translate }}
-              <mat-icon>shopping_cart_checkout</mat-icon>
-            </button>
-          </div>
-        </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>
-
 <ng-template #termsModal>
   <div class="modal-container light-theme">
     <h2 mat-dialog-title>{{ 'CHECKOUT.TERMS_AND_CONDITIONS' | translate }}</h2>

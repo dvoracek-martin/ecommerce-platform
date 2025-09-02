@@ -212,7 +212,7 @@ ecommerce-platform/
 │
 ├── api-gateway-service/
 ├── catalog-service/
-├── common-events/
+├── common/
 ├── config-server/
 ├── customer-service/
 ├── data/

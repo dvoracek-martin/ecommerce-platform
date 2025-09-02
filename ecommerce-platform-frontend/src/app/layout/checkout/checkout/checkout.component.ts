@@ -17,9 +17,10 @@ import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.c
 import {ProductService} from '../../../services/product.service';
 import {MixtureService} from '../../../services/mixture.service';
 import {CartItemType} from '../../../dto/cart/cart-item-type';
-import {forkJoin, of} from 'rxjs';
+import {forkJoin, Observable, of} from 'rxjs';
 import {catchError, map, switchMap} from 'rxjs/operators';
 import {TermsModalComponent} from '../../../shared/terms-modal.component';
+import {CustomerService} from '../../../services/customer.service';
 
 interface CartItemWithDetails extends CartItem {
   product?: ResponseProductDTO;
@@ -86,6 +87,7 @@ export class CheckoutComponent implements OnInit {
   private initialAddress: Address | null = null;
   isAuthPopupOpen = false;
   CartItemType = CartItemType;
+  isCartEmpty: boolean = false;
 
   selectedShippingMethod: string = '';
   selectedPaymentMethod: string = '';
@@ -121,7 +123,9 @@ export class CheckoutComponent implements OnInit {
     private cdRef: ChangeDetectorRef,
     private dialog: MatDialog,
     private productService: ProductService,
-    private mixtureService: MixtureService
+    private mixtureService: MixtureService,
+    private customerService: CustomerService
+
   ) {
     this.matIconRegistry.addSvgIcon(
       'flag_ch',
@@ -357,11 +361,16 @@ export class CheckoutComponent implements OnInit {
   loadCart(): void {
     this.cartService.getCart().pipe(
       switchMap(cart => {
-        if (!cart) {
+        if (!cart || !cart.items || cart.items.length === 0) {
+          // Only show empty cart if order is not complete
+          if (!this.orderComplete) {
+            this.isCartEmpty = true;
+          }
           this.cartItems = [];
           this.cartTotal = 0;
           return of([]);
         } else {
+          this.isCartEmpty = false;
           this.cartItems = cart.items || [];
           // Calculate cart total from items instead of relying on cart.totalPrice
           this.cartTotal = this.calculateCartTotal(this.cartItems);
@@ -386,13 +395,19 @@ export class CheckoutComponent implements OnInit {
         }
       })
     ).subscribe((itemsWithDetails: any[]) => {
-      this.cartItems = itemsWithDetails as CartItemWithDetails[];
-      // Recalculate total after loading details
-      this.cartTotal = this.calculateCartTotal(this.cartItems);
-      this.shippingCost = this.cartTotal > 50 ? 0 : 9.99;
-      this.finalTotal = this.cartTotal + this.shippingCost;
+      if (!this.isCartEmpty) {
+        this.cartItems = itemsWithDetails as CartItemWithDetails[];
+        // Recalculate total after loading details
+        this.cartTotal = this.calculateCartTotal(this.cartItems);
+        this.shippingCost = this.cartTotal > 50 ? 0 : 9.99;
+        this.finalTotal = this.cartTotal + this.shippingCost;
+      }
     }, error => {
       console.error('Error loading cart:', error);
+      // Only show empty cart if order is not complete
+      if (!this.orderComplete) {
+        this.isCartEmpty = true;
+      }
       this.cartItems = [];
       this.cartTotal = 0;
       this.shippingCost = 0;
@@ -473,6 +488,11 @@ export class CheckoutComponent implements OnInit {
       if (result) {
         // Optimistic removal
         this.cartItems = this.cartItems.filter(item => !(item.itemId === itemId && item.cartItemType === cartItemType));
+
+        // Check if cart is now empty
+        if (this.cartItems.length === 0) {
+          this.isCartEmpty = true;
+        }
 
         this.cartService.removeItem(itemId).subscribe(
           () => {
@@ -561,7 +581,6 @@ export class CheckoutComponent implements OnInit {
       this.cdRef.detectChanges();
     }
   }
-
   placeOrder(): void {
     if (this.customerForm.invalid) {
       this.customerForm.markAllAsTouched();
@@ -570,11 +589,64 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    if (!this.isLoggedIn) {
+      // For guest users, create a customer profile first
+      this.createGuestCustomer().subscribe({
+        next: (customer) => {
+          // Now create the order with the customer ID
+          this.createOrderWithCustomer(customer.id);
+        },
+        error: (err) => {
+          console.error('Failed to create guest customer:', err);
+          this.showSnackbar('CHECKOUT.CREATE_CUSTOMER_ERROR');
+        }
+      });
+    } else {
+      // For logged-in users, create the order directly
+      this.createOrderWithCustomer(this.authService.getUserId());
+    }
+  }
+
+  private createGuestCustomer(): Observable<any> {
+    const formValue = this.customerForm.value;
+
+    const customerData = {
+      firstName: formValue.firstName,
+      lastName: formValue.lastName,
+      email: formValue.email,
+      address: formValue.address,
+      billingAddress: formValue.sameBillingAddress ?
+        // Use shipping address for billing if same
+        {
+          firstName: formValue.firstName,
+          lastName: formValue.lastName,
+          phone: formValue.address.phone,
+          companyName: '',
+          taxId: '',
+          street: formValue.address.street,
+          houseNumber: formValue.address.houseNumber,
+          city: formValue.address.city,
+          zipCode: formValue.address.zipCode,
+          country: formValue.address.country
+        } :
+        // Use separate billing address
+        formValue.billingAddress
+    };
+
+    return this.customerService.createGuestCustomer(customerData);
+  }
+
+  private createOrderWithCustomer(customerId: string): void {
     const orderData = {
-      customer: this.createCustomerPayload(),
-      items: this.cartItems,
-      total: this.finalTotal,
-      status: 'confirmed',
+      customerId: customerId,
+      items: this.cartItems.map(item => ({
+        itemId: item.itemId,
+        cartItemType: item.cartItemType,
+        quantity: item.quantity
+      })),
+      shippingCost: this.shippingCost,
+      cartTotal: this.cartTotal,
+      finalTotal: this.finalTotal,
       shippingMethod: this.customerForm.get('shippingMethod')?.value,
       paymentMethod: this.customerForm.get('paymentMethod')?.value
     };
@@ -583,56 +655,19 @@ export class CheckoutComponent implements OnInit {
       next: (order) => {
         this.orderId = order.id;
         this.orderComplete = true;
-        this.cartService.clearCart().subscribe();
+        // Clear the cart after successful order
+        this.cartService.clearCart().subscribe(() => {
+          // After clearing the cart, we don't want to show the empty cart message
+          // because we are in the order complete state
+          this.isCartEmpty = false;
+          this.cdRef.detectChanges();
+        });
       },
       error: (err) => {
         console.error('Failed to place order:', err);
         this.showSnackbar('CHECKOUT.PLACE_ORDER_ERROR');
       }
     });
-  }
-
-  private createCustomerPayload(): Customer {
-    const formValue = this.customerForm.value;
-    const useShippingAddressForBilling = formValue.sameBillingAddress;
-
-    const customerPayload: Customer = {
-      firstName: formValue.firstName,
-      lastName: formValue.lastName,
-      email: formValue.email,
-      address: {...formValue.address},
-      billingAddress: null
-    };
-
-    if (useShippingAddressForBilling) {
-      customerPayload.billingAddress = {
-        firstName: formValue.firstName,
-        lastName: formValue.lastName,
-        phone: formValue.address.phone,
-        companyName: '',
-        taxId: '',
-        country: formValue.address.country,
-        city: formValue.address.city,
-        street: formValue.address.street,
-        houseNumber: formValue.address.houseNumber,
-        zipCode: formValue.address.zipCode
-      };
-    } else {
-      customerPayload.billingAddress = {
-        firstName: formValue.billingAddress.firstName,
-        lastName: formValue.billingAddress.lastName,
-        phone: formValue.billingAddress.phone,
-        companyName: formValue.billingAddress.companyName,
-        taxId: formValue.billingAddress.taxId,
-        country: formValue.billingAddress.country,
-        city: formValue.billingAddress.city,
-        street: formValue.billingAddress.street,
-        houseNumber: formValue.billingAddress.houseNumber,
-        zipCode: formValue.billingAddress.zipCode
-      };
-    }
-
-    return customerPayload;
   }
 
   isCurrentStepValid(): boolean {

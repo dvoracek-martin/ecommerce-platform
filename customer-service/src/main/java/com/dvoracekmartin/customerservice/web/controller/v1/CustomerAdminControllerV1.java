@@ -1,6 +1,6 @@
 package com.dvoracekmartin.customerservice.web.controller.v1;
 
-import com.dvoracekmartin.customerservice.application.dto.ResponseCustomerDTO;
+import com.dvoracekmartin.common.dto.customer.ResponseCustomerDTO;
 import com.dvoracekmartin.customerservice.application.service.CustomerService;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;

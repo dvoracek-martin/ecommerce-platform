@@ -722,6 +722,93 @@ mat-checkbox {
     }
   }
 }
+/* Add these styles to your existing SCSS file */
+
+.empty-cart-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 20px;
+
+  .empty-cart-card {
+    max-width: 500px;
+    text-align: center;
+    padding: 30px;
+    background-color: #ffffff !important;
+    color: #333333 !important;
+
+    .mat-card-header {
+      justify-content: center;
+      margin-bottom: 20px;
+
+      .mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.5rem;
+        color: #7f8c8d;
+
+        mat-icon {
+          font-size: 2rem;
+          width: 2rem;
+          height: 2rem;
+          color: #7f8c8d;
+        }
+      }
+    }
+
+    .mat-card-content {
+      p {
+        font-size: 1.1rem;
+        color: #555;
+        margin-bottom: 25px;
+      }
+    }
+
+    .empty-cart-actions {
+      display: flex;
+      justify-content: center;
+
+      button {
+        padding: 10px 25px;
+        font-size: 1rem;
+        background-color: #3498db;
+        color: white;
+
+        &:hover {
+          background-color: #2980b9;
+        }
+      }
+    }
+  }
+}
+
+.light-theme-card {
+  background: #ffffff !important;
+  color: #333333 !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 12px !important;
+
+  .mat-card-header {
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    padding: 20px 24px !important;
+    margin: -30px -30px 20px -30px !important;
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+  }
+
+  .mat-card-content {
+    padding: 0 !important;
+    color: #555555 !important;
+  }
+
+  .mat-card-actions {
+    padding: 16px 0 0 0 !important;
+    margin: 0 !important;
+  }
+}
 
 @media (max-width: 480px) {
   .checkout-progress .progress-steps {
