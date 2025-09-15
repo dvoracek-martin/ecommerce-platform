@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {AuthService} from '../auth/auth.service';
+import {ResponseOrderDTO} from '../dto/order/response-order-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,7 @@ export class OrderService {
     const customerId = this.authService.getUserId();
 
     const requestPayload = {
-      customerId: customerId, // Use the authenticated user's ID or null for guests
+      customerId: customerId,
       items: orderData.items.map((item: any) => ({
         itemId: item.itemId,
         cartItemType: item.cartItemType,
@@ -40,5 +41,34 @@ export class OrderService {
     };
 
     return this.http.post(`${this.apiUrl}`, requestPayload, {headers});
+  }
+
+  /**
+   * Fetches all orders for a specific user.
+   * Assumes the backend API is structured like: GET /api/orders/v1/user/{customerId}
+   * @param customerId The ID of the authenticated user.
+   */
+  getOrdersByUserId(customerId: string): Observable<ResponseOrderDTO[]> {
+    const token = this.authService.token;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<ResponseOrderDTO[]>(`${this.apiUrl}/customer/${customerId}`, {headers});
+  }
+
+  /**
+   * Downloads an invoice for a specific order as a PDF.
+   * Assumes the backend API is structured like: GET /api/orders/v1/{orderId}/invoice
+   * @param orderId The ID of the order to download the invoice for.
+   */
+  downloadInvoice(orderId: number): Observable<ArrayBuffer> {
+    const token = this.authService.token;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get(`${this.apiUrl}/${orderId}/invoice`, {
+      headers: headers,
+      responseType: 'arraybuffer' // Important for handling binary data like PDFs
+    });
   }
 }

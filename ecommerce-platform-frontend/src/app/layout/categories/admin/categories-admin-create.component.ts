@@ -1,17 +1,16 @@
 // src/app/components/categories-admin-create/categories-admin-create.component.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { CategoryService } from '../../../services/category.service';
-import { TagService } from '../../../services/tag.service';
-import { CreateCategoryDTO } from '../../../dto/category/create-category-dto';
-import { ResponseTagDTO } from '../../../dto/tag/response-tag-dto';
-import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
-import { Subject, takeUntil } from 'rxjs';
-import { MediaDTO } from '../../../dto/media/media-dto';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {Router} from '@angular/router';
+import {MatDialog} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {CategoryService} from '../../../services/category.service';
+import {TagService} from '../../../services/tag.service';
+import {CreateCategoryDTO} from '../../../dto/category/create-category-dto';
+import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {Subject, takeUntil} from 'rxjs';
 
 @Component({
   selector: 'app-categories-admin-create',
@@ -32,7 +31,8 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.initForm();
@@ -60,7 +60,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: tags => this.allTags = tags,
-        error: () => this.snackBar.open('Error loading tags', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
+        error: () => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
       });
   }
 
@@ -89,7 +89,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
 
   openMediaDeleteDialog(i: number): void {
     this.dialog.open(ConfirmationDialogComponent, {
-      data: { title: 'Delete Media', message: 'Really delete this media?', warn: true }
+      data: {title: 'Delete Media', message: 'Really delete this media?', warn: true}
     }).afterClosed().subscribe(ok => {
       if (ok) this.mediaControls.removeAt(i);
     });
@@ -102,7 +102,10 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
   onSave(): void {
     if (this.categoryForm.invalid) {
       this.categoryForm.markAllAsTouched();
-      this.snackBar.open('Please correct the highlighted fields.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+      this.snackBar.open('Please correct the highlighted fields.', 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
       return;
     }
 
@@ -119,14 +122,14 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
 
   private handleSaveSuccess(): void {
     this.saving = false;
-    this.snackBar.open('Category created successfully!', 'Close', { duration: 3000 });
+    this.snackBar.open('Category created successfully!', 'Close', {duration: 3000});
     this.router.navigate(['/admin/categories']);
   }
 
   private handleSaveError(err: any): void {
     this.saving = false;
     console.error('Creation failed:', err);
-    this.snackBar.open('Failed to create category', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+    this.snackBar.open('Failed to create category', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
   }
 
   openCancelDialog(): void {

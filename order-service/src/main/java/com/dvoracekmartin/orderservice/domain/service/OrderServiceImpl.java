@@ -1,9 +1,11 @@
 package com.dvoracekmartin.orderservice.domain.service;
 
+import com.dvoracekmartin.common.dto.customer.ResponseCustomerDTO;
 import com.dvoracekmartin.common.dto.media.MediaDTO;
 import com.dvoracekmartin.orderservice.application.dto.OrderItemResponse;
 import com.dvoracekmartin.orderservice.application.dto.OrderRequest;
 import com.dvoracekmartin.orderservice.application.dto.OrderResponse;
+import com.dvoracekmartin.orderservice.application.service.customer.CustomerClient;
 import com.dvoracekmartin.orderservice.application.service.media.MediaRetriever;
 import com.dvoracekmartin.orderservice.application.service.media.MediaUploader;
 import com.dvoracekmartin.orderservice.application.service.pdf.PdfGenerationService;
@@ -16,6 +18,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final MediaRetriever mediaRetriever;
     private final MediaUploader mediaUploader;
     private final PdfGenerationService pdfGenerationService;
+    private final CustomerClient customerClient;
 
     @Override
     public OrderResponse createOrder(String username, OrderRequest orderRequest) {
@@ -91,8 +95,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getOrdersByCustomerId(String username, String customerId) {
-        // TODO check if the username matches the current ID
+        if (!customerId.equals(username)) {
+            throw new IllegalArgumentException("id doesn't match with the current user");
+        }
         return orderRepository.findByCustomerId(customerId).stream()
+                .sorted(Comparator.comparing(Order::getOrderDate))
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }

@@ -12,7 +12,7 @@ import {ProductsComponent} from './layout/products/products.component';
 import {MixingComponent} from './layout/mixing/mixing.component';
 import {CategoriesComponent} from './layout/categories/categories.component';
 import {MixturesComponent} from './layout/mixtures/mixtures/mixtures.component';
-import {OrdersComponent} from './layout/orders/client/orders.component';
+import {OrdersListComponent} from './layout/orders/client/orders-list.component';
 import {CartComponent} from './layout/cart/client/cart.component';
 
 // Admin pages
@@ -52,7 +52,7 @@ const routes: Routes = [
 
   // Client‑side pages (require login)
   {path: 'customer', component: CustomersComponent, canActivate: [AuthGuard]},
-  {path: 'orders', component: OrdersComponent, canActivate: [AuthGuard]},
+  {path: 'orders', component: OrdersListComponent, canActivate: [AuthGuard]},
   {path: 'orders/:id', component: OrderDetailComponent, canActivate: [AuthGuard]},
   // {path: 'cart', component: CartComponent, canActivate: [AuthGuard]},
 

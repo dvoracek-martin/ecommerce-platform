@@ -1,0 +1,170 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #2c3e50;
+  background-color: #f9fafb;
+  padding: 40px 20px;
+  min-height: 100vh;
+}
+
+.orders-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding: 0 10px;
+}
+
+.header h1 {
+  color: #34495e;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.mat-elevation-z8 {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.mat-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.95rem;
+}
+
+.mat-header-row {
+  background-color: #f1f3f6;
+  color: #34495e;
+  font-weight: 600;
+  font-size: 1rem;
+  height: 56px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.mat-header-cell {
+  padding: 16px;
+  text-align: left;
+}
+
+.mat-row {
+  background-color: #ffffff;
+  transition: background-color 0.3s;
+}
+
+.mat-row:hover {
+  background-color: #f6f8fa;
+}
+
+.mat-cell {
+  color: #5f7488;
+  padding: 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.mat-column-actions {
+  text-align: right;
+  padding-right: 20px;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.icon-button:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.icon-button .material-icons {
+  font-size: 20px;
+}
+
+.icon-button:first-child .material-icons {
+  color: #3498db;
+}
+
+.icon-button:last-child .material-icons {
+  color: #2ecc71;
+}
+
+.mat-paginator {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: #ffffff;
+  border-top: 1px solid #e0e0e0;
+  border-radius: 0 0 12px 12px;
+  padding: 8px 16px;
+  height: 56px;
+}
+
+.mat-paginator-range-label {
+  color: #34495e;
+  font-weight: 500;
+  margin-right: 16px;
+}
+
+.paginator-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin: 0 4px;
+  color: #3498db;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.paginator-button:hover {
+  background-color: rgba(52, 152, 219, 0.15);
+  color: #21618c;
+}
+
+@media (max-width: 992px) {
+  .mat-header-cell,
+  .mat-cell {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 20px 10px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .mat-header-cell,
+  .mat-cell {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+
+  .mat-elevation-z8 {
+    overflow-x: auto;
+  }
+
+  .mat-table {
+    min-width: 600px;
+  }
+}

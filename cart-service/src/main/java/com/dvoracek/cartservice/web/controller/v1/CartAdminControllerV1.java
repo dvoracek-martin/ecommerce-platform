@@ -23,10 +23,6 @@ public class CartAdminControllerV1 {
 
     private final CartService cartService;
 
-    private String usernameOrNull(@Nullable Jwt jwt) {
-        return jwt != null ? jwt.getSubject() : null;
-    }
-
     @PostMapping()
     public ResponseEntity<ResponseDiscountDTO> createDiscount(@RequestBody CreateDiscountDTO createDiscountDTO) {
         ResponseDiscountDTO responseDiscountDTO = cartService.createDiscount(createDiscountDTO);

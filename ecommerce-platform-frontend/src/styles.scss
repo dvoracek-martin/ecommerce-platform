@@ -1,57 +1,112 @@
-/* You can add global styles to this file, and also import other style files */
+/* styles.scss */
+@use './themes/ecommerce-platform-light-theme' as *;
 
-html, body {
-  height: 100%;
-}
+/* ... ostatní globální styly ... */
 
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-}
+/* Modern User Menu */
+::ng-deep .modern-user-menu-panel {
+  min-width: 280px;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12) !important;
+  background: #fff !important;
+  border: 1px solid #e9ecef !important;
 
-.light-dialog-container .mat-mdc-dialog-container {
-  --mdc-dialog-container-color: white;
-  --mdc-dialog-subhead-color: #333;
-  --mdc-dialog-supporting-text-color: #666;
-}
+  .mat-menu-content {
+    padding: 0;
 
-.mat-mdc-dialog-container .mdc-dialog__surface {
-  border-radius: 12px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
-}
+    .modern-menu-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 16px 20px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      color: #2c3e50;
 
-.light-theme-modal-backdrop {
-  background: rgba(255, 255, 255, 0.8) !important;
-}
+      .user-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-.light-theme-modal .mat-mdc-dialog-container {
-  --mdc-dialog-container-color: transparent !important;
-  background: transparent !important;
-}
-
-.light-theme-modal-backdrop {
-  background: rgba(255, 255, 255, 0.8);
-}
-
-// Button style overrides for light theme
-.light-theme-modal {
-  .mat-mdc-raised-button {
-    background-color: #f97316;
-    color: white;
-
-    &:not(:disabled) {
-      &:hover {
-        background-color: #ea580c;
+        mat-icon {
+          font-size: 28px;
+          color: #3498db;
+        }
       }
 
-      &:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+      .user-info {
+        h4 {
+          margin: 0;
+          font-weight: 600;
+          font-size: 1rem;
+        }
+        p {
+          margin: 4px 0 0;
+          font-size: 0.85rem;
+          color: #6c757d;
+        }
       }
     }
 
-    .mdc-button__label {
-      color: white;
+    .modern-menu-section {
+      padding: 8px 0;
+
+      .modern-section-title {
+        margin: 0 16px 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #95a5a6;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .mat-menu-item {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+        margin: 0 12px;
+        padding: 8px 12px;
+        border-radius: 12px;
+        transition: all 0.25s ease;
+        color: #2c3e50;
+
+        mat-icon {
+          font-size: 20px;
+          color: #6c757d;
+          transition: all 0.3s ease;
+        }
+
+        &:hover {
+          background: #f1f3f5 !important;
+          transform: translateX(4px);
+
+          mat-icon {
+            color: #3498db;
+          }
+        }
+
+        &.logout-item {
+          color: #e74c3c;
+
+          mat-icon {
+            color: #e74c3c;
+          }
+
+          &:hover {
+            background: rgba(231,76,60,0.1) !important;
+
+            mat-icon {
+              color: white;
+            }
+          }
+        }
+      }
     }
   }
 }
