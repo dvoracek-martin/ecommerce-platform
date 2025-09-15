@@ -58,17 +58,18 @@ export class OrderService {
 
   /**
    * Downloads an invoice for a specific order as a PDF.
-   * Assumes the backend API is structured like: GET /api/orders/v1/{orderId}/invoice
+   * Assumes the backend API is structured like: GET /api/orders/v1/invoice/{orderId}
+   * @param customerId
    * @param orderId The ID of the order to download the invoice for.
    */
-  downloadInvoice(orderId: number): Observable<ArrayBuffer> {
+  downloadInvoice(customerId: string, orderId: number): Observable<ArrayBuffer> {
     const token = this.authService.token;
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
-    return this.http.get(`${this.apiUrl}/${orderId}/invoice`, {
+    return this.http.get(`${this.apiUrl}/customer/${customerId}/invoice/${orderId}`, {
       headers: headers,
-      responseType: 'arraybuffer' // Important for handling binary data like PDFs
+      responseType: 'arraybuffer'
     });
   }
 }

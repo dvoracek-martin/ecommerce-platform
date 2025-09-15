@@ -80,7 +80,8 @@ export class OrdersListComponent implements OnInit {
   }
 
   downloadInvoice(orderId: number): void {
-    this.orderService.downloadInvoice(orderId).subscribe({
+    const customerId = this.authService.getCurrentUserId();
+    this.orderService.downloadInvoice(customerId, orderId).subscribe({
       next: (response: any) => {
         const blob = new Blob([response], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);

@@ -49,4 +49,17 @@ public class OrderControllerV1 {
         return ResponseEntity.ok(orders);
     }
 
+    @GetMapping("/customer/{customerId}/invoice/{orderId}")
+    public ResponseEntity<byte[]> getInvoiceByOrderId(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String customerId,
+            @PathVariable Long orderId) {
+
+        byte[] pdfData = orderService.getInvoiceByOrderId(usernameOrNull(jwt), customerId, orderId);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=invoice_" + orderId + ".pdf")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(pdfData);
+    }
 }

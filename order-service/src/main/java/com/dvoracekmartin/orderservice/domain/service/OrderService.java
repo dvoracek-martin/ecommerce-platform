@@ -15,4 +15,6 @@ public interface OrderService {
     List<OrderResponse> getOrdersByCustomerId(String username, String customerId);
 
     Order createOrderWithInvoice(Order order);
+
+    byte[] getInvoiceByOrderId(String s, String customerId, Long orderId);
 }
