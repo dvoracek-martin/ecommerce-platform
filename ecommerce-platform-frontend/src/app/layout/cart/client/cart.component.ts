@@ -3,15 +3,15 @@ import { Cart, CartItem, CartService } from '../../../services/cart.service';
 import { ProductService } from '../../../services/product.service';
 import { MixtureService } from '../../../services/mixture.service';
 import { forkJoin, of, Subscription } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, finalize, map, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
-import { ResponseMixtureDTO } from '../../../dto/mixtures/response-mixture-dto';
 import { CartItemType } from '../../../dto/cart/cart-item-type';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
 import { TranslateService } from '@ngx-translate/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import {ResponseMixtureDTO} from '../../../dto/mixtures/response-mixture-dto';
 
 interface CartItemWithDetails extends CartItem {
   product?: ResponseProductDTO;
@@ -29,11 +29,10 @@ interface CartItemWithDetails extends CartItem {
 export class CartComponent implements OnInit, OnDestroy {
   cart: Cart | null = null;
   cartItemsWithDetails: CartItemWithDetails[] = [];
-  isLoading = false;
-  showLoadingIndicator = false;
+  isLoading = true; // Start with loading state
+  isCartLoaded = false; // New flag to track when data is ready
   CartItemType = CartItemType;
   private cartSubscription!: Subscription;
-  private loadingTimeout: any;
 
   // Discount code properties
   discountCode: string = '';
@@ -56,18 +55,11 @@ export class CartComponent implements OnInit, OnDestroy {
     if (this.cartSubscription) {
       this.cartSubscription.unsubscribe();
     }
-    if (this.loadingTimeout) {
-      clearTimeout(this.loadingTimeout);
-    }
   }
 
   loadCart() {
     this.isLoading = true;
-
-    // Set a timeout to show loading indicator only after 1 second
-    this.loadingTimeout = setTimeout(() => {
-      this.showLoadingIndicator = true;
-    }, 1000);
+    this.isCartLoaded = false;
 
     this.cartSubscription = this.cartService.getCart().pipe(
       switchMap(cart => {
@@ -103,44 +95,33 @@ export class CartComponent implements OnInit, OnDestroy {
             const existingItem = this.cartItemsWithDetails.find(i => i.itemId === item.itemId);
             return {
               ...item,
-              optimisticQuantity: existingItem?.optimisticQuantity || item.quantity,
-              updating: existingItem?.updating || false
-            };
+              optimisticQuantity: existingItem?.optimisticQuantity ?? item.quantity,
+              updating: existingItem?.updating ?? false
+            } as CartItemWithDetails;
           }))
         );
       })
-    ).subscribe(itemsWithDetails => {
-      // Clear the timeout and hide loading indicator
-      if (this.loadingTimeout) {
-        clearTimeout(this.loadingTimeout);
-        this.loadingTimeout = null;
+    ).subscribe({
+      next: (itemsWithDetails) => {
+        this.isLoading = false;
+        this.isCartLoaded = true;
+        this.cartItemsWithDetails = itemsWithDetails as CartItemWithDetails[];
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.isCartLoaded = true;
+        console.error('Failed to load cart with details', err);
+        this.cart = { id: 0, username: '', items: [], totalPrice: 0, discount: 0 };
+        this.cartItemsWithDetails = [];
       }
-      this.showLoadingIndicator = false;
-      this.isLoading = false;
-
-      this.cartItemsWithDetails = itemsWithDetails;
-    }, err => {
-      // Clear the timeout and hide loading indicator on error too
-      if (this.loadingTimeout) {
-        clearTimeout(this.loadingTimeout);
-        this.loadingTimeout = null;
-      }
-      this.showLoadingIndicator = false;
-      this.isLoading = false;
-
-      console.error('Failed to load cart with details', err);
-      this.cart = { id: 0, username: '', items: [], totalPrice: 0, discount: 0 };
-      this.cartItemsWithDetails = [];
     });
   }
-
 
   onQuantityChange(event: Event, item: CartItemWithDetails) {
     const input = event.target as HTMLInputElement;
     const quantity = parseInt(input.value, 10);
 
     if (isNaN(quantity) || quantity < 0) {
-      // Reset to current value if invalid
       input.value = (item.optimisticQuantity ?? item.quantity).toString();
       return;
     }
@@ -152,61 +133,59 @@ export class CartComponent implements OnInit, OnDestroy {
     const quantity = typeof newQuantity === 'string' ? parseInt(newQuantity, 10) : newQuantity;
 
     const item = this.cartItemsWithDetails.find(i => i.itemId === itemId && i.cartItemType === cartItemType);
-    if (!item) {
-      return;
-    }
-    if (quantity === null || isNaN(quantity)) {
-      return;
-    }
-
-    // Check if quantity is the same as current to prevent duplicate calls
-    const currentQuantity = item.optimisticQuantity !== undefined ? item.optimisticQuantity : item.quantity;
-    if (quantity === currentQuantity) {
+    if (!item || quantity === null || isNaN(quantity) || quantity === (item.optimisticQuantity ?? item.quantity) || quantity < 0) {
       return;
     }
 
     if (quantity === 0) {
-      // Directly call removeItem without showing confirmation dialog here
-      // The confirmation will be handled in removeItem
       this.removeItem(itemId);
       return;
     }
-    if (quantity < 0) {
-      return;
-    }
 
-    // Optimistic update
     item.optimisticQuantity = quantity;
     item.updating = true;
+    this.cartItemsWithDetails = [...this.cartItemsWithDetails];
 
     this.cartService.updateItem(itemId, quantity, cartItemType)
+      .pipe(
+        finalize(() => {
+          const found = this.cartItemsWithDetails.find(i => i.itemId === itemId && i.cartItemType === cartItemType);
+          if (found) {
+            found.updating = false;
+            this.cartItemsWithDetails = [...this.cartItemsWithDetails];
+          }
+        })
+      )
       .subscribe(
         () => {
-          // Success: update the actual quantity
-          item.quantity = quantity;
-          item.optimisticQuantity = undefined;
-          item.updating = false;
-
-          // Reload cart to ensure consistency with app component
-          this.loadCart();
+          const found = this.cartItemsWithDetails.find(i => i.itemId === itemId && i.cartItemType === cartItemType);
+          if (found) {
+            found.quantity = quantity;
+            found.optimisticQuantity = undefined;
+            found.updating = false;
+            this.cartItemsWithDetails = [...this.cartItemsWithDetails];
+          }
+          this.showSnackbar(this.translate.instant('CART.QUANTITY_UPDATE_SUCCESS') || 'Quantity updated successfully!', 'success');
         },
         error => {
-          // Error: revert the optimistic update
-          item.optimisticQuantity = undefined;
-          item.updating = false;
-          this.showSnackbar('Failed to update quantity.', 'error');
+          const found = this.cartItemsWithDetails.find(i => i.itemId === itemId && i.cartItemType === cartItemType);
+          if (found) {
+            found.optimisticQuantity = undefined;
+            found.updating = false;
+            this.cartItemsWithDetails = [...this.cartItemsWithDetails];
+          }
+          this.showSnackbar(this.translate.instant('CART.QUANTITY_UPDATE_FAIL') || 'Failed to update quantity.', 'error');
           console.error('Update quantity error:', error);
         }
       );
   }
 
-  // In your cart.component.ts, update the removeItem method
   removeItem(itemId: number | undefined): void {
     if (itemId === undefined) return;
 
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '300px',
-      panelClass: 'light-dialog-container', // Add this line
+      panelClass: 'light-dialog-container',
       data: {
         title: this.translate.instant('DIALOG.CONFIRM_DELETE_TITLE'),
         message: this.translate.instant('DIALOG.CONFIRM_DELETE_MESSAGE')
@@ -214,48 +193,53 @@ export class CartComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        // Optimistic removal
-        this.cartItemsWithDetails = this.cartItemsWithDetails.filter(item => item.itemId !== itemId);
+      if (!result) {
+        return;
+      }
 
+      const index = this.cartItemsWithDetails.findIndex(i => i.itemId === itemId);
+      if (index === -1) {
         this.cartService.removeItem(itemId).subscribe(
-          () => {
-            this.showSnackbar('Item removed from cart!', 'success');
-            // Reload cart to ensure consistency with app component
-            this.loadCart();
-          },
-          error => {
-            // Re-add item on error
-            this.loadCart(); // Reload cart items
-            this.showSnackbar('Failed to remove item.', 'error');
-            console.error('Remove item error:', error);
+          () => this.showSnackbar(this.translate.instant('CART.ITEM_REMOVED') || 'Item removed from cart!', 'success'),
+          err => {
+            this.showSnackbar(this.translate.instant('CART.ITEM_REMOVE_FAIL') || 'Failed to remove item.', 'error');
+            console.error('Remove item error:', err);
           }
         );
+        return;
       }
-    });
-  }
-  // Helper method to show confirmation dialog
-  private showConfirmationDialog(callback: () => void): void {
-    if (this.dialog && typeof this.dialog.open === 'function') {
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-        width: '300px',
-        data: {
-          title: this.translate.instant('DIALOG.CONFIRM_DELETE_TITLE'),
-          message: this.translate.instant('DIALOG.CONFIRM_DELETE_MESSAGE')
-        }
-      });
 
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          callback();
-        }
-      });
-    } else {
-      const message = this.translate?.instant('DIALOG.CONFIRM_DELETE_MESSAGE') || 'Are you sure you want to delete this item?';
-      if (confirm(message)) {
-        callback();
+      const removedItem = this.cartItemsWithDetails[index];
+      removedItem.updating = true;
+      this.cartItemsWithDetails = [...this.cartItemsWithDetails];
+
+      const newArray = [...this.cartItemsWithDetails];
+      const idx = newArray.findIndex(i => i.itemId === itemId);
+      let removedSnapshot: CartItemWithDetails | null = null;
+      if (idx !== -1) {
+        removedSnapshot = newArray.splice(idx, 1)[0];
       }
-    }
+      this.cartItemsWithDetails = newArray;
+
+      this.cartService.removeItem(itemId).pipe(
+        finalize(() => {})
+      ).subscribe(
+        () => {
+          this.showSnackbar(this.translate.instant('CART.ITEM_REMOVED') || 'Item removed from cart!', 'success');
+        },
+        error => {
+          if (removedSnapshot) {
+            const reverted = [...this.cartItemsWithDetails];
+            const insertIndex = Math.min(index, reverted.length);
+            removedSnapshot.updating = false;
+            reverted.splice(insertIndex, 0, removedSnapshot);
+            this.cartItemsWithDetails = reverted;
+          }
+          this.showSnackbar(this.translate.instant('CART.ITEM_REMOVE_FAIL') || 'Failed to remove item.', 'error');
+          console.error('Remove item error:', error);
+        }
+      );
+    });
   }
 
   goToProduct(productId: number) {
@@ -302,9 +286,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   removeDiscount(): void {
     this.cartService.removeDiscount().subscribe(
-      () => {
-        // Discount removed successfully
-      },
+      () => {},
       error => {
         console.error('Failed to remove discount:', error);
       }

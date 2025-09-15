@@ -1,32 +1,37 @@
 <div class="cart-container">
   <div class="cart-header">
     <h1>{{ 'CART.TITLE' | translate }}</h1>
-    <div class="cart-summary">
-      <div class="total-items">{{ cartItemsWithDetails.length }} {{ 'CART.ITEMS' | translate }}</div>
+    <div class="cart-summary" *ngIf="isCartLoaded && cartItemsWithDetails.length > 0">
+      <div class="total-items">
+        {{ cartItemsWithDetails.length }} {{ 'CART.ITEMS' | translate }}
+      </div>
       <div class="cart-total">{{ getCartTotal() | currency }}</div>
     </div>
   </div>
 
   <div class="cart-layout-wrapper">
     <div class="cart-main-content-wrapper">
-      <!-- Show loading indicator only after 1 second delay -->
-      <div *ngIf="showLoadingIndicator" class="loading-section">
+      <div *ngIf="isLoading" class="loading-section">
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         <div class="loading-text">{{ 'CART.LOADING' | translate }}</div>
       </div>
 
-      <div *ngIf="!isLoading && cartItemsWithDetails.length === 0" class="empty-cart">
+      <div *ngIf="isCartLoaded && cartItemsWithDetails.length === 0" class="empty-cart">
         <div class="empty-icon">
           <span class="material-icons">shopping_basket</span>
         </div>
         <h3>{{ 'CART.EMPTY' | translate }}</h3>
         <p>{{ 'CART.EMPTY_DESCRIPTION' | translate }}</p>
-        <button class="btn-primary" routerLink="/products">{{ 'CART.SHOP_NOW' | translate }}</button>
+        <button class="btn-primary" routerLink="/products">
+          {{ 'CART.SHOP_NOW' | translate }}
+        </button>
       </div>
 
-      <div class="cart-items" *ngIf="!isLoading && cartItemsWithDetails.length > 0">
-        <div *ngFor="let item of cartItemsWithDetails" class="cart-item"
+      <div class="cart-items" *ngIf="isCartLoaded && cartItemsWithDetails.length > 0">
+        <div *ngFor="let item of cartItemsWithDetails"
+             class="cart-item"
              [class.mixture-item]="item.cartItemType === CartItemType.MIXTURE">
+
           <div class="item-media"
                (click)="item.cartItemType === CartItemType.PRODUCT ? goToProduct(item.itemId) : goToMixture(item.itemId)">
             <ng-container *ngIf="item.product || item.mixture">
@@ -35,7 +40,8 @@
                          (item.mixture?.products?.[0]?.media?.[0] ? 'data:' + item.mixture.products[0].media[0].contentType + ';base64,' + item.mixture.products[0].media[0].base64Data : '')"
                    alt="{{ item.product?.name || item.mixture?.name }}"/>
             </ng-container>
-            <div *ngIf="!((item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0]))" class="no-image">
+            <div *ngIf="!((item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0]))"
+                 class="no-image">
               <span class="material-icons" *ngIf="item.cartItemType === CartItemType.PRODUCT">inventory_2</span>
               <span class="material-icons" *ngIf="item.cartItemType === CartItemType.MIXTURE">blender</span>
             </div>
@@ -54,10 +60,12 @@
               {{ truncateText(item.product.description, 100) }}
             </div>
 
-            <div *ngIf="item.cartItemType === CartItemType.MIXTURE && item.mixture" class="mixture-display">
+            <div *ngIf="item.cartItemType === CartItemType.MIXTURE && item.mixture"
+                 class="mixture-display">
               <h4>{{ 'CART.MIXTURE_CONTAINS' | translate }}</h4>
               <div class="mixture-products-list">
-                <div *ngFor="let product of item.mixture.products" class="mixture-product-item">
+                <div *ngFor="let product of item.mixture.products"
+                     class="mixture-product-item">
                   <div class="mixture-product-info">
                     <div class="mixture-product-name">{{ product.name }}</div>
                     <div class="mixture-product-price">{{ product.price | currency }}</div>
@@ -76,15 +84,17 @@
                             [disabled]="item.updating">
                       <span class="material-icons">remove</span>
                     </button>
-                    <input #quantityInput type="number" [value]="item.optimisticQuantity ?? item.quantity" min="0"
-                           (change)="onQuantityChange($event, item)"/>
+                    <input #quantityInput type="number"
+                           [value]="item.optimisticQuantity ?? item.quantity"
+                           min="0"
+                           (change)="onQuantityChange($event, item)"
+                           [disabled]="item.updating"/>
                     <button class="quantity-btn increase"
                             (click)="updateQuantity(item.itemId, (item.optimisticQuantity ?? item.quantity) + 1, item.cartItemType)"
                             [disabled]="item.updating">
                       <span class="material-icons">add</span>
                     </button>
                   </div>
-
                   <div class="quantity-loading" *ngIf="item.updating">
                     <div class="spinner"></div>
                   </div>
@@ -96,57 +106,51 @@
               </div>
             </div>
           </div>
+
           <div class="item-actions">
-            <button class="btn-remove" (click)="removeItem(item.itemId)" [title]="'CART.REMOVE' | translate"
+            <button mat-icon-button class="btn-remove"
+                    (click)="removeItem(item.itemId)"
+                    [title]="'CART.REMOVE' | translate"
                     [disabled]="item.updating">
-              <span class="material-icons">delete_outline</span>
+              <mat-icon>delete_outline</mat-icon>
             </button>
           </div>
         </div>
       </div>
     </div>
 
-
-    <div class="cart-footer" *ngIf="!isLoading && cartItemsWithDetails.length > 0">
+    <div class="cart-footer" *ngIf="isCartLoaded && cartItemsWithDetails.length > 0">
       <div class="continue-shopping">
         <button class="btn-outline" (click)="navigateHome()">
-          <span class="material-icons">arrow_back</span>
+          <mat-icon>arrow_back</mat-icon>
           {{ 'CART.CONTINUE_SHOPPING' | translate }}
         </button>
       </div>
 
-
-      <!-- Cart Summary Section -->
       <div class="cart-summary-total">
         <div class="summary-row">
           <span>{{ 'CART.SUBTOTAL' | translate }}:</span>
           <span>{{ getCartTotal() | currency }}</span>
         </div>
 
-        <!-- Discount Code Field -->
         <div class="discount-section" *ngIf="!isDiscountApplied()">
           <div class="discount-input-group">
-            <input
-              type="text"
-              [(ngModel)]="discountCode"
-              placeholder="Discount code"
-              class="discount-input"
-              (keyup.enter)="applyDiscount()"
-            >
+            <input type="text"
+                   [(ngModel)]="discountCode"
+                   placeholder="Discount code"
+                   class="discount-input"
+                   (keyup.enter)="applyDiscount()">
             <button class="btn-apply" (click)="applyDiscount()">Apply</button>
           </div>
         </div>
 
-        <!-- Applied Discount Display -->
         <div class="discount-applied" *ngIf="isDiscountApplied()">
           <div class="summary-row discount">
             <span>Discount ({{ cart?.discountCode }}):</span>
             <span>-{{ cart?.discount | currency }}</span>
           </div>
           <div class="remove-discount">
-            <button class="btn-remove-discount" (click)="removeDiscount()">
-              Remove
-            </button>
+            <button class="btn-remove-discount" (click)="removeDiscount()">Remove</button>
           </div>
         </div>
 
@@ -157,10 +161,9 @@
 
         <button class="btn-checkout" (click)="proceedToCheckout()">
           {{ 'CART.CHECKOUT' | translate }}
-          <span class="material-icons">arrow_forward</span>
+          <mat-icon>arrow_forward</mat-icon>
         </button>
       </div>
-
     </div>
   </div>
 </div>
