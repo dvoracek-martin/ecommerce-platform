@@ -1,13 +1,11 @@
 package com.dvoracekmartin.orderservice.domain.service;
 
-import com.dvoracekmartin.common.dto.cart.CartItemDTO;
-import com.dvoracekmartin.common.dto.cart.CartItemType;
 import com.dvoracekmartin.orderservice.application.dto.OrderRequest;
 import com.dvoracekmartin.orderservice.application.dto.OrderResponse;
-import com.dvoracekmartin.orderservice.application.service.customer.CustomerClient;
 import com.dvoracekmartin.orderservice.application.service.media.MediaRetriever;
 import com.dvoracekmartin.orderservice.application.service.media.MediaUploader;
 import com.dvoracekmartin.orderservice.application.service.pdf.PdfGenerationService;
+import com.dvoracekmartin.orderservice.application.utils.OrderMapper;
 import com.dvoracekmartin.orderservice.application.utils.OrderStatus;
 import com.dvoracekmartin.orderservice.application.utils.PdfDataWrapper;
 import com.dvoracekmartin.orderservice.domain.model.Order;
@@ -16,12 +14,9 @@ import com.dvoracekmartin.orderservice.domain.repository.OrderRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -37,6 +32,7 @@ public class OrderServiceImpl implements OrderService {
     private final MediaUploader mediaUploader;
     private final PdfGenerationService pdfGenerationService;
     private final OrderCounterService orderCounterService;
+    private final OrderMapper orderMapper;
 
     @Override
     public OrderResponse createOrder(String username, OrderRequest orderRequest) {
@@ -53,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setOrder(order);
             return orderItem;
-        }).collect(Collectors.toList());
+        }).toList();
 
         order.setItems(orderItems);
         order.setShippingCost(orderRequest.getShippingCost());
@@ -71,15 +67,13 @@ public class OrderServiceImpl implements OrderService {
         // Create the correct path structure
         String folderPath = savedOrder.getCustomerId();
         mediaUploader.uploadBase64(base64Invoice, folderPath, orderCounterService.generateInvoiceName(), CONTENT_TYPE, INVOICES_BUCKET_NAME, folderPath);
-
-        return convertToResponse(savedOrder);
+        return orderMapper.mapOrderToOrderResponse(savedOrder);
     }
 
     @Override
     public OrderResponse getOrderById(String username, Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
-        OrderResponse orderResponse = convertToResponse(order);
-        return orderResponse;
+        return orderMapper.mapOrderToOrderResponse(order);
     }
 
     @Override
@@ -87,8 +81,7 @@ public class OrderServiceImpl implements OrderService {
         if (!customerId.equals(username)) {
             throw new IllegalArgumentException("id doesn't match with the current user");
         }
-        // return sorted by date in descending order
-        return orderRepository.findByCustomerId(customerId).stream().sorted(Comparator.comparing(Order::getOrderDate).reversed()).map(this::convertToResponse).collect(Collectors.toList());
+        return orderRepository.findByCustomerId(customerId).stream().sorted(Comparator.comparing(Order::getOrderDate).reversed()).map(orderMapper::mapOrderToOrderResponse).toList();
     }
 
     @Override
@@ -109,22 +102,9 @@ public class OrderServiceImpl implements OrderService {
         return new PdfDataWrapper(invoiceData, invoiceName);
     }
 
-    private OrderResponse convertToResponse(Order order) {
-        OrderResponse response = new OrderResponse();
-        response.setId(order.getId());
-        response.setCustomerId(order.getCustomerId());
-
-        // Convert OrderItems to OrderItemResponses
-        List<CartItemDTO> cartItemDTOS = order.getItems().stream().map(item -> new CartItemDTO(item.getItemId(), CartItemType.valueOf(item.getItemType()), item.getQuantity())).collect(Collectors.toList());
-        response.setItems(cartItemDTOS);
-        response.setShippingCost(order.getShippingCost());
-        response.setCartTotal(order.getCartTotal());
-        response.setFinalTotal(order.getFinalTotal());
-        response.setStatus(order.getStatus());
-        response.setShippingMethod(order.getShippingMethod());
-        response.setPaymentMethod(order.getPaymentMethod());
-        response.setOrderDate(order.getOrderDate());
-        response.setTrackingNumber(order.getTrackingNumber());
-        return response;
+    @Override
+    public List<OrderResponse> findAll() {
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream().map(orderMapper::mapOrderToOrderResponse).toList();
     }
 }

@@ -9,6 +9,7 @@ import {ResponseOrderDTO} from '../dto/order/response-order-dto';
 })
 export class OrderService {
   private apiUrl = 'http://localhost:8080/api/orders/v1';
+  private apiAdminUrl = 'http://localhost:8080/api/orders/v1/admin';
 
   constructor(
     private http: HttpClient,
@@ -80,5 +81,16 @@ export class OrderService {
       responseType: 'arraybuffer',
       observe: 'response'
     });
+  }
+
+  /**
+   * Fetches all orders (admin view)
+   */
+  getAll(): Observable<ResponseOrderDTO[]> {
+    const token = this.authService.token;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<ResponseOrderDTO[]>(`${this.apiAdminUrl}`, {headers});
   }
 }

@@ -35,7 +35,6 @@ export class CustomerService {
     });
   }
 
-
   createGuestCustomer(customerData: any): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
@@ -46,5 +45,17 @@ export class CustomerService {
 
   setUserLanguage(lang: string) {
     this.userLanguageSubject.next(lang);
+  }
+
+  /**
+   * Fetch a customer by ID (used for admin order list)
+   * @param id Customer ID
+   */
+  getById(id: string): Observable<Customer> {
+    const token = this.authService.token;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers });
   }
 }

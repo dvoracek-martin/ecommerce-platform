@@ -1,4 +1,4 @@
-// src/app/layout/orders/client/orders-list.component.ts
+// src/app/layout/orders/client/orders-list-admin.component.ts
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {MatTableDataSource} from '@angular/material/table';
@@ -10,16 +10,26 @@ import {AuthService} from '../../../auth/auth.service';
 import {OrderStateService} from '../../../services/order-state.service';
 import {OrderStatus} from '../../../dto/order/order-status';
 import {HttpResponse} from '@angular/common/http';
+import {CustomerService} from '../../../services/customer.service';
+import {forkJoin, Observable} from 'rxjs';
+import {map, catchError} from 'rxjs/operators';
+import {Customer} from '../../../dto/customer/customer-dto';
+
+interface OrderWithCustomer extends ResponseOrderDTO {
+  userEmail?: string | null;
+  userFirstName?: string | null;
+  userLastName?: string | null;
+}
 
 @Component({
-  selector: 'app-orders-list',
-  templateUrl: './orders-list.component.html',
-  styleUrls: ['./orders-list.component.scss'],
+  selector: 'app-order-list-admin',
+  templateUrl: './order-list-admin.component.html',
+  styleUrls: ['./order-list-admin.component.scss'],
   standalone: false,
 })
-export class OrdersListComponent implements OnInit {
-  dataSource = new MatTableDataSource<ResponseOrderDTO>();
-  displayedColumns: string[] = ['id', 'orderDate', 'shippingMethod', 'paymentMethod', 'finalTotal', 'status', 'actions'];
+export class OrderListAdminComponent implements OnInit {
+  dataSource = new MatTableDataSource<OrderWithCustomer>();
+  displayedColumns: string[] = ['id', 'orderDate', 'userEmail', 'userLastName', 'userFirstName', 'shippingMethod', 'paymentMethod', 'finalTotal', 'status', 'actions'];
 
   OrderStatus = OrderStatus;
   isLoading = true;
@@ -38,6 +48,7 @@ export class OrdersListComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private orderState: OrderStateService,
+    private customerService: CustomerService
   ) {
   }
 
@@ -47,7 +58,7 @@ export class OrdersListComponent implements OnInit {
         this.loadOrders();
       } else {
         this.isLoading = false;
-        this.error = 'You must be logged in to view your orders.';
+        this.error = 'You must be logged in to view orders.';
       }
     });
   }
@@ -55,18 +66,39 @@ export class OrdersListComponent implements OnInit {
   loadOrders(): void {
     this.isLoading = true;
     this.error = null;
-    const customerId = this.authService.getCurrentUserId();
 
-    if (!customerId) {
-      this.error = 'User not authenticated.';
-      this.isLoading = false;
-      return;
-    }
+    this.orderService.getAll().subscribe({
+      next: (orders) => {
+        if (!orders || orders.length === 0) {
+          this.dataSource.data = [];
+          this.isLoading = false;
+          return;
+        }
 
-    this.orderService.getOrdersByUserId(customerId).subscribe({
-      next: (data) => {
-        this.dataSource.data = data;
-        this.isLoading = false;
+        // Fetch customer info for each order
+        const customerObservables: Observable<Customer>[] = orders.map(order =>
+          this.customerService.getById(order.customerId).pipe(
+            catchError(err => {
+              console.error(`Failed to load customer ${order.customerId}`, err);
+              return [ { firstName: null, lastName: null, email: null, preferredLanguage: 'en' } as Customer ];
+            })
+          )
+        );
+
+        forkJoin(customerObservables).subscribe(customers => {
+          const ordersWithCustomer: OrderWithCustomer[] = orders.map((order, idx) => {
+            const customer = customers[idx];
+            return {
+              ...order,
+              userEmail: customer.email,
+              userFirstName: customer.firstName,
+              userLastName: customer.lastName
+            };
+          });
+
+          this.dataSource.data = ordersWithCustomer;
+          this.isLoading = false;
+        });
       },
       error: (err) => {
         this.error = err.message || 'Failed to load orders.';
@@ -77,7 +109,6 @@ export class OrdersListComponent implements OnInit {
   }
 
   viewOrderDetails(orderId: number): void {
-    // Pass orderId internally via service instead of URL
     this.orderState.setSelectedOrder(orderId);
     this.router.navigate(['/orders/detail']);
   }
@@ -86,9 +117,8 @@ export class OrdersListComponent implements OnInit {
     const customerId = this.authService.getCurrentUserId();
     this.orderService.downloadInvoice(customerId, orderId).subscribe({
       next: (response: HttpResponse<ArrayBuffer>) => {
-        // Extract filename from Content-Disposition header
         const contentDisposition = response.headers.get('Content-Disposition');
-        let filename = `invoice_${orderId}.pdf`; // Default fallback
+        let filename = `invoice_${orderId}.pdf`;
 
         if (contentDisposition) {
           const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
@@ -101,7 +131,7 @@ export class OrdersListComponent implements OnInit {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = filename; // Use extracted filename
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -115,24 +145,15 @@ export class OrdersListComponent implements OnInit {
 
   getStatusClass(status?: OrderStatus): string {
     switch (status) {
-      case this.OrderStatus.CREATED:
-        return 'status-created';
-      case this.OrderStatus.PENDING:
-        return 'status-pending';
-      case this.OrderStatus.CONFIRMED:
-        return 'status-confirmed';
-      case this.OrderStatus.SHIPPED:
-        return 'status-shipped';
-      case this.OrderStatus.DELIVERED:
-        return 'status-delivered';
-      case this.OrderStatus.FINISHED:
-        return 'status-finished';
-      case this.OrderStatus.REJECTED:
-        return 'status-rejected';
-      case this.OrderStatus.CANCELLED:
-        return 'status-cancelled';
-      default:
-        return '';
+      case this.OrderStatus.CREATED: return 'status-created';
+      case this.OrderStatus.PENDING: return 'status-pending';
+      case this.OrderStatus.CONFIRMED: return 'status-confirmed';
+      case this.OrderStatus.SHIPPED: return 'status-shipped';
+      case this.OrderStatus.DELIVERED: return 'status-delivered';
+      case this.OrderStatus.FINISHED: return 'status-finished';
+      case this.OrderStatus.REJECTED: return 'status-rejected';
+      case this.OrderStatus.CANCELLED: return 'status-cancelled';
+      default: return '';
     }
   }
 
