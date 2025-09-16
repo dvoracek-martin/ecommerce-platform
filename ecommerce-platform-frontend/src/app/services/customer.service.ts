@@ -1,44 +1,16 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {AuthService} from '../auth/auth.service';
-import {Observable} from 'rxjs';
-
-interface Address {
-  street: string | null;
-  phone: string | null;
-  houseNumber: string | null;
-  city: string | null;
-  zipCode: string | null;
-  country: string | null;
-}
-
-interface BillingAddress {
-  firstName: string | null;
-  lastName: string | null;
-  companyName: string | null;
-  taxId: string | null;
-  phone: string | null;
-  street: string | null;
-  houseNumber: string | null;
-  city: string | null;
-  zipCode: string | null;
-  country: string | null;
-}
-
-interface Customer {
-  id?: string;
-  firstName: string | null;
-  lastName: string | null;
-  email: string | null;
-  address?: Address | null;
-  billingAddress?: BillingAddress | null;
-}
+import {BehaviorSubject, Observable} from 'rxjs';
+import {Customer} from '../dto/customer/customer-dto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomerService {
   private apiUrl = 'http://localhost:8080/api/customers/v1';
+  private userLanguageSubject = new BehaviorSubject<string>('en');
+  userLanguage$ = this.userLanguageSubject.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -70,5 +42,9 @@ export class CustomerService {
     });
 
     return this.http.post(`${this.apiUrl}/guest`, customerData, { headers });
+  }
+
+  setUserLanguage(lang: string) {
+    this.userLanguageSubject.next(lang);
   }
 }

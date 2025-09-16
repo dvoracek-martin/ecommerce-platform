@@ -31,6 +31,9 @@ public class Customer {
     @Column
     private boolean active;
 
+    @Column
+    private String preferredLanguage;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;

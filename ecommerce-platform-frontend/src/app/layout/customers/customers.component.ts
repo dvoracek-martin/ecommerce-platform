@@ -8,37 +8,10 @@ import {TranslateService} from '@ngx-translate/core';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {animate, state, style, transition, trigger} from '@angular/animations';
-
-interface Customer {
-  id: string;
-  firstName: string | null;
-  lastName: string | null;
-  address?: Address | null;
-  billingAddress?: BillingAddress | null;
-  preferredLanguage: string | null;
-}
-
-interface Address {
-  street: string | null;
-  phone: string | null;
-  houseNumber: string | null;
-  city: string | null;
-  zipCode: string | null;
-  country: string | null;
-}
-
-interface BillingAddress {
-  firstName: string | null;
-  lastName: string | null;
-  companyName: string | null;
-  taxId: string | null;
-  phone: string | null;
-  street: string | null;
-  houseNumber: string | null;
-  city: string | null;
-  zipCode: string | null;
-  country: string | null;
-}
+import {CustomerService} from '../../services/customer.service';
+import {CustomerAddress} from '../../dto/customer/customer-address-dto';
+import {CustomerBillingAddress} from '../../dto/customer/custommer-billing-address-dto';
+import {Customer} from '../../dto/customer/customer-dto';
 
 @Component({
   selector: 'app-customers',
@@ -61,8 +34,8 @@ export class CustomersComponent implements OnInit {
   savingPassword = false;
   readonly DEFAULT_COUNTRY = 'Switzerland';
   showBillingAddress = false;
-  initialBillingAddress: BillingAddress | null = null;
-  initialAddress: Address | null = null;
+  initialBillingAddress: CustomerBillingAddress | null = null;
+  initialAddress: CustomerAddress | null = null;
 
   languages = [
     {code: 'en', name: 'English', icon: 'flag_us'},
@@ -81,7 +54,8 @@ export class CustomersComponent implements OnInit {
     private snackBar: MatSnackBar,
     public translate: TranslateService,
     private matIconRegistry: MatIconRegistry,
-    private domSanitizer: DomSanitizer
+    private domSanitizer: DomSanitizer,
+    private customerService: CustomerService
   ) {
     this.matIconRegistry.addSvgIcon(
       'flag_ch',
@@ -110,15 +84,27 @@ export class CustomersComponent implements OnInit {
     }
     this.loadCustomerData();
 
-    // fallback: pokud není v datech jazyk, použij aktuální překladač
     const activeLang = this.translate.currentLang || 'en';
     this.selectedLanguage = this.languages.find(l => l.code === activeLang) ?? this.languages[0];
   }
 
-  onLanguageChange(lang: string): void {
-    this.translate.use(lang);
-    this.selectedLanguage = this.languages.find(l => l.code === lang) ?? this.languages[0];
-    this.customerForm.patchValue({preferredLanguage: lang});
+
+  onLanguageChange(langCode: string): void {
+    if (!langCode) return;
+
+    // Use the translation and update selectedLanguage after file loads
+    this.translate.use(langCode).subscribe({
+      next: () => {
+        const lang = this.languages.find(l => l.code === langCode);
+        if (lang) {
+          this.selectedLanguage = lang;
+          this.customerService.setUserLanguage(langCode);
+
+        }
+        this.customerForm.patchValue({preferredLanguage: langCode});
+      },
+      error: err => console.error('Error loading translations:', err)
+    });
   }
 
   onSave(): void {

@@ -11,4 +11,5 @@ public class CreateGuestCustomerDTO {
     private String email;
     private CustomerAddressDTO address;
     private CustomerBillingAddressDTO billingAddress;
+    private String preferredLanguage;
 }

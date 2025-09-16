@@ -19,6 +19,9 @@ import {MatDialog} from '@angular/material/dialog';
 import {ConfirmationDialogComponent} from './shared/confirmation-dialog.component';
 import {MixtureService} from './services/mixture.service';
 import {CartItemType} from './dto/cart/cart-item-type';
+import {CustomerService} from './services/customer.service';
+import {Customer} from './dto/customer/customer-dto';
+import {HttpClient} from '@angular/common/http';
 
 interface CartItemWithDetails extends CartItem {
   product?: ResponseProductDTO;
@@ -76,7 +79,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private productService: ProductService,
     private mixtureService: MixtureService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private customerService: CustomerService,
+    private http: HttpClient,
   ) {
     ['us', 'ch', 'cz', 'es'].forEach(code =>
       this.matIconRegistry.addSvgIcon(
@@ -109,7 +114,17 @@ export class AppComponent implements OnInit, OnDestroy {
         this.showResults = false;
       }
     });
-    this.translate.use(this.translate.getBrowserLang());
+    // if userId is present, then set his preferred language, otherwise set browser's default language
+    this.setPreferredLanguage();
+    // subscribe to changes if the user changes language
+    this.customerService.userLanguage$.subscribe(lang => {
+      this.translate.use(lang).subscribe(() => {
+        const selected = this.languages.find(l => l.code === lang);
+        if (selected) {
+          this.selectedLanguage = selected;
+        }
+      });
+    });
   }
 
   ngOnDestroy(): void {
@@ -260,18 +275,18 @@ export class AppComponent implements OnInit, OnDestroy {
         const detailObservables = cart.items.map(item => {
           if (item.cartItemType === CartItemType.PRODUCT) {
             return this.productService.getProductById(item.itemId).pipe(
-              map(product => ({ ...item, product })),
+              map(product => ({...item, product})),
               catchError(() => {
                 this.showSnackbar(`Failed to load product details for an item.`, 'warning');
-                return of({ ...item, product: undefined });
+                return of({...item, product: undefined});
               })
             );
           } else if (item.cartItemType === CartItemType.MIXTURE) {
             return this.mixtureService.getMixtureById(item.itemId).pipe(
-              map(mixture => ({ ...item, mixture })),
+              map(mixture => ({...item, mixture})),
               catchError(() => {
                 this.showSnackbar(`Failed to load mixture details for an item.`, 'warning');
-                return of({ ...item, mixture: undefined });
+                return of({...item, mixture: undefined});
               })
             );
           }
@@ -293,10 +308,11 @@ export class AppComponent implements OnInit, OnDestroy {
       this.cartItemsWithDetails = itemsWithDetails;
     }, err => {
       console.error('Failed to load cart with details', err);
-      this.cart = { id: 0, username: '', items: [], totalPrice: 0 };
+      this.cart = {id: 0, username: '', items: [], totalPrice: 0};
       this.cartItemsWithDetails = [];
     });
   }
+
   onCartButtonMouseEnter(): void {
     this.cancelCloseCartPreview();
     this.isCartPreviewOpen = true;
@@ -469,5 +485,25 @@ export class AppComponent implements OnInit, OnDestroy {
 
   navigateToOrders() {
     this.router.navigate(['/orders']);
+  }
+
+  setPreferredLanguage(): void {
+    const userId = this.authService.getUserId();
+    const token = this.authService.token;
+    if (userId && token) {
+      this.http.get<Customer>(`http://localhost:8080/api/customers/v1/${userId}`, {
+        headers: {'Authorization': `Bearer ${token}`}
+      }).subscribe({
+        next: (customer: Customer) => {
+          this.selectedLanguage = this.languages.find(l => l.code === customer.preferredLanguage)! || this.selectedLanguage;
+          this.translate.use(customer.preferredLanguage);
+        },
+        error: (err) => {
+          console.error('Failed to fetch customer data:', err);
+        }
+      });
+    } else {
+      this.translate.use(this.translate.getBrowserLang());
+    }
   }
 }

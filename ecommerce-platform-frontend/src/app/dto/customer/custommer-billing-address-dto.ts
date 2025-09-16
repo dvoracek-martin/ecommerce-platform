@@ -1,4 +1,4 @@
-export interface CustomerBillingAddressDTO {
+export interface CustomerBillingAddress {
   firstName: string | null;
   lastName: string | null;
   companyName: string | null;

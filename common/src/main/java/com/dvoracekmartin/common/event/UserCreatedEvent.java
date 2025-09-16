@@ -6,6 +6,7 @@ public record UserCreatedEvent(
         String userId,
         String username,
         String email,
-        Instant createdAt
+        Instant createdAt,
+        String preferredLanguage
 ) {
 }

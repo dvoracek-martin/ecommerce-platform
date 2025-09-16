@@ -1,10 +1,12 @@
-import {CustomerBillingAddressDTO} from './custommer-billing-address-dto';
-import {CustomerAddressDTO} from './customer-address-dto';
+import {CustomerBillingAddress} from './custommer-billing-address-dto';
+import {CustomerAddress} from './customer-address-dto';
 
-export class CustomerDTO {
+export class Customer {
+  id?: string;
   firstName: string | null;
   lastName: string | null;
-  phone: string | null;
-  address?: CustomerAddressDTO | null;
-  billingAddress?: CustomerBillingAddressDTO | null;
+  email: string | null;
+  address?: CustomerAddress | null;
+  billingAddress?: CustomerBillingAddress | null;
+  preferredLanguage: string;
 }

@@ -1,4 +1,4 @@
-export interface CustomerAddressDTO {
+export interface CustomerAddress {
   street: string | null;
   phone: string | null;
   houseNumber: string | null;

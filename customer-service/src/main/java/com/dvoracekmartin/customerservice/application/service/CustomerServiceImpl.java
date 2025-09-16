@@ -64,6 +64,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         customer.setFirstName(updateCustomerDTO.firstName());
         customer.setLastName(updateCustomerDTO.lastName());
+        customer.setPreferredLanguage(updateCustomerDTO.preferredLanguage());
         customer.setAddress(customerMapper.customerAddressDTOToAddress(updateCustomerDTO.address()));
         customer.setBillingAddress(customerMapper.customerBillingAddressDTOToAddress(updateCustomerDTO.billingAddress()));
 
@@ -77,7 +78,8 @@ public class CustomerServiceImpl implements CustomerService {
                 updatedCustomer.getLastName(),
                 customerMapper.addressToCustomerAddressDTO(updatedCustomer.getAddress()),
                 customerMapper.billingAaddressToCustomerBillingAddressDTO(updatedCustomer.getBillingAddress()),
-                Response.Status.OK.getStatusCode()
+                Response.Status.OK.getStatusCode(),
+                updatedCustomer.getPreferredLanguage()
         );
     }
 
@@ -101,6 +103,7 @@ public class CustomerServiceImpl implements CustomerService {
         // Set additional properties for guest customer
         customer.setGuest(true);
         customer.setActive(true);
+        customer.setPreferredLanguage(createGuestCustomerDTO.getPreferredLanguage());
 
         // Save the customer
         Customer savedCustomer = customerRepository.save(customer);

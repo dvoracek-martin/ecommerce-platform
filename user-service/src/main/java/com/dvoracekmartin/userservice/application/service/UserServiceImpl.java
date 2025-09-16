@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
             User savedUser = userRepository.save(userMapper.createUserDTOToUser(createUserDTO, userId));
             log.info("User {} saved in local DB", savedUser.getUsername());
 
-            userEventPublisher.publishUserCreatedEvent(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail());
+            userEventPublisher.publishUserCreatedEvent(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), createUserDTO.preferredLanguage());
             log.debug("Published user created event for userId: {}", savedUser.getId());
 
             return userMapper.userToResponseUserDTO(savedUser, status);

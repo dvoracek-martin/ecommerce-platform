@@ -22,6 +22,10 @@ import {catchError, map, switchMap} from 'rxjs/operators';
 import {TermsModalComponent} from '../../../shared/terms-modal.component';
 import {CustomerService} from '../../../services/customer.service';
 import {OrderStateService} from '../../../services/order-state.service';
+import {Address} from 'node:cluster';
+import {Customer} from '../../../dto/customer/customer-dto';
+import {CustomerBillingAddress} from '../../../dto/customer/custommer-billing-address-dto';
+import {CustomerAddress} from '../../../dto/customer/customer-address-dto';
 
 interface CartItemWithDetails extends CartItem {
   product?: ResponseProductDTO;
@@ -30,36 +34,6 @@ interface CartItemWithDetails extends CartItem {
   updating?: boolean;
 }
 
-interface Address {
-  street: string | null;
-  phone: string | null;
-  houseNumber: string | null;
-  city: string | null;
-  zipCode: string | null;
-  country: string | null;
-}
-
-interface BillingAddress {
-  firstName: string | null;
-  lastName: string | null;
-  companyName: string | null;
-  taxId: string | null;
-  phone: string | null;
-  street: string | null;
-  houseNumber: string | null;
-  city: string | null;
-  zipCode: string | null;
-  country: string | null;
-}
-
-interface Customer {
-  id?: string;
-  firstName: string | null;
-  lastName: string | null;
-  email: string | null;
-  address?: Address | null;
-  billingAddress?: BillingAddress | null;
-}
 
 @Component({
   selector: 'app-checkout',
@@ -84,8 +58,8 @@ export class CheckoutComponent implements OnInit {
   orderId: number;
   readonly DEFAULT_COUNTRY = 'Switzerland';
   showBillingAddress = false;
-  private initialBillingAddress: BillingAddress | null = null;
-  private initialAddress: Address | null = null;
+  private initialBillingAddress: CustomerBillingAddress | null = null;
+  private initialAddress: CustomerAddress | null = null;
   isAuthPopupOpen = false;
   CartItemType = CartItemType;
   isCartEmpty: boolean = false;
@@ -168,7 +142,7 @@ export class CheckoutComponent implements OnInit {
     this.authService.isAuthenticated$.subscribe(isAuthenticated => {
       this.isLoggedIn = isAuthenticated;
       if (isAuthenticated) {
-        this.fetchUserData();
+        this.fetchCustomerData();
         this.customerForm.patchValue({
           email: this.authService.getEmail()
         });
@@ -179,7 +153,7 @@ export class CheckoutComponent implements OnInit {
     this.setupBillingAddressValidation();
   }
 
-  fetchUserData(): void {
+  fetchCustomerData(): void {
     const userId = this.authService.getUserId();
     const token = this.authService.token;
 
@@ -339,7 +313,7 @@ export class CheckoutComponent implements OnInit {
   closeAuthPopup(): void {
     this.isAuthPopupOpen = false;
     if (this.authService.isAuthenticated$) {
-      this.fetchUserData();
+      this.fetchCustomerData();
     }
   }
 

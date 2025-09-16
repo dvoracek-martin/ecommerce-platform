@@ -22,12 +22,13 @@ public class UserEventPublisher {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void publishUserCreatedEvent(String userId, String username, String email) {
+    public void publishUserCreatedEvent(String userId, String username, String email,String preferredLanguage) {
         UserCreatedEvent event = new UserCreatedEvent(
                 userId,
                 username,
                 email,
-                Instant.now()
+                Instant.now(),
+                preferredLanguage
         );
 
         log.debug("Publishing event: {}", event);

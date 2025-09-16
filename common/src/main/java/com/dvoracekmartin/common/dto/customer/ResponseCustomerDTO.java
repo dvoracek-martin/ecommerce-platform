@@ -7,6 +7,7 @@ public record ResponseCustomerDTO(
         String lastName,
         CustomerAddressDTO address,
         CustomerBillingAddressDTO billingAddress,
-        int statusCode
+        int statusCode,
+        String preferredLanguage
 ) {
 }

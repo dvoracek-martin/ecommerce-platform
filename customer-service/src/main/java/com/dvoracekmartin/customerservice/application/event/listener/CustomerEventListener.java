@@ -27,7 +27,8 @@ public class CustomerEventListener {
                 null,
                 null,
                 null,
-                null
+                null,
+                event.preferredLanguage()
         );
         customerService.createCustomer(createCustomerDTO);
     }

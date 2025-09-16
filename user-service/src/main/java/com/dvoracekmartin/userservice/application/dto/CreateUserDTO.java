@@ -8,7 +8,8 @@ import java.util.List;
 public record CreateUserDTO(
         @NotBlank String username,
         @NotBlank String email,
-        @NotEmpty List<CredentialDTO> credentials
+        @NotEmpty List<CredentialDTO> credentials,
+        @NotEmpty String preferredLanguage
 ) {
     public record CredentialDTO(String type, String value, boolean temporary) {
     }
