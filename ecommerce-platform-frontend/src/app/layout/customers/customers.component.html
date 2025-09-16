@@ -34,6 +34,17 @@
               </mat-error>
             </mat-form-field>
           </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.PREFERRED_LANGUAGE' | translate }}</mat-label>
+              <mat-select [value]="selectedLanguage.code" (selectionChange)="onLanguageChange($event.value)">
+                <mat-option *ngFor="let lang of languages" [value]="lang.code">
+                  <mat-icon class="flag-icon" *ngIf="lang.icon" [svgIcon]="lang.icon"></mat-icon>
+                  {{ lang.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
         </div>
 
         <div class="form-section" formGroupName="address">

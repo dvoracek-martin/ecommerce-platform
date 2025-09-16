@@ -57,6 +57,7 @@ export class UserRegistrationComponent implements OnInit {
     const payload = {
       username: this.registrationForm.get('email')?.value.trim().toLowerCase(),
       email: this.registrationForm.get('email')?.value.trim().toLowerCase(),
+      preferredLanguage: this.translate.currentLang,
       credentials: [
         {
           type: 'password',
@@ -65,6 +66,7 @@ export class UserRegistrationComponent implements OnInit {
       ]
     };
 
+    // TODO move to service
     this.http.post('http://localhost:8080/api/users/v1/create', payload).subscribe({
       next: () => {
         this.snackBar.open(
@@ -103,6 +105,7 @@ export class UserRegistrationComponent implements OnInit {
     body.set('username', username);
     body.set('password', password);
 
+    // TODO move to service
     this.http.post(
       'http://localhost:9090/realms/ecommerce-platform/protocol/openid-connect/token',
       body.toString(),

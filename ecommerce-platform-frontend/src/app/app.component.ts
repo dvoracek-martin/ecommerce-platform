@@ -109,6 +109,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.showResults = false;
       }
     });
+    this.translate.use(this.translate.getBrowserLang());
   }
 
   ngOnDestroy(): void {

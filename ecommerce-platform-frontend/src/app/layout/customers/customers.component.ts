@@ -15,6 +15,7 @@ interface Customer {
   lastName: string | null;
   address?: Address | null;
   billingAddress?: BillingAddress | null;
+  preferredLanguage: string | null;
 }
 
 interface Address {
@@ -63,6 +64,15 @@ export class CustomersComponent implements OnInit {
   initialBillingAddress: BillingAddress | null = null;
   initialAddress: Address | null = null;
 
+  languages = [
+    {code: 'en', name: 'English', icon: 'flag_us'},
+    {code: 'de', name: 'Deutsch', icon: 'flag_ch'},
+    {code: 'fr', name: 'Français', icon: 'flag_ch'},
+    {code: 'cs', name: 'Česky', icon: 'flag_cz'},
+    {code: 'es', name: 'Español', icon: 'flag_es'}
+  ];
+  selectedLanguage = this.languages[0];
+
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
@@ -77,6 +87,18 @@ export class CustomersComponent implements OnInit {
       'flag_ch',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/flags/ch.svg')
     );
+    this.matIconRegistry.addSvgIcon(
+      'flag_cz',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/flags/cz.svg')
+    );
+    this.matIconRegistry.addSvgIcon(
+      'flag_us',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/flags/us.svg')
+    );
+    this.matIconRegistry.addSvgIcon(
+      'flag_es',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/flags/es.svg')
+    );
 
     this.initializeForms();
   }
@@ -86,8 +108,17 @@ export class CustomersComponent implements OnInit {
       this.handleUnauthorized();
       return;
     }
-
     this.loadCustomerData();
+
+    // fallback: pokud není v datech jazyk, použij aktuální překladač
+    const activeLang = this.translate.currentLang || 'en';
+    this.selectedLanguage = this.languages.find(l => l.code === activeLang) ?? this.languages[0];
+  }
+
+  onLanguageChange(lang: string): void {
+    this.translate.use(lang);
+    this.selectedLanguage = this.languages.find(l => l.code === lang) ?? this.languages[0];
+    this.customerForm.patchValue({preferredLanguage: lang});
   }
 
   onSave(): void {
@@ -147,6 +178,7 @@ export class CustomersComponent implements OnInit {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       phone: [''],
+      preferredLanguage: ['en'],
       address: this.fb.group({
         phone: ['', [Validators.pattern(/^\+?[0-9\s-]+$/)]],
         street: ['', Validators.required],
@@ -245,6 +277,14 @@ export class CustomersComponent implements OnInit {
     this.initialBillingAddress = customer.billingAddress;
     this.initialAddress = customer.address;
     this.patchFormValues(customer);
+
+    if (customer.preferredLanguage) {
+      this.translate.use(customer.preferredLanguage.toLowerCase());
+      this.selectedLanguage = this.languages.find(l => l.code === customer.preferredLanguage.toLowerCase()) ?? this.languages[0];
+    } else {
+      this.customerForm.patchValue({preferredLanguage: this.selectedLanguage.code});
+    }
+
     this.loading = false;
   }
 
@@ -255,6 +295,7 @@ export class CustomersComponent implements OnInit {
       firstName: customer.firstName || '',
       lastName: customer.lastName || '',
       phone: customer.address?.phone || '',
+      preferredLanguage: customer.preferredLanguage || this.selectedLanguage.code,
       address: {
         phone: customer.address?.phone || '',
         street: customer.address?.street || '',
@@ -309,6 +350,7 @@ export class CustomersComponent implements OnInit {
       firstName: formValue.firstName,
       lastName: formValue.lastName,
       phone: formValue.phone,
+      preferredLanguage: formValue.preferredLanguage,
       address: {...formValue.address},
       billingAddress: useShippingAddress
         ? {
