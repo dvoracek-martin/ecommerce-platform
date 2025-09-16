@@ -676,6 +676,18 @@ h1 {
   }
 }
 
+/* tooltip wrapper fix - umožní zobrazit matTooltip i nad disabled buttonem */
+.tooltip-wrapper {
+  display: inline-block;
+  width: 100%;         /* zajišťuje, že wrapper přebírá šířku tlačítka */
+  cursor: default;     /* odstraní "not-allowed" kurzor z wrapperu */
+}
+
+/* zabrání klikání na button uvnitř wrapperu, tooltip ale funguje na wrapperu */
+.tooltip-wrapper .btn:disabled {
+  pointer-events: none;
+}
+
 /* Popup styles */
 .popup-overlay {
   position: fixed;
@@ -878,8 +890,7 @@ h1 {
   }
 }
 
-/* Animation for the cloned card that moves to the grid */
-.animating-clone {
+/* Animation for the cloned card that moves to the grid */.animating-clone {
   transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.4s ease-out;
   opacity: 1;
 }

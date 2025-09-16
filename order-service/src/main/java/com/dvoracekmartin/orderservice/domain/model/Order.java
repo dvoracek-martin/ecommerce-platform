@@ -38,6 +38,7 @@ public class Order {
     private String paymentMethod;
     private LocalDateTime orderDate;
     private String trackingNumber;
+    private int orderYearOrderCounter;
 
     @PrePersist
     protected void onCreate() {

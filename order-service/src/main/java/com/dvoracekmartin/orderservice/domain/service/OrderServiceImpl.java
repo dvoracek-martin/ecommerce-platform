@@ -2,7 +2,6 @@ package com.dvoracekmartin.orderservice.domain.service;
 
 import com.dvoracekmartin.common.dto.cart.CartItemDTO;
 import com.dvoracekmartin.common.dto.cart.CartItemType;
-import com.dvoracekmartin.common.dto.customer.ResponseCustomerDTO;
 import com.dvoracekmartin.orderservice.application.dto.OrderRequest;
 import com.dvoracekmartin.orderservice.application.dto.OrderResponse;
 import com.dvoracekmartin.orderservice.application.service.customer.CustomerClient;
@@ -14,7 +13,6 @@ import com.dvoracekmartin.orderservice.application.utils.PdfDataWrapper;
 import com.dvoracekmartin.orderservice.domain.model.Order;
 import com.dvoracekmartin.orderservice.domain.model.OrderItem;
 import com.dvoracekmartin.orderservice.domain.repository.OrderRepository;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private final MediaRetriever mediaRetriever;
     private final MediaUploader mediaUploader;
     private final PdfGenerationService pdfGenerationService;
-    private final CustomerClient customerClient;
+    private final OrderCounterService orderCounterService;
 
     @Override
     public OrderResponse createOrder(String username, OrderRequest orderRequest) {
@@ -64,6 +62,7 @@ public class OrderServiceImpl implements OrderService {
         order.setShippingMethod(orderRequest.getShippingMethod());
         order.setPaymentMethod(orderRequest.getPaymentMethod());
         order.setStatus(OrderStatus.CREATED);
+        order.setOrderYearOrderCounter(orderCounterService.getNextOrderNumberCounter());
 
         Order savedOrder = orderRepository.save(order);
         byte[] invoicePdf = pdfGenerationService.generateInvoice(savedOrder);
@@ -71,9 +70,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Create the correct path structure
         String folderPath = savedOrder.getCustomerId();
-        ResponseCustomerDTO responseCustomerDTO = customerClient.getCustomerById(savedOrder.getCustomerId());
-        String invoiceName = responseCustomerDTO.lastName() + responseCustomerDTO.firstName() + formatLocalDateTimeyyyyMMdd(savedOrder.getOrderDate());
-        mediaUploader.uploadBase64(base64Invoice, folderPath, invoiceName, CONTENT_TYPE, INVOICES_BUCKET_NAME, folderPath);
+        mediaUploader.uploadBase64(base64Invoice, folderPath, orderCounterService.generateInvoiceName(), CONTENT_TYPE, INVOICES_BUCKET_NAME, folderPath);
 
         return convertToResponse(savedOrder);
     }
@@ -94,24 +91,6 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findByCustomerId(customerId).stream().sorted(Comparator.comparing(Order::getOrderDate).reversed()).map(this::convertToResponse).collect(Collectors.toList());
     }
 
-    @Transactional
-    @Override
-    public Order createOrderWithInvoice(Order order) {
-        Order savedOrder = orderRepository.save(order);
-
-        byte[] invoicePdf = pdfGenerationService.generateInvoice(savedOrder);
-        String base64Invoice = Base64.getEncoder().encodeToString(invoicePdf);
-
-        ResponseCustomerDTO responseCustomerDTO = customerClient.getCustomerById(savedOrder.getCustomerId());
-        String invoiceName = responseCustomerDTO.lastName() + responseCustomerDTO.firstName() + formatLocalDateTimeyyyyMMdd(savedOrder.getOrderDate());
-
-        String folderPath = INVOICES_BUCKET_NAME + DELIMITER + savedOrder.getCustomerId();
-
-        mediaUploader.uploadBase64(base64Invoice, folderPath, invoiceName, CONTENT_TYPE, INVOICES_BUCKET_NAME, folderPath);
-
-        return orderRepository.save(savedOrder);
-    }
-
     @Override
     public PdfDataWrapper getInvoiceByOrderId(String username, String customerId, Long orderId) {
         if (!customerId.equals(username)) {
@@ -120,10 +99,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findByIdAndCustomerId(orderId, customerId).orElseThrow(() -> new IllegalArgumentException("Order not found for customer"));
 
         // Retrieve the PDF from MediaRetriever
-
-        ResponseCustomerDTO responseCustomerDTO = customerClient.getCustomerById(customerId);
-        String invoiceName = responseCustomerDTO.lastName() + responseCustomerDTO.firstName() + formatLocalDateTimeyyyyMMdd(order.getOrderDate());
-
+        String invoiceName = orderCounterService.generateInvoiceName(order.getOrderDate().getYear(), order.getOrderYearOrderCounter());
         byte[] invoiceData = mediaRetriever.retrieveMedia(username + DELIMITER + invoiceName + PDF_EXTENSION, "invoices");
 
         if (invoiceData == null) {
@@ -131,11 +107,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return new PdfDataWrapper(invoiceData, invoiceName);
-    }
-
-    private static String formatLocalDateTimeyyyyMMdd(LocalDateTime orderDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        return formatter.format(orderDate);
     }
 
     private OrderResponse convertToResponse(Order order) {

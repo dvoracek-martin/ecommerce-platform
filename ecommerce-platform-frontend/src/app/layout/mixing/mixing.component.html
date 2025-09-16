@@ -14,7 +14,7 @@
             <ng-container *ngIf="category.media?.[0]?.contentType?.startsWith('image/'); else categoryPlaceholder">
               <img [src]="'data:' + category.media[0].contentType + ';base64,' + category.media[0].base64Data"
                    alt="{{ category.name }}"
-                   class="category-image" />
+                   class="category-image"/>
             </ng-container>
             <ng-template #categoryPlaceholder>
               <div class="category-placeholder">{{ category.name }}</div>
@@ -22,7 +22,9 @@
             <div class="category-name">{{ category.name }}</div>
           </div>
         </div>
-        <button class="carousel-btn right" (click)="nextCategory()" [disabled]="activeCategoryIndex === categories.length - 1">›</button>
+        <button class="carousel-btn right" (click)="nextCategory()"
+                [disabled]="activeCategoryIndex === categories.length - 1">›
+        </button>
       </div>
     </div>
 
@@ -85,8 +87,10 @@
                         </div>
                       </ng-container>
                       <ng-template #defaultAdd>
-                        <ng-container *ngIf="!isAddButtonDisabled(product)">Add</ng-container>
-                        <ng-container *ngIf="isAddButtonDisabled(product)">Grid Full</ng-container>
+                        <ng-container *ngIf="!isAddButtonDisabled(product)">{{ 'PRODUCTS.ADD' | translate }}
+                        </ng-container>
+                        <ng-container *ngIf="isAddButtonDisabled(product)">{{ 'PRODUCTS.GRID_FULL' | translate }}
+                        </ng-container>
                       </ng-template>
                     </button>
                   </div>
@@ -161,11 +165,16 @@
         Total: {{ calculateTotalPrice() | currency }}
       </div>
       <div class="mixture-actions">
-        <button class="btn btn-checkout"
-                [disabled]="isDefaultName() || getNonNullMixedProductsCount() === 0"
-                (click)="addMixtureToCart()">
-          Add to cart
-        </button>
+        <span
+          matTooltip="{{ isDefaultName() ? ('MIXTURE.NAME_REQUIRED' | translate) : '' }}"
+          [matTooltipDisabled]="!isDefaultName()" matTooltipShowDelay="200"
+          class="tooltip-wrapper">
+          <button class="btn btn-checkout"
+                  [disabled]="isDefaultName() || getNonNullMixedProductsCount() === 0"
+                  (click)="addMixtureToCart()">
+            {{ 'MIXTURE.ADD_TO_CART' | translate }}
+          </button>
+        </span>
       </div>
     </div>
   </div>
@@ -186,8 +195,9 @@
             <video *ngIf="selectedProduct.media[0].contentType?.startsWith('video/')"
                    class="popup-image"
                    muted autoplay loop playsinline>
-              <source [src]="'data:' + selectedProduct.media[0].contentType + ';base64,' + selectedProduct.media[0].base64Data"
-                      [type]="selectedProduct.media[0].contentType"/>
+              <source
+                [src]="'data:' + selectedProduct.media[0].contentType + ';base64,' + selectedProduct.media[0].base64Data"
+                [type]="selectedProduct.media[0].contentType"/>
             </video>
           </ng-container>
           <ng-template #noMediaPopup>

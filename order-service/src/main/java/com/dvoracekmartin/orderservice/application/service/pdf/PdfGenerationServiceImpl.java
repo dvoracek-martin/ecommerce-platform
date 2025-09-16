@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -44,7 +45,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
                 contentStream.beginText();
                 contentStream.setFont(titleFont, 18);
                 contentStream.newLineAtOffset(100, 750);
-                contentStream.showText("INVOICE");
+                contentStream.showText("INVOICE" + " #" + String.format("%d%05d", LocalDateTime.now().getYear(), order.getOrderYearOrderCounter()));
                 contentStream.endText();
 
                 // Add order details
@@ -57,12 +58,8 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
                 contentStream.beginText();
                 contentStream.setFont(normalFont, 10);
                 contentStream.newLineAtOffset(100, 680);
-                contentStream.showText("Order ID: " + order.getId());
-                contentStream.newLineAtOffset(0, -15);
                 contentStream.showText("Order Date: " +
-                        order.getOrderDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-                contentStream.newLineAtOffset(0, -15);
-                contentStream.showText("Tracking Number: " + order.getTrackingNumber());
+                        order.getOrderDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 contentStream.endText();
 
                 // Add customer details
@@ -78,7 +75,6 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
                 contentStream.beginText();
                 contentStream.setFont(normalFont, 10);
                 contentStream.newLineAtOffset(100, 600);
-//                contentStream.showText("Customer ID: " + responseCustomerDTO.id());
                 contentStream.newLineAtOffset(0, -15);
                 contentStream.showText("Name: " +
                         responseCustomerDTO.firstName() + " " + responseCustomerDTO.lastName());
