@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {AuthService} from '../auth/auth.service';
 import {ResponseOrderDTO} from '../dto/order/response-order-dto';
 
@@ -70,14 +70,15 @@ export class OrderService {
    * @param customerId
    * @param orderId The ID of the order to download the invoice for.
    */
-  downloadInvoice(customerId: string, orderId: number): Observable<ArrayBuffer> {
+  downloadInvoice(customerId: string, orderId: number): Observable<HttpResponse<ArrayBuffer>> {
     const token = this.authService.token;
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
     return this.http.get(`${this.apiUrl}/customer/${customerId}/invoice/${orderId}`, {
       headers: headers,
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
+      observe: 'response'
     });
   }
 }

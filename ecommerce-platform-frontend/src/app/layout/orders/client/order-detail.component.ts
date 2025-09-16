@@ -14,6 +14,7 @@ import { OrderStatus } from '../../../dto/order/order-status';
 import { Router } from '@angular/router';
 import { OrderStateService } from '../../../services/order-state.service';
 import {AuthService} from '../../../auth/auth.service';
+import {HttpResponse} from '@angular/common/http';
 
 interface OrderItemWithDetails extends CartItemDTO {
   product?: ResponseProductDTO;
@@ -165,12 +166,23 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   downloadInvoice(orderId: number): void {
     const customerId = this.authService.getCurrentUserId();
     this.orderService.downloadInvoice(customerId, orderId).subscribe({
-      next: (response: any) => {
-        const blob = new Blob([response], { type: 'application/pdf' });
+      next: (response: HttpResponse<ArrayBuffer>) => {
+        // Extract filename from Content-Disposition header
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = `invoice_${orderId}.pdf`; // Default fallback
+
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+          if (filenameMatch != null && filenameMatch[1]) {
+            filename = filenameMatch[1];
+          }
+        }
+
+        const blob = new Blob([response.body!], {type: 'application/pdf'});
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `invoice_${orderId}.pdf`;
+        a.download = filename; // Use extracted filename
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

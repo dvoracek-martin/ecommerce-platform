@@ -9,6 +9,7 @@ import {ResponseOrderDTO} from '../../../dto/order/response-order-dto';
 import {AuthService} from '../../../auth/auth.service';
 import {OrderStateService} from '../../../services/order-state.service';
 import {OrderStatus} from '../../../dto/order/order-status';
+import {HttpResponse} from '@angular/common/http';
 
 @Component({
   selector: 'app-orders-list',
@@ -84,12 +85,23 @@ export class OrdersListComponent implements OnInit {
   downloadInvoice(orderId: number): void {
     const customerId = this.authService.getCurrentUserId();
     this.orderService.downloadInvoice(customerId, orderId).subscribe({
-      next: (response: any) => {
-        const blob = new Blob([response], { type: 'application/pdf' });
+      next: (response: HttpResponse<ArrayBuffer>) => {
+        // Extract filename from Content-Disposition header
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = `invoice_${orderId}.pdf`; // Default fallback
+
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+          if (filenameMatch != null && filenameMatch[1]) {
+            filename = filenameMatch[1];
+          }
+        }
+
+        const blob = new Blob([response.body!], {type: 'application/pdf'});
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `invoice_${orderId}.pdf`;
+        a.download = filename; // Use extracted filename
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -103,15 +115,24 @@ export class OrdersListComponent implements OnInit {
 
   getStatusClass(status?: OrderStatus): string {
     switch (status) {
-      case this.OrderStatus.CREATED: return 'status-created';
-      case this.OrderStatus.PENDING: return 'status-pending';
-      case this.OrderStatus.CONFIRMED: return 'status-confirmed';
-      case this.OrderStatus.SHIPPED: return 'status-shipped';
-      case this.OrderStatus.DELIVERED: return 'status-delivered';
-      case this.OrderStatus.FINISHED: return 'status-finished';
-      case this.OrderStatus.REJECTED: return 'status-rejected';
-      case this.OrderStatus.CANCELLED: return 'status-cancelled';
-      default: return '';
+      case this.OrderStatus.CREATED:
+        return 'status-created';
+      case this.OrderStatus.PENDING:
+        return 'status-pending';
+      case this.OrderStatus.CONFIRMED:
+        return 'status-confirmed';
+      case this.OrderStatus.SHIPPED:
+        return 'status-shipped';
+      case this.OrderStatus.DELIVERED:
+        return 'status-delivered';
+      case this.OrderStatus.FINISHED:
+        return 'status-finished';
+      case this.OrderStatus.REJECTED:
+        return 'status-rejected';
+      case this.OrderStatus.CANCELLED:
+        return 'status-cancelled';
+      default:
+        return '';
     }
   }
 
