@@ -9,6 +9,7 @@ public record UpdateCustomerDTO(
         String firstName,
         String lastName,
         CustomerAddressDTO address,
-        CustomerBillingAddressDTO billingAddress
+        CustomerBillingAddressDTO billingAddress,
+        String preferredLanguage
 ) {
 }

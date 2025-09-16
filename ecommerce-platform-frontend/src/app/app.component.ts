@@ -40,9 +40,9 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'ecommerce-platform-frontend';
 
   languages = [
-    {code: 'en', name: 'English', icon: 'flag_us'},
     {code: 'de', name: 'Deutsch', icon: 'flag_ch'},
     {code: 'fr', name: 'Français', icon: 'flag_ch'},
+    {code: 'en', name: 'English', icon: 'flag_us'},
     {code: 'cs', name: 'Česky', icon: 'flag_cz'},
     {code: 'es', name: 'Español', icon: 'flag_es'}
   ];
@@ -91,11 +91,13 @@ export class AppComponent implements OnInit, OnDestroy {
     );
 
     translate.addLangs(this.languages.map(l => l.code));
-    translate.setDefaultLang('en');
-    const browserLang = translate.getBrowserLang() || 'en';
-    this.setLanguage(/en|de|fr|cs|es/.test(browserLang) ? browserLang : 'en');
 
+    const browserLang = (navigator.language || 'de').split('-')[0];
+    translate.setDefaultLang(browserLang);
+    this.setLanguage(/en|de|fr|cs|es/.test(browserLang) ? browserLang : 'de');
     this.listenToCartChanges();
+    translate.setDefaultLang('de');
+
 
     this.totalCartItemCount$ = this.cartService.cart$.pipe(
       map(cart => cart ? cart.items.reduce((acc, item) => acc + item.quantity, 0) : 0)
@@ -116,6 +118,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
     // if userId is present, then set his preferred language, otherwise set browser's default language
     this.setPreferredLanguage();
+
     // subscribe to changes if the user changes language
     this.customerService.userLanguage$.subscribe(lang => {
       this.translate.use(lang).subscribe(() => {
@@ -207,9 +210,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.setLanguage(code);
   }
 
-  private setLanguage(code: string) {
-    this.translate.use(code);
-    this.selectedLanguage = this.languages.find(l => l.code === code)! || this.selectedLanguage;
+  private setLanguage(code?: string) {
+    const validCode = code && ['en', 'de', 'fr', 'cs', 'es'].includes(code) ? code : 'de';
+    this.translate.use(validCode);
+    this.selectedLanguage = this.languages.find(l => l.code === validCode)!;
   }
 
   navigateToRoot(): void {
@@ -503,7 +507,10 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      this.translate.use(this.translate.getBrowserLang());
+      const browserLang = (navigator.language || 'de').split('-')[0];
+      this.translate.setDefaultLang(browserLang);
+      this.translate.use(browserLang);
+      this.selectedLanguage = this.languages.find(l => l.code === browserLang)! || this.selectedLanguage;
     }
   }
 }
