@@ -1,1 +1,150 @@
-<p>order-detail works!</p>
+<div class="order-container">
+  <div class="order-header">
+    <div class="order-title-section">
+      <h1>{{ 'ORDER_DETAIL.TITLE' | translate:{id: order?.id} }}</h1>
+      <div class="order-date" *ngIf="order?.orderDate">
+        {{ 'ORDER_DETAIL.ORDER_DATE' | translate }}: {{ formatOrderDate(order.orderDate) }}
+      </div>
+    </div>
+
+    <div class="order-status-section">
+      <div class="status-badge" [ngClass]="getStatusClass(order?.status)">
+        {{ getStatusText(order?.status) }}
+      </div>
+      <div class="order-totals">
+        <div class="total-label">{{ 'ORDER_DETAIL.TOTAL' | translate }}</div>
+        <div class="total-amount">{{ order?.finalTotal | currency }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="order-layout-wrapper">
+    <div class="order-main-content-wrapper">
+      <div *ngIf="isLoading" class="loading-section">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <div class="loading-text">{{ 'ORDER_DETAIL.LOADING' | translate }}</div>
+      </div>
+
+      <div *ngIf="isOrderLoaded && !order" class="order-not-found">
+        <div class="not-found-icon">
+          <span class="material-icons">search_off</span>
+        </div>
+        <h3>{{ 'ORDER_DETAIL.NOT_FOUND_TITLE' | translate }}</h3>
+        <p>{{ 'ORDER_DETAIL.NOT_FOUND_DESCRIPTION' | translate }}</p>
+      </div>
+
+      <div *ngIf="isOrderLoaded && order" class="order-content">
+        <div class="order-items-section">
+          <h2>{{ 'ORDER_DETAIL.ITEMS' | translate }}</h2>
+          <div class="order-items">
+            <div *ngFor="let item of orderItemsWithDetails; trackBy: trackByItemId"
+                 class="order-item"
+                 [class.mixture-item]="item.cartItemType === CartItemType.MIXTURE">
+
+              <div class="item-media">
+                <ng-container *ngIf="item.product || item.mixture">
+                  <img *ngIf="(item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0])"
+                       [src]="item.product?.media?.[0] ? 'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data :
+                             (item.mixture?.products?.[0]?.media?.[0] ? 'data:' + item.mixture.products[0].media[0].contentType + ';base64,' + item.mixture.products[0].media[0].base64Data : '')"
+                       alt="{{ item.itemName }}"/>
+                </ng-container>
+                <div *ngIf="!((item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0]))"
+                     class="no-image">
+                  <span class="material-icons" *ngIf="item.cartItemType === CartItemType.PRODUCT">inventory_2</span>
+                  <span class="material-icons" *ngIf="item.cartItemType === CartItemType.MIXTURE">blender</span>
+                </div>
+              </div>
+
+              <div class="item-info">
+                <div class="item-header">
+                  <h3 class="item-name">{{ item.itemName }}</h3>
+                  <div class="item-price">{{ item.itemPrice | currency }}</div>
+                </div>
+
+                <div class="item-description" *ngIf="item.product?.description">
+                  {{ item.product.description }}
+                </div>
+
+                <div *ngIf="item.cartItemType === CartItemType.MIXTURE && item.mixture"
+                     class="mixture-display">
+                  <h4>{{ 'ORDER_DETAIL.MIXTURE_CONTAINS' | translate }}</h4>
+                  <div class="mixture-products-list">
+                    <div *ngFor="let product of item.mixture.products"
+                         class="mixture-product-item">
+                      <div class="mixture-product-info">
+                        <div class="mixture-product-name">{{ product.name }}</div>
+                        <div class="mixture-product-price">{{ product.price | currency }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="item-controls">
+                  <div class="item-quantity">
+                    <label>{{ 'ORDER_DETAIL.QUANTITY' | translate }}:</label>
+                    <div class="quantity-readonly">{{ item.quantity }}</div>
+                  </div>
+                  <div class="item-total">{{ getItemTotal(item) | currency }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-info-section">
+          <h2>{{ 'ORDER_DETAIL.ORDER_INFO' | translate }}</h2>
+          <div class="info-grid">
+            <div class="info-row">
+              <div class="info-label">{{ 'ORDER_DETAIL.ORDER_DATE' | translate }}:</div>
+              <div class="info-value">{{ formatOrderDate(order?.orderDate) }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">{{ 'ORDER_DETAIL.STATUS' | translate }}:</div>
+              <div class="info-value">
+                <span class="status-text" [ngClass]="getStatusClass(order?.status)">
+                  {{ getStatusText(order?.status) }}
+                </span>
+              </div>
+            </div>
+            <div class="info-row" *ngIf="order?.trackingNumber">
+              <div class="info-label">{{ 'ORDER_DETAIL.TRACKING_NUMBER' | translate }}:</div>
+              <div class="info-value">{{ order.trackingNumber }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">{{ 'ORDER_DETAIL.SHIPPING_METHOD' | translate }}:</div>
+              <div class="info-value">{{ order?.shippingMethod }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">{{ 'ORDER_DETAIL.PAYMENT_METHOD' | translate }}:</div>
+              <div class="info-value">{{ order?.paymentMethod }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-summary" *ngIf="isOrderLoaded && order">
+      <div class="summary-card">
+        <h3>{{ 'ORDER_DETAIL.ORDER_SUMMARY' | translate }}</h3>
+        <div class="summary-row">
+          <span>{{ 'ORDER_DETAIL.SUBTOTAL' | translate }}:</span>
+          <span>{{ getOrderSubtotal() | currency }}</span>
+        </div>
+        <div class="summary-row">
+          <span>{{ 'ORDER_DETAIL.SHIPPING' | translate }}:</span>
+          <span>{{ order?.shippingCost | currency }}</span>
+        </div>
+        <div class="summary-row total">
+          <span>{{ 'ORDER_DETAIL.TOTAL' | translate }}:</span>
+          <span>{{ order?.finalTotal | currency }}</span>
+        </div>
+      </div>
+      <div class="invoice-section">
+        <button class="btn-download-invoice" (click)="downloadInvoice(order.id)">
+          <mat-icon>download</mat-icon>
+          {{ 'ORDER_DETAIL.DOWNLOAD_INVOICE' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

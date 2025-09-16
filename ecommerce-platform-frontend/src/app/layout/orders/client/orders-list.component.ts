@@ -1,11 +1,14 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { OrderService } from '../../../services/order.service';
-import { ResponseOrderDTO } from '../../../dto/order/response-order-dto';
-import { AuthService } from '../../../auth/auth.service';
+// src/app/layout/orders/client/orders-list.component.ts
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {Router} from '@angular/router';
+import {MatTableDataSource} from '@angular/material/table';
+import {MatPaginator} from '@angular/material/paginator';
+import {MatSort} from '@angular/material/sort';
+import {OrderService} from '../../../services/order.service';
+import {ResponseOrderDTO} from '../../../dto/order/response-order-dto';
+import {AuthService} from '../../../auth/auth.service';
+import {OrderStateService} from '../../../services/order-state.service';
+import {OrderStatus} from '../../../dto/order/order-status';
 
 @Component({
   selector: 'app-orders-list',
@@ -15,30 +18,27 @@ import { AuthService } from '../../../auth/auth.service';
 })
 export class OrdersListComponent implements OnInit {
   dataSource = new MatTableDataSource<ResponseOrderDTO>();
-  displayedColumns: string[] = ['id', 'orderDate', 'shippingMethod', 'paymentMethod', 'finalTotal', 'actions'];
+  displayedColumns: string[] = ['id', 'orderDate', 'shippingMethod', 'paymentMethod', 'finalTotal', 'status', 'actions'];
 
+  OrderStatus = OrderStatus;
   isLoading = true;
   error: string | null = null;
 
-  // Assign paginator when it becomes available
   @ViewChild(MatPaginator) set matPaginator(paginator: MatPaginator) {
-    if (paginator) {
-      this.dataSource.paginator = paginator;
-    }
+    if (paginator) this.dataSource.paginator = paginator;
   }
 
-  // Assign sort when it becomes available
   @ViewChild(MatSort) set matSort(sort: MatSort) {
-    if (sort) {
-      this.dataSource.sort = sort;
-    }
+    if (sort) this.dataSource.sort = sort;
   }
 
   constructor(
     private orderService: OrderService,
     private router: Router,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private orderState: OrderStateService,
+  ) {
+  }
 
   ngOnInit(): void {
     this.authService.isAuthenticated$.subscribe(isAuthenticated => {
@@ -76,7 +76,9 @@ export class OrdersListComponent implements OnInit {
   }
 
   viewOrderDetails(orderId: number): void {
-    this.router.navigate([`/orders/${orderId}`]);
+    // Pass orderId internally via service instead of URL
+    this.orderState.setSelectedOrder(orderId);
+    this.router.navigate(['/orders/detail']);
   }
 
   downloadInvoice(orderId: number): void {
@@ -97,6 +99,24 @@ export class OrdersListComponent implements OnInit {
         console.error('Error downloading invoice:', err);
       }
     });
+  }
+
+  getStatusClass(status?: OrderStatus): string {
+    switch (status) {
+      case this.OrderStatus.CREATED: return 'status-created';
+      case this.OrderStatus.PENDING: return 'status-pending';
+      case this.OrderStatus.CONFIRMED: return 'status-confirmed';
+      case this.OrderStatus.SHIPPED: return 'status-shipped';
+      case this.OrderStatus.DELIVERED: return 'status-delivered';
+      case this.OrderStatus.FINISHED: return 'status-finished';
+      case this.OrderStatus.REJECTED: return 'status-rejected';
+      case this.OrderStatus.CANCELLED: return 'status-cancelled';
+      default: return '';
+    }
+  }
+
+  getStatusText(status?: OrderStatus): string {
+    return status?.toUpperCase() || '';
   }
 
   navigateHome(): void {

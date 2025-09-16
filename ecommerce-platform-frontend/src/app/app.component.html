@@ -1,8 +1,36 @@
 <mat-toolbar class="main-toolbar">
-  <button (click)="navigateToRoot()" mat-icon-button class="home-button">
-    <mat-icon>home</mat-icon>
+  <button mat-icon-button class="menu-button" [matMenuTriggerFor]="menu">
+    <mat-icon>menu</mat-icon>
   </button>
-  <span class="app-title">{{ 'APP.TITLE' | translate }}</span>
+
+  <mat-menu #menu="matMenu" class="navigation-menu">
+    <button mat-menu-item (click)="navigateToRoot()">
+      <mat-icon>home</mat-icon>
+      <span>Home</span>
+    </button>
+    <button mat-menu-item (click)="navigateToProducts()">
+      <mat-icon>shopping_bag</mat-icon>
+      <span>Products</span>
+    </button>
+    <button mat-menu-item (click)="navigateToMixtures()">
+      <mat-icon>blender</mat-icon>
+      <span>Mixtures</span>
+    </button>
+    <button mat-menu-item (click)="navigateToSales()">
+      <mat-icon>local_offer</mat-icon>
+      <span>Sales</span>
+    </button>
+    <button mat-menu-item (click)="navigateToAboutUs()">
+      <mat-icon>info</mat-icon>
+      <span>About Us</span>
+    </button>
+  </mat-menu>
+
+  <div class="centered-title">
+    <button mat-button class="app-title-btn" (click)="navigateToRoot()">
+      <h1 class="app-title">{{ title }}</h1>
+    </button>
+  </div>
 
   <span class="spacer"></span>
 
@@ -158,6 +186,29 @@
                 <div class="item-info">
                   <span class="item-name">{{ item.mixture.name }}</span>
                   <span class="item-total-price">{{ getItemTotal(item) | currency:'USD':'symbol':'1.2-2' }}</span>
+                </div>
+                <div class="quantity-controls">
+                  <button mat-icon-button color="warn"
+                          (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()"
+                          [disabled]="item.updating">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <input type="number"
+                         [value]="item.optimisticQuantity || item.quantity"
+                         min="0"
+                         (change)="onQuantityChange($event, item)"
+                         (keydown)="$event.stopPropagation()"
+                         class="quantity-input"
+                         [disabled]="item.updating">
+                  <button mat-icon-button color="primary"
+                          (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()"
+                          [disabled]="item.updating">
+                    <mat-icon>add</mat-icon>
+                  </button>
+
+                  <div class="loading-overlay" *ngIf="item.updating">
+                    <div class="spinner"></div>
+                  </div>
                 </div>
               </ng-container>
 

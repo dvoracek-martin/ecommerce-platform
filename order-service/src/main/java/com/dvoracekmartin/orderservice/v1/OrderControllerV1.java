@@ -2,6 +2,7 @@ package com.dvoracekmartin.orderservice.v1;
 
 import com.dvoracekmartin.orderservice.application.dto.OrderRequest;
 import com.dvoracekmartin.orderservice.application.dto.OrderResponse;
+import com.dvoracekmartin.orderservice.application.utils.PdfDataWrapper;
 import com.dvoracekmartin.orderservice.domain.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +37,8 @@ public class OrderControllerV1 {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> getOrder(@AuthenticationPrincipal Jwt jwt,
-                                                  @PathVariable Long id) {
+    public ResponseEntity<OrderResponse> getOrderById(@AuthenticationPrincipal Jwt jwt,
+                                                      @PathVariable Long id) {
         OrderResponse orderResponse = orderService.getOrderById(usernameOrNull(jwt), id);
         return ResponseEntity.ok(orderResponse);
     }
@@ -55,11 +56,11 @@ public class OrderControllerV1 {
             @PathVariable String customerId,
             @PathVariable Long orderId) {
 
-        byte[] pdfData = orderService.getInvoiceByOrderId(usernameOrNull(jwt), customerId, orderId);
+        PdfDataWrapper pdfWrapper = orderService.getInvoiceByOrderId(usernameOrNull(jwt), customerId, orderId);
 
         return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=invoice_" + orderId + ".pdf")
+                .header("Content-Disposition", "attachment; filename=\"" + pdfWrapper.filename() + ".pdf\"")
                 .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
-                .body(pdfData);
+                .body(pdfWrapper.data());
     }
 }

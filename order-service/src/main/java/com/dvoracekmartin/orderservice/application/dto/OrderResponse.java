@@ -1,6 +1,6 @@
 package com.dvoracekmartin.orderservice.application.dto;
 
-import com.dvoracekmartin.common.dto.media.MediaDTO;
+import com.dvoracekmartin.common.dto.cart.CartItemDTO;
 import com.dvoracekmartin.orderservice.application.utils.OrderStatus;
 import lombok.Data;
 
@@ -11,7 +11,7 @@ import java.util.List;
 public class OrderResponse {
     private Long id;
     private String customerId;
-    private List<OrderItemResponse> items;
+    private List<CartItemDTO> items;
     private Double shippingCost;
     private Double cartTotal;
     private Double finalTotal;
@@ -20,8 +20,4 @@ public class OrderResponse {
     private String paymentMethod;
     private LocalDateTime orderDate;
     private String trackingNumber;
-    private String invoiceUrl;
-    private String invoiceObjectKey;
-    private MediaDTO invoice;
-
 }

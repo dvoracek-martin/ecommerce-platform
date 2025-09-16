@@ -43,6 +43,7 @@ import { TagsAdminUpdateComponent } from './layout/tags/admin/tags-admin-update.
 import { TagsAdminListComponent } from './layout/tags/admin/tags-admin-list.component';
 import { CheckoutComponent } from './layout/checkout/checkout/checkout.component';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/material/tooltip';
+import {OrderDetailComponent} from './layout/orders/client/order-detail.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -72,6 +73,7 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     ProductsAdminUpdateComponent,
     CategoriesAdminCreateComponent,
     OrdersListComponent,
+    OrderDetailComponent,
     OrdersAdminComponent,
     TagsAdminCreateComponent,
     TagsAdminUpdateComponent,

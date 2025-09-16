@@ -38,8 +38,6 @@ public class Order {
     private String paymentMethod;
     private LocalDateTime orderDate;
     private String trackingNumber;
-    private String invoiceObjectKey;
-    private String invoiceUrl;
 
     @PrePersist
     protected void onCreate() {

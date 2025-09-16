@@ -21,6 +21,7 @@ import {forkJoin, Observable, of} from 'rxjs';
 import {catchError, map, switchMap} from 'rxjs/operators';
 import {TermsModalComponent} from '../../../shared/terms-modal.component';
 import {CustomerService} from '../../../services/customer.service';
+import {OrderStateService} from '../../../services/order-state.service';
 
 interface CartItemWithDetails extends CartItem {
   product?: ResponseProductDTO;
@@ -80,7 +81,7 @@ export class CheckoutComponent implements OnInit {
   totalSteps = 4;
   isLoggedIn = false;
   orderComplete = false;
-  orderId: string | null = null;
+  orderId: number;
   readonly DEFAULT_COUNTRY = 'Switzerland';
   showBillingAddress = false;
   private initialBillingAddress: BillingAddress | null = null;
@@ -124,8 +125,8 @@ export class CheckoutComponent implements OnInit {
     private dialog: MatDialog,
     private productService: ProductService,
     private mixtureService: MixtureService,
-    private customerService: CustomerService
-
+    private customerService: CustomerService,
+    private orderState: OrderStateService
   ) {
     this.matIconRegistry.addSvgIcon(
       'flag_ch',
@@ -451,23 +452,25 @@ export class CheckoutComponent implements OnInit {
     item.optimisticQuantity = newQuantity;
     item.updating = true;
 
-    // Server update
     this.cartService.updateItem(item.itemId, newQuantity, item.cartItemType).subscribe(
-      () => {
-        // Update with server response
-        item.quantity = newQuantity;
+      (updatedCart) => {
+        // Sync with latest cart data
+        const updatedItem = updatedCart.items.find(i =>
+          i.itemId === item.itemId && i.cartItemType === item.cartItemType
+        );
+        if (updatedItem) {
+          item.quantity = updatedItem.quantity;
+        }
         item.optimisticQuantity = undefined;
         item.updating = false;
         this.recalculateTotals();
-        this.showSnackbar('CHECKOUT.QUANTITY_UPDATED_SUCCESS');
       },
-      error => {
+      (error) => {
         // Revert on error
         item.optimisticQuantity = undefined;
         item.updating = false;
         this.recalculateTotals();
         this.showSnackbar('CHECKOUT.UPDATE_QUANTITY_ERROR');
-        console.error('Update quantity error:', error);
       }
     );
   }
@@ -581,6 +584,7 @@ export class CheckoutComponent implements OnInit {
       this.cdRef.detectChanges();
     }
   }
+
   placeOrder(): void {
     if (this.customerForm.invalid) {
       this.customerForm.markAllAsTouched();
@@ -703,11 +707,9 @@ export class CheckoutComponent implements OnInit {
   }
 
   viewOrder(): void {
-    if (this.orderId) {
-      this.router.navigate(['/orders', this.orderId]);
-    } else {
-      this.router.navigate(['/orders']);
-    }
+
+    this.orderState.setSelectedOrder(this.orderId);
+    this.router.navigate(['/orders/detail']);
   }
 
   private showSnackbar(translationKey: string): void {

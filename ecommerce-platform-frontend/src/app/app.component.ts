@@ -161,6 +161,22 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.navigate([`/tags/${tag.id}`]);
   }
 
+  navigateToProducts(): void {
+    this.router.navigate(['/products']);
+  }
+
+  navigateToMixtures(): void {
+    this.router.navigate(['/mixtures']);
+  }
+
+  navigateToSales(): void {
+    this.router.navigate(['/sales']);
+  }
+
+  navigateToAboutUs(): void {
+    this.router.navigate(['/about']);
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;

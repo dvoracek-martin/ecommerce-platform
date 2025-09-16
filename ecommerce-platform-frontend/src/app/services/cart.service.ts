@@ -247,18 +247,18 @@ export class CartService {
         discount: 0
       };
 
-      const item = currentCart.items.find(ci =>
-        ci.itemId === itemId && ci.cartItemType === cartItemType
+      // Create a new array to ensure immutability
+      const newItems = currentCart.items.map(item =>
+        item.itemId === itemId && item.cartItemType === cartItemType
+          ? { ...item, quantity }
+          : item
       );
 
-      if (item) {
-        item.quantity = quantity;
-        this.saveGuestCart(currentCart);
-        this.calculateAndSetTotalPrice(currentCart);
-        this.showSnackbar('Guest cart item quantity updated!', 'success');
-      }
-
-      return of(currentCart);
+      const newCart = { ...currentCart, items: newItems };
+      this.saveGuestCart(newCart);
+      this.calculateAndSetTotalPrice(newCart);
+      this.showSnackbar('Cart updated!', 'success');
+      return of(newCart);
     }
   }
 

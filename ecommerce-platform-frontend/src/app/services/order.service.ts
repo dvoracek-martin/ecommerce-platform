@@ -43,6 +43,14 @@ export class OrderService {
     return this.http.post(`${this.apiUrl}`, requestPayload, {headers});
   }
 
+  getOrderById(orderId: number): Observable<ResponseOrderDTO> {
+    const token = this.authService.token;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<ResponseOrderDTO>(`${this.apiUrl}/${orderId}`, { headers });
+  }
+
   /**
    * Fetches all orders for a specific user.
    * Assumes the backend API is structured like: GET /api/orders/v1/user/{customerId}
