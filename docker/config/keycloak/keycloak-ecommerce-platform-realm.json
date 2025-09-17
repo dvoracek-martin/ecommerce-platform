@@ -1,6 +1,10 @@
 {
   "realm": "ecommerce-platform",
   "enabled": true,
+
+  "accessTokenLifespan": 300,
+  "refreshTokenLifespan": 604800,
+
   "roles": {
     "realm": [
       {
