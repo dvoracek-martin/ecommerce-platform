@@ -77,40 +77,6 @@
       <div class="results-count">
         {{ 'ORDERS.SHOWING' | translate }} {{ dataSource.filteredData.length }} {{ 'ORDERS.OF' | translate }} {{ dataSource.data.length }} {{ 'ORDERS.ORDERS' | translate }}
       </div>
-      <div class="table-actions">
-        <button mat-button class="action-button" [matMenuTriggerFor]="sortMenu">
-          <mat-icon>sort</mat-icon>
-          {{ 'ORDERS.SORT' | translate }}
-        </button>
-        <mat-menu #sortMenu="matMenu">
-          <button mat-menu-item (click)="dataSource.sort = null; dataSource._orderData(dataSource.filteredData)">
-            <mat-icon>clear</mat-icon>
-            {{ 'ORDERS.CLEAR_SORT' | translate }}
-          </button>
-          <mat-divider></mat-divider>
-          <button mat-menu-item (click)="sortByColumn('invoiceId')">
-            {{ 'ORDERS.INVOICE_ID' | translate }}
-          </button>
-          <button mat-menu-item (click)="sortByColumn('orderDate')">
-            {{ 'ORDERS.DATE' | translate }}
-          </button>
-          <button mat-menu-item (click)="sortByColumn('userEmail')">
-            {{ 'ORDERS.EMAIL' | translate }}
-          </button>
-          <button mat-menu-item (click)="sortByColumn('userLastName')">
-            {{ 'ORDERS.LAST_NAME' | translate }}
-          </button>
-          <button mat-menu-item (click)="sortByColumn('userFirstName')">
-            {{ 'ORDERS.FIRST_NAME' | translate }}
-          </button>
-          <button mat-menu-item (click)="sortByColumn('finalTotal')">
-            {{ 'ORDERS.TOTAL' | translate }}
-          </button>
-          <button mat-menu-item (click)="sortByColumn('status')">
-            {{ 'ORDERS.STATUS' | translate }}
-          </button>
-        </mat-menu>
-      </div>
     </div>
 
     <div class="mat-elevation-z8 table-container">

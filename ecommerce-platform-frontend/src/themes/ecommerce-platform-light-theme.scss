@@ -297,6 +297,9 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 
   .admin-title-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; // keep title/subt
     h1 {
       margin: 0 0 10px 0;
       font-size: 2rem;
@@ -367,23 +370,63 @@ input:focus, textarea:focus, select:focus {
 }
 
 .admin-header-section {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 24px 0; // only vertical padding
   color: white;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  box-sizing: border-box; // include padding in width
 }
 
 .admin-header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20px;
   width: 100%;
+  display: flex;
+  justify-content: space-between; // title left, actions right
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding: 16px;
+  box-sizing: border-box;
+
+  .admin-actions {
+    display: flex;
+    flex-direction: column;  // stack search + button vertically
+    align-items: flex-end;   // align to the right
+    gap: 12px;               // spacing between search + button
+  }
+
+  .admin-search-section {
+    width: 250px; // adjust as needed
+  }
+
+  .admin-new-btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #e67e22;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      font-size: 20px;
+      color: white;
+    }
+
+    &:hover {
+      background-color: #d35400;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+  }
 }
+
 
 .loading-section, .error-section, .no-orders-section {
   display: flex;
@@ -455,91 +498,6 @@ input:focus, textarea:focus, select:focus {
 .admin-subtitle {
   opacity: 0.9;
   font-size: 1rem;
-}
-
-.order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 30px;
-  padding: 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  color: white;
-
-  .order-title-section {
-    h1 {
-      margin: 0 0 10px 0;
-      font-size: 2rem;
-      color: white;
-    }
-
-    .order-date {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 1rem;
-    }
-  }
-
-  .order-status-section {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 15px;
-
-    .status-badge {
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      background-color: rgba(255, 255, 255, 0.2);
-      color: white;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-
-      &.status-pending {
-        background-color: rgba(255, 234, 167, 0.3);
-        color: #ffeaa7;
-      }
-
-      &.status-confirmed {
-        background-color: rgba(214, 234, 248, 0.3);
-        color: #d6eaf8;
-      }
-
-      &.status-shipped {
-        background-color: rgba(209, 242, 235, 0.3);
-        color: #d1f2eb;
-      }
-
-      &.status-delivered {
-        background-color: rgba(213, 245, 227, 0.3);
-        color: #d5f5e3;
-      }
-
-      &.status-cancelled {
-        background-color: rgba(249, 235, 234, 0.3);
-        color: #f9ebea;
-      }
-    }
-
-    .order-totals {
-      text-align: right;
-
-      .total-label {
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 5px;
-      }
-
-      .total-amount {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: white;
-      }
-    }
-  }
 }
 
 /* Modern User Menu */
