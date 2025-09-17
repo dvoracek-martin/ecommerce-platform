@@ -12,20 +12,35 @@
     text-align: center;
     padding: 24px;
 
-    .icon {
-      font-size: 48px;
-      color: #f44336;
-      margin-bottom: 8px;
-    }
+    .header-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
 
-    mat-card-title {
-      font-size: 24px;
-      font-weight: bold;
+      mat-card-title {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .icon-wrapper {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .icon {
+        font-size: 1vw;
+        max-width: 120px;
+        max-height: 120px;
+        color: #f44336;
+      }
     }
 
     mat-card-content {
-      margin-top: 12px;
       font-size: 16px;
+      margin-top: 0;
     }
 
     mat-card-actions {

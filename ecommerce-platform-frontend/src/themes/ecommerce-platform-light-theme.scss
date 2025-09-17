@@ -13,8 +13,8 @@
   --text-secondary: #34495e;
   --icon-color: #34495e;
   --border-color: #e0e0e0;
-  --shadow-light: rgba(0,0,0,0.08);
-  --shadow-medium: rgba(0,0,0,0.15);
+  --shadow-light: rgba(0, 0, 0, 0.08);
+  --shadow-medium: rgba(0, 0, 0, 0.15);
 
   // Typography
   --font-primary: 'Poppins', sans-serif;
@@ -129,16 +129,45 @@ input, textarea, select, mat-form-field {
 }
 
 // Utilities
-.shadow-light { box-shadow: 0 4px 15px var(--shadow-light); }
-.shadow-medium { box-shadow: 0 8px 20px var(--shadow-medium); }
-.text-center { text-align: center; }
-.flex { display: flex; }
-.flex-column { flex-direction: column; }
-.gap-sm { gap: var(--spacing-sm); }
-.gap-md { gap: var(--spacing-md); }
-.gap-lg { gap: var(--spacing-lg); }
-.rounded { border-radius: var(--radius-md); }
-.hidden { display: none; }
+.shadow-light {
+  box-shadow: 0 4px 15px var(--shadow-light);
+}
+
+.shadow-medium {
+  box-shadow: 0 8px 20px var(--shadow-medium);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+.gap-lg {
+  gap: var(--spacing-lg);
+}
+
+.rounded {
+  border-radius: var(--radius-md);
+}
+
+.hidden {
+  display: none;
+}
 
 .container {
   max-width: 1400px;
@@ -158,11 +187,15 @@ input, textarea, select, mat-form-field {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-// Angular Material Overrides
+// Angular Material Overrides - Remove dark theme completely
 .mat-mdc-dialog-container,
 .mat-mdc-card,
 .mat-mdc-table,
@@ -180,12 +213,118 @@ input, textarea, select, mat-form-field {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
 }
 
+// Remove all dark theme button styles
+.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button {
+  --mdc-text-button-label-text-color: var(--primary-color);
+  --mdc-protected-button-container-color: var(--primary-color);
+  --mdc-protected-button-label-text-color: #fff;
+  --mdc-outlined-button-outline-color: var(--border-color);
+  --mdc-outlined-button-label-text-color: var(--text-primary);
+}
+
 .mat-mdc-raised-button {
   background-color: #f97316;
   color: #fff;
 
   &:hover {
     background-color: #ea580c;
+  }
+}
+
+.error-button {
+  background-color: #ef4444; // red
+  color: #fff;
+
+  &:hover {
+    background-color: #dc2626; // darker red on hover
+  }
+
+  &:disabled {
+    background-color: #fca5a5; // lighter red when disabled
+    color: #ffffff99; // semi-transparent white text
+  }
+}
+
+// COMPLETELY REVISED Back Home Button - FIXED TEXT COLOR
+.back-home-button {
+  // Reset all Material Design button variables
+  --mdc-protected-button-container-color: #2563eb !important;
+  --mdc-protected-button-label-text-color: #fff !important;
+  --mdc-protected-button-hover-state-layer-color: rgba(255, 255, 255, 0.08) !important;
+  --mdc-protected-button-focus-state-layer-color: rgba(255, 255, 255, 0.12) !important;
+  --mdc-protected-button-pressed-state-layer-color: rgba(255, 255, 255, 0.12) !important;
+
+  // Force standard properties
+  background-color: #2563eb !important;
+  color: #fff !important;
+  font-weight: 500 !important;
+
+  // Override any dark theme classes that might be applied
+  &.mat-unthemed {
+    background-color: #2563eb !important;
+    color: #fff !important;
+  }
+
+  &.mat-primary {
+    background-color: #2563eb !important;
+    color: #fff !important;
+  }
+
+  // Label styling - FIXED TEXT COLOR - MORE AGGRESSIVE APPROACH
+  .mdc-button__label {
+    color: #fff !important;
+  }
+
+  // Ensure text stays white in all states
+  &:hover .mdc-button__label,
+  &:focus .mdc-button__label,
+  &:active .mdc-button__label,
+  &.cdk-focused .mdc-button__label,
+  &.cdk-program-focused .mdc-button__label {
+    color: #fff !important;
+  }
+
+  // Ripple effect - ensure it's light
+  .mat-mdc-button-persistent-ripple::before {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  // Hover state
+  &:hover {
+    --mdc-protected-button-container-color: #1d4ed8 !important;
+    background-color: #1d4ed8 !important;
+  }
+
+  // Focus state
+  &:focus {
+    --mdc-protected-button-container-color: #1d4ed8 !important;
+    background-color: #1d4ed8 !important;
+  }
+
+  // Disabled state - ensure text stays white
+  &:disabled {
+    --mdc-protected-button-container-color: #93c5fd !important;
+    --mdc-protected-button-label-text-color: #ffffff !important;
+
+    background-color: #93c5fd !important;
+    color: #ffffff !important;
+
+    .mdc-button__label {
+      color: #ffffff !important;
+    }
+  }
+}
+
+// Global button style reset to prevent dark theme
+.mat-mdc-button-base {
+  // If this is a raised button (contains 'mdc-button--raised')
+  &.mdc-button--raised {
+    background-color: var(--primary-color) !important;
+    color: #fff !important;
+
+    &:hover {
+      background-color: var(--primary-hover) !important;
+    }
   }
 }
 
@@ -196,12 +335,11 @@ input, textarea, select, mat-form-field {
   .mat-mdc-header-cell,
   .mat-mdc-cell {
     color: var(--text-secondary) !important;
-    font-weight: 500;
   }
 
   .mat-mdc-header-row {
     background: var(--background-light);
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
   }
 
   .mat-mdc-row {
@@ -209,12 +347,12 @@ input, textarea, select, mat-form-field {
     cursor: pointer;
 
     &:nth-child(even) {
-      background: rgba(0,0,0,0.02);
+      background: rgba(0, 0, 0, 0.02);
     }
 
     &:hover {
-      background: rgba(52,152,219,0.08);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      background: rgba(52, 152, 219, 0.08);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
       .mat-mdc-cell {
         color: var(--primary-color);
@@ -406,7 +544,8 @@ input, textarea, select, mat-form-field {
       background-color: #e67e22;
       border: none;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0,
+        0.15);
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -428,6 +567,7 @@ input, textarea, select, mat-form-field {
 .admin-search-section {
   display: flex;
   gap: 16px;
+
   flex-wrap: wrap;
 
   .admin-search-container {
@@ -522,6 +662,7 @@ input, textarea, select, mat-form-field {
         border-radius: 50%;
         background: #fff;
         border: 1px solid #e0e0e0;
+
         display: flex;
         align-items: center;
         justify-content: center;
@@ -538,6 +679,7 @@ input, textarea, select, mat-form-field {
           font-weight: 600;
           font-size: 1rem;
         }
+
         p {
           margin: 4px 0 0;
           font-size: 0.85rem;
@@ -553,6 +695,7 @@ input, textarea, select, mat-form-field {
         margin: 0 16px 8px;
         font-size: 0.8rem;
         font-weight: 600;
+
         color: #95a5a6;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -591,7 +734,7 @@ input, textarea, select, mat-form-field {
           }
 
           &:hover {
-            background: rgba(231,76,60,0.1) !important;
+            background: rgba(231, 76, 60, 0.1) !important;
 
             mat-icon {
               color: #fff;

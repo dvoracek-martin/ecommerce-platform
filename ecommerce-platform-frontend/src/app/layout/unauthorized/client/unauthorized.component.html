@@ -1,15 +1,19 @@
 <div class="unauthorized-wrapper">
   <mat-card>
-    <mat-card-header>
-      <mat-icon class="icon">lock</mat-icon>
+    <div class="header-wrapper">
       <mat-card-title>Access Denied</mat-card-title>
-    </mat-card-header>
+      <div class="icon-wrapper">
+        <mat-icon class="icon">lock</mat-icon>
+      </div>
+    </div>
     <mat-card-content>
       <p>You do not have permission to view this page.</p>
       <p>Please contact an administrator if you believe this is an error.</p>
     </mat-card-content>
     <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="goHome()">Back to Home</button>
+      <button mat-raised-button class="back-home-button" (click)="goHome()">
+        Back to Home
+      </button>
     </mat-card-actions>
   </mat-card>
 </div>
