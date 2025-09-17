@@ -2,6 +2,7 @@ package com.dvoracekmartin.orderservice.domain.model;
 
 import com.dvoracekmartin.orderservice.application.utils.OrderStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

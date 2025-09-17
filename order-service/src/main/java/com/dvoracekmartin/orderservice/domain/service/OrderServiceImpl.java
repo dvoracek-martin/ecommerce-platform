@@ -1,7 +1,8 @@
 package com.dvoracekmartin.orderservice.domain.service;
 
-import com.dvoracekmartin.orderservice.application.dto.OrderRequest;
-import com.dvoracekmartin.orderservice.application.dto.OrderResponse;
+import com.dvoracekmartin.orderservice.application.dto.OrderRequestDTO;
+import com.dvoracekmartin.orderservice.application.dto.OrderResponseDTO;
+import com.dvoracekmartin.orderservice.application.dto.UpdateOrderDTO;
 import com.dvoracekmartin.orderservice.application.service.media.MediaRetriever;
 import com.dvoracekmartin.orderservice.application.service.media.MediaUploader;
 import com.dvoracekmartin.orderservice.application.service.pdf.PdfGenerationService;
@@ -35,14 +36,14 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
 
     @Override
-    public OrderResponse createOrder(String username, OrderRequest orderRequest) {
+    public OrderResponseDTO createOrder(String username, OrderRequestDTO orderRequestDTO) {
         Order order = new Order();
 
         // Set customer
-        order.setCustomerId(orderRequest.getCustomerId());
+        order.setCustomerId(orderRequestDTO.getCustomerId());
 
         // Convert cart items to order items
-        List<OrderItem> orderItems = orderRequest.getItems().stream().map(cartItem -> {
+        List<OrderItem> orderItems = orderRequestDTO.getItems().stream().map(cartItem -> {
             OrderItem orderItem = new OrderItem();
             orderItem.setItemId(cartItem.getItemId());
             orderItem.setItemType(cartItem.getCartItemType().name());
@@ -52,11 +53,11 @@ public class OrderServiceImpl implements OrderService {
         }).toList();
 
         order.setItems(orderItems);
-        order.setShippingCost(orderRequest.getShippingCost());
-        order.setCartTotal(orderRequest.getCartTotal());
-        order.setFinalTotal(orderRequest.getFinalTotal());
-        order.setShippingMethod(orderRequest.getShippingMethod());
-        order.setPaymentMethod(orderRequest.getPaymentMethod());
+        order.setShippingCost(orderRequestDTO.getShippingCost());
+        order.setCartTotal(orderRequestDTO.getCartTotal());
+        order.setFinalTotal(orderRequestDTO.getFinalTotal());
+        order.setShippingMethod(orderRequestDTO.getShippingMethod());
+        order.setPaymentMethod(orderRequestDTO.getPaymentMethod());
         order.setStatus(OrderStatus.CREATED);
         order.setOrderYearOrderCounter(orderCounterService.getNextOrderNumberCounter());
 
@@ -67,21 +68,21 @@ public class OrderServiceImpl implements OrderService {
         // Create the correct path structure
         String folderPath = savedOrder.getCustomerId();
         mediaUploader.uploadBase64(base64Invoice, folderPath, orderCounterService.generateInvoiceName(), CONTENT_TYPE, INVOICES_BUCKET_NAME, folderPath);
-        return orderMapper.mapOrderToOrderResponse(savedOrder);
+        return orderMapper.mapOrderToOrderResponseDTO(savedOrder);
     }
 
     @Override
-    public OrderResponse getOrderById(String username, Long orderId) {
+    public OrderResponseDTO getOrderById(String username, Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
-        return orderMapper.mapOrderToOrderResponse(order);
+        return orderMapper.mapOrderToOrderResponseDTO(order);
     }
 
     @Override
-    public List<OrderResponse> getOrdersByCustomerId(String username, String customerId) {
+    public List<OrderResponseDTO> getOrdersByCustomerId(String username, String customerId) {
         if (!customerId.equals(username)) {
             throw new IllegalArgumentException("id doesn't match with the current user");
         }
-        return orderRepository.findByCustomerId(customerId).stream().sorted(Comparator.comparing(Order::getOrderDate).reversed()).map(orderMapper::mapOrderToOrderResponse).toList();
+        return orderRepository.findByCustomerId(customerId).stream().sorted(Comparator.comparing(Order::getOrderDate).reversed()).map(orderMapper::mapOrderToOrderResponseDTO).toList();
     }
 
     @Override
@@ -103,8 +104,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> findAll() {
+    public List<OrderResponseDTO> findAll() {
         List<Order> orders = orderRepository.findAll();
-        return orders.stream().sorted(Comparator.comparing(Order::getOrderDate).reversed()).map(orderMapper::mapOrderToOrderResponse).toList();
+        return orders.stream().sorted(Comparator.comparing(Order::getOrderDate).reversed()).map(orderMapper::mapOrderToOrderResponseDTO).toList();
+    }
+
+    @Override
+    public OrderResponseDTO updateOrder(UpdateOrderDTO updateOrderDTO) {
+        Order order = orderMapper.mapUpdateOrderToOrder(updateOrderDTO);
+        return orderMapper.mapOrderToOrderResponseDTO(orderRepository.save(order));
     }
 }

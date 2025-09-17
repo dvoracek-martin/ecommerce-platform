@@ -217,7 +217,7 @@ export class OrderListAdminComponent implements OnInit {
 
   viewOrderDetails(orderId: number): void {
     this.orderState.setSelectedOrder(orderId);
-    this.router.navigate(['/orders/detail']);
+    this.router.navigate(['/admin/orders/detail']);
   }
 
   downloadInvoice(order: OrderWithCustomer): void {

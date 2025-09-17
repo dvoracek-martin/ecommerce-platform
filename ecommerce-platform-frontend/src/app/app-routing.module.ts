@@ -32,6 +32,7 @@ import {ProductDetailComponent} from './layout/products/products-detail.componen
 import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
 import {OrderDetailComponent} from './layout/orders/client/order-detail.component';
 import {OrderListAdminComponent} from './layout/orders/admin/order-list-admin.component';
+import {OrderDetailAdminComponent} from './layout/orders/admin/order-detail-admin.component';
 
 const routes: Routes = [
   {path: '', component: WelcomeComponent},
@@ -49,7 +50,7 @@ const routes: Routes = [
   // Client‑side pages (require login)
   {path: 'customer', component: CustomersComponent, canActivate: [AuthGuard]},
   {path: 'orders', component: OrderListComponent, canActivate: [AuthGuard]},
-  {path: 'orders/detail', component: OrderDetailComponent, canActivate: [AuthGuard]}, // changed
+  {path: 'orders/detail', component: OrderDetailComponent, canActivate: [AuthGuard]},
 
   // Admin routes
   {
@@ -71,6 +72,7 @@ const routes: Routes = [
       {path: 'tags/update/:id', component: TagsAdminUpdateComponent},
       {path: 'tags/create', component: TagsAdminCreateComponent},
       {path: 'orders', component: OrderListAdminComponent},
+      {path: 'orders/detail', component: OrderDetailAdminComponent},
     ]
   },
 

@@ -3,6 +3,8 @@ import {Observable} from 'rxjs';
 import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {AuthService} from '../auth/auth.service';
 import {ResponseOrderDTO} from '../dto/order/response-order-dto';
+import {OrderStatus} from '../dto/order/order-status';
+import {UpdateOrderDTO} from '../dto/order/update-order-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -92,5 +94,15 @@ export class OrderService {
       'Authorization': `Bearer ${token}`
     });
     return this.http.get<ResponseOrderDTO[]>(`${this.apiAdminUrl}`, {headers});
+  }
+
+  updateOrder(order: UpdateOrderDTO): Observable<ResponseOrderDTO> {
+    const token = this.authService.token;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.put<ResponseOrderDTO>(`${this.apiAdminUrl}`, order, { headers });
   }
 }

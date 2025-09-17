@@ -3,8 +3,10 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
 import { MediaDTO } from '../../../dto/media/media-dto';
-import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
-import {ProductService} from '../../../services/product.service'; // Assuming you'll reuse this
+import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
+import { ProductService } from '../../../services/product.service';
+import { FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-products-admin-list',
@@ -14,10 +16,12 @@ import {ProductService} from '../../../services/product.service'; // Assuming yo
 })
 export class ProductsAdminListComponent implements OnInit, OnDestroy {
   products: ResponseProductDTO[] = [];
+  filteredProducts: ResponseProductDTO[] = [];
   isLoading = true;
   error: string | null = null;
   activeSlideIndices: number[] = [];
   private intervals: any[] = [];
+  searchControl = new FormControl('');
 
   constructor(
     private productService: ProductService,
@@ -27,10 +31,39 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadProducts();
+    this.setupSearchFilter();
   }
 
   ngOnDestroy(): void {
     this.intervals.forEach(i => clearInterval(i));
+  }
+
+  setupSearchFilter(): void {
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(value => {
+        this.applyFilter(value || '');
+      });
+  }
+
+  applyFilter(filterValue: string): void {
+    if (!filterValue) {
+      this.filteredProducts = [...this.products];
+      return;
+    }
+
+    const searchStr = filterValue.toLowerCase().trim();
+    this.filteredProducts = this.products.filter(product =>
+      product.name.toLowerCase().includes(searchStr)
+    );
+  }
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
+    this.applyFilter('');
   }
 
   loadProducts(): void {
@@ -38,6 +71,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
     this.productService.getAllProductsAdmin().subscribe({
       next: (data) => {
         this.products = data;
+        this.filteredProducts = [...this.products];
         this.initializeCarousels();
         this.isLoading = false;
         this.error = null;
@@ -51,7 +85,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
 
   initializeCarousels(): void {
     this.activeSlideIndices = [];
-    this.products.forEach((product, idx) => {
+    this.filteredProducts.forEach((product, idx) => {
       this.activeSlideIndices[idx] = 0;
       const mediaCount = product.media?.length || 0;
       this.startCarousel(idx, mediaCount);
@@ -73,7 +107,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
   setActiveSlide(productIndex: number, slideIndex: number): void {
     this.activeSlideIndices[productIndex] = slideIndex;
     clearInterval(this.intervals[productIndex]);
-    this.startCarousel(productIndex, this.products[productIndex].media.length);
+    this.startCarousel(productIndex, this.filteredProducts[productIndex].media.length);
   }
 
   trackById(_idx: number, item: ResponseProductDTO): number {
@@ -103,6 +137,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
     this.productService.deleteProduct(id).subscribe({
       next: () => {
         this.products = this.products.filter(p => p.id !== id);
+        this.filteredProducts = this.filteredProducts.filter(p => p.id !== id);
       },
       error: (err) => {
         console.error('Delete failed:', err);

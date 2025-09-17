@@ -15,20 +15,21 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 30px;
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  color: white;
 
   .order-title-section {
     h1 {
       margin: 0 0 10px 0;
       font-size: 2rem;
-      color: #2c3e50;
+      color: white;
     }
 
     .order-date {
-      color: #7f8c8d;
+      color: rgba(255, 255, 255, 0.9);
       font-size: 1rem;
     }
   }
@@ -45,30 +46,34 @@
       font-weight: 600;
       font-size: 0.9rem;
       text-transform: uppercase;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
 
       &.status-pending {
-        background-color: #ffeaa7;
-        color: #d35400;
+        background-color: rgba(255, 234, 167, 0.3);
+        color: #ffeaa7;
       }
 
       &.status-confirmed {
-        background-color: #d6eaf8;
-        color: #2874a6;
+        background-color: rgba(214, 234, 248, 0.3);
+        color: #d6eaf8;
       }
 
       &.status-shipped {
-        background-color: #d1f2eb;
-        color: #1e8449;
+        background-color: rgba(209, 242, 235, 0.3);
+        color: #d1f2eb;
       }
 
       &.status-delivered {
-        background-color: #d5f5e3;
-        color: #186a3b;
+        background-color: rgba(213, 245, 227, 0.3);
+        color: #d5f5e3;
       }
 
       &.status-cancelled {
-        background-color: #f9ebea;
-        color: #c0392b;
+        background-color: rgba(249, 235, 234, 0.3);
+        color: #f9ebea;
       }
     }
 
@@ -77,14 +82,14 @@
 
       .total-label {
         font-size: 0.9rem;
-        color: #7f8c8d;
+        color: rgba(255, 255, 255, 0.8);
         margin-bottom: 5px;
       }
 
       .total-amount {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #e67e22;
+        color: white;
       }
     }
   }
@@ -309,30 +314,51 @@
       font-weight: 600;
       text-transform: uppercase;
 
+      &.status-created {
+        background-color: #e0e0e0;
+        color: #616161;
+      }
+
       &.status-pending {
-        background-color: #ffeaa7;
-        color: #d35400;
+        background-color: #fff3cd;
+        color: #856404;
       }
 
       &.status-confirmed {
-        background-color: #d6eaf8;
-        color: #2874a6;
+        background-color: #cce5ff;
+        color: #004085;
+      }
+
+      &.status-processing {
+        background-color: #d4edda;
+        color: #155724;
       }
 
       &.status-shipped {
-        background-color: #d1f2eb;
-        color: #1e8449;
+        background-color: #f0e6ff;
+        color: #5b2c6f;
       }
 
       &.status-delivered {
-        background-color: #d5f5e3;
-        color: #186a3b;
+        background-color: #d1f2eb;
+        color: #117864;
+      }
+
+      &.status-finished {
+        background-color: #fff0f5;
+        color: #800080;
+      }
+
+      &.status-rejected {
+        background-color: #f8d7da;
+        color: #721c24;
       }
 
       &.status-cancelled {
-        background-color: #f9ebea;
-        color: #c0392b;
+        background-color: #fde2e2;
+        color: #b71c1c;
       }
+
     }
   }
 }

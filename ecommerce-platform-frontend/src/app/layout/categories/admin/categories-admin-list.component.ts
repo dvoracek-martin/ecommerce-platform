@@ -4,6 +4,9 @@ import {MatDialog} from '@angular/material/dialog';
 import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 import {CategoryService} from '../../../services/category.service';
 import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {FormControl} from '@angular/forms';
+import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
+import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 
 @Component({
   selector: 'app-categories-admin-list',
@@ -13,10 +16,12 @@ import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.c
 })
 export class CategoriesAdminListComponent implements OnInit, OnDestroy {
   categories: ResponseCategoryDTO[] = [];
+  filteredCategories: ResponseCategoryDTO[] = [];
   isLoading = true;
   error: string | null = null;
   activeSlideIndices: number[] = [];
   private intervals: any[] = [];
+  searchControl = new FormControl('');
 
   constructor(
     private categoryService: CategoryService,
@@ -27,10 +32,39 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadCategories();
+    this.setupSearchFilter();
   }
 
   ngOnDestroy(): void {
     this.intervals.forEach(i => clearInterval(i));
+  }
+
+  setupSearchFilter(): void {
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(value => {
+        this.applyFilter(value || '');
+      });
+  }
+
+  applyFilter(filterValue: string): void {
+    if (!filterValue) {
+      this.filteredCategories = [...this.categories];
+      return;
+    }
+
+    const searchStr = filterValue.toLowerCase().trim();
+    this.filteredCategories = this.categories.filter(product =>
+      product.name.toLowerCase().includes(searchStr)
+    );
+  }
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
+    this.applyFilter('');
   }
 
   loadCategories(): void {
@@ -38,6 +72,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
     this.categoryService.getAllCategoriesAdmin().subscribe({
       next: (data) => {
         this.categories = data;
+        this.filteredCategories = [...this.categories];
         this.initializeCarousels();
         this.isLoading = false;
       },
@@ -50,7 +85,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
 
   initializeCarousels(): void {
     this.activeSlideIndices = [];
-    this.categories.forEach((category, idx) => {
+    this.filteredCategories.forEach((category, idx) => {
       this.activeSlideIndices[idx] = 0;
       const mediaCount = category.media?.length || 0;
       this.startCarousel(idx, mediaCount);
@@ -72,7 +107,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
   setActiveSlide(catIndex: number, slideIndex: number): void {
     this.activeSlideIndices[catIndex] = slideIndex;
     clearInterval(this.intervals[catIndex]);
-    this.startCarousel(catIndex, this.categories[catIndex].media.length);
+    this.startCarousel(catIndex, this.filteredCategories[catIndex].media.length);
   }
 
   trackById(_idx: number, item: ResponseCategoryDTO): number {
@@ -107,6 +142,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
     this.categoryService.deleteCategory(id).subscribe({
       next: () => {
         this.categories = this.categories.filter(c => c.id !== id);
+        this.filteredCategories = this.filteredCategories.filter(p => p.id !== id);
       },
       error: (err) => {
         console.error('Delete failed:', err);
@@ -122,5 +158,9 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
 
   navigateHome() {
     this.router.navigate(['/']);
+  }
+
+  navigateToCreate(): void {
+    this.router.navigate(['/admin/categories/create']);
   }
 }

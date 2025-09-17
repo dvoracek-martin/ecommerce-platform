@@ -1,10 +1,35 @@
 <div class="categories-container">
-  <div class="header">
-    <h1>{{ 'CATEGORIES.ADMIN.TITLE' | translate }}</h1>
-    <button mat-raised-button color="primary" [routerLink]="['/admin/categories/create']" class="btn-create-category">
-      <mat-icon>add</mat-icon>
-      <span>{{ 'CATEGORIES.ADMIN.NEW_TITLE' | translate }}</span>
-    </button>
+  <div class="admin-header-section">
+    <div class="admin-header-content">
+      <div class="admin-title-section">
+        <h1>{{ 'CATEGORIES.TITLE' | translate }}</h1>
+        <p class="admin-subtitle">{{ 'CATEGORIES.ADMIN_SUBTITLE' | translate }}</p>
+      </div>
+
+      <button mat-raised-button color="primary" (click)="navigateToCreate()">
+        <mat-icon>add</mat-icon>
+        {{ 'CATEGORIES.ADMIN.NEW_TITLE' | translate }}
+      </button>
+      <div class="admin-search-section">
+        <div class="admin-search-container">
+          <div class="admin-search-input-wrapper">
+            <mat-icon class="search-icon">search</mat-icon>
+            <input
+              matInput
+              [formControl]="searchControl"
+              placeholder="Search by name"
+              class="admin-search-input">
+            <button
+              mat-icon-button
+              class="admin-clear-button"
+              *ngIf="searchControl.value"
+              (click)="clearSearch()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div *ngIf="isLoading" class="loading-section">
@@ -23,7 +48,7 @@
 
   <div *ngIf="!isLoading && !error" class="categories-grid">
     <div
-      *ngFor="let category of categories; let catIndex = index; trackBy: trackById"
+      *ngFor="let category of filteredCategories; let catIndex = index; trackBy: trackById"
       class="category-card"
     >
       <div class="card-link" (click)="navigateToUpdate(category.id)">

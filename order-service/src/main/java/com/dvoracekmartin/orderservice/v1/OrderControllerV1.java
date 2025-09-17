@@ -1,7 +1,7 @@
 package com.dvoracekmartin.orderservice.v1;
 
-import com.dvoracekmartin.orderservice.application.dto.OrderRequest;
-import com.dvoracekmartin.orderservice.application.dto.OrderResponse;
+import com.dvoracekmartin.orderservice.application.dto.OrderRequestDTO;
+import com.dvoracekmartin.orderservice.application.dto.OrderResponseDTO;
 import com.dvoracekmartin.orderservice.application.utils.PdfDataWrapper;
 import com.dvoracekmartin.orderservice.domain.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -30,23 +30,23 @@ public class OrderControllerV1 {
     private OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@AuthenticationPrincipal Jwt jwt,
-                                                     @RequestBody OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.createOrder(usernameOrNull(jwt), orderRequest);
+    public ResponseEntity<OrderResponseDTO> createOrder(@AuthenticationPrincipal Jwt jwt,
+                                                        @RequestBody OrderRequestDTO orderRequestDTO) {
+        OrderResponseDTO orderResponse = orderService.createOrder(usernameOrNull(jwt), orderRequestDTO);
         return ResponseEntity.ok(orderResponse);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> getOrderById(@AuthenticationPrincipal Jwt jwt,
-                                                      @PathVariable Long id) {
-        OrderResponse orderResponse = orderService.getOrderById(usernameOrNull(jwt), id);
-        return ResponseEntity.ok(orderResponse);
+    public ResponseEntity<OrderResponseDTO> getOrderById(@AuthenticationPrincipal Jwt jwt,
+                                                         @PathVariable Long id) {
+        OrderResponseDTO orderResponseDTO = orderService.getOrderById(usernameOrNull(jwt), id);
+        return ResponseEntity.ok(orderResponseDTO);
     }
 
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<OrderResponse>> getOrdersByCustomer(@AuthenticationPrincipal Jwt jwt,
-                                                                   @PathVariable String customerId) {
-        List<OrderResponse> orders = orderService.getOrdersByCustomerId(usernameOrNull(jwt), customerId);
+    public ResponseEntity<List<OrderResponseDTO>> getOrdersByCustomer(@AuthenticationPrincipal Jwt jwt,
+                                                                      @PathVariable String customerId) {
+        List<OrderResponseDTO> orders = orderService.getOrdersByCustomerId(usernameOrNull(jwt), customerId);
         return ResponseEntity.ok(orders);
     }
 

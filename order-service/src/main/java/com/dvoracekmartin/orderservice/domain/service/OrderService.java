@@ -1,21 +1,24 @@
 package com.dvoracekmartin.orderservice.domain.service;
 
-import com.dvoracekmartin.orderservice.application.dto.OrderRequest;
-import com.dvoracekmartin.orderservice.application.dto.OrderResponse;
+import com.dvoracekmartin.orderservice.application.dto.OrderRequestDTO;
+import com.dvoracekmartin.orderservice.application.dto.OrderResponseDTO;
+import com.dvoracekmartin.orderservice.application.dto.UpdateOrderDTO;
 import com.dvoracekmartin.orderservice.application.utils.PdfDataWrapper;
-import com.dvoracekmartin.orderservice.domain.model.Order;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
 public interface OrderService {
 
-    OrderResponse createOrder(String s, OrderRequest orderRequest);
+    OrderResponseDTO createOrder(String s, OrderRequestDTO orderRequestDTO);
 
-    OrderResponse getOrderById(String s, Long id);
+    OrderResponseDTO getOrderById(String s, Long id);
 
-    List<OrderResponse> getOrdersByCustomerId(String username, String customerId);
+    List<OrderResponseDTO> getOrdersByCustomerId(String username, String customerId);
 
     PdfDataWrapper getInvoiceByOrderId(String s, String customerId, Long orderId);
 
-    List<OrderResponse> findAll();
+    List<OrderResponseDTO> findAll();
+
+    OrderResponseDTO updateOrder(UpdateOrderDTO updateOrderDTO);
 }

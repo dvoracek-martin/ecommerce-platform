@@ -44,6 +44,7 @@ import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from '@angular/material/tooltip';
 import {OrderDetailComponent} from './layout/orders/client/order-detail.component';
 import {OrderListAdminComponent} from './layout/orders/admin/order-list-admin.component';
+import {OrderDetailAdminComponent} from './layout/orders/admin/order-detail-admin.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -75,6 +76,7 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     OrderListComponent,
     OrderListAdminComponent,
     OrderDetailComponent,
+    OrderDetailAdminComponent,
     TagsAdminCreateComponent,
     TagsAdminUpdateComponent,
     TagsAdminListComponent,
