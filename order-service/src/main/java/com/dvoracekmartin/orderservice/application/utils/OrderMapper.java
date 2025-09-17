@@ -6,8 +6,6 @@ import com.dvoracekmartin.orderservice.application.dto.OrderResponse;
 import com.dvoracekmartin.orderservice.domain.model.Order;
 import org.mapstruct.Mapper;
 
-import java.util.stream.Collectors;
-
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
     default OrderResponse mapOrderToOrderResponse(Order order) {
@@ -21,7 +19,8 @@ public interface OrderMapper {
                 order.getShippingMethod(),
                 order.getPaymentMethod(),
                 order.getOrderDate(),
-                order.getTrackingNumber());
+                order.getTrackingNumber(),
+                order.getOrderYearOrderCounter());
     }
 
     Order mapOrderToOrderResponse(OrderResponse orderResponse);

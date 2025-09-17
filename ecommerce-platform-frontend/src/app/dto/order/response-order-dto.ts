@@ -14,4 +14,5 @@ export interface ResponseOrderDTO {
   paymentMethod: string;
   orderDate: string;
   trackingNumber?: string;
+  orderYearOrderCounter: number;
 }

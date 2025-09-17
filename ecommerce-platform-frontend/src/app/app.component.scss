@@ -25,6 +25,7 @@
 }
 
 // ===== MAIN TOOLBAR =====
+// Update the main toolbar styles
 .main-toolbar {
   @include mat.elevation(4);
   background-color: #ffffff;
@@ -46,6 +47,189 @@
   }
 }
 
+// Fix the title alignment
+.centered-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  height: 100%;
+
+  @media (max-width: 768px) {
+    position: static;
+    transform: none;
+    flex: 1;
+    text-align: center;
+  }
+}
+
+.app-title-btn {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.app-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(45deg, #3498db, #2980b9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  line-height: normal;
+  padding: 0.5rem 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+}
+// ===== SEARCH COMPONENT =====
+.search-container {
+  position: relative;
+  width: 400px;
+  margin: 0 20px;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  height: 44px;
+
+  &.focused {
+    width: 450px;
+    .search-field mat-form-field {
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(52, 152, 219, 0.2);
+      border: 1px solid #3498db;
+    }
+  }
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    width: 200px;
+    margin: 0 12px;
+    height: 40px;
+
+    &.focused {
+      width: 250px;
+    }
+  }
+}
+
+.search-field {
+  width: 100%;
+  height: 100%;
+
+  mat-form-field {
+    width: 100%;
+    height: 100%;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+
+    // Use appearance="fill" in HTML to remove notched-outline completely
+    // No need to hide .mat-form-field-outline or .mdc-notched-outline
+
+    .mat-form-field-wrapper {
+      padding-bottom: 0;
+      height: 100%;
+    }
+
+    .mat-form-field-flex {
+      height: 100%;
+      align-items: center;
+      margin-top: 0 !important;
+    }
+
+    .mat-form-field-infix {
+      padding: 0;
+      border-top: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    input {
+      color: #2c3e50;
+      font-size: 0.95rem;
+      padding: 0;
+      height: 100%;
+    }
+
+    .search-icon {
+      color: #7f8c8d;
+      margin-right: 8px;
+    }
+
+    // Optional: prevent focus from changing background color
+    .mat-form-field.mat-focused {
+      background: #f8f9fa !important;
+    }
+  }
+}
+
+.search-dropdown {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1001;
+  padding: 12px 0;
+
+  .search-section {
+    margin-bottom: 12px;
+
+    .section-title {
+      margin: 0 16px 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #7f8c8d;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  mat-list-item {
+    cursor: pointer;
+    height: auto !important;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+
+    .result-thumbnail {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .result-icon {
+      color: #7f8c8d;
+    }
+
+    .result-text {
+      font-size: 0.95rem;
+      color: #2c3e50;
+      flex-grow: 1;
+    }
+  }
+}
+
+// Remove the white line at the bottom of the header
+.main-toolbar::after {
+  display: none;
+}
 // Toolbar elements
 .menu-button {
   margin-right: 16px;
@@ -115,126 +299,6 @@
 
     mat-icon {
       color: #3498db;
-    }
-  }
-}
-
-// ===== SEARCH COMPONENT =====
-.search-container {
-  position: relative;
-  width: 400px;
-  margin: 0 20px;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-
-  &.focused {
-    width: 450px;
-
-    .search-field mat-form-field {
-      background: #ffffff;
-      box-shadow: 0 4px 20px rgba(52, 152, 219, 0.2);
-      border: 1px solid #3498db;
-    }
-  }
-
-  // Mobile responsive
-  @media (max-width: 768px) {
-    width: 200px;
-    margin: 0 12px;
-
-    &.focused {
-      width: 250px;
-    }
-  }
-}
-
-.search-field {
-  width: 100%;
-
-  mat-form-field {
-    width: 100%;
-    background: #f8f9fa;
-    border-radius: 25px;
-    transition: all 0.3s ease;
-
-    .mat-form-field-wrapper { padding-bottom: 0; }
-    .mat-form-field-flex { align-items: center; }
-    .mat-form-field-infix {
-      padding: 0.5em 0;
-      border-top: 0.5em solid transparent;
-    }
-
-    input {
-      color: #2c3e50;
-      font-size: 0.95rem;
-      padding: 0.5em 0;
-    }
-
-    .search-icon {
-      color: #7f8c8d;
-      margin-right: 8px;
-    }
-
-    .mat-form-field-outline { border: none; }
-
-    .mat-form-field-outline-start,
-    .mat-form-field-outline-gap,
-    .mat-form-field-outline-end {
-      background-color: #f8f9fa;
-    }
-  }
-}
-
-.search-dropdown {
-  position: absolute;
-  top: 60px;
-  left: 0;
-  width: 100%;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  max-height: 400px;
-  overflow-y: auto;
-  z-index: 1001;
-  padding: 12px 0;
-
-  .search-section {
-    margin-bottom: 12px;
-
-    .section-title {
-      margin: 0 16px 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #7f8c8d;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-  }
-
-  mat-list-item {
-    cursor: pointer;
-    height: auto !important;
-    padding: 8px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    &:hover { background-color: #f8f9fa; }
-
-    .result-thumbnail {
-      width: 36px;
-      height: 36px;
-      object-fit: cover;
-      border-radius: 6px;
-    }
-
-    .result-icon { color: #7f8c8d; }
-
-    .result-text {
-      font-size: 0.95rem;
-      color: #2c3e50;
-      flex-grow: 1;
     }
   }
 }

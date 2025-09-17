@@ -4,9 +4,7 @@ import com.dvoracekmartin.orderservice.application.dto.OrderResponse;
 import com.dvoracekmartin.orderservice.domain.service.OrderService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +23,6 @@ public class OrderAdminControllerV1 {
 
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getAllOrders() {
-        return ResponseEntity.ok(orderService.findAll());
+        return ResponseEntity.ok(orderService.findAll().stream().sorted());
     }
 }

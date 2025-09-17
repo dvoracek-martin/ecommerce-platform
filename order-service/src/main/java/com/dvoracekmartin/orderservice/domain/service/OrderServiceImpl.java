@@ -105,6 +105,6 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderResponse> findAll() {
         List<Order> orders = orderRepository.findAll();
-        return orders.stream().map(orderMapper::mapOrderToOrderResponse).toList();
+        return orders.stream().sorted(Comparator.comparing(Order::getOrderDate).reversed()).map(orderMapper::mapOrderToOrderResponse).toList();
     }
 }

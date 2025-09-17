@@ -20,4 +20,20 @@ public class OrderResponse {
     private String paymentMethod;
     private LocalDateTime orderDate;
     private String trackingNumber;
+    private int orderYearOrderCounter;
+
+    public OrderResponse(Long id, String customerId, List<CartItemDTO> items, Double shippingCost, Double cartTotal, Double finalTotal, OrderStatus status, String shippingMethod, String paymentMethod, LocalDateTime orderDate, String trackingNumber, int orderYearOrderCounter) {
+        this.id = id;
+        this.customerId = customerId;
+        this.items = items;
+        this.shippingCost = shippingCost;
+        this.cartTotal = cartTotal;
+        this.finalTotal = finalTotal;
+        this.status = status;
+        this.shippingMethod = shippingMethod;
+        this.paymentMethod = paymentMethod;
+        this.orderDate = orderDate;
+        this.trackingNumber = trackingNumber;
+        this.orderYearOrderCounter = orderYearOrderCounter;
+    }
 }
