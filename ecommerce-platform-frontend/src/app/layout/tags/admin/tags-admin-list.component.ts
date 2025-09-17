@@ -6,6 +6,9 @@ import {Subject, takeUntil} from 'rxjs';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
 import {TagService} from '../../../services/tag.service';
 import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {FormControl} from '@angular/forms';
+import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
+import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 
 @Component({
   selector: 'app-tags-admin-list',
@@ -15,11 +18,13 @@ import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.c
 })
 export class TagsAdminListComponent implements OnInit, OnDestroy {
   tags: ResponseTagDTO[] = [];
+  filteredTags: ResponseTagDTO[] = [];
   isLoading = true;
   error: string | null = null;
   activeSlideIndices: number[] = [];
   private intervals: any[] = [];
   private destroy$ = new Subject<void>();
+  searchControl = new FormControl('');
 
   constructor(
     private tagService: TagService,
@@ -31,12 +36,40 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadTags();
+    this.setupSearchFilter();
   }
 
   ngOnDestroy(): void {
     this.intervals.forEach(i => clearInterval(i));
     this.destroy$.next();
     this.destroy$.complete();
+  }
+  setupSearchFilter(): void {
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(value => {
+        this.applyFilter(value || '');
+      });
+  }
+
+  applyFilter(filterValue: string): void {
+    if (!filterValue) {
+      this.filteredTags = [...this.tags];
+      return;
+    }
+
+    const searchStr = filterValue.toLowerCase().trim();
+    this.filteredTags = this.tags.filter(product =>
+      product.name.toLowerCase().includes(searchStr)
+    );
+  }
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
+    this.applyFilter('');
   }
 
   loadTags(): void {
@@ -46,6 +79,7 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.tags = data;
+          this.filteredTags = [...this.tags];
           this.initializeCarousels();
           this.isLoading = false;
         },
@@ -59,7 +93,7 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
 
   initializeCarousels(): void {
     this.activeSlideIndices = [];
-    this.tags.forEach((tag, idx) => {
+    this.filteredTags.forEach((tag, idx) => {
       this.activeSlideIndices[idx] = 0;
       const mediaCount = tag.media?.length || 0;
       this.startCarousel(idx, mediaCount);
@@ -81,7 +115,7 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
   setActiveSlide(tagIndex: number, slideIndex: number): void {
     this.activeSlideIndices[tagIndex] = slideIndex;
     clearInterval(this.intervals[tagIndex]);
-    this.startCarousel(tagIndex, this.tags[tagIndex].media.length);
+    this.startCarousel(tagIndex, this.filteredTags[tagIndex].media.length);
   }
 
   trackById(_idx: number, item: ResponseTagDTO): number {
@@ -123,6 +157,7 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.tags = this.tags.filter((t) => t.id !== id);
+          this.filteredTags = this.filteredTags.filter(p => p.id !== id);
           this.snackBar.open('Tag deleted successfully.', 'Close', { duration: 3000 });
         },
         error: (err) => {
@@ -130,5 +165,10 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
           this.snackBar.open('Failed to delete tag.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
         }
       });
+  }
+
+
+  navigateToCreate(): void {
+    this.router.navigate(['/admin/tags/create']);
   }
 }

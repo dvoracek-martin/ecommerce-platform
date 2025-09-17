@@ -7,6 +7,7 @@ import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.c
 import {FormControl} from '@angular/forms';
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-categories-admin-list',
@@ -26,7 +27,8 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
   constructor(
     private categoryService: CategoryService,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+  private snackBar: MatSnackBar
   ) {
   }
 
@@ -143,6 +145,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
       next: () => {
         this.categories = this.categories.filter(c => c.id !== id);
         this.filteredCategories = this.filteredCategories.filter(p => p.id !== id);
+        this.snackBar.open('Category deleted successfully.', 'Close', { duration: 3000 });
       },
       error: (err) => {
         console.error('Delete failed:', err);

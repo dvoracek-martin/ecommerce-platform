@@ -7,6 +7,7 @@ import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
 import { ProductService } from '../../../services/product.service';
 import { FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-products-admin-list',
@@ -26,7 +27,8 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+  private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -138,6 +140,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
       next: () => {
         this.products = this.products.filter(p => p.id !== id);
         this.filteredProducts = this.filteredProducts.filter(p => p.id !== id);
+        this.snackBar.open('Product deleted successfully.', 'Close', { duration: 3000 });
       },
       error: (err) => {
         console.error('Delete failed:', err);
