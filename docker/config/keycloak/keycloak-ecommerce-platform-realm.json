@@ -1,11 +1,6 @@
 {
   "realm": "ecommerce-platform",
   "enabled": true,
-
-  "accessTokenLifespan": 300,
-  "ssoSessionIdleTimeout": 604800,
-  "ssoSessionMaxLifespan": 604800,
-
   "roles": {
     "realm": [
       {

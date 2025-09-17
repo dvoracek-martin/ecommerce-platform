@@ -24,7 +24,7 @@ services:
 
   postgres-keycloak:
     image: postgres:latest
-    container_name: keycloak-service-postgres-db
+    container_name: keycloak-postgres-db-service
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
