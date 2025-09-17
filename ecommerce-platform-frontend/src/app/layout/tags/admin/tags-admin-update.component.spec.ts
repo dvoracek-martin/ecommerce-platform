@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { TagsAdminUpdateComponent } from './tags-admin-update.component';
+import {TagsAdminUpdateComponent} from './tags-admin-update.component';
 
 describe('TagsAdminUpdateComponent', () => {
   let component: TagsAdminUpdateComponent;
@@ -10,7 +10,7 @@ describe('TagsAdminUpdateComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [TagsAdminUpdateComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(TagsAdminUpdateComponent);
     component = fixture.componentInstance;

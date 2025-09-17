@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CategoryService } from '../../services/category.service';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {CategoryService} from '../../services/category.service';
 import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
 
 @Component({
@@ -15,7 +15,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   activeSlideIndices: number[] = [];
   private intervals: any[] = [];
 
-  constructor(private categoryService: CategoryService) {}
+  constructor(private categoryService: CategoryService) {
+  }
 
   ngOnInit(): void {
     this.loadCategories();
@@ -78,7 +79,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   trackByObjectKey(_idx: number, item: {
     contentType: string,
     base64Data: string,
-    objectKey: string }): string {
+    objectKey: string
+  }): string {
     return item.objectKey;
   }
 }

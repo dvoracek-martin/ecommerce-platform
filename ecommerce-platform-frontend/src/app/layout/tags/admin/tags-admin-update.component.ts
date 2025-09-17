@@ -41,8 +41,7 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     this.route.params
@@ -60,13 +59,69 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  onSave(): void {
+    if (this.tagForm.invalid) {
+      this.tagForm.markAllAsTouched();
+      this.snackBar.open('Please correct the highlighted fields.', 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    this.saving = true;
+    const payload: UpdateTagDTO = {
+      id: this.tagId,
+      ...this.tagForm.value,
+    };
+
+    this.tagService.updateTag(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.saving = false;
+          this.tagForm.markAsPristine(); // Reset dirty state
+          this.snackBar.open('Tag updated successfully!', 'Close', {duration: 3000});
+          this.router.navigate(['/admin/tags']);
+        },
+        error: err => {
+          this.saving = false;
+          console.error('Update failed:', err);
+          this.snackBar.open('Failed to update tag', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
+        }
+      });
+  }
+
+  openDeleteDialog(): void {
+    this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Delete Tag',
+        message: 'This will permanently delete the tag.',
+        warn: true
+      }
+    }).afterClosed().subscribe(ok => {
+      if (ok) this.deleteTag();
+    });
+  }
+
+  openCancelDialog(): void {
+    if (this.tagForm.dirty) {
+      this.dialog.open(ConfirmationDialogComponent, {
+        data: {title: 'Cancel Update', message: 'Discard changes?', warn: true}
+      }).afterClosed().subscribe(ok => {
+        if (ok) this.router.navigate(['/admin/tags']);
+      });
+    } else {
+      this.router.navigate(['/admin/tags']);
+    }
+  }
+
   private initForm(): void {
     this.tagForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
       priority: [0, [Validators.required, Validators.min(0)]],
       active: [true],
-      media: this.fb.array([]),
       categoryIds: [[]],
       productIds: [[]],
       mixtureIds: [[]]
@@ -76,24 +131,15 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
   private loadRelations(): void {
     this.categoryService.getAllCategoriesAdmin()
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: data => this.allCategories = data,
-        error: () => this.allCategories = []
-      });
+      .subscribe({ next: data => this.allCategories = data, error: () => this.allCategories = [] });
 
     this.productService.getAllProductsAdmin()
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: data => this.allProducts = data,
-        error: () => this.allProducts = []
-      });
+      .subscribe({ next: data => this.allProducts = data, error: () => this.allProducts = [] });
 
     this.mixtureService.getAllMixturesAdmin()
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: data => this.allMixtures = data,
-        error: () => this.allMixtures = []
-      });
+      .subscribe({ next: data => this.allMixtures = data, error: () => this.allMixtures = [] });
   }
 
   private loadTag(): void {
@@ -125,52 +171,6 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
       });
   }
 
-  onSave(): void {
-    if (this.tagForm.invalid) {
-      this.tagForm.markAllAsTouched();
-      this.snackBar.open('Please correct the highlighted fields.', 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-
-    this.saving = true;
-    const payload: UpdateTagDTO = {
-      id: this.tagId,
-      ...this.tagForm.value,
-    };
-
-    this.tagService.updateTag(payload)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.saving = false;
-          this.snackBar.open('Tag updated successfully!', 'Close', {duration: 3000});
-          this.router.navigate(['/admin/tags']);
-        },
-        error: err => {
-          this.saving = false;
-          console.error('Update failed:', err);
-          this.snackBar.open('Failed to update tag', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
-        }
-      });
-  }
-
-  openDeleteDialog(): void {
-    this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Delete Tag',
-        message: 'This will permanently delete the tag.',
-        warn: true
-      }
-    }).afterClosed().subscribe(ok => {
-      if (ok) {
-        this.deleteTag();
-      }
-    });
-  }
-
   private deleteTag(): void {
     this.tagService.deleteTag(this.tagId)
       .pipe(takeUntil(this.destroy$))
@@ -184,19 +184,5 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
           this.snackBar.open('Failed to delete tag.', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
         }
       });
-  }
-
-  openCancelDialog(): void {
-    if (this.tagForm.dirty) {
-      this.dialog.open(ConfirmationDialogComponent, {
-        data: {title: 'Cancel Update', message: 'Discard changes?', warn: true}
-      }).afterClosed().subscribe(ok => {
-        if (ok) {
-          this.router.navigate(['/admin/tags']);
-        }
-      });
-    } else {
-      this.router.navigate(['/admin/tags']);
-    }
   }
 }

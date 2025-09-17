@@ -12,8 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 public abstract class BaseCreateDTO {
 
-    public BaseCreateDTO() {}
-
     @NotBlank
     @Size(min = 3)
     private String name;

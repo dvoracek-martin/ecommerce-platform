@@ -10,9 +10,9 @@
     </div>
 
 
-    <form id="tagForm" [formGroup]="tagForm" (ngSubmit)="onSave()" class="form-and-media-wrapper">
+    <form (ngSubmit)="onSave()" [formGroup]="tagForm" class="form-and-media-wrapper" id="tagForm">
       <div class="form-content">
-        <mat-progress-bar *ngIf="saving" mode="indeterminate" class="admin-save-progress"></mat-progress-bar>
+        <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
 
         <div class="form-section">
           <h3 class="section-subtitle">
@@ -22,7 +22,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.ADMIN.NAME' | translate }}</mat-label>
-              <input matInput formControlName="name"
+              <input formControlName="name" matInput
                      placeholder="{{ 'TAGS.ADMIN.NAME_PLACEHOLDER' | translate }}" required>
               <mat-error *ngIf="tagForm.get('name')?.hasError('required')">
                 {{ 'TAGS.ADMIN.NAME_REQUIRED' | translate }}
@@ -34,7 +34,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>{{ 'TAGS.ADMIN.DESCRIPTION' | translate }}</mat-label>
-              <textarea matInput formControlName="description"
+              <textarea formControlName="description" matInput
                         placeholder="{{ 'TAGS.ADMIN.DESCRIPTION_PLACEHOLDER' | translate }}"></textarea>
             </mat-form-field>
           </div>
@@ -42,7 +42,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.PRIORITY' | translate }}</mat-label>
-              <input matInput type="number" formControlName="priority" required>
+              <input formControlName="priority" matInput required type="number">
               <mat-error
                 *ngIf="tagForm.get('priority')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
@@ -50,7 +50,7 @@
               </mat-error>
             </mat-form-field>
             <div class="form-field form-section">
-              <mat-checkbox formControlName="active">
+              <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
                 {{ 'TAGS.ACTIVE' | translate }}
               </mat-checkbox>
             </div>
@@ -63,11 +63,11 @@
 
     <div class="admin-actions-floating-bar">
       <div class="admin-action-buttons">
-        <button mat-stroked-button color="warn" type="button" (click)="openCancelDialog()">
+        <button (click)="openCancelDialog()" color="warn" mat-stroked-button type="button">
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
-        <button mat-flat-button color="primary" type="submit" form="tagForm" [disabled]="tagForm.invalid || saving">
+        <button [disabled]="tagForm.invalid || saving" color="primary" form="tagForm" mat-flat-button type="submit">
           <mat-icon>save</mat-icon>
           {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
         </button>

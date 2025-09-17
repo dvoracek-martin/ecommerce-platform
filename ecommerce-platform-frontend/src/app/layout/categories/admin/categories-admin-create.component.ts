@@ -34,6 +34,10 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
   ) {
   }
 
+  get mediaControls(): FormArray {
+    return this.categoryForm.get('media') as FormArray;
+  }
+
   ngOnInit() {
     this.initForm();
     this.loadTags();
@@ -44,46 +48,12 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private initForm(): void {
-    this.categoryForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
-      priority: [0, [Validators.required, Validators.min(0)]],
-      active: [false],
-      tagIds: [[]],
-      media: this.fb.array([])
-    });
-  }
-
-  private loadTags() {
-    this.tagService.getAllTags()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: tags => this.allTags = tags,
-        error: () => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
-      });
-  }
-
-  get mediaControls(): FormArray {
-    return this.categoryForm.get('media') as FormArray;
-  }
-
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     Array.from(input.files || []).forEach(file => {
       const reader = new FileReader();
       reader.onload = () => this.mediaControls.push(this.createMediaGroup(reader, file));
       reader.readAsDataURL(file);
-    });
-  }
-
-  private createMediaGroup(reader: FileReader, file: File): FormGroup {
-    const base64 = (reader.result as string).split(',')[1];
-    return this.fb.group({
-      base64Data: [base64],
-      objectKey: [`${Date.now()}_${file.name}`],
-      contentType: [file.type],
-      preview: [reader.result]
     });
   }
 
@@ -120,18 +90,6 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
       });
   }
 
-  private handleSaveSuccess(): void {
-    this.saving = false;
-    this.snackBar.open('Category created successfully!', 'Close', {duration: 3000});
-    this.router.navigate(['/admin/categories']);
-  }
-
-  private handleSaveError(err: any): void {
-    this.saving = false;
-    console.error('Creation failed:', err);
-    this.snackBar.open('Failed to create category', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
-  }
-
   openCancelDialog(): void {
     if (this.categoryForm.dirty) {
       this.dialog.open(ConfirmationDialogComponent, {
@@ -144,5 +102,47 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/admin/categories']);
     }
+  }
+
+  private initForm(): void {
+    this.categoryForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      priority: [0, [Validators.required, Validators.min(0)]],
+      active: [false],
+      tagIds: [[]],
+      media: this.fb.array([])
+    });
+  }
+
+  private loadTags() {
+    this.tagService.getAllTags()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: tags => this.allTags = tags,
+        error: () => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
+      });
+  }
+
+  private createMediaGroup(reader: FileReader, file: File): FormGroup {
+    const base64 = (reader.result as string).split(',')[1];
+    return this.fb.group({
+      base64Data: [base64],
+      objectKey: [`${Date.now()}_${file.name}`],
+      contentType: [file.type],
+      preview: [reader.result]
+    });
+  }
+
+  private handleSaveSuccess(): void {
+    this.saving = false;
+    this.snackBar.open('Category created successfully!', 'Close', {duration: 3000});
+    this.router.navigate(['/admin/categories']);
+  }
+
+  private handleSaveError(err: any): void {
+    this.saving = false;
+    console.error('Creation failed:', err);
+    this.snackBar.open('Failed to create category', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
   }
 }

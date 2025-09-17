@@ -5,7 +5,6 @@ import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 import {CategoryService} from '../../../services/category.service';
 import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
 import {FormControl} from '@angular/forms';
-import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
@@ -21,20 +20,22 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
   isLoading = true;
   error: string | null = null;
   activeSlideIndices: number[] = [];
-  private intervals: any[] = [];
   searchControl = new FormControl('');
+  activeSeControl = new FormControl(true);
+  private intervals: any[] = [];
 
   constructor(
     private categoryService: CategoryService,
     private router: Router,
     private dialog: MatDialog,
-  private snackBar: MatSnackBar
+    private snackBar: MatSnackBar
   ) {
   }
 
   ngOnInit(): void {
     this.loadCategories();
     this.setupSearchFilter();
+    this.activeSeControl.valueChanges.subscribe(() => this.applyFilters());
   }
 
   ngOnDestroy(): void {
@@ -43,42 +44,37 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
 
   setupSearchFilter(): void {
     this.searchControl.valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-      .subscribe(value => {
-        this.applyFilter(value || '');
-      });
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => this.applyFilters());
   }
 
-  applyFilter(filterValue: string): void {
-    if (!filterValue) {
-      this.filteredCategories = [...this.categories];
-      return;
-    }
+  applyFilters(): void {
+    const searchValue = (this.searchControl.value || '').toLowerCase().trim();
+    const onlyActive = this.activeSeControl.value;
 
-    const searchStr = filterValue.toLowerCase().trim();
-    this.filteredCategories = this.categories.filter(product =>
-      product.name.toLowerCase().includes(searchStr)
-    );
+    this.filteredCategories = this.categories.filter(category => {
+      const matchesSearch = category.name.toLowerCase().includes(searchValue);
+      const matchesActive = onlyActive ? category.active === true : true;
+      return matchesSearch && matchesActive;
+    });
+
+    this.initializeCarousels();
   }
 
   clearSearch(): void {
     this.searchControl.setValue('');
-    this.applyFilter('');
   }
 
   loadCategories(): void {
     this.isLoading = true;
     this.categoryService.getAllCategoriesAdmin().subscribe({
-      next: (data) => {
+      next: data => {
         this.categories = data;
         this.filteredCategories = [...this.categories];
         this.initializeCarousels();
         this.isLoading = false;
       },
-      error: (err) => {
+      error: err => {
         this.error = err.message || 'Failed to load categories';
         this.isLoading = false;
       }
@@ -102,8 +98,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
   }
 
   nextSlide(catIndex: number, mediaCount: number): void {
-    this.activeSlideIndices[catIndex] =
-      (this.activeSlideIndices[catIndex] + 1) % mediaCount;
+    this.activeSlideIndices[catIndex] = (this.activeSlideIndices[catIndex] + 1) % mediaCount;
   }
 
   setActiveSlide(catIndex: number, slideIndex: number): void {
@@ -116,14 +111,9 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
     return item.id;
   }
 
-  trackByObjectKey(_idx: number, item: {
-    contentType: string,
-    base64Data: string,
-    objectKey: string
-  }): string {
+  trackByObjectKey(_idx: number, item: { contentType: string, base64Data: string, objectKey: string }): string {
     return item.objectKey;
   }
-
 
   openDeleteDialog(categoryId: number): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
@@ -134,36 +124,30 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.deleteCategory(categoryId);
-      }
+      if (result) this.deleteCategory(categoryId);
     });
+  }
+
+  navigateToUpdate(categoryId: number): void {
+    this.router.navigate([`/admin/categories/update/${categoryId}`]);
+  }
+
+  navigateHome(): void {
+    this.router.navigate(['/']);
+  }
+
+  navigateToCreate(): void {
+    this.router.navigate(['/admin/categories/create']);
   }
 
   private deleteCategory(id: number): void {
     this.categoryService.deleteCategory(id).subscribe({
       next: () => {
         this.categories = this.categories.filter(c => c.id !== id);
-        this.filteredCategories = this.filteredCategories.filter(p => p.id !== id);
-        this.snackBar.open('Category deleted successfully.', 'Close', { duration: 3000 });
+        this.filteredCategories = this.filteredCategories.filter(c => c.id !== id);
+        this.snackBar.open('Category deleted successfully.', 'Close', {duration: 3000});
       },
-      error: (err) => {
-        console.error('Delete failed:', err);
-        // Show error notification
-      }
+      error: err => console.error('Delete failed:', err)
     });
-  }
-
-  navigateToUpdate(categoryId: number): void {
-    console.log('navigating to update category with ID:', categoryId);
-    this.router.navigate([`/admin/categories/update/${categoryId}`]);
-  }
-
-  navigateHome() {
-    this.router.navigate(['/']);
-  }
-
-  navigateToCreate(): void {
-    this.router.navigate(['/admin/categories/create']);
   }
 }

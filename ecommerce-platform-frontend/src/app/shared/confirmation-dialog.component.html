@@ -1,23 +1,21 @@
-<div class="dialog-container">
-  <div class="dialog-header" [ngClass]="data.type">
+<div class="modern-dialog-container">
+  <div class="modern-dialog-header" [ngClass]="data.type">
     <mat-icon class="title-icon">{{ getTitleIcon() }}</mat-icon>
     <h2 class="dialog-title">{{ data.title }}</h2>
   </div>
 
-  <div class="dialog-body">
-    <p [innerHTML]="sanitizeHtml(data.message)"></p>
+  <div class="modern-dialog-body">
+    <ng-container *ngIf="!data.html; else htmlContent">{{ data.message }}</ng-container>
+    <ng-template #htmlContent>
+      <span [innerHTML]="sanitizeHtml(data.message)"></span>
+    </ng-template>
   </div>
 
-  <div class="dialog-actions">
-    <button class="btn btn-outline" (click)="onCancel()">Cancel</button>
-    <button
-      class="btn"
-      [ngClass]="{
-        'btn-primary': data.type !== 'warn',
-        'btn-warn': data.type === 'warn'
-      }"
-      (click)="onConfirm()"
-    >
+  <div class="modern-dialog-actions">
+    <button mat-stroked-button class="btn btn-outline" (click)="onCancel()">
+      Cancel
+    </button>
+    <button mat-flat-button class="btn btn-primary" (click)="onConfirm()">
       Confirm
     </button>
   </div>

@@ -1,16 +1,16 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
-import { ProductService } from '../../services/product.service';
-import { ResponseProductDTO } from '../../dto/product/response-product-dto';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Subject, takeUntil} from 'rxjs';
+import {ProductService} from '../../services/product.service';
+import {ResponseProductDTO} from '../../dto/product/response-product-dto';
 import {CurrencyPipe, NgForOf, NgIf} from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatButtonModule} from '@angular/material/button';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-products-detail',
@@ -40,7 +40,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private productService: ProductService,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
@@ -59,20 +60,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadProduct(id: number): void {
-    this.loading = true;
-    this.productService.getProductById(id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: product => {
-        this.product = product;
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Product not found or error loading product';
-        this.loading = false;
-      }
-    });
-  }
-
   backToList() {
     this.router.navigate(['/products']);
   }
@@ -86,5 +73,19 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
     // Example implementation:
     // this.cartService.addToCart(this.product, 1);
+  }
+
+  private loadProduct(id: number): void {
+    this.loading = true;
+    this.productService.getProductById(id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: product => {
+        this.product = product;
+        this.loading = false;
+      },
+      error: () => {
+        this.error = 'Product not found or error loading product';
+        this.loading = false;
+      }
+    });
   }
 }

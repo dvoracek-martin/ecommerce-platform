@@ -1,5 +1,5 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {FormBuilder, FormGroup, FormArray, Validators, FormControl} from '@angular/forms';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
@@ -23,8 +23,8 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
   productForm!: FormGroup;
   saving = false;
   categories: ResponseCategoryDTO[] = [];
-  private readonly destroy$ = new Subject<void>();
   allTags: ResponseTagDTO[] = [];
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -36,6 +36,28 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar
   ) {
   }
+
+  get mediaControls(): FormArray {
+    return this.productForm.get('media') as FormArray;
+  }
+
+  get allergensControls(): FormArray {
+    return this.productForm.get('allergens') as FormArray;
+  }
+
+  get allergenFormControls(): FormControl[] {
+    return this.allergensControls.controls as FormControl[];
+  }
+
+  get tagsControls(): FormArray {
+    return this.productForm.get('tagDTOS') as FormArray;
+  }
+
+  get tagIdsControl(): FormControl {
+    return this.productForm.get('tagIds') as FormControl;
+  }
+
+  // --- Media Handling ---
 
   ngOnInit() {
     this.initForm();
@@ -76,21 +98,6 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
       });
   }
 
-  private loadTags() {
-    this.tagService.getAllTags()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: tags => this.allTags = tags,
-        error: _ => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
-      });
-  }
-
-  // --- Media Handling ---
-
-  get mediaControls(): FormArray {
-    return this.productForm.get('media') as FormArray;
-  }
-
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     Array.from(input.files || []).forEach(file => {
@@ -98,16 +105,6 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
       reader.onload = () => this.handleFileUpload(reader, file);
       reader.readAsDataURL(file);
     });
-  }
-
-  private handleFileUpload(reader: FileReader, file: File): void {
-    const base64 = (reader.result as string).split(',')[1];
-    this.mediaControls.push(this.fb.group({
-      base64Data: [base64],
-      objectKey: [`${Date.now()}_${file.name}`],
-      contentType: [file.type],
-      preview: [reader.result]
-    }));
   }
 
   openMediaDeleteDialog(index: number): void {
@@ -124,22 +121,14 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
     });
   }
 
+  // --- Allergens Handling ---
+
   removeMedia(index: number): void {
     this.mediaControls.removeAt(index);
   }
 
   dropMedia(event: CdkDragDrop<any[]>): void {
     moveItemInArray(this.mediaControls.controls, event.previousIndex, event.currentIndex);
-  }
-
-  // --- Allergens Handling ---
-
-  get allergensControls(): FormArray {
-    return this.productForm.get('allergens') as FormArray;
-  }
-
-  get allergenFormControls(): FormControl[] {
-    return this.allergensControls.controls as FormControl[];
   }
 
   addAllergen(): void {
@@ -151,16 +140,6 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
   }
 
   // --- Tags Handling ---
-
-  get tagsControls(): FormArray {
-    return this.productForm.get('tagDTOS') as FormArray;
-  }
-
-  get tagIdsControl(): FormControl {
-    return this.productForm.get('tagIds') as FormControl;
-  }
-
-  // --- Form Submission ---
 
   onSave(): void {
     if (this.productForm.invalid) {
@@ -184,18 +163,6 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
       });
   }
 
-  private handleSaveSuccess(): void {
-    this.saving = false;
-    this.snackBar.open('Product created successfully!', 'Close', {duration: 3000});
-    this.router.navigate(['/admin/products']);
-  }
-
-  private handleSaveError(err: any): void {
-    this.saving = false;
-    console.error('Creation failed:', err);
-    this.snackBar.open('Failed to create product', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
-  }
-
   openCancelDialog(): void {
     if (this.productForm.dirty) {
       this.dialog.open(ConfirmationDialogComponent, {
@@ -208,5 +175,38 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/admin/products']);
     }
+  }
+
+  // --- Form Submission ---
+
+  private loadTags() {
+    this.tagService.getAllTags()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: tags => this.allTags = tags,
+        error: _ => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
+      });
+  }
+
+  private handleFileUpload(reader: FileReader, file: File): void {
+    const base64 = (reader.result as string).split(',')[1];
+    this.mediaControls.push(this.fb.group({
+      base64Data: [base64],
+      objectKey: [`${Date.now()}_${file.name}`],
+      contentType: [file.type],
+      preview: [reader.result]
+    }));
+  }
+
+  private handleSaveSuccess(): void {
+    this.saving = false;
+    this.snackBar.open('Product created successfully!', 'Close', {duration: 3000});
+    this.router.navigate(['/admin/products']);
+  }
+
+  private handleSaveError(err: any): void {
+    this.saving = false;
+    console.error('Creation failed:', err);
+    this.snackBar.open('Failed to create product', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
   }
 }

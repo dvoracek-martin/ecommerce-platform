@@ -1,27 +1,36 @@
-<div class="category-container">
-  <mat-card class="category-card">
-    <mat-card-header>
-      <mat-card-title class="category-title">
-        <mat-icon class="title-icon">edit</mat-icon>
-        {{ 'CATEGORIES.ADMIN.EDIT_TITLE' | translate }}
-      </mat-card-title>
-    </mat-card-header>
+<div class="admin-container">
+  <mat-card class="admin-card">
+    <!-- Header -->
+    <div class="admin-header-section">
+      <div class="admin-header-content">
+        <div class="admin-title-section">
+          <h1>{{ 'CATEGORIES.TITLE' | translate }}</h1>
+          <p class="admin-subtitle">{{ 'CATEGORIES.ADMIN_SUBTITLE.EDIT' | translate }}</p>
+        </div>
+        <button (click)="openDeleteDialog()" class="admin-delete-btn" mat-flat-button type="button">
+          <mat-icon>delete_forever</mat-icon>
+          {{ 'COMMON.DELETE' | translate }}
+        </button>
+      </div>
+    </div>
 
-    <mat-divider></mat-divider>
-
-    <form id="categoryForm" [formGroup]="categoryForm" (ngSubmit)="onSave()" class="form-and-media-wrapper">
+    <form (ngSubmit)="onSave()" [formGroup]="categoryForm" class="form-and-media-wrapper" id="categoryForm">
 
       <div class="form-content">
-        <mat-progress-bar *ngIf="saving" mode="indeterminate" class="save-progress"></mat-progress-bar>
+        <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
+
+        <!-- BASIC INFO -->
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>label</mat-icon>
             {{ 'CATEGORIES.ADMIN.BASIC_INFO' | translate }}
           </h3>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'CATEGORIES.ADMIN.NAME' | translate }}</mat-label>
-              <input matInput formControlName="name" placeholder="{{ 'CATEGORIES.ADMIN.NAME_PLACEHOLDER' | translate }}">
+              <input formControlName="name" matInput
+                     placeholder="{{ 'CATEGORIES.ADMIN.NAME_PLACEHOLDER' | translate }}">
               <mat-error *ngIf="categoryForm.get('name')?.hasError('required')">
                 {{ 'CATEGORIES.ADMIN.NAME_REQUIRED' | translate }}
               </mat-error>
@@ -31,7 +40,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>{{ 'CATEGORIES.ADMIN.DESCRIPTION' | translate }}</mat-label>
-              <textarea matInput formControlName="description"
+              <textarea formControlName="description" matInput
                         placeholder="{{ 'CATEGORIES.ADMIN.DESCRIPTION_PLACEHOLDER' | translate }}"></textarea>
             </mat-form-field>
           </div>
@@ -39,37 +48,41 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'CATEGORIES.PRIORITY' | translate }}</mat-label>
-              <input matInput type="number" formControlName="priority" required>
-              <mat-error
-                *ngIf="categoryForm.get('priority')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
+              <input formControlName="priority" matInput required type="number">
+              <mat-error *ngIf="categoryForm.get('priority')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
-              <mat-error *ngIf="categoryForm.get('priority')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}: 0
+              <mat-error *ngIf="categoryForm.get('priority')?.hasError('min')">
+                {{ 'VALIDATION.MIN' | translate }}: 0
               </mat-error>
             </mat-form-field>
+
             <div class="form-field form-section">
-              <mat-checkbox formControlName="active">
+              <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
                 {{ 'CATEGORIES.ACTIVE' | translate }}
               </mat-checkbox>
             </div>
           </div>
+        </div>
 
-          <div class="form-section">
-            <h3 class="section-subtitle">
-              <mat-icon>label</mat-icon>
-              {{ 'CATEGORIES.ADMIN.TAGS' | translate }}
-            </h3>
-            <mat-form-field appearance="outline" class="form-field full-width">
-              <mat-label>{{ 'CATEGORIES.ADMIN.SELECT_TAGS' | translate }}</mat-label>
-              <mat-select formControlName="tagIds" multiple>
-                <mat-option *ngFor="let t of allTags" [value]="t.id">
-                  {{ t.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
+        <!-- TAGS -->
+        <div class="form-section full-width-section">
+          <h3 class="section-subtitle">
+            <mat-icon>label</mat-icon>
+            {{ 'CATEGORIES.ADMIN.TAGS' | translate }}
+          </h3>
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>{{ 'CATEGORIES.ADMIN.SELECT_TAGS' | translate }}</mat-label>
+            <mat-select formControlName="tagIds" multiple>
+              <mat-option *ngFor="let t of allTags" [value]="t.id">
+                {{ t.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
 
+      <!-- MEDIA SIDEBAR -->
       <div class="media-sidebar">
         <div class="form-section">
           <h3 class="section-subtitle">
@@ -77,24 +90,25 @@
             {{ 'CATEGORIES.ADMIN.MEDIA' | translate }}
           </h3>
 
-          <input type="file" (change)="onFileSelected($event)" multiple accept="image/*, video/*" hidden #fileInput>
-          <button mat-stroked-button type="button" (click)="fileInput.click()" class="upload-button">
+          <input #fileInput (change)="onFileSelected($event)" accept="image/*, video/*" hidden multiple type="file">
+          <button (click)="fileInput.click()" class="upload-button" mat-stroked-button type="button">
             <mat-icon>file_upload</mat-icon>
             {{ 'CATEGORIES.ADMIN.UPLOAD_MEDIA' | translate }}
           </button>
 
-          <div cdkDropList formArrayName="media" (cdkDropListDropped)="drop($event)" class="media-list">
-            <div class="media-item" *ngFor="let ctrl of mediaControls.controls; let i = index" [formGroupName]="i" cdkDrag>
+          <div (cdkDropListDropped)="drop($event)" cdkDropList class="media-list" formArrayName="media">
+            <div *ngFor="let ctrl of mediaControls.controls; let i = index" [formGroupName]="i" cdkDrag
+                 class="media-item">
               <div class="media-preview-container">
                 <img *ngIf="ctrl.get('preview')?.value && ctrl.get('contentType')?.value.startsWith('image/')"
-                     [src]="ctrl.get('preview')?.value" class="media-preview" [alt]="ctrl.get('objectKey')?.value">
+                     [alt]="ctrl.get('objectKey')?.value" [src]="ctrl.get('preview')?.value" class="media-preview">
                 <video *ngIf="ctrl.get('preview')?.value && ctrl.get('contentType')?.value.startsWith('video/')"
                        class="media-preview" controls muted>
                   <source [src]="ctrl.get('preview')?.value" [type]="ctrl.get('contentType')?.value">
                 </video>
               </div>
               <div class="media-actions">
-                <button mat-icon-button type="button" (click)="openMediaDeleteDialog(i)">
+                <button (click)="openMediaDeleteDialog(i)" mat-icon-button type="button">
                   <mat-icon>delete</mat-icon>
                 </button>
                 <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
@@ -105,21 +119,20 @@
       </div>
     </form>
 
-    <div class="actions-floating-bar">
-      <div class="action-buttons">
-        <button mat-stroked-button color="warn" type="button" (click)="openCancelDialog()">
+    <!-- ACTIONS BAR -->
+    <div class="admin-actions-floating-bar">
+      <div class="admin-action-buttons">
+        <button (click)="openCancelDialog()" color="warn" mat-stroked-button type="button">
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
-        <button mat-flat-button color="primary" type="submit" form="categoryForm" [disabled]="categoryForm.invalid || saving || !categoryForm.dirty">
+        <button [disabled]="categoryForm.invalid || saving" color="primary" form="categoryForm" mat-flat-button
+                type="submit">
           <mat-icon>save</mat-icon>
           {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
         </button>
-        <button mat-flat-button color="accent" type="button" (click)="openDeleteDialog()">
-          <mat-icon>delete_forever</mat-icon>
-          {{ 'COMMON.DELETE' | translate }}
-        </button>
       </div>
     </div>
+
   </mat-card>
 </div>

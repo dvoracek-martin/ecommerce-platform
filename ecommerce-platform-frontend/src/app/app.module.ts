@@ -23,7 +23,6 @@ import {ProductsComponent} from './layout/products/products.component';
 import {CategoriesComponent} from './layout/categories/categories.component';
 import {MixturesComponent} from './layout/mixtures/mixtures/mixtures.component';
 import {MixturesAdminComponent} from './layout/mixtures/admin/mixtures-admin.component';
-import {ProductsAdminListComponent} from './layout/products/admin/products-admin-list.component';
 import {CategoriesAdminCreateComponent} from './layout/categories/admin/categories-admin-create.component';
 import {MixingAdminComponent} from './layout/mixing/admin/mixing-admin.component';
 import {OrderListComponent} from './layout/orders/client/order-list.component';
@@ -45,6 +44,7 @@ import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from '@angular/ma
 import {OrderDetailComponent} from './layout/orders/client/order-detail.component';
 import {OrderListAdminComponent} from './layout/orders/admin/order-list-admin.component';
 import {OrderDetailAdminComponent} from './layout/orders/admin/order-detail-admin.component';
+import {ProductsAdminListComponent} from './layout/products/admin/products-admin-list.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,

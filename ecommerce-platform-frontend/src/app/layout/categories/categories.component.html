@@ -17,19 +17,19 @@
         <div class="category-image-container">
           <img
             *ngIf="category.media[activeSlideIndices[catIndex]]?.contentType?.startsWith('image/')"
-            [src]="'data:' + category.media[activeSlideIndices[catIndex]].contentType + ';base64,' + category.media[activeSlideIndices[catIndex]].base64Data"
             [alt]="category.name"
+            [src]="'data:' + category.media[activeSlideIndices[catIndex]].contentType + ';base64,' + category.media[activeSlideIndices[catIndex]].base64Data"
             class="category-image"
           />
           <video
             *ngIf="category.media[activeSlideIndices[catIndex]]?.contentType?.startsWith('video/')"
-            class="category-image"
             [attr.muted]="true"
             [muted]="true"
             autoplay
+            class="category-image"
             loop
-            preload="metadata"
             playsinline
+            preload="metadata"
           >
             <source
               [src]="'data:' + category.media[activeSlideIndices[catIndex]].contentType + ';base64,' + category.media[activeSlideIndices[catIndex]].base64Data"
@@ -38,10 +38,10 @@
           </video>
           <div *ngIf="category.media?.length > 1" class="carousel-dots">
             <button
-              *ngFor="let media of category.media; let i = index; trackBy: trackByObjectKey"
-              class="dot"
-              [class.active]="activeSlideIndices[catIndex] === i"
               (click)="$event.stopPropagation(); setActiveSlide(catIndex, i)"
+              *ngFor="let media of category.media; let i = index; trackBy: trackByObjectKey"
+              [class.active]="activeSlideIndices[catIndex] === i"
+              class="dot"
             ></button>
           </div>
         </div>

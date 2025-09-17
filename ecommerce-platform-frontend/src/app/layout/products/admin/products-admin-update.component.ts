@@ -1,21 +1,21 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, takeUntil } from 'rxjs';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {MatDialog} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {Subject, takeUntil} from 'rxjs';
 
-import { ProductService } from '../../../services/product.service';
-import { CategoryService } from '../../../services/category.service';
-import { TagService } from '../../../services/tag.service';
-import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
+import {ProductService} from '../../../services/product.service';
+import {CategoryService} from '../../../services/category.service';
+import {TagService} from '../../../services/tag.service';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
 
-import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
-import { ResponseCategoryDTO } from '../../../dto/category/response-category-dto';
-import { ResponseTagDTO } from '../../../dto/tag/response-tag-dto';
-import { HttpErrorResponse } from '@angular/common/http';
-import { UpdateProductDTO } from '../../../dto/product/update-product-dto';
+import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
+import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
+import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
+import {HttpErrorResponse} from '@angular/common/http';
+import {UpdateProductDTO} from '../../../dto/product/update-product-dto';
 
 @Component({
   selector: 'app-products-admin-update',
@@ -43,7 +43,8 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+  }
 
   get mediaControls(): FormArray {
     return this.productForm.get('media') as FormArray;
@@ -103,7 +104,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
 
   openMediaDeleteDialog(i: number) {
     const ref = this.dialog.open(ConfirmationDialogComponent, {
-      data: { title: 'Delete Media', message: 'Delete this media?', warn: true }
+      data: {title: 'Delete Media', message: 'Delete this media?', warn: true}
     });
     ref.afterClosed().subscribe(ok => ok && this.removeMedia(i));
   }
@@ -137,13 +138,13 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.saving = false;
-          this.snackBar.open('Product updated!', 'Close', { duration: 3000 });
+          this.snackBar.open('Product updated!', 'Close', {duration: 3000});
           this.router.navigate(['/admin/products']);
         },
         error: (err: HttpErrorResponse) => {
           this.saving = false;
           const msg = err.error?.message || err.message || 'An error occurred';
-          this.snackBar.open(`Update failed: ${msg}`, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+          this.snackBar.open(`Update failed: ${msg}`, 'Close', {duration: 5000, panelClass: ['error-snackbar']});
         }
       });
   }
@@ -151,9 +152,27 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   cancel(): void {
     if (this.productForm.dirty) {
       this.dialog.open(ConfirmationDialogComponent, {
-        data: { title: 'Cancel Update', message: 'Discard changes?', warn: true }
+        data: {title: 'Cancel Update', message: 'Discard changes?', warn: true}
       }).afterClosed().subscribe(ok => {
         if (ok) this.router.navigate(['/admin/products']);
+      });
+    } else {
+      this.router.navigate(['/admin/products']);
+    }
+  }
+
+  // Renamed to match the category component
+  openCancelDialog(): void {
+    if (this.productForm.dirty) {
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        data: {
+          title: 'COMMON.CANCEL_CONFIRM_TITLE',
+          message: 'COMMON.CANCEL_CONFIRM_MESSAGE',
+          warn: true
+        }
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) this.router.navigate(['/admin/products']);
       });
     } else {
       this.router.navigate(['/admin/products']);
@@ -246,24 +265,6 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.router.navigate(['/admin/products']),
         err => console.error('Delete failed', err));
-  }
-
-  // Renamed to match the category component
-  openCancelDialog(): void {
-    if (this.productForm.dirty) {
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-        data: {
-          title: 'COMMON.CANCEL_CONFIRM_TITLE',
-          message: 'COMMON.CANCEL_CONFIRM_MESSAGE',
-          warn: true
-        }
-      });
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) this.router.navigate(['/admin/tags']);
-      });
-    } else {
-      this.router.navigate(['/admin/tags']);
-    }
   }
 
 }

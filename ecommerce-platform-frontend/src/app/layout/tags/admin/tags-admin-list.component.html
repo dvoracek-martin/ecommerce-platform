@@ -5,77 +5,88 @@
         <h1>{{ 'TAGS.TITLE' | translate }}</h1>
         <p class="admin-subtitle">{{ 'TAGS.ADMIN_SUBTITLE' | translate }}</p>
       </div>
-
       <div class="admin-actions">
         <div class="admin-search-section">
           <div class="admin-search-container">
             <div class="admin-search-input-wrapper">
               <mat-icon class="search-icon">search</mat-icon>
               <input
-                matInput
                 [formControl]="searchControl"
-                placeholder="Search by name"
-                class="admin-search-input">
+                class="admin-search-input"
+                matInput
+                placeholder="Search by name">
               <button
-                mat-icon-button
-                class="admin-clear-button"
+                (click)="clearSearch()"
                 *ngIf="searchControl.value"
-                (click)="clearSearch()">
+                class="admin-clear-button"
+                mat-icon-button>
                 <mat-icon>close</mat-icon>
               </button>
             </div>
           </div>
         </div>
-
-        <button class="admin-new-btn" (click)="navigateToCreate()">
+        <div class="search-container">
+          <div class="admin-search-checkbox-wrapper">
+            <mat-checkbox (change)="applyFilters()" [formControl]="activeSeControl">
+              Show only active
+            </mat-checkbox>
+          </div>
+        </div>
+        <button (click)="navigateToCreate()" class="admin-new-btn">
           <mat-icon>add</mat-icon>
           {{ 'TAGS.ADMIN.NEW_TITLE' | translate }}
         </button>
       </div>
     </div>
   </div>
-
-  <div *ngIf="isLoading" class="loading">
-    {{ 'TAGS.LOADING' | translate }}
+  <div *ngIf="isLoading" class="loading-section">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <div class="loading-text">{{ 'TAGS.LOADING' | translate }}</div>
   </div>
   <div *ngIf="error" class="error">
     {{ 'TAGS.ERROR_LOADING' | translate:{error: error} }}
   </div>
-
   <div *ngIf="!isLoading && !error" class="tags-grid">
     <div
       *ngFor="let tag of filteredTags; let tagIndex = index; trackBy: trackById"
       class="tag-card">
-      <div class="card-link" (click)="navigateToUpdate(tag.id)">
+      <div (click)="navigateToUpdate(tag.id)" class="card-link">
         <div class="tag-details">
           <h2 class="tag-name">{{ tag.name }}</h2>
           <p class="tag-description">{{ tag.description }}</p>
-
           <div class="related-info">
-            <div *ngIf="tag.categories?.length">
-              <p><strong>Categories:</strong></p>
-              <ul>
-                <li *ngFor="let category of tag.categories">{{ category.name }}</li>
-              </ul>
+            <!-- Categories -->
+            <div *ngIf="tag.categories?.length" class="card-tags group-block">
+              <strong>Categories:</strong>
+              <div class="tags-container">
+                        <span *ngFor="let category of tag.categories" class="tag">
+                        {{ category.name }}
+                        </span>
+              </div>
             </div>
-            <div *ngIf="tag.products?.length">
-              <p><strong>Products:</strong></p>
-              <ul>
-                <li *ngFor="let product of tag.products">{{ product.name }}</li>
-              </ul>
+            <!-- Products -->
+            <div *ngIf="tag.products?.length" class="card-tags group-block">
+              <strong>Products:</strong>
+              <div class="tags-container">
+                        <span *ngFor="let product of tag.products" class="tag">
+                        {{ product.name }}
+                        </span>
+              </div>
             </div>
-            <div *ngIf="tag.mixtures?.length">
-              <p><strong>Mixtures:</strong></p>
-              <ul>
-                <li *ngFor="let mixture of tag.mixtures">{{ mixture.name }}</li>
-              </ul>
+            <!-- Mixtures -->
+            <div *ngIf="tag.mixtures?.length" class="card-tags group-block">
+              <strong>Mixtures:</strong>
+              <div class="tags-container">
+                        <span *ngFor="let mixture of tag.mixtures" class="tag">
+                        {{ mixture.name }}
+                        </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
       <div class="tag-actions">
-        <button mat-icon-button class="btn-delete" (click)="openDeleteDialog(tag.id)">
+        <button (click)="openDeleteDialog(tag.id)" class="btn-delete" mat-icon-button>
           <mat-icon>delete</mat-icon>
         </button>
       </div>

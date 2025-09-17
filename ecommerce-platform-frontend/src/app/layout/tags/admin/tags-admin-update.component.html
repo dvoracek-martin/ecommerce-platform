@@ -6,38 +6,39 @@
           <h1>{{ 'TAGS.TITLE' | translate }}</h1>
           <p class="admin-subtitle">{{ 'TAGS.ADMIN_SUBTITLE.UPDATE' | translate }}</p>
         </div>
-        <button class="admin-delete-btn" (click)="openDeleteDialog()">
-          <mat-icon>erase</mat-icon>
-          {{ 'TAGS.ADMIN.DELETE' | translate }}
+        <button (click)="openDeleteDialog()" class="admin-delete-btn" mat-flat-button type="button">
+          <mat-icon>delete_forever</mat-icon>
+          {{ 'COMMON.DELETE' | translate }}
         </button>
       </div>
     </div>
 
-    <form id="tagForm" [formGroup]="tagForm" (ngSubmit)="onSave()" class="form-and-media-wrapper">
+    <form (ngSubmit)="onSave()" [formGroup]="tagForm" class="form-and-media-wrapper" id="tagForm">
       <div class="form-content">
-        <mat-progress-bar *ngIf="saving" mode="indeterminate" class="admin-save-progress"></mat-progress-bar>
+        <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
 
+        <!-- BASIC INFO -->
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>label</mat-icon>
             {{ 'TAGS.ADMIN.BASIC_INFO' | translate }}
           </h3>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.ADMIN.NAME' | translate }}</mat-label>
-              <input matInput formControlName="name"
+              <input formControlName="name" matInput
                      placeholder="{{ 'TAGS.ADMIN.NAME_PLACEHOLDER' | translate }}" required>
               <mat-error *ngIf="tagForm.get('name')?.hasError('required')">
                 {{ 'TAGS.ADMIN.NAME_REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
-
           </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>{{ 'TAGS.ADMIN.DESCRIPTION' | translate }}</mat-label>
-              <textarea matInput formControlName="description"
+              <textarea formControlName="description" matInput
                         placeholder="{{ 'TAGS.ADMIN.DESCRIPTION_PLACEHOLDER' | translate }}"></textarea>
             </mat-form-field>
           </div>
@@ -45,26 +46,30 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.PRIORITY' | translate }}</mat-label>
-              <input matInput type="number" formControlName="priority" required>
-              <mat-error
-                *ngIf="tagForm.get('priority')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
+              <input formControlName="priority" matInput required type="number">
+              <mat-error *ngIf="tagForm.get('priority')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
-              <mat-error *ngIf="tagForm.get('priority')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}: 0
+              <mat-error *ngIf="tagForm.get('priority')?.hasError('min')">
+                {{ 'VALIDATION.MIN' | translate }}: 0
               </mat-error>
             </mat-form-field>
+
             <div class="form-field form-section">
-              <mat-checkbox formControlName="active">
+              <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
                 {{ 'TAGS.ACTIVE' | translate }}
               </mat-checkbox>
             </div>
           </div>
         </div>
 
+        <!-- RELATIONS -->
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>category</mat-icon>
             {{ 'TAGS.ADMIN.RELATIONS' | translate }}
           </h3>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.ADMIN.CATEGORIES' | translate }}</mat-label>
@@ -75,6 +80,7 @@
               </mat-select>
             </mat-form-field>
           </div>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.ADMIN.PRODUCTS' | translate }}</mat-label>
@@ -85,6 +91,7 @@
               </mat-select>
             </mat-form-field>
           </div>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.ADMIN.MIXTURES' | translate }}</mat-label>
@@ -99,13 +106,14 @@
       </div>
     </form>
 
+    <!-- ACTIONS -->
     <div class="admin-actions-floating-bar">
       <div class="admin-action-buttons">
-        <button mat-stroked-button color="warn" type="button" (click)="openCancelDialog()">
+        <button (click)="openCancelDialog()" color="warn" mat-stroked-button type="button">
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
-        <button mat-flat-button color="primary" type="submit" form="tagForm" [disabled]="tagForm.invalid || saving">
+        <button [disabled]="tagForm.invalid || saving || !tagForm.dirty" color="primary" form="tagForm" mat-flat-button type="submit">
           <mat-icon>save</mat-icon>
           {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
         </button>

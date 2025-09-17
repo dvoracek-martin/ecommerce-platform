@@ -394,6 +394,19 @@ input, textarea, select, mat-form-field {
   }
 }
 
+.drag-handle {
+  cursor: grab;
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 20px;
+}
+
+.form-and-media-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+  padding: 24px;
+}
+
 // Search Components
 .admin-search-section {
   display: flex;
@@ -443,6 +456,39 @@ input, textarea, select, mat-form-field {
   }
 }
 
+.admin-search-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 25px;
+  background-color: #4db6ac; // soft teal
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  color: #ffffff;
+
+  mat-checkbox {
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+  }
+
+  &:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+    background-color: #26a69a; // darker shade on hover
+  }
+
+  &.mat-checkbox-checked {
+    background-color: #00796b; // even darker teal for active state
+    color: white;
+
+    mat-checkbox {
+      color: white;
+    }
+  }
+}
+
 .admin-clear-button {
   color: white;
   opacity: 0.7;
@@ -451,6 +497,63 @@ input, textarea, select, mat-form-field {
     opacity: 1;
   }
 }
+
+.admin-active-checkbox-wrapper {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: #a5d6a7;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+  flex: 0 0 auto; // zabrání natažení na 100%
+
+  mat-checkbox {
+    margin: 0;
+    padding: 0;
+    ::ng-deep .mat-checkbox-layout {
+      margin: 0;
+      gap: 4px;
+    }
+    ::ng-deep .mat-checkbox-inner-container {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+
+.card-tags {
+  margin-top: auto; /* Push tags to bottom of details section */
+  padding-top: 10px;
+
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    background-color: #3498db;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #2980b9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
 
 
 /* Floating Action Bar */

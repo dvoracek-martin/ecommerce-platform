@@ -1,7 +1,6 @@
-/* General Layout and Card Styling */
 .product-container {
   padding: 2rem;
-  background-color: #f9f9f9;
+  background-color: #f4f6f9;
   min-height: calc(100vh - 64px);
   display: flex;
   justify-content: center;
@@ -9,61 +8,38 @@
 
 .product-card {
   width: 100%;
-  max-width: 1200px; /* Increased max-width for the two-column layout */
+  max-width: 1200px;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   position: relative;
   padding-bottom: 100px;
 }
 
+/* Grid Layout: Form + Media */
 .form-one-column-wrapper {
   display: grid;
-  grid-template-columns: 1fr 300px; /* Main form takes 1fr, sidebar is fixed width */
+  grid-template-columns: 1fr 320px;
   gap: 2rem;
   padding: 24px;
 }
 
-.form-content {
-  /* This is now the container for all non-media form fields */
-}
-
-/* Floating Media Sidebar */
-.media-sidebar {
-  position: sticky;
-  top: 1rem;
-  height: fit-content;
-  align-self: start;
-}
-
-/* Card Header and Title */
-.product-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 1.5rem;
-  .title-icon {
-    color: #3f51b5;
-  }
-}
-
-/* Form Sections and Fields */
-.form-section {
-  margin-bottom: 2rem;
-}
-
+/* Section Titles */
 .section-subtitle {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.1rem;
-  color: #424242;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #34495e;
   margin-bottom: 1.5rem;
+
   mat-icon {
-    color: #757575;
+    color: #5c6bc0;
   }
 }
 
+/* Form Rows & Fields */
 .form-row {
   display: flex;
   gap: 1.5rem;
@@ -72,14 +48,23 @@
 
 .form-field {
   flex: 1;
+
   textarea {
     min-height: 100px;
   }
 }
 
-/* Media Uploader */
+/* Media Sidebar */
+.media-sidebar {
+  position: sticky;
+  top: 1rem;
+  height: fit-content;
+  align-self: start;
+}
+
 .upload-button {
   margin-bottom: 1.5rem;
+  border-radius: 25px;
 }
 
 .media-list {
@@ -90,9 +75,10 @@
 
 .media-item {
   position: relative;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   transition: transform 0.2s ease;
+
   &:hover {
     transform: translateY(-2px);
   }
@@ -100,8 +86,10 @@
 
 .media-preview-container {
   aspect-ratio: 1;
-  background: #f5f5f5;
-  img, video {
+  background: #ecf0f1;
+
+  img,
+  video {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -116,7 +104,7 @@
   gap: 4px;
   background: rgba(255, 255, 255, 0.95);
   padding: 6px 8px;
-  border-radius: 6px;
+  border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   align-items: center;
 }
@@ -124,24 +112,16 @@
 .media-actions button {
   width: 36px;
   height: 36px;
-  line-height: 36px;
   color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
   &:hover {
-    background-color: rgba(255, 255, 255, 1);
-    color: #3f51b5;
+    background-color: white;
+    color: #5c6bc0;
   }
+
   mat-icon {
     font-size: 20px;
   }
-}
-
-.drag-handle {
-  cursor: grab;
-  color: rgba(0, 0, 0, 0.8);
-  font-size: 20px;
 }
 
 /* Floating Action Bar */
@@ -174,46 +154,30 @@
   font-size: 1.1rem;
 }
 
-.admin-action-buttons button:nth-child(1) { order: 1; }
-.admin-action-buttons button:nth-child(2) { order: 2; }
-.admin-action-buttons button:nth-child(3) { order: 3; }
-
-/* Progress bar styling */
-.admin-save-progress {
-  margin-top: 8px;
-  height: 2px;
-}
-
-/* Responsive Styles */
+/* Responsive */
 @media (max-width: 1000px) {
   .form-one-column-wrapper {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     padding: 16px;
   }
+
   .media-sidebar {
     position: static;
-    top: auto;
   }
-  .product-card {
-    padding-bottom: 120px;
-  }
+
   .form-row {
     flex-direction: column;
     gap: 1rem;
   }
-  .admin-actions-floating-bar {
-    padding: 1rem;
-  }
+
   .admin-action-buttons {
     flex-direction: column;
     gap: 1rem;
   }
+
   .admin-action-buttons button {
     width: 100%;
     margin: 0 !important;
   }
-  .admin-action-buttons button:nth-child(1) { order: 1; }
-  .admin-action-buttons button:nth-child(2) { order: 2; }
-  .admin-action-buttons button:nth-child(3) { order: 3; }
 }

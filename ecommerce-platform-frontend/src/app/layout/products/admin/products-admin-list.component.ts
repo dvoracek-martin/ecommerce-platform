@@ -1,12 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
-import { MediaDTO } from '../../../dto/media/media-dto';
-import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
-import { ProductService } from '../../../services/product.service';
-import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
+import {MatDialog} from '@angular/material/dialog';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {MediaDTO} from '../../../dto/media/media-dto';
+import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
+import {ProductService} from '../../../services/product.service';
+import {FormControl} from '@angular/forms';
+import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
@@ -21,19 +21,22 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
   isLoading = true;
   error: string | null = null;
   activeSlideIndices: number[] = [];
-  private intervals: any[] = [];
   searchControl = new FormControl('');
+  activeSeControl = new FormControl(true);
+  private intervals: any[] = [];
 
   constructor(
     private productService: ProductService,
     private router: Router,
     private dialog: MatDialog,
-  private snackBar: MatSnackBar
-  ) { }
+    private snackBar: MatSnackBar
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadProducts();
     this.setupSearchFilter();
+    this.activeSeControl.valueChanges.subscribe(() => this.applyFilters());
   }
 
   ngOnDestroy(): void {
@@ -42,43 +45,38 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
 
   setupSearchFilter(): void {
     this.searchControl.valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-      .subscribe(value => {
-        this.applyFilter(value || '');
-      });
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => this.applyFilters());
   }
 
-  applyFilter(filterValue: string): void {
-    if (!filterValue) {
-      this.filteredProducts = [...this.products];
-      return;
-    }
+  applyFilters(): void {
+    const searchValue = (this.searchControl.value || '').toLowerCase().trim();
+    const onlyActive = this.activeSeControl.value;
 
-    const searchStr = filterValue.toLowerCase().trim();
-    this.filteredProducts = this.products.filter(product =>
-      product.name.toLowerCase().includes(searchStr)
-    );
+    this.filteredProducts = this.products.filter(product => {
+      const matchesSearch = product.name.toLowerCase().includes(searchValue);
+      const matchesActive = onlyActive ? product.active === true : true;
+      return matchesSearch && matchesActive;
+    });
+
+    this.initializeCarousels();
   }
 
   clearSearch(): void {
     this.searchControl.setValue('');
-    this.applyFilter('');
   }
 
   loadProducts(): void {
     this.isLoading = true;
     this.productService.getAllProductsAdmin().subscribe({
-      next: (data) => {
+      next: data => {
         this.products = data;
         this.filteredProducts = [...this.products];
         this.initializeCarousels();
         this.isLoading = false;
         this.error = null;
       },
-      error: (err) => {
+      error: err => {
         this.error = err.message || 'Failed to load products';
         this.isLoading = false;
       }
@@ -129,22 +127,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.deleteProduct(itemId);
-      }
-    });
-  }
-
-  private deleteProduct(id: number): void {
-    this.productService.deleteProduct(id).subscribe({
-      next: () => {
-        this.products = this.products.filter(p => p.id !== id);
-        this.filteredProducts = this.filteredProducts.filter(p => p.id !== id);
-        this.snackBar.open('Product deleted successfully.', 'Close', { duration: 3000 });
-      },
-      error: (err) => {
-        console.error('Delete failed:', err);
-      }
+      if (result) this.deleteProduct(itemId);
     });
   }
 
@@ -156,7 +139,18 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
     this.router.navigate(['/admin/products/create']);
   }
 
-  navigateHome() {
+  navigateHome(): void {
     this.router.navigate(['/']);
+  }
+
+  private deleteProduct(id: number): void {
+    this.productService.deleteProduct(id).subscribe({
+      next: () => {
+        this.products = this.products.filter(p => p.id !== id);
+        this.filteredProducts = this.filteredProducts.filter(p => p.id !== id);
+        this.snackBar.open('Product deleted successfully.', 'Close', {duration: 3000});
+      },
+      error: err => console.error('Delete failed:', err)
+    });
   }
 }

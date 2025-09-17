@@ -1,46 +1,59 @@
-<div class="product-container">
+<div class="admin-container">
   <mat-card class="product-card">
-    <mat-card-header>
-      <mat-card-title class="product-title">
-        <mat-icon class="title-icon">add_shopping_cart</mat-icon>
-        {{ 'PRODUCTS.ADMIN.CREATE_TITLE' | translate }}
-      </mat-card-title>
-    </mat-card-header>
+    <!-- Header -->
+    <div class="admin-header-section">
+      <div class="admin-header-content">
+        <div class="admin-title-section">
+          <h1>
+            <mat-icon class="title-icon">add_shopping_cart</mat-icon>
+            {{ 'PRODUCTS.ADMIN.CREATE_TITLE' | translate }}
+          </h1>
+          <p class="admin-subtitle">{{ 'PRODUCTS.ADMIN.SUBTITLE' | translate }}</p>
+        </div>
+        <button (click)="openDeleteDialog()" class="admin-delete-btn" mat-flat-button type="button">
+          <mat-icon>close</mat-icon>
+          {{ 'COMMON.DELETE' | translate }}
+        </button>
+      </div>
+    </div>
 
-    <mat-divider></mat-divider>
-
-    <form id="productForm" class="form-and-media-wrapper" [formGroup]="productForm" (ngSubmit)="onSave()">
+    <!-- Form -->
+    <form (ngSubmit)="onSave()" [formGroup]="productForm" class="form-one-column-wrapper" id="productForm">
       <div class="form-content">
-        <mat-progress-bar *ngIf="saving" mode="indeterminate" class="save-progress"></mat-progress-bar>
+        <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
 
+        <!-- Basic Info -->
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>info</mat-icon>
             {{ 'PRODUCTS.ADMIN.BASIC_INFO' | translate }}
           </h3>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'PRODUCTS.NAME' | translate }}</mat-label>
-              <input matInput formControlName="name" required>
-              <mat-error *ngIf="productForm.get('name')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
+              <input formControlName="name" matInput required>
+              <mat-error *ngIf="productForm.get('name')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
+
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'PRODUCTS.PRICE' | translate }}</mat-label>
-              <input matInput type="number" formControlName="price" required>
-              <mat-error
-                *ngIf="productForm.get('price')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-              <mat-error *ngIf="productForm.get('price')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}: 0
+              <input formControlName="price" matInput required type="number">
+              <mat-error *ngIf="productForm.get('price')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
           </div>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label>
-              <textarea matInput formControlName="description"></textarea>
+              <textarea formControlName="description" matInput></textarea>
             </mat-form-field>
           </div>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'PRODUCTS.CATEGORY' | translate }}</mat-label>
@@ -49,44 +62,42 @@
                   {{ category.name }}
                 </mat-option>
               </mat-select>
-              <mat-error
-                *ngIf="productForm.get('categoryId')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
             </mat-form-field>
-          </div>
-          <div  class="form-row">
+
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'PRODUCTS.PRIORITY' | translate }}</mat-label>
-              <input matInput type="number" formControlName="priority">
-              <mat-error
-                *ngIf="productForm.get('priority')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-              <mat-error *ngIf="productForm.get('priority')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}: 0
-              </mat-error>
+              <input formControlName="priority" matInput type="number">
             </mat-form-field>
+
             <div class="form-field form-section">
-              <mat-checkbox formControlName="active">
+              <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
                 {{ 'PRODUCTS.ACTIVE' | translate }}
               </mat-checkbox>
             </div>
           </div>
         </div>
 
+        <!-- Tags -->
         <div class="form-section">
-          <h3 class="section-subtitle">
-            <mat-icon>label</mat-icon>
-            {{ 'PRODUCTS.ADMIN.TAGS' | translate }}
-          </h3>
-          <mat-form-field appearance="outline" class="form-field full-width">
-            <mat-label>{{ 'PRODUCTS.ADMIN.SELECT_TAGS' | translate }}</mat-label>
-            <mat-select formControlName="tagIds" multiple>
-              <mat-option *ngFor="let t of allTags" [value]="t.id">
-                {{ t.name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div class="form-row">
+            <h3 class="section-subtitle">
+              <mat-icon>label</mat-icon>
+              {{ 'PRODUCTS.ADMIN.TAGS' | translate }}
+            </h3>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>{{ 'PRODUCTS.ADMIN.SELECT_TAGS' | translate }}</mat-label>
+              <mat-select formControlName="tagIds" multiple>
+                <mat-option *ngFor="let t of allTags" [value]="t.id">
+                  {{ t.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
         </div>
 
+        <!-- Details -->
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>spa</mat-icon>
@@ -95,40 +106,37 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'PRODUCTS.WEIGHT_GRAMS' | translate }}</mat-label>
-              <input matInput type="number" formControlName="weightGrams">
-              <mat-error *ngIf="productForm.get('weightGrams')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}:
-                0.01
-              </mat-error>
+              <input formControlName="weightGrams" matInput type="number">
             </mat-form-field>
           </div>
         </div>
       </div>
 
+      <!-- Media Sidebar -->
       <div class="media-sidebar">
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>image</mat-icon>
             {{ 'PRODUCTS.ADMIN.MEDIA' | translate }}
           </h3>
-          <input type="file" multiple (change)="onFileSelected($event)" hidden #fileInput>
-          <button mat-stroked-button type="button" (click)="fileInput.click()" class="upload-button">
+          <input #fileInput (change)="onFileSelected($event)" hidden multiple type="file">
+          <button (click)="fileInput.click()" class="upload-button" mat-stroked-button type="button">
             <mat-icon>file_upload</mat-icon>
             {{ 'PRODUCTS.ADMIN.UPLOAD_MEDIA' | translate }}
           </button>
-          <div formArrayName="media" cdkDropList (cdkDropListDropped)="dropMedia($event)" class="media-list">
+          <div (cdkDropListDropped)="dropMedia($event)" cdkDropList class="media-list" formArrayName="media">
             <div *ngFor="let mediaControl of mediaControls.controls; let i = index"
-                 [formGroupName]="i" class="media-item" cdkDrag>
+                 [formGroupName]="i" cdkDrag class="media-item">
               <div class="media-preview-container">
                 <img *ngIf="mediaControl.get('contentType')?.value?.startsWith('image/')"
                      [src]="mediaControl.get('preview')?.value" alt="Media preview">
-                <video *ngIf="mediaControl.get('contentType')?.value?.startsWith('video/')"
-                       controls muted>
+                <video *ngIf="mediaControl.get('contentType')?.value?.startsWith('video/')" controls muted>
                   <source [src]="mediaControl.get('preview')?.value"
                           [type]="mediaControl.get('contentType')?.value">
                 </video>
               </div>
               <div class="media-actions">
-                <button mat-icon-button type="button" (click)="openMediaDeleteDialog(i)">
+                <button (click)="openMediaDeleteDialog(i)" mat-icon-button type="button">
                   <mat-icon>delete</mat-icon>
                 </button>
                 <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
@@ -139,14 +147,15 @@
       </div>
     </form>
 
-    <div class="actions-floating-bar">
-      <div class="action-buttons">
-        <button mat-stroked-button color="warn" type="button" (click)="openCancelDialog()">
+    <!-- Action Bar -->
+    <div class="admin-actions-floating-bar">
+      <div class="admin-action-buttons">
+        <button (click)="openCancelDialog()" color="warn" mat-stroked-button type="button">
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
-        <button mat-flat-button color="primary" form="productForm" type="submit"
-                [disabled]="!productForm.valid || saving">
+        <button [disabled]="!productForm.valid || saving" color="primary" form="productForm" mat-flat-button
+                type="submit">
           <mat-icon>save</mat-icon>
           {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
         </button>

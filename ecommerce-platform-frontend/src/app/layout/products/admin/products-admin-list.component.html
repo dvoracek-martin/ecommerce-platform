@@ -12,22 +12,29 @@
             <div class="admin-search-input-wrapper">
               <mat-icon class="search-icon">search</mat-icon>
               <input
-                matInput
                 [formControl]="searchControl"
-                placeholder="Search by name"
-                class="admin-search-input">
+                class="admin-search-input"
+                matInput
+                placeholder="Search by name">
               <button
-                mat-icon-button
-                class="admin-clear-button"
+                (click)="clearSearch()"
                 *ngIf="searchControl.value"
-                (click)="clearSearch()">
+                class="admin-clear-button"
+                mat-icon-button>
                 <mat-icon>close</mat-icon>
               </button>
             </div>
           </div>
         </div>
+        <div class="search-container">
+          <div class="admin-search-checkbox-wrapper">
+            <mat-checkbox (change)="applyFilters()" [formControl]="activeSeControl">
+              Show only active
+            </mat-checkbox>
+          </div>
+        </div>
 
-        <button class="admin-new-btn" (click)="navigateToCreate()">
+        <button (click)="navigateToCreate()" class="admin-new-btn">
           <mat-icon>add</mat-icon>
           {{ 'PRODUCTS.ADMIN.NEW_TITLE' | translate }}
         </button>
@@ -40,11 +47,14 @@
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     <div class="loading-text">{{ 'PRODUCTS.LOADING' | translate }}</div>
   </div>
+  <div *ngIf="error" class="error">
+    {{ 'TAGS.ERROR_LOADING' | translate:{error: error} }}
+  </div>
 
   <div *ngIf="error" class="error-section">
-    <mat-icon color="warn" class="error-icon">error_outline</mat-icon>
+    <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
     <div class="error-text">{{ error }}</div>
-    <button mat-stroked-button color="warn" (click)="navigateHome()">
+    <button (click)="navigateHome()" color="warn" mat-stroked-button>
       <mat-icon>arrow_back</mat-icon>
       Back to the main page
     </button>
@@ -55,24 +65,24 @@
       *ngFor="let product of filteredProducts; let prodIndex = index; trackBy: trackById"
       class="product-card"
     >
-      <div class="card-link" (click)="navigateToUpdate(product.id)">
+      <div (click)="navigateToUpdate(product.id)" class="card-link">
         <ng-container *ngIf="product.media?.length; else noMedia">
           <div class="product-image-container">
             <img
               *ngIf="product.media[activeSlideIndices[prodIndex]]?.contentType?.startsWith('image/')"
-              [src]="'data:' + product.media[activeSlideIndices[prodIndex]].contentType + ';base64,' + product.media[activeSlideIndices[prodIndex]].base64Data"
               [alt]="product.name"
+              [src]="'data:' + product.media[activeSlideIndices[prodIndex]].contentType + ';base64,' + product.media[activeSlideIndices[prodIndex]].base64Data"
               class="product-image"
             />
             <video
               *ngIf="product.media[activeSlideIndices[prodIndex]]?.contentType?.startsWith('video/')"
-              class="product-image"
               [attr.muted]="true"
               [muted]="true"
               autoplay
+              class="product-image"
               loop
-              preload="metadata"
               playsinline
+              preload="metadata"
             >
               <source
                 [src]="'data:' + product.media[activeSlideIndices[prodIndex]].contentType + ';base64,' + product.media[activeSlideIndices[prodIndex]].base64Data"
@@ -81,10 +91,10 @@
             </video>
             <div *ngIf="product.media?.length > 1" class="carousel-dots">
               <button
-                *ngFor="let media of product.media; let i = index; trackBy: trackByObjectKey"
-                class="dot"
-                [class.active]="activeSlideIndices[prodIndex] === i"
                 (click)="$event.stopPropagation(); setActiveSlide(prodIndex, i)"
+                *ngFor="let media of product.media; let i = index; trackBy: trackByObjectKey"
+                [class.active]="activeSlideIndices[prodIndex] === i"
+                class="dot"
               ></button>
             </div>
           </div>
@@ -102,8 +112,7 @@
             {{ product.description }}
           </p>
 
-          <!-- Enhanced Tags Section - Added similar to products component -->
-          <div *ngIf="product.responseTagDTOS?.length" class="product-tags">
+          <div *ngIf="product.responseTagDTOS?.length" class="card-tags">
             <div class="tags-container">
               <span *ngFor="let tag of product.responseTagDTOS" class="tag">
                 {{ tag.name }}
@@ -115,7 +124,7 @@
 
       <div class="product-actions">
         <span class="product-price">{{ product.price | currency:'USD' }}</span>
-        <button mat-icon-button class="btn-delete" (click)="$event.stopPropagation(); openDeleteDialog(product.id)">
+        <button (click)="$event.stopPropagation(); openDeleteDialog(product.id)" class="btn-delete" mat-icon-button>
           <mat-icon>delete</mat-icon>
         </button>
       </div>

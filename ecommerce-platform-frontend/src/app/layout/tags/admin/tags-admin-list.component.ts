@@ -7,7 +7,6 @@ import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
 import {TagService} from '../../../services/tag.service';
 import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
 import {FormControl} from '@angular/forms';
-import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 
 @Component({
@@ -22,9 +21,10 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
   isLoading = true;
   error: string | null = null;
   activeSlideIndices: number[] = [];
+  searchControl = new FormControl('');
+  activeSeControl = new FormControl(true);
   private intervals: any[] = [];
   private destroy$ = new Subject<void>();
-  searchControl = new FormControl('');
 
   constructor(
     private tagService: TagService,
@@ -37,6 +37,7 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadTags();
     this.setupSearchFilter();
+    this.activeSeControl.valueChanges.subscribe(() => this.applyFilters());
   }
 
   ngOnDestroy(): void {
@@ -44,32 +45,28 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
   setupSearchFilter(): void {
     this.searchControl.valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-      .subscribe(value => {
-        this.applyFilter(value || '');
-      });
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => this.applyFilters());
   }
 
-  applyFilter(filterValue: string): void {
-    if (!filterValue) {
-      this.filteredTags = [...this.tags];
-      return;
-    }
+  applyFilters(): void {
+    const searchValue = (this.searchControl.value || '').toLowerCase().trim();
+    const onlyActive = this.activeSeControl.value;
 
-    const searchStr = filterValue.toLowerCase().trim();
-    this.filteredTags = this.tags.filter(tag =>
-      tag.name.toLowerCase().includes(searchStr)
-    );
+    this.filteredTags = this.tags.filter(tag => {
+      const matchesSearch = tag.name.toLowerCase().includes(searchValue);
+      const matchesActive = onlyActive ? tag.active === true : true;
+      return matchesSearch && matchesActive;
+    });
+
+    this.initializeCarousels();
   }
 
   clearSearch(): void {
     this.searchControl.setValue('');
-    this.applyFilter('');
   }
 
   loadTags(): void {
@@ -86,7 +83,7 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
         error: (err) => {
           this.error = err.message || 'Failed to load tags';
           this.isLoading = false;
-          this.snackBar.open('Failed to load tags.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+          this.snackBar.open('Failed to load tags.', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
         }
       });
   }
@@ -145,10 +142,12 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed()
       .pipe(takeUntil(this.destroy$))
       .subscribe((confirmed) => {
-        if (confirmed) {
-          this.deleteTag(tagId);
-        }
+        if (confirmed) this.deleteTag(tagId);
       });
+  }
+
+  navigateToCreate(): void {
+    this.router.navigate(['/admin/tags/create']);
   }
 
   private deleteTag(id: number): void {
@@ -158,17 +157,12 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
         next: () => {
           this.tags = this.tags.filter((t) => t.id !== id);
           this.filteredTags = this.filteredTags.filter(p => p.id !== id);
-          this.snackBar.open('Tag deleted successfully.', 'Close', { duration: 3000 });
+          this.snackBar.open('Tag deleted successfully.', 'Close', {duration: 3000});
         },
         error: (err) => {
           console.error('Delete failed:', err);
-          this.snackBar.open('Failed to delete tag.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+          this.snackBar.open('Failed to delete tag.', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
         }
       });
-  }
-
-
-  navigateToCreate(): void {
-    this.router.navigate(['/admin/tags/create']);
   }
 }

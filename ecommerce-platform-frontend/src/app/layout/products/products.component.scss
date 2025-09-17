@@ -93,7 +93,7 @@ h1 {
     transform: translateY(-8px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
 
-    .product-tags {
+    .card-tags {
       opacity: 1;
       transform: translateY(0);
     }
@@ -188,7 +188,7 @@ h1 {
   }
 
   /* Enhanced Product Tags Styling - Matching mixing component */
-  .product-tags {
+  .card-tags {
     margin: 10px 0;
     opacity: 0.9;
     transition: opacity 0.3s ease, transform 0.3s ease;
@@ -259,11 +259,12 @@ h1 {
     .product-details {
       padding: 15px;
     }
+
     .product-bottom {
       padding: 15px;
     }
 
-    .product-tags {
+    .card-tags {
       .tag {
         padding: 4px 8px;
         font-size: 0.7rem;
@@ -271,6 +272,7 @@ h1 {
     }
   }
 }
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .products-grid {
@@ -280,6 +282,7 @@ h1 {
     .product-details {
       padding: 15px;
     }
+
     .product-bottom {
       padding: 15px;
     }

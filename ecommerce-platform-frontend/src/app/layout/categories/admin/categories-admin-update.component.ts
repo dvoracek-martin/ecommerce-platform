@@ -34,7 +34,16 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     private tagService: TagService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+  }
+
+  get mediaControls(): FormArray {
+    return this.categoryForm.get('media') as FormArray;
+  }
+
+  get tagIdsControl(): FormControl {
+    return this.categoryForm.get('tagIds') as FormControl;
+  }
 
   ngOnInit() {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
@@ -48,70 +57,6 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private initForm(): void {
-    this.categoryForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
-      priority: [0, [Validators.required, Validators.min(0)]],
-      active: [false],
-      tagIds: [[]],
-      media: this.fb.array([])
-    });
-  }
-
-  get mediaControls(): FormArray {
-    return this.categoryForm.get('media') as FormArray;
-  }
-
-  get tagIdsControl(): FormControl {
-    return this.categoryForm.get('tagIds') as FormControl;
-  }
-
-  private loadTags() {
-    this.tagService.getAllTags()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: tags => this.allTags = tags,
-        error: () => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
-      });
-  }
-
-  private loadCategory() {
-    this.categoryService.getCategoryById(this.categoryId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: c => this.patchForm(c),
-        error: () => {
-          this.snackBar.open('Error loading category', 'Close', {duration: 3000, panelClass: ['error-snackbar']});
-          this.router.navigate(['/admin/categories']);
-        }
-      });
-  }
-
-  private patchForm(cat: ResponseCategoryDTO) {
-    this.categoryForm.patchValue({
-      name: cat.name,
-      description: cat.description,
-      priority: cat.priority,
-      active: cat.active
-    });
-
-    const existingIds = cat.tagIds.map(t => t.id);
-    this.tagIdsControl.setValue(existingIds);
-
-    this.mediaControls.clear();
-    (cat.media || []).forEach(m => {
-      this.mediaControls.push(this.fb.group({
-        objectKey: [m.objectKey],
-        contentType: [m.contentType],
-        preview: [`data:${m.contentType};base64,${m.base64Data || ''}`],
-        base64Data: [m.base64Data || null] // existující soubory mohou mít null
-      }));
-    });
-    this.categoryForm.markAsPristine(); // Resets the dirty state after loading
-    this.categoryForm.markAsUntouched();
   }
 
   onFileSelected(event: Event): void {
@@ -187,19 +132,6 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
       });
   }
 
-  private handleSaveSuccess(): void {
-    this.saving = false;
-    this.categoryForm.markAsPristine(); // Reset state after a successful save
-    this.snackBar.open('Category updated!', 'Close', {duration: 3000});
-    this.router.navigate(['/admin/categories']);
-  }
-
-  private handleSaveError(err: any): void {
-    this.saving = false;
-    console.error('Update failed', err);
-    this.snackBar.open('Failed to update category', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
-  }
-
   openDeleteDialog() {
     this.dialog.open(ConfirmationDialogComponent, {
       data: {title: 'Delete Category', message: 'Permanently delete?', warn: true}
@@ -225,5 +157,74 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/admin/categories']);
     }
+  }
+
+  private initForm(): void {
+    this.categoryForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      priority: [0, [Validators.required, Validators.min(0)]],
+      active: [false],
+      tagIds: [[]],
+      media: this.fb.array([])
+    });
+  }
+
+  private loadTags() {
+    this.tagService.getAllTags()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: tags => this.allTags = tags,
+        error: () => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
+      });
+  }
+
+  private loadCategory() {
+    this.categoryService.getCategoryById(this.categoryId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: c => this.patchForm(c),
+        error: () => {
+          this.snackBar.open('Error loading category', 'Close', {duration: 3000, panelClass: ['error-snackbar']});
+          this.router.navigate(['/admin/categories']);
+        }
+      });
+  }
+
+  private patchForm(cat: ResponseCategoryDTO) {
+    this.categoryForm.patchValue({
+      name: cat.name,
+      description: cat.description,
+      priority: cat.priority,
+      active: cat.active
+    });
+
+    const existingIds = cat.responseTagDTOS.map(t => t.id);
+    this.tagIdsControl.setValue(existingIds);
+
+    this.mediaControls.clear();
+    (cat.media || []).forEach(m => {
+      this.mediaControls.push(this.fb.group({
+        objectKey: [m.objectKey],
+        contentType: [m.contentType],
+        preview: [`data:${m.contentType};base64,${m.base64Data || ''}`],
+        base64Data: [m.base64Data || null] // existující soubory mohou mít null
+      }));
+    });
+    this.categoryForm.markAsPristine(); // Resets the dirty state after loading
+    this.categoryForm.markAsUntouched();
+  }
+
+  private handleSaveSuccess(): void {
+    this.saving = false;
+    this.categoryForm.markAsPristine(); // Reset state after a successful save
+    this.snackBar.open('Category updated!', 'Close', {duration: 3000});
+    this.router.navigate(['/admin/categories']);
+  }
+
+  private handleSaveError(err: any): void {
+    this.saving = false;
+    console.error('Update failed', err);
+    this.snackBar.open('Failed to update category', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
   }
 }
