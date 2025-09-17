@@ -17,6 +17,26 @@ body {
   margin: 0 auto;
 }
 
+.start-shopping-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 4px;
+  gap: 8px;
+  min-width: max-content;
+  width: auto;
+}
+
+.start-shopping-btn .material-icons {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+
 .header {
   display: flex;
   justify-content: space-between;

@@ -215,7 +215,7 @@ body {
   width: 120px;
 }
 
-.action-buttons {
+.admin-action-buttons {
   display: flex;
   justify-content: center;
   gap: 8px;
@@ -431,7 +431,7 @@ body {
     padding: 0 5px;
   }
 
-  .action-buttons {
+  .admin-action-buttons {
     flex-direction: column;
     gap: 4px;
   }

@@ -1,17 +1,18 @@
-<div class="category-container">
-  <mat-card class="category-card">
-    <mat-card-header>
-      <mat-card-title class="category-title">
-        <mat-icon class="title-icon">local_offer</mat-icon>
-        {{ 'TAGS.ADMIN.NEW_TITLE' | translate }}
-      </mat-card-title>
-    </mat-card-header>
+<div class="admin-container">
+  <mat-card class="admin-card">
+    <div class="admin-header-section">
+      <div class="admin-header-content">
+        <div class="admin-title-section">
+          <h1>{{ 'TAGS.TITLE' | translate }}</h1>
+          <p class="admin-subtitle">{{ 'TAGS.ADMIN_SUBTITLE.CREATE' | translate }}</p>
+        </div>
+      </div>
+    </div>
 
-    <mat-divider></mat-divider>
 
     <form id="tagForm" [formGroup]="tagForm" (ngSubmit)="onSave()" class="form-and-media-wrapper">
       <div class="form-content">
-        <mat-progress-bar *ngIf="saving" mode="indeterminate" class="save-progress"></mat-progress-bar>
+        <mat-progress-bar *ngIf="saving" mode="indeterminate" class="admin-save-progress"></mat-progress-bar>
 
         <div class="form-section">
           <h3 class="section-subtitle">
@@ -53,50 +54,15 @@
                 {{ 'TAGS.ACTIVE' | translate }}
               </mat-checkbox>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="media-sidebar">
-        <div class="form-section">
-          <h3 class="section-subtitle">
-            <mat-icon>cloud_upload</mat-icon>
-            {{ 'TAGS.ADMIN.MEDIA' | translate }}
-          </h3>
-
-          <input type="file" (change)="onFileSelected($event)" multiple accept="image/*, video/*" hidden #fileInput>
-          <button mat-stroked-button type="button" (click)="fileInput.click()" class="upload-button">
-            <mat-icon>file_upload</mat-icon>
-            {{ 'TAGS.ADMIN.UPLOAD_MEDIA' | translate }}
-          </button>
-
-          <div cdkDropList formArrayName="media" (cdkDropListDropped)="drop($event)"
-               class="media-list">
-            <div class="media-item" *ngFor="let ctrl of mediaControls.controls; let i = index"
-                 [formGroupName]="i" cdkDrag>
-              <div class="media-preview-container">
-                <img *ngIf="ctrl.get('preview')?.value && ctrl.get('contentType')?.value?.startsWith('image/')" class="media-preview"
-                     [src]="ctrl.get('preview')?.value"
-                     [alt]="ctrl.get('objectKey')?.value">
-                <video *ngIf="ctrl.get('preview')?.value && ctrl.get('contentType')?.value?.startsWith('video/')"
-                       class="media-preview" controls muted>
-                  <source [src]="ctrl.get('preview')?.value" [type]="ctrl.get('contentType')?.value">
-                </video>
-              </div>
-              <div class="media-actions">
-                <button mat-icon-button type="button" (click)="openMediaDeleteDialog(i)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-                <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
-              </div>
+            <div class="form-row">
             </div>
           </div>
         </div>
       </div>
     </form>
 
-    <div class="actions-floating-bar">
-      <div class="action-buttons">
+    <div class="admin-actions-floating-bar">
+      <div class="admin-action-buttons">
         <button mat-stroked-button color="warn" type="button" (click)="openCancelDialog()">
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}

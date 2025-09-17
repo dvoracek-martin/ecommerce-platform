@@ -44,50 +44,9 @@
 
   <div *ngIf="!isLoading && !error" class="tags-grid">
     <div
-      *ngFor="let tag of tags; let tagIndex = index; trackBy: trackById"
-      class="tag-card"
-    >
+      *ngFor="let tag of filteredTags; let tagIndex = index; trackBy: trackById"
+      class="tag-card">
       <div class="card-link" (click)="navigateToUpdate(tag.id)">
-        <ng-container *ngIf="tag.media?.length; else noMedia">
-          <div class="tag-image-container">
-            <img
-              *ngIf="tag.media[activeSlideIndices[tagIndex]]?.contentType?.startsWith('image/')"
-              [src]="'data:' + tag.media[activeSlideIndices[tagIndex]].contentType + ';base64,' + tag.media[activeSlideIndices[tagIndex]].base64Data"
-              [alt]="tag.name"
-              class="tag-image"
-            />
-            <video
-              *ngIf="tag.media[activeSlideIndices[tagIndex]]?.contentType?.startsWith('video/')"
-              class="tag-image"
-              [attr.muted]="true"
-              [muted]="true"
-              autoplay
-              loop
-              preload="metadata"
-              playsinline
-            >
-              <source
-                [src]="'data:' + tag.media[activeSlideIndices[tagIndex]].contentType + ';base64,' + tag.media[activeSlideIndices[tagIndex]].base64Data"
-                [type]="tag.media[activeSlideIndices[tagIndex]].contentType"
-              />
-            </video>
-            <div *ngIf="tag.media?.length > 1" class="carousel-dots">
-              <button
-                *ngFor="let media of tag.media; let i = index; trackBy: trackByObjectKey"
-                class="dot"
-                [class.active]="activeSlideIndices[tagIndex] === i"
-                (click)="$event.stopPropagation(); setActiveSlide(tagIndex, i)"
-              ></button>
-            </div>
-          </div>
-        </ng-container>
-
-        <ng-template #noMedia>
-          <div class="no-media">
-            {{ 'TAGS.NO_MEDIA' | translate }}
-          </div>
-        </ng-template>
-
         <div class="tag-details">
           <h2 class="tag-name">{{ tag.name }}</h2>
           <p class="tag-description">{{ tag.description }}</p>

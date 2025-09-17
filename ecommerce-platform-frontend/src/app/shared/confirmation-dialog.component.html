@@ -1,25 +1,24 @@
-<div class="light-dialog-container">
-  <h2 mat-dialog-title class="dialog-title" [class.warn]="data.type === 'warn'">
-    <mat-icon *ngIf="data.type" class="title-icon">{{ getTitleIcon() }}</mat-icon>
-    {{ data.title | translate }}
-  </h2>
+<div class="dialog-container">
+  <div class="dialog-header" [ngClass]="data.type">
+    <mat-icon class="title-icon">{{ getTitleIcon() }}</mat-icon>
+    <h2 class="dialog-title">{{ data.title }}</h2>
+  </div>
 
-  <mat-dialog-content class="dialog-content" [innerHTML]="sanitizeHtml(data.message)">
-  </mat-dialog-content>
+  <div class="dialog-body">
+    <p [innerHTML]="sanitizeHtml(data.message)"></p>
+  </div>
 
-  <mat-dialog-actions align="center" class="dialog-actions">
-    <button mat-stroked-button
-            mat-dialog-close
-            class="action-button cancel-btn"
-            aria-label="Cancel action">
-      {{ 'COMMON.CANCEL' | translate }}
+  <div class="dialog-actions">
+    <button class="btn btn-outline" (click)="onCancel()">Cancel</button>
+    <button
+      class="btn"
+      [ngClass]="{
+        'btn-primary': data.type !== 'warn',
+        'btn-warn': data.type === 'warn'
+      }"
+      (click)="onConfirm()"
+    >
+      Confirm
     </button>
-    <button mat-raised-button
-            [class]="data.type === 'warn' ? 'warn-btn' : 'primary-btn'"
-            [mat-dialog-close]="true"
-            class="action-button confirm-btn"
-            aria-label="Confirm action">
-      {{ 'COMMON.CONFIRM' | translate }}
-    </button>
-  </mat-dialog-actions>
+  </div>
 </div>

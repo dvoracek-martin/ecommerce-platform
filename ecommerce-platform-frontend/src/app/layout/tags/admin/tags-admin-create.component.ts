@@ -40,7 +40,6 @@ export class TagsAdminCreateComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initForm();
-    this.loadRelations();
   }
 
   ngOnDestroy(): void {
@@ -64,37 +63,6 @@ export class TagsAdminCreateComponent implements OnInit, OnDestroy {
 
   get mediaControls(): FormArray {
     return this.tagForm.get('media') as FormArray;
-  }
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    Array.from(input.files || []).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = () => this.mediaControls.push(this.createMediaGroup(reader, file));
-      reader.readAsDataURL(file);
-    });
-  }
-
-  private createMediaGroup(reader: FileReader, file: File): FormGroup {
-    const base64 = (reader.result as string).split(',')[1];
-    return this.fb.group({
-      base64Data: [base64],
-      objectKey: [`${Date.now()}_${file.name}`],
-      contentType: [file.type],
-      preview: [reader.result]
-    });
-  }
-
-  openMediaDeleteDialog(i: number): void {
-    this.dialog.open(ConfirmationDialogComponent, {
-      data: { title: 'Delete Media', message: 'Really delete this media?', warn: true }
-    }).afterClosed().subscribe(ok => {
-      if (ok) this.mediaControls.removeAt(i);
-    });
-  }
-
-  drop(event: CdkDragDrop<any[]>): void {
-    moveItemInArray(this.mediaControls.controls, event.previousIndex, event.currentIndex);
   }
 
   onSave(): void {
@@ -142,27 +110,5 @@ export class TagsAdminCreateComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/admin/tags']);
     }
-  }
-
-  // The following method is kept for completeness but is not bound to the new template
-  private loadRelations(): void {
-    this.categoryService.getAllCategoriesAdmin()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        data => this.allCategories = data,
-        error => this.snackBar.open('Error loading categories.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
-      );
-    this.productService.getAllProductsAdmin()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        data => this.allProducts = data,
-        error => this.snackBar.open('Error loading products.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
-      );
-    this.mixtureService.getAllMixturesAdmin()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        data => this.allMixtures = data,
-        error => this.snackBar.open('Error loading mixtures.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
-      );
   }
 }

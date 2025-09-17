@@ -1,98 +1,96 @@
-.light-dialog-container {
-  background: white;
-  border-radius: 16px;
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+.dialog-container {
+  background: var(--background-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
   max-width: 400px;
   width: 100%;
+  text-align: center;
+  box-shadow: 0 10px 30px var(--shadow-medium);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-primary);
+
+  &.warn { color: var(--error-color); }
+  &.info { color: var(--primary-color); }
+  &.success { color: var(--success-color); }
+
+  .title-icon {
+    font-size: 2rem;
+  }
 
   .dialog-title {
-    padding: 24px 24px 16px;
     margin: 0;
-    font-size: 20px;
+    font-size: var(--font-size-xl);
     font-weight: 600;
-    color: #1e293b;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    border-bottom: 1px solid #e2e8f0;
+  }
+}
 
-    &.warn {
-      color: #e11d48;
+.dialog-body {
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+
+  .btn {
+    min-width: 120px;
+    font-weight: 600;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+
+    &-primary {
+      background-color: var(--primary-color);
+      color: white;
+      &:hover { background-color: var(--primary-hover); }
     }
 
-    .title-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-    }
-  }
-
-  .dialog-content {
-    padding: 20px 24px;
-    color: #64748b;
-    line-height: 1.6;
-    text-align: center;
-    margin: 0;
-  }
-
-  .dialog-actions {
-    padding: 16px 24px 24px;
-    margin: 0;
-    justify-content: center;
-    gap: 12px;
-
-    .action-button {
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 14px;
-      min-width: 100px;
-      transition: all 0.3s ease;
-
-      &.cancel-btn {
-        background-color: #f1f5f9;
-        color: #64748b;
-        border: 1px solid #e2e8f0;
-
-        &:hover {
-          background-color: #e2e8f0;
-        }
+    &-warn {
+      background-color: var(--error-color);
+      color: white;
+      &:hover {
+        background-color: #c0392b;
       }
+    }
 
-      &.confirm-btn {
-        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
-
-        &.primary-btn {
-          background-color: #f97316;
-          color: white;
-
-          &:hover {
-            background-color: #ea580c;
-          }
-        }
-
-        &.warn-btn {
-          background-color: #e11d48;
-          color: white;
-
-          &:hover {
-            background-color: #be123c;
-          }
-        }
-
-        &:hover {
-          transform: translateY(-2px);
-        }
+    &-outline {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      &:hover {
+        background-color: var(--background-light);
       }
     }
   }
 }
 
-// Global overrides for Angular Material dialog
-.mat-mdc-dialog-container .mdc-dialog__surface {
-  border-radius: 16px !important;
-  overflow: hidden;
+@media (max-width: 500px) {
+  .dialog-container {
+    padding: var(--spacing-md);
+  }
+
+  .dialog-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .dialog-actions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .btn {
+    width: 100%;
+  }
 }

@@ -62,8 +62,8 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
     }
 
     const searchStr = filterValue.toLowerCase().trim();
-    this.filteredTags = this.tags.filter(product =>
-      product.name.toLowerCase().includes(searchStr)
+    this.filteredTags = this.tags.filter(tag =>
+      tag.name.toLowerCase().includes(searchStr)
     );
   }
 
