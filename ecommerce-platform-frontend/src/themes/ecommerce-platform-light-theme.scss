@@ -299,7 +299,7 @@ input:focus, textarea:focus, select:focus {
   .admin-title-section {
     display: flex;
     flex-direction: column;
-    align-items: flex-start; // keep title/subt
+    align-items: flex-start;
     h1 {
       margin: 0 0 10px 0;
       font-size: 2rem;
@@ -375,16 +375,16 @@ input:focus, textarea:focus, select:focus {
   margin: 0 auto;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;
-  padding: 24px 0; // only vertical padding
+  padding: 24px 0;
   color: white;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box; // include padding in width
+  box-sizing: border-box;
 }
 
 .admin-header-content {
   width: 100%;
   display: flex;
-  justify-content: space-between; // title left, actions right
+  justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
   padding: 16px;
@@ -392,13 +392,13 @@ input:focus, textarea:focus, select:focus {
 
   .admin-actions {
     display: flex;
-    flex-direction: column;  // stack search + button vertically
-    align-items: flex-end;   // align to the right
-    gap: 12px;               // spacing between search + button
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
   }
 
   .admin-search-section {
-    width: 250px; // adjust as needed
+    width: 250px;
   }
 
   .admin-new-btn {
@@ -439,6 +439,7 @@ input:focus, textarea:focus, select:focus {
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   width: 100%;
+  box-sizing: border-box;
 }
 
 .admin-clear-button {
