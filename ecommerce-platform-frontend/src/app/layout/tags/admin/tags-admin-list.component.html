@@ -1,36 +1,39 @@
 <div class="tags-container">
-  <<div class="admin-header-section">
-  <div class="admin-header-content">
-    <div class="admin-title-section">
-      <h1>{{ 'TAGS.TITLE' | translate }}</h1>
-      <p class="admin-subtitle">{{ 'TAGS.ADMIN_SUBTITLE' | translate }}</p>
-    </div>
+  <div class="admin-header-section">
+    <div class="admin-header-content">
+      <div class="admin-title-section">
+        <h1>{{ 'TAGS.TITLE' | translate }}</h1>
+        <p class="admin-subtitle">{{ 'TAGS.ADMIN_SUBTITLE' | translate }}</p>
+      </div>
 
-    <button mat-raised-button color="primary" (click)="navigateToCreate()">
-      <mat-icon>add</mat-icon>
-      {{ 'TAGS.ADMIN.NEW_TITLE' | translate }}
-    </button>
-    <div class="admin-search-section">
-      <div class="admin-search-container">
-        <div class="admin-search-input-wrapper">
-          <mat-icon class="search-icon">search</mat-icon>
-          <input
-            matInput
-            [formControl]="searchControl"
-            placeholder="Search by name"
-            class="admin-search-input">
-          <button
-            mat-icon-button
-            class="admin-clear-button"
-            *ngIf="searchControl.value"
-            (click)="clearSearch()">
-            <mat-icon>close</mat-icon>
-          </button>
+      <div class="admin-actions">
+        <div class="admin-search-section">
+          <div class="admin-search-container">
+            <div class="admin-search-input-wrapper">
+              <mat-icon class="search-icon">search</mat-icon>
+              <input
+                matInput
+                [formControl]="searchControl"
+                placeholder="Search by name"
+                class="admin-search-input">
+              <button
+                mat-icon-button
+                class="admin-clear-button"
+                *ngIf="searchControl.value"
+                (click)="clearSearch()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
         </div>
+
+        <button class="admin-new-btn" (click)="navigateToCreate()">
+          <mat-icon>add</mat-icon>
+          {{ 'TAGS.ADMIN.NEW_TITLE' | translate }}
+        </button>
       </div>
     </div>
   </div>
-</div>
 
   <div *ngIf="isLoading" class="loading">
     {{ 'TAGS.LOADING' | translate }}
