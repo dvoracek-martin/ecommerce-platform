@@ -1,13 +1,13 @@
 <div class="order-container">
   <div class="order-header">
-    <div class="order-title-section">
+    <div class="admin-title-section">
       <h1>{{ 'ORDER_DETAIL.TITLE' | translate:{id: order?.id} }}</h1>
       <div class="order-date" *ngIf="order?.orderDate">
         {{ 'ORDER_DETAIL.ORDER_DATE' | translate }}: {{ formatOrderDate(order.orderDate) }}
       </div>
     </div>
 
-    <div class="order-status-section">
+    <div class="admin-status-section">
       <div class="status-badge" [ngClass]="getStatusClass(order?.status)">
         {{ getStatusText(order?.status) }}
       </div>

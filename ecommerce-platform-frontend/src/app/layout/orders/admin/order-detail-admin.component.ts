@@ -56,7 +56,7 @@ export class OrderDetailAdminComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const orderId = this.orderState.getSelectedOrder();
     if (!orderId) {
-      this.router.navigate(['/orders']);
+      this.router.navigate(['/admin/orders']);
       return;
     }
 
@@ -224,6 +224,7 @@ export class OrderDetailAdminComponent implements OnInit, OnDestroy {
       next: updatedOrder => {
         this.order!.status = updatedOrder.status;
         this.snackBar.open('Order status updated successfully!', 'Close', { duration: 5000 });
+        this.router.navigate(['/admin/orders']);
       },
       error: err => {
         console.error('Failed to update order status', err);
