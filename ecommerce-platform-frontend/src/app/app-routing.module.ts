@@ -15,7 +15,6 @@ import {OrderListComponent} from './layout/orders/client/order-list.component';
 import {CartComponent} from './layout/cart/client/cart.component';
 
 // Admin pages
-import {CustomersAdminComponent} from './layout/customers/admin/customers-admin.component';
 import {ProductsAdminListComponent} from './layout/products/admin/products-admin-list.component';
 import {MixingAdminComponent} from './layout/mixing/admin/mixing-admin.component';
 import {CategoriesAdminCreateComponent} from './layout/categories/admin/categories-admin-create.component';
@@ -33,6 +32,7 @@ import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
 import {OrderDetailComponent} from './layout/orders/client/order-detail.component';
 import {OrderListAdminComponent} from './layout/orders/admin/order-list-admin.component';
 import {OrderDetailAdminComponent} from './layout/orders/admin/order-detail-admin.component';
+import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 
 const routes: Routes = [
   {path: '', component: WelcomeComponent},
@@ -59,7 +59,7 @@ const routes: Routes = [
     data: {roles: ['user_admin']},
     children: [
       {path: '', redirectTo: 'customers', pathMatch: 'full'},
-      {path: 'customers', component: CustomersAdminComponent},
+      {path: 'customers', component: CustomersAdminListComponent},
       {path: 'products', component: ProductsAdminListComponent},
       {path: 'products/create', component: ProductsAdminCreateComponent},
       {path: 'products/update/:id', component: ProductsAdminUpdateComponent},

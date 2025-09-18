@@ -27,7 +27,6 @@ import {CategoriesAdminCreateComponent} from './layout/categories/admin/categori
 import {MixingAdminComponent} from './layout/mixing/admin/mixing-admin.component';
 import {OrderListComponent} from './layout/orders/client/order-list.component';
 import {TagsAdminCreateComponent} from './layout/tags/admin/tags-admin-create.component';
-import {CustomersAdminComponent} from './layout/customers/admin/customers-admin.component';
 import {CartComponent} from './layout/cart/client/cart.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {UnauthorizedComponent} from './layout/unauthorized/client/unauthorized.component';
@@ -48,6 +47,7 @@ import {ProductsAdminListComponent} from './layout/products/admin/products-admin
 import {ProductsDetailComponent} from './layout/products/products-detail.component';
 import {MatChip, MatChipSet} from '@angular/material/chips';
 import {HeaderComponent} from './shared/header/header.component';
+import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -63,7 +63,7 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     UserLoginComponent,
     AuthPopupComponent,
     CustomersComponent,
-    CustomersAdminComponent,
+    CustomersAdminListComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
     MixingComponent,

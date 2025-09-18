@@ -9,6 +9,7 @@ import {Customer} from '../dto/customer/customer-dto';
 })
 export class CustomerService {
   private apiUrl = 'http://localhost:8080/api/customers/v1';
+  private apiAdminUrl = 'http://localhost:8080/api/customers/v1/admin';
   private userLanguageSubject = new BehaviorSubject<string>('en');
   userLanguage$ = this.userLanguageSubject.asObservable();
 
@@ -16,6 +17,18 @@ export class CustomerService {
     private http: HttpClient,
     private authService: AuthService
   ) {
+  }
+
+  /**
+   * Fetch all customers (for admin list view)
+   */
+  getAll(): Observable<Customer[]> {
+    const token = this.authService.token;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<Customer[]>(`${this.apiAdminUrl}`, { headers });
   }
 
   /**

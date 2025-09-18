@@ -7,7 +7,7 @@
 .orders-container {
   width: 100%;
   max-width: none;
-  margin: 40px auto 0 auto; /* ✅ top gap */
+  margin: 40px auto 0 auto;
   overflow-x: visible;
   padding: 0 40px;
 }
@@ -436,4 +436,14 @@
   .actions-cell {
     width: 100px;
   }
+}
+/* For better contrast */
+::ng-deep .mat-mdc-table .mat-mdc-header-cell {
+  color: #1a1a1a !important;   /* tmavý text pro záhlaví */
+  font-weight: 600;
+}
+
+::ng-deep .mat-mdc-table .mat-mdc-cell {
+  color: #1a1a1a !important;   /* tmavý text pro data */
+  font-weight: 500;
 }
