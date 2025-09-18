@@ -223,7 +223,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
   }
 
   private loadCustomerData(): void {
-    const userId = this.authService.getUserId();
+    const userId = `this.authService.getUserId()`;
     const token = this.authService.token;
 
     if (userId && token) {

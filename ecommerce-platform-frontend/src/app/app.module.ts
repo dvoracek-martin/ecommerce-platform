@@ -41,13 +41,14 @@ import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.compon
 import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from '@angular/material/tooltip';
 import {OrderDetailComponent} from './layout/orders/client/order-detail.component';
-import {OrdersListAdminComponent} from './layout/orders/admin/orders-list-admin.component';
-import {OrdersDetailAdminComponent} from './layout/orders/admin/orders-detail-admin.component';
+import {OrdersAdminListComponent} from './layout/orders/admin/orders-admin-list.component';
+import {OrdersAdminDetailComponent} from './layout/orders/admin/orders-admin-detail.component';
 import {ProductsAdminListComponent} from './layout/products/admin/products-admin-list.component';
 import {ProductsDetailComponent} from './layout/products/products-detail.component';
 import {MatChip, MatChipSet} from '@angular/material/chips';
 import {HeaderComponent} from './shared/header/header.component';
 import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
+import {CustomersAdminDetailComponent} from './layout/customers/admin/customers-admin-detail.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -64,6 +65,7 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     AuthPopupComponent,
     CustomersComponent,
     CustomersAdminListComponent,
+    CustomersAdminDetailComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
     MixingComponent,
@@ -78,9 +80,9 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     ProductsAdminUpdateComponent,
     CategoriesAdminCreateComponent,
     OrderListComponent,
-    OrdersListAdminComponent,
+    OrdersAdminListComponent,
     OrderDetailComponent,
-    OrdersDetailAdminComponent,
+    OrdersAdminDetailComponent,
     TagsAdminCreateComponent,
     TagsAdminUpdateComponent,
     TagsAdminListComponent,

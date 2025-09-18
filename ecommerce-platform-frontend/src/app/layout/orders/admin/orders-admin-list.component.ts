@@ -25,11 +25,11 @@ interface OrderWithCustomer extends ResponseOrderDTO {
 
 @Component({
   selector: 'app-order-list-admin',
-  templateUrl: './orders-list-admin.component.html',
-  styleUrls: ['./orders-list-admin.component.scss'],
+  templateUrl: './orders-admin-list.component.html',
+  styleUrls: ['./orders-admin-list.component.scss'],
   standalone: false,
 })
-export class OrdersListAdminComponent implements OnInit {
+export class OrdersAdminListComponent implements OnInit {
   dataSource = new MatTableDataSource<OrderWithCustomer>();
   displayedColumns: string[] = ['invoiceId', 'orderDate', 'userEmail', 'userLastName', 'userFirstName', 'shippingMethod', 'paymentMethod', 'finalTotal', 'status', 'actions'];
 

@@ -1,36 +1,40 @@
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
-import {AuthService} from '../auth/auth.service';
-import {ResponseOrderDTO} from '../dto/order/response-order-dto';
-import {OrderStatus} from '../dto/order/order-status';
-import {UpdateOrderDTO} from '../dto/order/update-order-dto';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { AuthService } from '../auth/auth.service';
+import { ResponseOrderDTO } from '../dto/order/response-order-dto';
+import { UpdateOrderDTO } from '../dto/order/update-order-dto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = 'http://localhost:8080/api/orders/v1';
-  private apiAdminUrl = 'http://localhost:8080/api/orders/v1/admin';
+  private readonly apiUrl = 'http://localhost:8080/api/orders/v1';
+  private readonly apiAdminUrl = `${this.apiUrl}/admin`;
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {
-  }
+  ) {}
 
-  createOrder(orderData: any): Observable<any> {
+  private getAuthHeaders(includeJson = false): HttpHeaders {
     const token = this.authService.token;
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
+    let headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
 
+    if (includeJson) {
+      headers = headers.set('Content-Type', 'application/json');
+    }
+
+    return headers;
+  }
+
+  createOrder(orderData: any): Observable<ResponseOrderDTO> {
     const customerId = this.authService.getUserId();
 
     const requestPayload = {
-      customerId: customerId,
+      customerId,
       items: orderData.items.map((item: any) => ({
         itemId: item.itemId,
         cartItemType: item.cartItemType,
@@ -43,66 +47,47 @@ export class OrderService {
       paymentMethod: orderData.paymentMethod
     };
 
-    return this.http.post(`${this.apiUrl}`, requestPayload, {headers});
+    return this.http.post<ResponseOrderDTO>(
+      this.apiUrl,
+      requestPayload,
+      { headers: this.getAuthHeaders(true) }
+    );
   }
 
   getOrderById(orderId: number): Observable<ResponseOrderDTO> {
-    const token = this.authService.token;
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-    return this.http.get<ResponseOrderDTO>(`${this.apiUrl}/${orderId}`, { headers });
+    return this.http.get<ResponseOrderDTO>(
+      `${this.apiUrl}/${orderId}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
-  /**
-   * Fetches all orders for a specific user.
-   * Assumes the backend API is structured like: GET /api/orders/v1/user/{customerId}
-   * @param customerId The ID of the authenticated user.
-   */
-  getOrdersByUserId(customerId: string): Observable<ResponseOrderDTO[]> {
-    const token = this.authService.token;
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-    return this.http.get<ResponseOrderDTO[]>(`${this.apiUrl}/customer/${customerId}`, {headers});
+  getByCustomerId(customerId: string): Observable<ResponseOrderDTO[]> {
+    return this.http.get<ResponseOrderDTO[]>(
+      `${this.apiUrl}/customer/${customerId}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
-  /**
-   * Downloads an invoice for a specific order as a PDF.
-   * Assumes the backend API is structured like: GET /api/orders/v1/invoice/{orderId}
-   * @param customerId
-   * @param orderId The ID of the order to download the invoice for.
-   */
   downloadInvoice(customerId: string, orderId: number): Observable<HttpResponse<ArrayBuffer>> {
-    const token = this.authService.token;
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
     return this.http.get(`${this.apiUrl}/customer/${customerId}/invoice/${orderId}`, {
-      headers: headers,
+      headers: this.getAuthHeaders(),
       responseType: 'arraybuffer',
       observe: 'response'
     });
   }
 
-  /**
-   * Fetches all orders (admin view)
-   */
   getAll(): Observable<ResponseOrderDTO[]> {
-    const token = this.authService.token;
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-    return this.http.get<ResponseOrderDTO[]>(`${this.apiAdminUrl}`, {headers});
+    return this.http.get<ResponseOrderDTO[]>(
+      this.apiAdminUrl,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   updateOrder(order: UpdateOrderDTO): Observable<ResponseOrderDTO> {
-    const token = this.authService.token;
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
-
-    return this.http.put<ResponseOrderDTO>(`${this.apiAdminUrl}`, order, { headers });
+    return this.http.put<ResponseOrderDTO>(
+      this.apiAdminUrl,
+      order,
+      { headers: this.getAuthHeaders(true) }
+    );
   }
 }

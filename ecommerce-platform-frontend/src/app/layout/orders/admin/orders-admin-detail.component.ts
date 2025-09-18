@@ -27,11 +27,11 @@ interface OrderItemWithDetails extends CartItemDTO {
 
 @Component({
   selector: 'app-order-detail-admin',
-  templateUrl: './orders-detail-admin.component.html',
+  templateUrl: './orders-admin-detail.component.html',
   standalone: false,
-  styleUrls: ['./orders-detail-admin.component.scss']
+  styleUrls: ['./orders-admin-detail.component.scss']
 })
-export class OrdersDetailAdminComponent implements OnInit, OnDestroy {
+export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
   order: ResponseOrderDTO | null = null;
   orderItemsWithDetails: OrderItemWithDetails[] = [];
   isLoading = true;

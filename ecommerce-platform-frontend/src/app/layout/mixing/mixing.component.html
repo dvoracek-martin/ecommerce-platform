@@ -169,7 +169,7 @@
           matTooltip="{{ isDefaultName() ? ('MIXTURE.NAME_REQUIRED' | translate) : '' }}"
           [matTooltipDisabled]="!isDefaultName()" matTooltipShowDelay="200"
           class="tooltip-wrapper">
-          <button class="btn btn-checkout"
+          <button class="btn add-to-cart-btn"
                   [disabled]="isDefaultName() || getNonNullMixedProductsCount() === 0"
                   (click)="addMixtureToCart()">
             {{ 'MIXTURE.ADD_TO_CART' | translate }}
