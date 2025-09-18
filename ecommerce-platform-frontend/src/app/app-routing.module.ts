@@ -30,8 +30,8 @@ import {TagsAdminUpdateComponent} from './layout/tags/admin/tags-admin-update.co
 import {ProductsDetailComponent} from './layout/products/products-detail.component';
 import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
 import {OrderDetailComponent} from './layout/orders/client/order-detail.component';
-import {OrderListAdminComponent} from './layout/orders/admin/order-list-admin.component';
-import {OrderDetailAdminComponent} from './layout/orders/admin/order-detail-admin.component';
+import {OrdersListAdminComponent} from './layout/orders/admin/orders-list-admin.component';
+import {OrdersDetailAdminComponent} from './layout/orders/admin/orders-detail-admin.component';
 import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 
 const routes: Routes = [
@@ -71,8 +71,8 @@ const routes: Routes = [
       {path: 'tags', component: TagsAdminListComponent},
       {path: 'tags/update/:id', component: TagsAdminUpdateComponent},
       {path: 'tags/create', component: TagsAdminCreateComponent},
-      {path: 'orders', component: OrderListAdminComponent},
-      {path: 'orders/detail', component: OrderDetailAdminComponent},
+      {path: 'orders', component: OrdersListAdminComponent},
+      {path: 'orders/detail', component: OrdersDetailAdminComponent},
     ]
   },
 

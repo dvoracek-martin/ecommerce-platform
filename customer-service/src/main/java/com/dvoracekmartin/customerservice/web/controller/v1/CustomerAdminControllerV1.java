@@ -22,7 +22,7 @@ public class CustomerAdminControllerV1 {
 
     private final CustomerService customerService;
 
-    @GetMapping("/all")
+    @GetMapping("")
     public List<ResponseCustomerDTO> getAllCustomers() {
         log.info("Admin fetching all customers");
         return customerService.getAllCustomers();
@@ -32,6 +32,13 @@ public class CustomerAdminControllerV1 {
     public ResponseEntity<Void> deleteCustomerAdmin(@PathVariable @NotBlank String customerId) {
         log.info("Admin deleting customer: {}", customerId);
         customerService.deleteCustomer(customerId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{customerId}")
+    public ResponseEntity<Void> updateCustomerAdmin(@PathVariable @NotBlank String customerId) {
+        log.info("Admin deleting customer: {}", customerId);
+        customerService.updateCustomer(customerId);
         return ResponseEntity.noContent().build();
     }
 }

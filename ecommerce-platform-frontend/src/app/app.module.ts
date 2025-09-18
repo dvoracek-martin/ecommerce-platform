@@ -41,8 +41,8 @@ import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.compon
 import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from '@angular/material/tooltip';
 import {OrderDetailComponent} from './layout/orders/client/order-detail.component';
-import {OrderListAdminComponent} from './layout/orders/admin/order-list-admin.component';
-import {OrderDetailAdminComponent} from './layout/orders/admin/order-detail-admin.component';
+import {OrdersListAdminComponent} from './layout/orders/admin/orders-list-admin.component';
+import {OrdersDetailAdminComponent} from './layout/orders/admin/orders-detail-admin.component';
 import {ProductsAdminListComponent} from './layout/products/admin/products-admin-list.component';
 import {ProductsDetailComponent} from './layout/products/products-detail.component';
 import {MatChip, MatChipSet} from '@angular/material/chips';
@@ -78,9 +78,9 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     ProductsAdminUpdateComponent,
     CategoriesAdminCreateComponent,
     OrderListComponent,
-    OrderListAdminComponent,
+    OrdersListAdminComponent,
     OrderDetailComponent,
-    OrderDetailAdminComponent,
+    OrdersDetailAdminComponent,
     TagsAdminCreateComponent,
     TagsAdminUpdateComponent,
     TagsAdminListComponent,
