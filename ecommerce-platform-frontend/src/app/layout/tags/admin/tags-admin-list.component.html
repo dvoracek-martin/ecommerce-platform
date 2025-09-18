@@ -56,7 +56,7 @@
           <p class="tag-description">{{ tag.description }}</p>
           <div class="related-info">
             <!-- Categories -->
-            <div *ngIf="tag.categories?.length" class="card-tags group-block">
+            <div *ngIf="tag.categories?.length" class="card-details group-block">
               <strong>Categories:</strong>
               <div class="tags-container">
                         <span *ngFor="let category of tag.categories" class="tag">
@@ -65,7 +65,7 @@
               </div>
             </div>
             <!-- Products -->
-            <div *ngIf="tag.products?.length" class="card-tags group-block">
+            <div *ngIf="tag.products?.length" class="card-details group-block">
               <strong>Products:</strong>
               <div class="tags-container">
                         <span *ngFor="let product of tag.products" class="tag">
@@ -74,7 +74,7 @@
               </div>
             </div>
             <!-- Mixtures -->
-            <div *ngIf="tag.mixtures?.length" class="card-tags group-block">
+            <div *ngIf="tag.mixtures?.length" class="card-details group-block">
               <strong>Mixtures:</strong>
               <div class="tags-container">
                         <span *ngFor="let mixture of tag.mixtures" class="tag">

@@ -112,7 +112,7 @@
             {{ product.description }}
           </p>
 
-          <div *ngIf="product.responseTagDTOS?.length" class="card-tags">
+          <div *ngIf="product.responseTagDTOS?.length" class="card-details">
             <div class="tags-container">
               <span *ngFor="let tag of product.responseTagDTOS" class="tag">
                 {{ tag.name }}

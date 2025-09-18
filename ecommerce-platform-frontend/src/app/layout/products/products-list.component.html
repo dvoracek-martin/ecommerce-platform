@@ -67,9 +67,9 @@
 
       <div class="product-bottom">
         <span class="product-price">{{ product.price | currency:'USD' }}</span>
-        <button (click)="$event.stopPropagation(); addToCart(product)" class="btn-add" color="primary"
-                mat-raised-button>
-          {{ 'PRODUCTS.ADD_TO_CART' | translate }}
+        <button (click)="addToCart(product)" class="btn btn-primary">
+          <mat-icon>add_shopping_cart</mat-icon>
+          Add to Cart
         </button>
       </div>
     </div>

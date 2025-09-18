@@ -93,7 +93,7 @@ h1 {
     transform: translateY(-8px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
 
-    .card-tags {
+    .card-details {
       opacity: 1;
       transform: translateY(0);
     }
@@ -188,7 +188,7 @@ h1 {
   }
 
   /* Enhanced Product Tags Styling - Matching mixing component */
-  .card-tags {
+  .card-details {
     margin: 10px 0;
     opacity: 0.9;
     transition: opacity 0.3s ease, transform 0.3s ease;
@@ -264,7 +264,7 @@ h1 {
       padding: 15px;
     }
 
-    .card-tags {
+    .card-details {
       .tag {
         padding: 4px 8px;
         font-size: 0.7rem;

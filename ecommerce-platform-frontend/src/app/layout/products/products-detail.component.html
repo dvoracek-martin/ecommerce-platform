@@ -3,12 +3,15 @@
   <div class="product-detail-container">
     <mat-card class="product-card">
       <!-- Header -->
-      <mat-card-header *ngIf="product">
-        <mat-card-title class="product-title">
-          <mat-icon class="title-icon">inventory_2</mat-icon>
-          {{ product.name }}
-        </mat-card-title>
-      </mat-card-header>
+      <div class="admin-header-section" *ngIf="product">
+        <div class="admin-header-content">
+          <div class="admin-title-section">
+            <h1>{{ product.name | translate }}</h1>
+            <p class="admin-subtitle">{{ 'PRODUCTS.ADMIN_SUBTITLE.CREATE' | translate }}</p>
+          </div>
+        </div>
+      </div>
+
 
       <mat-divider></mat-divider>
 
@@ -43,15 +46,21 @@
           <div class="text-content">
             <!-- Description -->
             <div *ngIf="product.description">
-              <h3><mat-icon>description</mat-icon> Description</h3>
+              <h3>
+                <mat-icon>description</mat-icon>
+                Description
+              </h3>
               <p>{{ product.description }}</p>
             </div>
 
             <mat-divider></mat-divider>
 
             <!-- Product Details -->
-            <div *ngIf="product.weightGrams">
-              <h3><mat-icon>info</mat-icon> Product Details</h3>
+            <div *ngIf="product.weightGrams" class="card-details">
+              <h3>
+                <mat-icon>info</mat-icon>
+                Product Details
+              </h3>
               <div class="detail-row">
                 <span class="detail-label">Weight:</span>
                 <span class="detail-value">{{ product.weightGrams }} g</span>
@@ -61,14 +70,17 @@
             <mat-divider></mat-divider>
 
             <!-- Tags Section -->
-            <div *ngIf="product.responseTagDTOS?.length" class="card-tags">
-              <h3><mat-icon>label</mat-icon> Tags</h3>
-              <div class="tags-container">
-                <mat-chip-set>
-                  <mat-chip *ngFor="let tag of product.responseTagDTOS" class="tag" color="primary">
+            <div *ngIf="product.responseTagDTOS?.length" class="card-details">
+              <h3>
+                <mat-icon>label</mat-icon>
+                Tags
+              </h3>
+              <div *ngIf="product.responseTagDTOS?.length">
+                <div class="tags-container">
+                  <span *ngFor="let tag of product.responseTagDTOS" class="tag">
                     {{ tag.name }}
-                  </mat-chip>
-                </mat-chip-set>
+                  </span>
+                </div>
               </div>
             </div>
 
