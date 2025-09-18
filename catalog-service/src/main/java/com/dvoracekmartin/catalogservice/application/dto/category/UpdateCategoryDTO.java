@@ -3,9 +3,11 @@ package com.dvoracekmartin.catalogservice.application.dto.category;
 import com.dvoracekmartin.common.dto.base.BaseUpdateOrResponseDTO;
 import com.dvoracekmartin.common.dto.media.MediaDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class UpdateCategoryDTO extends BaseUpdateOrResponseDTO {
 
@@ -16,3 +18,4 @@ public class UpdateCategoryDTO extends BaseUpdateOrResponseDTO {
         this.tagIds = tagIds;
     }
 }
+

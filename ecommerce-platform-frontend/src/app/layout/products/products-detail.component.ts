@@ -1,10 +1,9 @@
-// src/app/components/product-detail/product-detail.component.ts
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ProductService} from '../../services/product.service';
-import {CartService} from '../../services/cart.service';
-import {ResponseProductDTO} from '../../dto/product/response-product-dto';
-import {CartItemType} from '../../dto/cart/cart-item-type';
+import { Component, OnDestroy, OnInit, HostListener } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ProductService } from '../../services/product.service';
+import { CartService } from '../../services/cart.service';
+import { ResponseProductDTO } from '../../dto/product/response-product-dto';
+import { CartItemType } from '../../dto/cart/cart-item-type';
 
 @Component({
   selector: 'app-products-detail',
@@ -17,6 +16,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   loading = true;
   error: string | null = null;
   activeSlideIndex = 0;
+  isGalleryOpen = false;
   private interval: any;
 
   constructor(
@@ -24,8 +24,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private productService: ProductService,
     private cartService: CartService
-  ) {
-  }
+  ) { }
 
   ngOnInit(): void {
     const productId = this.route.snapshot.paramMap.get('id');
@@ -64,11 +63,43 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     this.activeSlideIndex = (this.activeSlideIndex + 1) % this.product.media.length;
   }
 
+  prevSlide() {
+    if (!this.product?.media) return;
+    this.activeSlideIndex = (this.activeSlideIndex - 1 + this.product.media.length) % this.product.media.length;
+  }
+
   setActiveSlide(index: number) {
     this.activeSlideIndex = index;
     if (this.interval) {
       clearInterval(this.interval);
       this.startCarousel();
+    }
+  }
+
+  openGallery() {
+    this.isGalleryOpen = true;
+    // Pause carousel when gallery is open
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+  }
+
+  closeGallery() {
+    this.isGalleryOpen = false;
+    // Resume carousel when gallery is closed
+    this.startCarousel();
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (this.isGalleryOpen) {
+      if (event.key === 'Escape') {
+        this.closeGallery();
+      } else if (event.key === 'ArrowLeft') {
+        this.prevSlide();
+      } else if (event.key === 'ArrowRight') {
+        this.nextSlide();
+      }
     }
   }
 

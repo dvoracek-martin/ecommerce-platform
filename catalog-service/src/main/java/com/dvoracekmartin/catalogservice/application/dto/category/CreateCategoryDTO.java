@@ -3,12 +3,13 @@ package com.dvoracekmartin.catalogservice.application.dto.category;
 import com.dvoracekmartin.common.dto.base.BaseCreateDTO;
 import com.dvoracekmartin.common.dto.media.MediaDTO;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 public class CreateCategoryDTO extends BaseCreateDTO {
-
 
     private List<Long> tagIds;
 

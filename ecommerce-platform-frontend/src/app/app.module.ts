@@ -90,26 +90,26 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     ConfirmationDialogComponent,
     CheckoutComponent
   ],
-    imports: [
-        BrowserModule,
-        RouterModule,
-        ReactiveFormsModule,
-        FormsModule,
-        HttpClientModule,
-        BrowserAnimationsModule,
-        AppRoutingModule,
-        MaterialModule,
-        DragDropModule,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
-        MatChip,
-        MatChipSet,
-    ],
+  imports: [
+    BrowserModule,
+    RouterModule,
+    ReactiveFormsModule,
+    FormsModule,
+    HttpClientModule,
+    BrowserAnimationsModule,
+    AppRoutingModule,
+    MaterialModule,
+    DragDropModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient],
+      },
+    }),
+    MatChip,
+    MatChipSet,
+  ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
