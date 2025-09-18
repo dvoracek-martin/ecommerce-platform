@@ -56,8 +56,7 @@
         <h2 class="product-name">{{ product.name }}</h2>
         <p class="product-description">{{ product.description }}</p>
 
-        <!-- Enhanced Tags Section - Matching mixing component style -->
-        <div *ngIf="product.responseTagDTOS?.length" class="product-tags">
+        <div *ngIf="product.responseTagDTOS?.length" class="card-tags">
           <div class="tags-container">
             <span *ngFor="let tag of product.responseTagDTOS" class="tag">
               {{ tag.name }}

@@ -19,7 +19,7 @@ import {RouterModule} from '@angular/router';
 import {ForgotPasswordComponent} from './auth/forgot-password/forgot-password.component';
 import {ResetPasswordComponent} from './auth/reset-password/reset-password.component';
 import {MixingComponent} from './layout/mixing/mixing.component';
-import {ProductsComponent} from './layout/products/products.component';
+import {ProductsListComponent} from './layout/products/products-list.component';
 import {CategoriesComponent} from './layout/categories/categories.component';
 import {MixturesComponent} from './layout/mixtures/mixtures/mixtures.component';
 import {MixturesAdminComponent} from './layout/mixtures/admin/mixtures-admin.component';
@@ -45,6 +45,8 @@ import {OrderDetailComponent} from './layout/orders/client/order-detail.componen
 import {OrderListAdminComponent} from './layout/orders/admin/order-list-admin.component';
 import {OrderDetailAdminComponent} from './layout/orders/admin/order-detail-admin.component';
 import {ProductsAdminListComponent} from './layout/products/admin/products-admin-list.component';
+import {ProductsDetailComponent} from './layout/products/products-detail.component';
+import {MatChip, MatChipSet} from '@angular/material/chips';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -65,7 +67,8 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     ResetPasswordComponent,
     MixingComponent,
     MixturesComponent,
-    ProductsComponent,
+    ProductsListComponent,
+    ProductsDetailComponent,
     CategoriesComponent,
     MixingAdminComponent,
     MixturesAdminComponent,
@@ -87,24 +90,26 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     ConfirmationDialogComponent,
     CheckoutComponent
   ],
-  imports: [
-    BrowserModule,
-    RouterModule,
-    ReactiveFormsModule,
-    FormsModule,
-    HttpClientModule,
-    BrowserAnimationsModule,
-    AppRoutingModule,
-    MaterialModule,
-    DragDropModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
-      },
-    }),
-  ],
+    imports: [
+        BrowserModule,
+        RouterModule,
+        ReactiveFormsModule,
+        FormsModule,
+        HttpClientModule,
+        BrowserAnimationsModule,
+        AppRoutingModule,
+        MaterialModule,
+        DragDropModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient],
+            },
+        }),
+        MatChip,
+        MatChipSet,
+    ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,

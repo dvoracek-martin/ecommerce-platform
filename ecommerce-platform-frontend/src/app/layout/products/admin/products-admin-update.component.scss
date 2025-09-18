@@ -17,7 +17,7 @@
 }
 
 /* Grid Layout: Form + Media */
-.form-one-column-wrapper {
+.form-and-media-wrapper {
   display: grid;
   grid-template-columns: 1fr 320px;
   gap: 2rem;
@@ -156,7 +156,7 @@
 
 /* Responsive */
 @media (max-width: 1000px) {
-  .form-one-column-wrapper {
+  .form-and-media-wrapper {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     padding: 16px;

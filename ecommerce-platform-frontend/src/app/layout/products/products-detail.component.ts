@@ -1,91 +1,95 @@
+// src/app/components/product-detail/product-detail.component.ts
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Subject, takeUntil} from 'rxjs';
 import {ProductService} from '../../services/product.service';
+import {CartService} from '../../services/cart.service';
 import {ResponseProductDTO} from '../../dto/product/response-product-dto';
-import {CurrencyPipe, NgForOf, NgIf} from '@angular/common';
-import {MatCardModule} from '@angular/material/card';
-import {MatIconModule} from '@angular/material/icon';
-import {MatDividerModule} from '@angular/material/divider';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatButtonModule} from '@angular/material/button';
-import {MatChipsModule} from '@angular/material/chips';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import {CartItemType} from '../../dto/cart/cart-item-type';
 
 @Component({
   selector: 'app-products-detail',
-  templateUrl: 'products-detail.component.html',
-  imports: [
-    NgIf,
-    NgForOf,
-    MatCardModule,
-    MatIconModule,
-    MatDividerModule,
-    MatProgressBarModule,
-    MatButtonModule,
-    MatChipsModule,
-    CurrencyPipe
-  ],
-  styleUrls: ['products-detail.component.scss']
+  templateUrl: './products-detail.component.html',
+  standalone: false,
+  styleUrls: ['./products-detail.component.scss']
 })
-export class ProductDetailComponent implements OnInit, OnDestroy {
-  product?: ResponseProductDTO;
+export class ProductsDetailComponent implements OnInit, OnDestroy {
+  product: ResponseProductDTO | null = null;
   loading = true;
-  error = '';
-
-  private readonly destroy$ = new Subject<void>();
+  error: string | null = null;
+  activeSlideIndex = 0;
+  private interval: any;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
-    private snackBar: MatSnackBar
+    private cartService: CartService
   ) {
   }
 
   ngOnInit(): void {
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      const productId = +params['id'];
-      if (isNaN(productId)) {
-        this.error = 'Invalid product ID';
+    const productId = this.route.snapshot.paramMap.get('id');
+    if (!productId) {
+      this.error = 'Product not found';
+      this.loading = false;
+      return;
+    }
+    this.loadProduct(+productId);
+  }
+
+  loadProduct(id: number) {
+    this.loading = true;
+    this.productService.getProductById(id).subscribe({
+      next: (data) => {
+        this.product = data;
         this.loading = false;
-        return;
+        this.startCarousel();
+      },
+      error: (err) => {
+        this.error = err.message || 'Failed to load product';
+        this.loading = false;
       }
-      this.loadProduct(productId);
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  startCarousel() {
+    if (!this.product?.media || this.product.media.length <= 1) return;
+    this.interval = setInterval(() => {
+      this.nextSlide();
+    }, 5000);
+  }
+
+  nextSlide() {
+    if (!this.product?.media) return;
+    this.activeSlideIndex = (this.activeSlideIndex + 1) % this.product.media.length;
+  }
+
+  setActiveSlide(index: number) {
+    this.activeSlideIndex = index;
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.startCarousel();
+    }
+  }
+
+  addToCart() {
+    if (!this.product) return;
+    this.cartService.addItem({
+      itemId: this.product.id!,
+      quantity: 1,
+      product: this.product,
+      cartItemType: CartItemType.PRODUCT
+    }).subscribe({
+      next: () => console.log(`${this.product?.name} added to cart`),
+      error: (err) => console.error('Failed to add to cart', err)
+    });
   }
 
   backToList() {
     this.router.navigate(['/products']);
   }
 
-  addToCart() {
-    // Here you would typically add the product to a cart service
-    this.snackBar.open('Added to cart!', 'Close', {
-      duration: 2000,
-      panelClass: ['success-snackbar']
-    });
-
-    // Example implementation:
-    // this.cartService.addToCart(this.product, 1);
-  }
-
-  private loadProduct(id: number): void {
-    this.loading = true;
-    this.productService.getProductById(id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: product => {
-        this.product = product;
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Product not found or error loading product';
-        this.loading = false;
-      }
-    });
+  ngOnDestroy(): void {
+    if (this.interval) clearInterval(this.interval);
   }
 }

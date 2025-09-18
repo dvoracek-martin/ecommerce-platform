@@ -7,12 +7,12 @@ import {CartService} from '../../services/cart.service';
 import {CartItemType} from '../../dto/cart/cart-item-type';
 
 @Component({
-  selector: 'app-products',
-  templateUrl: './products.component.html',
+  selector: 'app-products-list',
+  templateUrl: './products-list.component.html',
   standalone: false,
-  styleUrls: ['./products.component.scss']
+  styleUrls: ['./products-list.component.scss']
 })
-export class ProductsComponent implements OnInit, OnDestroy {
+export class ProductsListComponent implements OnInit, OnDestroy {
   products: ResponseProductDTO[] = [];
   isLoading = true;
   error: string | null = null;
