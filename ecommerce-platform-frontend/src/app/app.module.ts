@@ -32,7 +32,7 @@ import {CartComponent} from './layout/cart/client/cart.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {UnauthorizedComponent} from './layout/unauthorized/client/unauthorized.component';
 import {CategoriesAdminListComponent} from './layout/categories/admin/categories-admin-list.component';
-import {ConfirmationDialogComponent} from './shared/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from './shared/confirmation-dialog/confirmation-dialog.component';
 import {CategoriesAdminUpdateComponent} from './layout/categories/admin/categories-admin-update.component';
 import {ProductsAdminCreateComponent} from './layout/products/admin/products-admin-create.component';
 import {ProductsAdminUpdateComponent} from './layout/products/admin/products-admin-update.component';
@@ -47,6 +47,7 @@ import {OrderDetailAdminComponent} from './layout/orders/admin/order-detail-admi
 import {ProductsAdminListComponent} from './layout/products/admin/products-admin-list.component';
 import {ProductsDetailComponent} from './layout/products/products-detail.component';
 import {MatChip, MatChipSet} from '@angular/material/chips';
+import {HeaderComponent} from './shared/header/header.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -88,7 +89,8 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     CategoriesAdminListComponent,
     CategoriesAdminUpdateComponent,
     ConfirmationDialogComponent,
-    CheckoutComponent
+    CheckoutComponent,
+    HeaderComponent
   ],
   imports: [
     BrowserModule,
