@@ -1,0 +1,319 @@
+<mat-toolbar class="main-toolbar">
+  <button mat-icon-button class="menu-button" [matMenuTriggerFor]="menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <mat-menu #menu="matMenu" class="navigation-menu">
+    <button mat-menu-item (click)="navigateToRoot()">
+      <mat-icon>home</mat-icon>
+      <span>Home</span>
+    </button>
+    <button mat-menu-item (click)="navigateToProducts()">
+      <mat-icon>shopping_bag</mat-icon>
+      <span>Products</span>
+    </button>
+    <button mat-menu-item (click)="navigateToMixtures()">
+      <mat-icon>blender</mat-icon>
+      <span>Mixtures</span>
+    </button>
+    <button mat-menu-item (click)="navigateToSales()">
+      <mat-icon>local_offer</mat-icon>
+      <span>Sales</span>
+    </button>
+    <button mat-menu-item (click)="navigateToAboutUs()">
+      <mat-icon>info</mat-icon>
+      <span>About Us</span>
+    </button>
+  </mat-menu>
+
+  <div class="centered-title">
+    <button mat-button class="app-title-btn" (click)="navigateToRoot()">
+      <h1 class="app-title">{{ title }}</h1>
+    </button>
+  </div>
+
+  <span class="spacer"></span>
+
+  <!--  <div class="search-container" [class.focused]="isSearchFocused">-->
+  <!--    <div class="search-field">-->
+  <!--      <mat-form-field appearance="outline" floatLabel="always" hideRequiredMarker="true">-->
+  <!--        <mat-icon matPrefix class="search-icon">search</mat-icon>-->
+  <!--        <input-->
+  <!--          matInput-->
+  <!--          placeholder="{{ 'SEARCH.PLACEHOLDER' | translate }}"-->
+  <!--          [(ngModel)]="searchQuery"-->
+  <!--          (input)="onSearchChange()"-->
+  <!--          (focus)="onSearchFocus()"-->
+  <!--          (blur)="onSearchBlur()"-->
+  <!--          autocomplete="off"/>-->
+  <!--      </mat-form-field>-->
+  <!--    </div>-->
+
+  <!--    <div class="search-dropdown" *ngIf="showResults">-->
+  <!--      <div class="search-results-container">-->
+  <!--        <div class="search-section" *ngIf="searchResults?.categories?.length">-->
+  <!--          <h4 class="section-title">{{ 'SEARCH.CATEGORIES' | translate }}</h4>-->
+  <!--          <mat-list>-->
+  <!--            <mat-list-item *ngFor="let category of searchResults?.categories"-->
+  <!--                           (click)="goToCategory(category); $event.stopPropagation()">-->
+  <!--              <div class="result-item">-->
+  <!--                <mat-icon class="result-icon">category</mat-icon>-->
+  <!--                <div class="result-text">{{ category.name }}</div>-->
+  <!--              </div>-->
+  <!--            </mat-list-item>-->
+  <!--          </mat-list>-->
+  <!--        </div>-->
+
+  <!--        <div class="search-section" *ngIf="searchResults?.products?.length">-->
+  <!--          <h4 class="section-title">{{ 'SEARCH.PRODUCTS' | translate }}</h4>-->
+  <!--          <mat-list>-->
+  <!--            <mat-list-item *ngFor="let product of searchResults?.products"-->
+  <!--                           (click)="goToProduct(product); $event.stopPropagation()">-->
+  <!--              <div class="result-item">-->
+  <!--                <img *ngIf="product.media?.[0]"-->
+  <!--                     [src]="'data:' + product.media[0].contentType + ';base64,' + product.media[0].base64Data"-->
+  <!--                     [alt]="product.name"-->
+  <!--                     class="result-thumbnail"/>-->
+  <!--                <mat-icon class="result-icon" *ngIf="!product.media?.[0]">inventory_2</mat-icon>-->
+  <!--                <div class="result-text">{{ product.name }}</div>-->
+  <!--              </div>-->
+  <!--            </mat-list-item>-->
+  <!--          </mat-list>-->
+  <!--        </div>-->
+
+  <!--        <div class="search-section" *ngIf="searchResults?.mixtures?.length">-->
+  <!--          <h4 class="section-title">{{ 'SEARCH.MIXTURES' | translate }}</h4>-->
+  <!--          <mat-list>-->
+  <!--            <mat-list-item *ngFor="let mixture of searchResults?.mixtures"-->
+  <!--                           (click)="goToMixture(mixture); $event.stopPropagation()">-->
+  <!--              <div class="result-item">-->
+  <!--                <mat-icon class="result-icon">science</mat-icon>-->
+  <!--                <div class="result-text">{{ mixture.name }}</div>-->
+  <!--              </div>-->
+  <!--            </mat-list-item>-->
+  <!--          </mat-list>-->
+  <!--        </div>-->
+
+  <!--        <div class="search-section" *ngIf="searchResults?.tags?.length">-->
+  <!--          <h4 class="section-title">{{ 'SEARCH.TAGS' | translate }}</h4>-->
+  <!--          <mat-list>-->
+  <!--            <mat-list-item *ngFor="let tag of searchResults?.tags" (click)="goToTag(tag); $event.stopPropagation()">-->
+  <!--              <div class="result-item">-->
+  <!--                <mat-icon class="result-icon">local_offer</mat-icon>-->
+  <!--                <div class="result-text">{{ tag.name }}</div>-->
+  <!--              </div>-->
+  <!--            </mat-list-item>-->
+  <!--          </mat-list>-->
+  <!--        </div>-->
+  <!--      </div>-->
+  <!--    </div>-->
+  <!--  </div>-->
+  <div class="toolbar-actions">
+    <div class="language-menu-container">
+      <button class="language-button" mat-icon-button [matMenuTriggerFor]="langMenu">
+        <mat-icon class="language-icon" svgIcon="{{ selectedLanguage.icon }}"></mat-icon>
+      </button>
+      <mat-menu #langMenu="matMenu" class="language-menu">
+        <button (click)="changeLanguage(lang.code)" *ngFor="let lang of languages" mat-menu-item
+                class="language-menu-item">
+          <mat-icon svgIcon="{{ lang.icon }}" class="menu-language-icon"></mat-icon>
+          <span>{{ lang.name }}</span>
+        </button>
+      </mat-menu>
+    </div>
+
+    <div class="cart-container">
+      <button #cartButton mat-icon-button class="cart-button"
+              [matBadge]="totalCartItemCount$ | async"
+              (click)="goToCart()"
+              matBadgeColor="accent"
+              matBadgePosition="above after"
+              [matBadgeHidden]="(totalCartItemCount$ | async) === 0"
+              (mouseenter)="onCartButtonMouseEnter()"
+              (mouseleave)="onCartButtonMouseLeave()">
+        <mat-icon>shopping_cart</mat-icon>
+      </button>
+
+      <div class="cart-preview-panel"
+           *ngIf="isCartPreviewOpen"
+           (mouseenter)="onCartPreviewMouseEnter()"
+           (mouseleave)="onCartPreviewMouseLeave()">
+        <ng-container *ngIf="cartItemsWithDetails?.length > 0; else emptyCart">
+          <div class="cart-preview">
+            <h4>{{ 'CART.SUMMARY' | translate }}</h4>
+
+            <div class="cart-item" *ngFor="let item of cartItemsWithDetails">
+              <ng-container *ngIf="item.cartItemType === 'PRODUCT' && item.product">
+                <img *ngIf="item.product.media?.[0]"
+                     [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
+                     [alt]="item.product.name"
+                     class="item-image"
+                     (click)="goToProduct(item.product); $event.stopPropagation()"/>
+
+                <div class="item-info">
+                  <span class="item-name">{{ item.product.name }}</span>
+                  <span class="item-price-per-unit">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }}
+                    each</span>
+                  <span class="item-total-price">{{ getItemTotal(item) | currency:'USD':'symbol':'1.2-2' }}</span>
+                </div>
+                <div class="quantity-controls">
+                  <button mat-icon-button color="warn"
+                          (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()"
+                          [disabled]="item.updating">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <input type="number"
+                         [value]="item.optimisticQuantity || item.quantity"
+                         min="0"
+                         (change)="onQuantityChange($event, item)"
+                         (keydown)="$event.stopPropagation()"
+                         class="quantity-input"
+                         [disabled]="item.updating">
+                  <button mat-icon-button color="primary"
+                          (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()"
+                          [disabled]="item.updating">
+                    <mat-icon>add</mat-icon>
+                  </button>
+
+                  <div class="loading-overlay" *ngIf="item.updating">
+                    <div class="spinner"></div>
+                  </div>
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="item.cartItemType === 'MIXTURE' && item.mixture">
+                <mat-icon class="item-image mixture-icon">science</mat-icon>
+                <div class="item-info">
+                  <span class="item-name">{{ item.mixture.name }}</span>
+                  <span class="item-total-price">{{ getItemTotal(item) | currency:'USD':'symbol':'1.2-2' }}</span>
+                </div>
+                <div class="quantity-controls">
+                  <button mat-icon-button color="warn"
+                          (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()"
+                          [disabled]="item.updating">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <input type="number"
+                         [value]="item.optimisticQuantity || item.quantity"
+                         min="0"
+                         (change)="onQuantityChange($event, item)"
+                         (keydown)="$event.stopPropagation()"
+                         class="quantity-input"
+                         [disabled]="item.updating">
+                  <button mat-icon-button color="primary"
+                          (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()"
+                          [disabled]="item.updating">
+                    <mat-icon>add</mat-icon>
+                  </button>
+
+                  <div class="loading-overlay" *ngIf="item.updating">
+                    <div class="spinner"></div>
+                  </div>
+                </div>
+              </ng-container>
+
+              <div class="item-actions">
+                <button mat-icon-button color="warn" (click)="removeItem(item.itemId); $event.stopPropagation()">
+                  <span class="material-icons">delete_outline</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="cart-footer">
+              <div class="cart-total">{{ getCartTotal() | currency:'USD':'symbol':'1.2-2' }}</div>
+              <button mat-flat-button color="primary"
+                      (click)="goToCart(); $event.stopPropagation()">{{ 'CART.VIEW_CART' | translate }}
+              </button>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #emptyCart>
+          <div class="empty-cart">
+            {{ 'CART.EMPTY' | translate }}
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <div class="modern-user-menu-container">
+      <mat-menu #modernUserMenu="matMenu" panelClass="modern-user-menu-panel" class="modern-user-menu">
+        <!-- User Info Header -->
+        <div class="modern-menu-header" *ngIf="authService.isAuthenticated$ | async">
+          <div class="user-avatar">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div class="user-info">
+            <h4>{{ (authService.currentUser$ | async)?.username || 'User' }}</h4>
+            <p>{{ (authService.currentUser$ | async)?.email || '' }}</p>
+          </div>
+        </div>
+
+        <!-- Admin Section -->
+        <div class="modern-menu-section"
+             *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_admin')">
+          <h4 class="modern-section-title">{{ 'MENU.ADMIN.TITLE' | translate }}</h4>
+          <button mat-menu-item (click)="navigateToAdminCategories()" class="modern-menu-item">
+            <mat-icon>category</mat-icon>
+            <span>{{ 'MENU.ADMIN.CATEGORIES' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="navigateToAdminProducts()" class="modern-menu-item">
+            <mat-icon>inventory</mat-icon>
+            <span>{{ 'MENU.ADMIN.PRODUCTS' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="navigateToAdminMixtures()" class="modern-menu-item">
+            <mat-icon>science</mat-icon>
+            <span>{{ 'MENU.ADMIN.MIXTURES' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="navigateToAdminTags()" class="modern-menu-item">
+            <mat-icon>label</mat-icon>
+            <span>{{ 'MENU.ADMIN.TAGS' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="navigateToAdminCustomers()" class="modern-menu-item">
+            <mat-icon>people</mat-icon>
+            <span>{{ 'MENU.ADMIN.CUSTOMERS' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="navigateToAdminOrders()" class="modern-menu-item">
+            <mat-icon>list_alt</mat-icon>
+            <span>{{ 'MENU.ADMIN.ORDERS' | translate }}</span>
+          </button>
+        </div>
+
+        <!-- Client Section -->
+        <div class="modern-menu-section"
+             *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_client')">
+          <h4 class="modern-section-title">{{ 'MENU.CLIENT.TITLE' | translate }}</h4>
+          <button mat-menu-item (click)="navigateToProfile()" class="modern-menu-item">
+            <mat-icon>account_circle</mat-icon>
+            <span>{{ 'MENU.CLIENT.PROFILE' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="navigateToOrders()" class="modern-menu-item">
+            <mat-icon>list_alt</mat-icon>
+            <span>{{ 'MENU.ADMIN.ORDERS' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="logout()" class="modern-menu-item logout-item">
+            <mat-icon>logout</mat-icon>
+            <span>{{ 'MENU.LOGOUT' | translate }}</span>
+          </button>
+        </div>
+      </mat-menu>
+
+      <!-- User Button -->
+      <button *ngIf="authService.isAuthenticated$ | async; else modernLoginBtn"
+              [matMenuTriggerFor]="modernUserMenu"
+              mat-icon-button
+              class="modern-user-button">
+        <mat-icon>person</mat-icon>
+      </button>
+      <ng-template #modernLoginBtn>
+        <button (click)="onUserIconClick()" mat-icon-button class="modern-user-button">
+          <mat-icon>person</mat-icon>
+        </button>
+      </ng-template>
+    </div>
+
+  </div>
+</mat-toolbar>
+
+<app-auth-popup (closePopup)="closeAuthPopup()" *ngIf="isPopupOpen"></app-auth-popup>
+<div class="search-backdrop" *ngIf="isSearchFocused" (click)="onSearchBackdropClick()"></div>
