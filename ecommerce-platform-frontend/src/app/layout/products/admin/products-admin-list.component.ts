@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
-import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import {MediaDTO} from '../../../dto/media/media-dto';
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {ProductService} from '../../../services/product.service';

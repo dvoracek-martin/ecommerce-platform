@@ -6,7 +6,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ProductService} from '../../../services/product.service';
 import {CategoryService} from '../../../services/category.service';
-import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import {CreateProductDTO} from '../../../dto/product/create-product-dto';
 import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 import {Subject, takeUntil} from 'rxjs';

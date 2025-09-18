@@ -9,7 +9,7 @@ import {Subject, takeUntil} from 'rxjs';
 import {ProductService} from '../../../services/product.service';
 import {CategoryService} from '../../../services/category.service';
 import {TagService} from '../../../services/tag.service';
-import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
