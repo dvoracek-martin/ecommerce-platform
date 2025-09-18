@@ -65,10 +65,6 @@
   <div *ngIf="!isLoading && !error && dataSource.data.length === 0" class="no-orders-section">
     <mat-icon class="no-orders-icon">history</mat-icon>
     <p class="no-orders-message">{{ 'ORDERS.NO_ORDERS' | translate }}</p>
-    <button mat-raised-button color="primary" [routerLink]="['/']">
-      <mat-icon>shopping_cart</mat-icon>
-      {{ 'ORDERS.START_SHOPPING' | translate }}
-    </button>
   </div>
 
   <!-- Table and paginator -->

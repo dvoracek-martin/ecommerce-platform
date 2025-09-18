@@ -36,30 +36,34 @@
           <!-- Floated carousel -->
           <div class="float-image right" *ngIf="product.media?.length">
             <div class="product-image-container" (click)="openGallery()">
-              <img *ngIf="product.media[activeSlideIndex]?.contentType?.startsWith('image/')"
-                   [alt]="product.name"
-                   [src]="'data:' + product.media[activeSlideIndex].contentType + ';base64,' + product.media[activeSlideIndex].base64Data"
-                   class="product-image"/>
-              <video *ngIf="product.media[activeSlideIndex]?.contentType?.startsWith('video/')"
-                     [muted]="true"
-                     autoplay
-                     loop
-                     playsinline
-                     preload="metadata"
-                     class="product-image">
-                <source
-                  [src]="'data:' + product.media[activeSlideIndex].contentType + ';base64,' + product.media[activeSlideIndex].base64Data"
-                  [type]="product.media[activeSlideIndex].contentType"/>
-              </video>
+              <div class="carousel-slides" [style.transform]="'translateX(' + (-activeSlideIndex * 100) + '%)'">
+                <div *ngFor="let media of product.media; let i = index" class="slide">
+                  <img *ngIf="media.contentType?.startsWith('image/')"
+                       [alt]="product.name"
+                       [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                       class="product-image"/>
+                  <video *ngIf="media.contentType?.startsWith('video/')"
+                         [muted]="true"
+                         autoplay
+                         loop
+                         playsinline
+                         preload="metadata"
+                         class="product-image">
+                    <source
+                      [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                      [type]="media.contentType"/>
+                  </video>
+                </div>
+              </div>
 
-              <!-- Dots navigation -->
-              <div *ngIf="product.media.length > 1" class="carousel-dots">
-                <button
-                  *ngFor="let media of product.media; let i = index"
-                  (click)="$event.stopPropagation(); setActiveSlide(i)"
-                  [class.active]="i === activeSlideIndex"
-                  class="dot"
-                ></button>
+              <!-- Navigation arrows -->
+              <div *ngIf="product.media.length > 1" class="carousel-nav">
+                <button class="nav-btn prev" (click)="$event.stopPropagation(); prevSlide()">
+                  <mat-icon>chevron_left</mat-icon>
+                </button>
+                <button class="nav-btn next" (click)="$event.stopPropagation(); nextSlide()">
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
               </div>
 
               <!-- Gallery icon overlay -->
@@ -128,7 +132,7 @@
 
   <!-- Floating Purchase Box (right) -->
   <div class="floating-purchase-box" *ngIf="product">
-    <button (click)="addToCart()" class="btn btn-primary">
+    <button (click)="addToCart()" color="primary" class="add-to-cart-btn">
       <mat-icon>add_shopping_cart</mat-icon>
       Add to Cart
     </button>
@@ -175,7 +179,7 @@
       <div *ngFor="let media of product.media; let i = index"
            class="thumbnail"
            [class.active]="i === activeSlideIndex"
-           (click)="setActiveSlide(i)">
+           (click)="goToSlide(i)">
         <img *ngIf="media.contentType?.startsWith('image/')"
              [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
              [alt]="'Thumbnail ' + (i + 1)"/>

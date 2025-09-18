@@ -65,12 +65,12 @@
         </div>
       </div>
 
-      <div class="product-bottom">
-        <span class="product-price">{{ product.price | currency:'USD' }}</span>
-        <button (click)="addToCart(product)" class="btn btn-primary">
+      <div class="product-bottom-box">
+        <button (click)="addToCart(product)" class="add-to-cart-btn btn-primary">
           <mat-icon>add_shopping_cart</mat-icon>
           Add to Cart
         </button>
+        <div class="price">{{ product.price | currency:'USD' }}</div>
       </div>
     </div>
   </div>

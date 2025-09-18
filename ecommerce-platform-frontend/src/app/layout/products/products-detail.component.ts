@@ -68,7 +68,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     this.activeSlideIndex = (this.activeSlideIndex - 1 + this.product.media.length) % this.product.media.length;
   }
 
-  setActiveSlide(index: number) {
+  goToSlide(index: number) {
     this.activeSlideIndex = index;
     if (this.interval) {
       clearInterval(this.interval);

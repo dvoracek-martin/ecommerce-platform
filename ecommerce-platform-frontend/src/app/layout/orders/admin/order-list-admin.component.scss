@@ -4,18 +4,10 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Poppins', sans-serif;
-  color: #2c3e50;
-  background-color: #f9fafb;
-  padding: 40px 20px;
-  min-height: 100vh;
-}
-
 .orders-container {
   width: 100%;
   max-width: none;
-  margin: 0 auto;
+  margin: 40px auto 0 auto; /* ✅ top gap */
   overflow-x: visible;
   padding: 0 40px;
 }
@@ -69,11 +61,12 @@ body {
   border-radius: 8px;
   padding: 8px 16px;
   transition: background 0.3s, box-shadow 0.3s;
+}
 
-  &:hover, &:focus-within {
-    background: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
-  }
+.search-input-wrapper:hover,
+.search-input-wrapper:focus-within {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
 .search-icon {
@@ -88,23 +81,23 @@ body {
   color: white;
   font-size: 1rem;
   padding: 8px 0;
+}
 
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-  }
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
 
-  &:focus {
-    outline: none;
-  }
+.search-input:focus {
+  outline: none;
 }
 
 .clear-button {
   color: white;
   opacity: 0.7;
+}
 
-  &:hover {
-    opacity: 1;
-  }
+.clear-button:hover {
+  opacity: 1;
 }
 
 .table-section {
@@ -144,11 +137,11 @@ body {
   font-weight: 500;
   color: #34495e;
   transition: all 0.2s;
+}
 
-  &:hover {
-    background-color: #f6f8fa;
-    border-color: #c0c0c0;
-  }
+.action-button:hover {
+  background-color: #f6f8fa;
+  border-color: #c0c0c0;
 }
 
 .table-container {
@@ -228,14 +221,14 @@ body {
   padding: 6px;
   border-radius: 50%;
   transition: background-color 0.2s;
+}
 
-  &:hover {
-    background-color: rgba(52, 152, 219, 0.1);
-  }
+.action-btn:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
 
-  .material-icons {
-    font-size: 20px;
-  }
+.action-btn .material-icons {
+  font-size: 20px;
 }
 
 .view-btn .material-icons {
@@ -264,49 +257,51 @@ body {
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
-
-  &.status-created {
-    background-color: #e3f2fd;
-    color: #1565c0;
-  }
-
-  &.status-pending {
-    background-color: #ffeaa7;
-    color: #d35400;
-  }
-
-  &.status-confirmed {
-    background-color: #d6eaf8;
-    color: #2874a6;
-  }
-
-  &.status-shipped {
-    background-color: #d1f2eb;
-    color: #1e8449;
-  }
-
-  &.status-delivered {
-    background-color: #d5f5e3;
-    color: #186a3b;
-  }
-
-  &.status-finished {
-    background-color: #d4efdf;
-    color: #145a32;
-  }
-
-  &.status-rejected {
-    background-color: #f9ebea;
-    color: #c0392b;
-  }
-
-  &.status-cancelled {
-    background-color: #f2d7d5;
-    color: #922b21;
-  }
 }
 
-.loading-section, .error-section, .no-orders-section {
+.status-badge.status-created {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-badge.status-pending {
+  background-color: #ffeaa7;
+  color: #d35400;
+}
+
+.status-badge.status-confirmed {
+  background-color: #d6eaf8;
+  color: #2874a6;
+}
+
+.status-badge.status-shipped {
+  background-color: #d1f2eb;
+  color: #1e8449;
+}
+
+.status-badge.status-delivered {
+  background-color: #d5f5e3;
+  color: #186a3b;
+}
+
+.status-badge.status-finished {
+  background-color: #d4efdf;
+  color: #145a32;
+}
+
+.status-badge.status-rejected {
+  background-color: #f9ebea;
+  color: #c0392b;
+}
+
+.status-badge.status-cancelled {
+  background-color: #f2d7d5;
+  color: #922b21;
+}
+
+.loading-section,
+.error-section,
+.no-orders-section {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -319,7 +314,8 @@ body {
   width: 100%;
 }
 
-.error-icon, .no-orders-icon {
+.error-icon,
+.no-orders-icon {
   font-size: 48px;
   height: 48px;
   width: 48px;
@@ -342,22 +338,22 @@ body {
   color: #7f8c8d;
 }
 
-// Responsive adjustments
+/* Responsive adjustments */
 @media (max-width: 1600px) {
   .orders-container {
-    padding: 0 40px;
+    padding: 40px 40px 0 40px;
   }
 }
 
 @media (max-width: 1400px) {
   .orders-container {
-    padding: 0 30px;
+    padding: 40px 30px 0 30px;
   }
 }
 
 @media (max-width: 1200px) {
   .orders-container {
-    padding: 0 20px;
+    padding: 40px 20px 0 20px;
   }
 
   .mat-header-cell,
@@ -393,7 +389,7 @@ body {
   }
 
   .orders-container {
-    padding: 0 15px;
+    padding: 40px 15px 0 15px;
   }
 }
 
@@ -422,13 +418,13 @@ body {
   }
 
   .orders-container {
-    padding: 0 10px;
+    padding: 40px 10px 0 10px;
   }
 }
 
 @media (max-width: 600px) {
   .orders-container {
-    padding: 0 5px;
+    padding: 40px 5px 0 5px;
   }
 
   .admin-action-buttons {
