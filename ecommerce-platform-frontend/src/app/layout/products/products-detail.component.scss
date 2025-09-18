@@ -1,17 +1,16 @@
 .product-detail-wrapper {
   display: flex;
-  justify-content: center; /* center horizontally */
-  align-items: flex-start;
+  justify-content: center; /* center the main container */
+  align-items: flex-start; /* align top of wrapper */
   gap: 2rem;
   padding: 2rem;
   min-height: calc(100vh - 64px);
 }
 
 .product-detail-container {
-  flex: 0 0 800px; /* fixed width */
+  flex: 0 0 800px; /* fixed width for main container */
   display: flex;
   justify-content: center;
-  padding: 2rem; /* inner padding for content */
 }
 
 .product-card {
@@ -20,7 +19,7 @@
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   position: relative;
-  padding: 2rem; /* inner padding */
+  padding-bottom: 100px;
 }
 
 .form-one-column-wrapper {
@@ -129,7 +128,6 @@
 
   .product-detail-container {
     flex: 0 0 100%;
-    padding: 1rem;
   }
 
   .floating-purchase-box {
