@@ -877,6 +877,15 @@ input, textarea, select, mat-form-field {
   text-align: center;
 }
 
+.navigate-back-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+}
+
 // Modern User Menu
 ::ng-deep .modern-user-menu-panel {
   min-width: 280px;

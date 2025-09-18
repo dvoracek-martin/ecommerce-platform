@@ -31,6 +31,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   error: string | null = null;
   activeSlideIndices: { [productId: number]: number } = {};
   private intervals: { [productId: number]: any } = {};
+  isAddingToCart = false;
 
   mixedProducts: (ResponseProductDTO | null)[] = new Array(9).fill(null);
 
@@ -47,6 +48,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   lastRemovedIndex: number | null = null;
 
   @ViewChild('nameInput') nameInput!: ElementRef;
+  @ViewChild('mixingContainer') mixingContainer!: ElementRef;
 
   constructor(
     private productService: ProductService,
@@ -265,18 +267,21 @@ export class MixingComponent implements OnInit, OnDestroy {
   prevCategory(): void {
     if (this.activeCategoryIndex > 0) {
       this.activeCategoryIndex--;
+      this.scrollToTop();
     }
   }
 
   nextCategory(): void {
     if (this.activeCategoryIndex < this.categories.length - 1) {
       this.activeCategoryIndex++;
+      this.scrollToTop();
     }
   }
 
   jumpToCategoryAndScroll(index: number): void {
     if (index >= 0 && index < this.categories.length) {
       this.activeCategoryIndex = index;
+      this.scrollToTop();
     }
   }
 
@@ -293,6 +298,9 @@ export class MixingComponent implements OnInit, OnDestroy {
 
     const mixtureProducts = this.mixedProducts.filter(p => p !== null) as ResponseProductDTO[];
     if (mixtureProducts.length === 0) return;
+
+    // Set loading state
+    this.isAddingToCart = true;
 
     const createMixtureRequest: CreateMixtureDTO = {
       name: this.mixtureName,
@@ -318,6 +326,7 @@ export class MixingComponent implements OnInit, OnDestroy {
         };
         this.cartService.addItem(cartItem).subscribe({
           next: () => {
+            this.isAddingToCart = false; // Reset loading state
             this.snackBar.open('Mixture added to cart successfully!', 'OK', {
               duration: 3000,
               panelClass: ['success-snackbar']
@@ -328,6 +337,7 @@ export class MixingComponent implements OnInit, OnDestroy {
           },
           error: err => {
             console.error('Failed to add mixture to cart:', err);
+            this.isAddingToCart = false; // Reset loading state
             this.snackBar.open('Failed to add mixture to cart', 'OK', {
               duration: 3000,
               panelClass: ['error-snackbar']
@@ -337,12 +347,39 @@ export class MixingComponent implements OnInit, OnDestroy {
       },
       error: err => {
         console.error('Failed to save mixture:', err);
+        this.isAddingToCart = false; // Reset loading state
         this.snackBar.open('Failed to create mixture', 'OK', {
           duration: 3000,
           panelClass: ['error-snackbar']
         });
       }
     });
+  }
+  scrollToTop(): void {
+    // For modern browsers
+    if ('scrollBehavior' in document.documentElement.style) {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    } else {
+      // Fallback for older browsers
+      this.scrollToTopFallback();
+    }
+  }
+
+// Fallback for browsers that don't support smooth scrolling
+  scrollToTopFallback(): void {
+    const scrollDuration = 500; // Duration in milliseconds
+    const scrollStep = -window.scrollY / (scrollDuration / 15);
+
+    const scrollInterval = setInterval(() => {
+      if (window.scrollY !== 0) {
+        window.scrollBy(0, scrollStep);
+      } else {
+        clearInterval(scrollInterval);
+      }
+    }, 15);
   }
 
   getNonNullMixedProductsCount(): number {

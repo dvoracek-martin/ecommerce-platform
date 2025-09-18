@@ -40,6 +40,7 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
   OrderStatus = OrderStatus;
   private orderSubscription!: Subscription;
   selectedStatus?: OrderStatus;
+  trackingNumber: string = '';
   orderStatuses = Object.values(OrderStatus);
 
   constructor(
@@ -50,8 +51,7 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
     private orderState: OrderStateService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     const orderId = this.orderState.getSelectedOrder();
@@ -66,7 +66,6 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.orderSubscription) this.orderSubscription.unsubscribe();
     this.orderState.clearSelectedOrder();
-    this.selectedStatus = this.order.status;
   }
 
   loadOrder(orderId: number): void {
@@ -76,7 +75,8 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
     this.orderSubscription = this.orderService.getOrderById(orderId).pipe(
       switchMap(order => {
         this.order = order;
-        this.selectedStatus = order?.status; // ✅ initialize dropdown with current status
+        this.selectedStatus = order?.status;
+        this.trackingNumber = order?.trackingNumber || '';
 
         if (!order?.items?.length) return of([]);
 
@@ -137,24 +137,31 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
 
   getStatusClass(status?: OrderStatus): string {
     switch (status) {
-      case this.OrderStatus.CREATED:
-        return 'status-created';
-      case this.OrderStatus.PENDING:
-        return 'status-pending';
-      case this.OrderStatus.CONFIRMED:
-        return 'status-confirmed';
-      case this.OrderStatus.SHIPPED:
-        return 'status-shipped';
-      case this.OrderStatus.DELIVERED:
-        return 'status-delivered';
-      case this.OrderStatus.FINISHED:
-        return 'status-finished';
-      case this.OrderStatus.REJECTED:
-        return 'status-rejected';
-      case this.OrderStatus.CANCELLED:
-        return 'status-cancelled';
-      default:
-        return '';
+      case this.OrderStatus.CREATED: return 'status-created';
+      case this.OrderStatus.PENDING: return 'status-pending';
+      case this.OrderStatus.CONFIRMED: return 'status-confirmed';
+      case this.OrderStatus.PROCESSING: return 'status-processing';
+      case this.OrderStatus.SHIPPED: return 'status-shipped';
+      case this.OrderStatus.DELIVERED: return 'status-delivered';
+      case this.OrderStatus.FINISHED: return 'status-finished';
+      case this.OrderStatus.REJECTED: return 'status-rejected';
+      case this.OrderStatus.CANCELLED: return 'status-cancelled';
+      default: return '';
+    }
+  }
+
+  getStatusIcon(status?: OrderStatus): string {
+    switch (status) {
+      case this.OrderStatus.CREATED: return 'add';
+      case this.OrderStatus.PENDING: return 'schedule';
+      case this.OrderStatus.CONFIRMED: return 'check_circle';
+      case this.OrderStatus.PROCESSING: return 'build';
+      case this.OrderStatus.SHIPPED: return 'local_shipping';
+      case this.OrderStatus.DELIVERED: return 'assignment_turned_in';
+      case this.OrderStatus.FINISHED: return 'done_all';
+      case this.OrderStatus.REJECTED: return 'cancel';
+      case this.OrderStatus.CANCELLED: return 'not_interested';
+      default: return 'help';
     }
   }
 
@@ -202,8 +209,12 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  saveOrderStatus(): void {
-    if (!this.order || !this.selectedStatus) return;
+  navigateToProduct(productId: number): void {
+    this.router.navigate(['/products', productId]);
+  }
+
+  saveOrderChanges(): void {
+    if (!this.order) return;
 
     const updateOrderDTO: UpdateOrderDTO = {
       id: this.order.id,
@@ -216,20 +227,33 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
       shippingMethod: this.order.shippingMethod,
       paymentMethod: this.order.paymentMethod,
       orderDate: this.order.orderDate,
-      trackingNumber: this.order.trackingNumber,
+      trackingNumber: this.trackingNumber,
       orderYearOrderCounter: this.order.orderYearOrderCounter
     };
 
     this.orderService.updateOrder(updateOrderDTO).subscribe({
       next: updatedOrder => {
+        const snackMessages: string[] = [];
+        if (this.order!.status !== updatedOrder.status) {
+          snackMessages.push('Order status updated successfully!');
+        }
+        if (this.order!.trackingNumber !== updatedOrder.trackingNumber) {
+          snackMessages.push('Tracking number updated successfully!');
+        }
+
         this.order!.status = updatedOrder.status;
-        this.snackBar.open('Order status updated successfully!', 'Close', { duration: 5000 });
-        this.router.navigate(['/admin/orders']);
+        this.order!.trackingNumber = updatedOrder.trackingNumber;
+
+        snackMessages.forEach(msg => this.snackBar.open(msg, 'Close', { duration: 5000 }));
       },
       error: err => {
-        console.error('Failed to update order status', err);
-        this.snackBar.open('Failed to update order status.', 'Close', { duration: 5000 });
+        console.error('Failed to update order', err);
+        this.snackBar.open('Failed to update order.', 'Close', { duration: 5000 });
       }
     });
+  }
+
+  backToList() {
+    this.router.navigate(['/admin/orders']);
   }
 }

@@ -11,10 +11,9 @@ import {OrderStatus} from '../../../dto/order/order-status';
 import {HttpResponse} from '@angular/common/http';
 import {CustomerService} from '../../../services/customer.service';
 import {forkJoin, Observable} from 'rxjs';
-import {map, catchError} from 'rxjs/operators';
+import {catchError, debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {Customer} from '../../../dto/customer/customer-dto';
 import {FormControl} from '@angular/forms';
-import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 
 interface OrderWithCustomer extends ResponseOrderDTO {
   userEmail?: string | null;
@@ -127,9 +126,12 @@ export class OrdersAdminListComponent implements OnInit {
     }
 
     switch (this.dataSource.sort.direction) {
-      case 'asc': return 'desc';
-      case 'desc': return '';
-      default: return 'asc';
+      case 'asc':
+        return 'desc';
+      case 'desc':
+        return '';
+      default:
+        return 'asc';
     }
   }
 
@@ -148,15 +150,24 @@ export class OrdersAdminListComponent implements OnInit {
         // Set up custom sorting for the data source
         this.dataSource.sortingDataAccessor = (item, property) => {
           switch (property) {
-            case 'invoiceId': return item.invoiceId || '';
-            case 'userEmail': return item.userEmail || '';
-            case 'userLastName': return item.userLastName || '';
-            case 'userFirstName': return item.userFirstName || '';
-            case 'shippingMethod': return item.shippingMethod;
-            case 'paymentMethod': return item.paymentMethod;
-            case 'finalTotal': return item.finalTotal || 0;
-            case 'status': return item.status || '';
-            default: return item[property as keyof OrderWithCustomer] as string;
+            case 'invoiceId':
+              return item.invoiceId || '';
+            case 'userEmail':
+              return item.userEmail || '';
+            case 'userLastName':
+              return item.userLastName || '';
+            case 'userFirstName':
+              return item.userFirstName || '';
+            case 'shippingMethod':
+              return item.shippingMethod;
+            case 'paymentMethod':
+              return item.paymentMethod;
+            case 'finalTotal':
+              return item.finalTotal || 0;
+            case 'status':
+              return item.status || '';
+            default:
+              return item[property as keyof OrderWithCustomer] as string;
           }
         };
 
@@ -181,7 +192,7 @@ export class OrdersAdminListComponent implements OnInit {
           this.customerService.getById(order.customerId).pipe(
             catchError(err => {
               console.error(`Failed to load customer ${order.customerId}`, err);
-              return [ { firstName: null, lastName: null, email: null, preferredLanguage: 'en' } as Customer ];
+              return [{firstName: null, lastName: null, email: null, preferredLanguage: 'en'} as Customer];
             })
           )
         );
@@ -253,15 +264,26 @@ export class OrdersAdminListComponent implements OnInit {
 
   getStatusClass(status?: OrderStatus): string {
     switch (status) {
-      case this.OrderStatus.CREATED: return 'status-created';
-      case this.OrderStatus.PENDING: return 'status-pending';
-      case this.OrderStatus.CONFIRMED: return 'status-confirmed';
-      case this.OrderStatus.SHIPPED: return 'status-shipped';
-      case this.OrderStatus.DELIVERED: return 'status-delivered';
-      case this.OrderStatus.FINISHED: return 'status-finished';
-      case this.OrderStatus.REJECTED: return 'status-rejected';
-      case this.OrderStatus.CANCELLED: return 'status-cancelled';
-      default: return '';
+      case this.OrderStatus.CREATED:
+        return 'status-created';
+      case this.OrderStatus.PENDING:
+        return 'status-pending';
+      case this.OrderStatus.CONFIRMED:
+        return 'status-confirmed';
+      case this.OrderStatus.PROCESSING:
+        return 'status-processing';
+      case this.OrderStatus.SHIPPED:
+        return 'status-shipped';
+      case this.OrderStatus.DELIVERED:
+        return 'status-delivered';
+      case this.OrderStatus.FINISHED:
+        return 'status-finished';
+      case this.OrderStatus.REJECTED:
+        return 'status-rejected';
+      case this.OrderStatus.CANCELLED:
+        return 'status-cancelled';
+      default:
+        return '';
     }
   }
 

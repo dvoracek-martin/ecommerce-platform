@@ -1,7 +1,9 @@
 package com.dvoracekmartin.customerservice.web.controller.v1;
 
 import com.dvoracekmartin.common.dto.customer.ResponseCustomerDTO;
+import com.dvoracekmartin.customerservice.application.dto.UpdateCustomerDTO;
 import com.dvoracekmartin.customerservice.application.service.CustomerService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +38,11 @@ public class CustomerAdminControllerV1 {
     }
 
     @PutMapping("/{customerId}")
-    public ResponseEntity<Void> updateCustomerAdmin(@PathVariable @NotBlank String customerId) {
-        log.info("Admin deleting customer: {}", customerId);
-        customerService.updateCustomer(customerId);
-        return ResponseEntity.noContent().build();
+    @PreAuthorize("hasRole('user_client')")
+    public ResponseEntity<ResponseCustomerDTO> updateCustomer(@PathVariable @NotBlank String customerId,
+                                                              @Valid @RequestBody UpdateCustomerDTO updateCustomerDTO) {
+        log.info("Updating customer: {}", customerId);
+        ResponseCustomerDTO updated = customerService.updateCustomer(customerId, updateCustomerDTO);
+        return ResponseEntity.status(updated.statusCode()).body(updated);
     }
 }

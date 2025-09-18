@@ -171,6 +171,8 @@ export class OrderListComponent implements OnInit {
         return 'status-pending';
       case this.OrderStatus.CONFIRMED:
         return 'status-confirmed';
+      case this.OrderStatus.PROCESSING:
+        return 'status-processing';
       case this.OrderStatus.SHIPPED:
         return 'status-shipped';
       case this.OrderStatus.DELIVERED:

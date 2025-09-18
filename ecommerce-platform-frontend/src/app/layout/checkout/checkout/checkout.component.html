@@ -491,8 +491,17 @@
       </div>
     </div>
   </div>
-</div>
 
+  <div *ngIf="isPlacingOrder" class="order-loading-overlay">
+    <div class="order-loading-content">
+      <div class="spinner-container">
+        <mat-spinner diameter="60"></mat-spinner>
+      </div>
+      <h3>{{ 'CHECKOUT.PLACING_ORDER' | translate }}</h3>
+      <p>{{ 'CHECKOUT.DO_NOT_CLOSE' | translate }}</p>
+    </div>
+  </div>
+</div>
 <ng-template #termsModal>
   <div class="modal-container light-theme">
     <h2 mat-dialog-title>{{ 'CHECKOUT.TERMS_AND_CONDITIONS' | translate }}</h2>

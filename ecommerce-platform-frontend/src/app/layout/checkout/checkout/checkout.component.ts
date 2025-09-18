@@ -63,6 +63,7 @@ export class CheckoutComponent implements OnInit {
   isAuthPopupOpen = false;
   CartItemType = CartItemType;
   isCartEmpty: boolean = false;
+  isPlacingOrder = false;
 
   selectedShippingMethod: string = '';
   selectedPaymentMethod: string = '';
@@ -567,6 +568,9 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    // Set loading state
+    this.isPlacingOrder = true;
+
     if (!this.isLoggedIn) {
       // For guest users, create a customer profile first
       this.createGuestCustomer().subscribe({
@@ -576,6 +580,7 @@ export class CheckoutComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to create guest customer:', err);
+          this.isPlacingOrder = false;
           this.showSnackbar('CHECKOUT.CREATE_CUSTOMER_ERROR');
         }
       });
@@ -633,6 +638,8 @@ export class CheckoutComponent implements OnInit {
       next: (order) => {
         this.orderId = order.id;
         this.orderComplete = true;
+        this.isPlacingOrder = false; // Reset loading state
+
         // Clear the cart after successful order
         this.cartService.clearCart().subscribe(() => {
           // After clearing the cart, we don't want to show the empty cart message
@@ -643,6 +650,7 @@ export class CheckoutComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to place order:', err);
+        this.isPlacingOrder = false; // Reset loading state
         this.showSnackbar('CHECKOUT.PLACE_ORDER_ERROR');
       }
     });
@@ -677,7 +685,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   continueShopping(): void {
-    this.router.navigate(['/products']);
+    this.router.navigate(['/dashboard']);
   }
 
   viewOrder(): void {

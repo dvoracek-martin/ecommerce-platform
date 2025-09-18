@@ -114,6 +114,8 @@
     "CREDIT_CARD_DESC": "Pay securely with your credit card",
     "PAYPAL": "PayPal",
     "PAYPAL_DESC": "Fast and secure payment with PayPal",
+    "PLACING_ORDER": "Placing your order...",
+    "DO_NOT_CLOSE": "Please don't close this window",
     "BANK_TRANSFER": "Bank Transfer",
     "BANK_TRANSFER_DESC": "Direct bank transfer",
     "EMPTY_CART_TITLE": "Your cart is empty",

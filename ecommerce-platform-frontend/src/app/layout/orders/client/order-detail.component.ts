@@ -1,18 +1,18 @@
 // src/app/layout/orders/client/order-detail.component.ts
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { forkJoin, of, Subscription } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { ResponseMixtureDTO } from '../../../dto/mixtures/response-mixture-dto';
-import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
-import { CartItemDTO } from '../../../dto/cart/cart-item-dto';
-import { ResponseOrderDTO } from '../../../dto/order/response-order-dto';
-import { OrderService } from '../../../services/order.service';
-import { ProductService } from '../../../services/product.service';
-import { MixtureService } from '../../../services/mixture.service';
-import { CartItemType } from '../../../dto/cart/cart-item-type';
-import { OrderStatus } from '../../../dto/order/order-status';
-import { Router } from '@angular/router';
-import { OrderStateService } from '../../../services/order-state.service';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {forkJoin, of, Subscription} from 'rxjs';
+import {catchError, map, switchMap} from 'rxjs/operators';
+import {ResponseMixtureDTO} from '../../../dto/mixtures/response-mixture-dto';
+import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
+import {CartItemDTO} from '../../../dto/cart/cart-item-dto';
+import {ResponseOrderDTO} from '../../../dto/order/response-order-dto';
+import {OrderService} from '../../../services/order.service';
+import {ProductService} from '../../../services/product.service';
+import {MixtureService} from '../../../services/mixture.service';
+import {CartItemType} from '../../../dto/cart/cart-item-type';
+import {OrderStatus} from '../../../dto/order/order-status';
+import {Router} from '@angular/router';
+import {OrderStateService} from '../../../services/order-state.service';
 import {AuthService} from '../../../auth/auth.service';
 import {HttpResponse} from '@angular/common/http';
 
@@ -46,7 +46,8 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     private mixtureService: MixtureService,
     private orderState: OrderStateService,
     private authService: AuthService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     const orderId = this.orderState.getSelectedOrder();
@@ -84,7 +85,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
                 itemName: product.name,
                 loaded: true
               })),
-              catchError(() => of({ ...item, loaded: false }))
+              catchError(() => of({...item, loaded: false}))
             );
           } else if (item.cartItemType === CartItemType.MIXTURE) {
             return this.mixtureService.getMixtureById(item.itemId).pipe(
@@ -95,10 +96,10 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
                 itemName: mixture.name,
                 loaded: true
               })),
-              catchError(() => of({ ...item, loaded: false }))
+              catchError(() => of({...item, loaded: false}))
             );
           }
-          return of({ ...item, loaded: false });
+          return of({...item, loaded: false});
         });
 
         return forkJoin(detailObservables);
@@ -131,15 +132,26 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   getStatusClass(status?: OrderStatus): string {
     switch (status) {
-      case this.OrderStatus.CREATED: return 'status-created';
-      case this.OrderStatus.PENDING: return 'status-pending';
-      case this.OrderStatus.CONFIRMED: return 'status-confirmed';
-      case this.OrderStatus.SHIPPED: return 'status-shipped';
-      case this.OrderStatus.DELIVERED: return 'status-delivered';
-      case this.OrderStatus.FINISHED: return 'status-finished';
-      case this.OrderStatus.REJECTED: return 'status-rejected';
-      case this.OrderStatus.CANCELLED: return 'status-cancelled';
-      default: return '';
+      case this.OrderStatus.CREATED:
+        return 'status-created';
+      case this.OrderStatus.PENDING:
+        return 'status-pending';
+      case this.OrderStatus.CONFIRMED:
+        return 'status-confirmed';
+      case this.OrderStatus.PROCESSING:
+        return 'status-processing';
+      case this.OrderStatus.SHIPPED:
+        return 'status-shipped';
+      case this.OrderStatus.DELIVERED:
+        return 'status-delivered';
+      case this.OrderStatus.FINISHED:
+        return 'status-finished';
+      case this.OrderStatus.REJECTED:
+        return 'status-rejected';
+      case this.OrderStatus.CANCELLED:
+        return 'status-cancelled';
+      default:
+        return '';
     }
   }
 

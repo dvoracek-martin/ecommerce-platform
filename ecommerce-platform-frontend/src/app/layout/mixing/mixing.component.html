@@ -1,5 +1,5 @@
 <div class="app-container">
-  <div class="main-container">
+  <div class="mixing-container" #mixingContainer>
 
     <!-- Sticky Header with Categories -->
     <div class="sticky-header-mixing">
@@ -30,7 +30,7 @@
 
     <div *ngIf="isLoading" class="loading-section">
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-      <div class="loading-text">Loading product details...</div>
+      <div class="loading-text">Loading products...</div>
     </div>
 
     <div *ngIf="error" class="error-section">
@@ -225,6 +225,15 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+  <div *ngIf="isAddingToCart" class="mixture-loading-overlay">
+    <div class="mixture-loading-content">
+      <div class="spinner-container">
+        <mat-spinner diameter="60"></mat-spinner>
+      </div>
+      <h3>{{ 'MIXTURE.ADDING_TO_CART' | translate }}</h3>
+      <p>{{ 'MIXTURE.PLEASE_WAIT' | translate }}</p>
     </div>
   </div>
 </div>
