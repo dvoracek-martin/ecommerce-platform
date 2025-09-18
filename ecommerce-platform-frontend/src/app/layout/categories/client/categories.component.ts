@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {CategoryService} from '../../services/category.service';
-import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
+import {CategoryService} from '../../../services/category.service';
+import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 
 @Component({
   selector: 'app-categories',

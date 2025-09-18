@@ -1,10 +1,10 @@
 // src/app/components/products/products.component.ts
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ResponseProductDTO} from '../../dto/product/response-product-dto';
-import {ProductService} from '../../services/product.service';
+import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
+import {ProductService} from '../../../services/product.service';
 import {Router} from '@angular/router';
-import {CartService} from '../../services/cart.service';
-import {CartItemType} from '../../dto/cart/cart-item-type';
+import {CartService} from '../../../services/cart.service';
+import {CartItemType} from '../../../dto/cart/cart-item-type';
 
 @Component({
   selector: 'app-products-list',

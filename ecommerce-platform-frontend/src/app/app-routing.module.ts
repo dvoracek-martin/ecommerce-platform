@@ -6,11 +6,11 @@ import {AuthGuard} from './auth/auth.guard';
 import {WelcomeComponent} from './layout/welcome/welcome.component';
 import {UserRegistrationComponent} from './auth/user-registration/user-registration.component';
 import {ResetPasswordComponent} from './auth/reset-password/reset-password.component';
-import {CustomersComponent} from './layout/customers/customers.component';
-import {ProductsListComponent} from './layout/products/products-list.component';
-import {MixingComponent} from './layout/mixing/mixing.component';
-import {CategoriesComponent} from './layout/categories/categories.component';
-import {MixturesComponent} from './layout/mixtures/mixtures/mixtures.component';
+import {CustomersComponent} from './layout/customers/client/customers.component';
+import {ProductsListComponent} from './layout/products/client/products-list.component';
+import {MixingComponent} from './layout/mixing/client/mixing.component';
+import {CategoriesComponent} from './layout/categories/client/categories.component';
+import {MixturesComponent} from './layout/mixtures/client/mixtures.component';
 import {OrderListComponent} from './layout/orders/client/order-list.component';
 import {CartComponent} from './layout/cart/client/cart.component';
 
@@ -27,8 +27,8 @@ import {ProductsAdminCreateComponent} from './layout/products/admin/products-adm
 import {ProductsAdminUpdateComponent} from './layout/products/admin/products-admin-update.component';
 import {TagsAdminListComponent} from './layout/tags/admin/tags-admin-list.component';
 import {TagsAdminUpdateComponent} from './layout/tags/admin/tags-admin-update.component';
-import {ProductsDetailComponent} from './layout/products/products-detail.component';
-import {CheckoutComponent} from './layout/checkout/checkout/checkout.component';
+import {ProductsDetailComponent} from './layout/products/client/products-detail.component';
+import {CheckoutComponent} from './layout/checkout/client/checkout.component';
 import {OrderDetailComponent} from './layout/orders/client/order-detail.component';
 import {OrdersAdminListComponent} from './layout/orders/admin/orders-admin-list.component';
 import {OrdersAdminDetailComponent} from './layout/orders/admin/orders-admin-detail.component';

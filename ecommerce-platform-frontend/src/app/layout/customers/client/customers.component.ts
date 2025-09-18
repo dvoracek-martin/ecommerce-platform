@@ -1,20 +1,20 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AbstractControl, FormBuilder, FormGroup, FormGroupDirective, ValidatorFn, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
-import {AuthService} from '../../auth/auth.service';
+import {AuthService} from '../../../auth/auth.service';
 import {Router} from '@angular/router';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {animate, state, style, transition, trigger} from '@angular/animations';
-import {CustomerService} from '../../services/customer.service';
-import {CustomerAddress} from '../../dto/customer/customer-address-dto';
-import {CustomerBillingAddress} from '../../dto/customer/custommer-billing-address-dto';
-import {Customer} from '../../dto/customer/customer-dto';
+import {CustomerService} from '../../../services/customer.service';
+import {CustomerAddress} from '../../../dto/customer/customer-address-dto';
+import {CustomerBillingAddress} from '../../../dto/customer/custommer-billing-address-dto';
+import {Customer} from '../../../dto/customer/customer-dto';
 import {MatDialog} from '@angular/material/dialog';
 import {Subject, takeUntil} from 'rxjs';
-import {ConfirmationDialogComponent} from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-customers',

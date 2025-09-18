@@ -1,14 +1,14 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ResponseProductDTO } from '../../dto/product/response-product-dto';
-import { ProductService } from '../../services/product.service';
-import { MixtureService } from '../../services/mixture.service';
-import { CartItem, CartService } from '../../services/cart.service';
+import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
+import { ProductService } from '../../../services/product.service';
+import { MixtureService } from '../../../services/mixture.service';
+import { CartItem, CartService } from '../../../services/cart.service';
 import { Router } from '@angular/router';
-import { CategoryService } from '../../services/category.service';
-import { ResponseCategoryDTO } from '../../dto/category/response-category-dto';
+import { CategoryService } from '../../../services/category.service';
+import { ResponseCategoryDTO } from '../../../dto/category/response-category-dto';
 import { forkJoin } from 'rxjs';
-import { CartItemType } from '../../dto/cart/cart-item-type';
-import { CreateMixtureDTO } from '../../dto/mixtures/create-mixture-dto';
+import { CartItemType } from '../../../dto/cart/cart-item-type';
+import { CreateMixtureDTO } from '../../../dto/mixtures/create-mixture-dto';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface ProductSummary {

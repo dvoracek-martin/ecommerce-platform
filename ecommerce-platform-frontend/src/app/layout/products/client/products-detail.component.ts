@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProductService } from '../../services/product.service';
-import { CartService } from '../../services/cart.service';
-import { ResponseProductDTO } from '../../dto/product/response-product-dto';
-import { CartItemType } from '../../dto/cart/cart-item-type';
+import { ProductService } from '../../../services/product.service';
+import { CartService } from '../../../services/cart.service';
+import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
+import { CartItemType } from '../../../dto/cart/cart-item-type';
 
 @Component({
   selector: 'app-products-detail',
