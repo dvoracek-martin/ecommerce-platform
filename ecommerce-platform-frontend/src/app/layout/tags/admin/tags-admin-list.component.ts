@@ -5,7 +5,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {Subject, takeUntil} from 'rxjs';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
 import {TagService} from '../../../services/tag.service';
-import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import {FormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 

@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 import {CategoryService} from '../../../services/category.service';
-import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import {FormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';

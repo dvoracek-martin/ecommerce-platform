@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
 import { CartItemType } from '../../../dto/cart/cart-item-type';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { TranslateService } from '@ngx-translate/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {ResponseMixtureDTO} from '../../../dto/mixtures/response-mixture-dto';

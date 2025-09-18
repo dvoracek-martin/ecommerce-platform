@@ -11,7 +11,7 @@ import {ProductService} from '../../../services/product.service';
 import {MixtureService} from '../../../services/mixture.service';
 
 import {UpdateTagDTO} from '../../../dto/tag/update-tag-dto';
-import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-tags-admin-update',

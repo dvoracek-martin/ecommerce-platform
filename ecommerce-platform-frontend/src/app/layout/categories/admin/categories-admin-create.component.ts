@@ -9,7 +9,7 @@ import {CategoryService} from '../../../services/category.service';
 import {TagService} from '../../../services/tag.service';
 import {CreateCategoryDTO} from '../../../dto/category/create-category-dto';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
-import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import {Subject, takeUntil} from 'rxjs';
 
 @Component({

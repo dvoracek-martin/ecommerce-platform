@@ -5,7 +5,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TagService} from '../../../services/tag.service';
 import {CreateTagDTO} from '../../../dto/tag/create-tag-dto';
-import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import {Subject, takeUntil} from 'rxjs';
 
 @Component({

@@ -77,7 +77,7 @@
                       <mat-icon>info</mat-icon>
                     </div>
                     <div class="product-price">{{ product.price | currency }}</div>
-                    <button class="btn-add"
+                    <button class="add-mixture-btn"
                             [disabled]="isAddButtonDisabled(product) || addingProductId === product.id"
                             [title]="getAddButtonTooltip(product)"
                             (click)="addProductToMixture(product)">

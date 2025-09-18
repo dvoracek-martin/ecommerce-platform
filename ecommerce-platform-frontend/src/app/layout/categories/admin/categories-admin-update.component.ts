@@ -11,7 +11,7 @@ import {TagService} from '../../../services/tag.service';
 import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 import {UpdateCategoryDTO} from '../../../dto/category/update-category-dto';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
-import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-categories-admin-update',
