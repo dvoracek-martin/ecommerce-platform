@@ -1,1 +1,267 @@
-<p>customers-detail works!</p>
+<div class="admin-container">
+  <mat-card class="admin-card">
+    <div class="admin-header-section">
+      <div class="admin-header-content">
+        <div class="admin-title-section">
+          <h1>{{ 'CUSTOMER.TITLE' | translate }}</h1>
+          <p class="admin-subtitle">{{ 'CUSTOMER.ADMIN_SUBTITLE.PROFILE' | translate }}</p>
+        </div>
+      </div>
+    </div>
+
+    <form (ngSubmit)="onSave()" [formGroup]="customerForm" class="form-one-column-wrapper" id="customerForm">
+      <div class="form-content">
+        <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
+
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>badge</mat-icon>
+            {{ 'CUSTOMER.BASIC_INFO' | translate }}
+          </h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.FIRST_NAME' | translate }}</mat-label>
+              <input formControlName="firstName" matInput required>
+              <mat-error *ngIf="customerForm.get('firstName')?.hasError('required')">
+                {{ 'USER_REGISTRATION.FIRST_NAME_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.LAST_NAME' | translate }}</mat-label>
+              <input formControlName="lastName" matInput required>
+              <mat-error *ngIf="customerForm.get('lastName')?.hasError('required')">
+                {{ 'USER_REGISTRATION.LAST_NAME_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.PREFERRED_LANGUAGE' | translate }}</mat-label>
+              <mat-select [value]="selectedLanguage.code" (selectionChange)="onLanguageChange($event.value)">
+                <mat-option *ngFor="let lang of languages" [value]="lang.code">
+                  <mat-icon class="flag-icon" *ngIf="lang.icon" [svgIcon]="lang.icon"></mat-icon>
+                  {{ lang.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-section" formGroupName="address">
+          <h3 class="section-subtitle">
+            <mat-icon>location_on</mat-icon>
+            {{ 'CUSTOMER.SHIPPING_ADDRESS' | translate }}
+          </h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>{{ 'CUSTOMER.PHONE' | translate }}</mat-label>
+              <input formControlName="phone" matInput>
+              <mat-error *ngIf="customerForm.get('address.phone')?.hasError('pattern')">
+                {{ 'CUSTOMER.PHONE_INVALID' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.STREET' | translate }}</mat-label>
+              <input formControlName="street" matInput required>
+              <mat-error *ngIf="customerForm.get('address.street')?.hasError('required')">
+                {{ 'CUSTOMER.STREET_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.HOUSE_NUMBER' | translate }}</mat-label>
+              <input formControlName="houseNumber" matInput required>
+              <mat-error *ngIf="customerForm.get('address.houseNumber')?.hasError('required')">
+                {{ 'CUSTOMER.HOUSE_NUMBER_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.CITY' | translate }}</mat-label>
+              <input formControlName="city" matInput required>
+              <mat-error *ngIf="customerForm.get('address.city')?.hasError('required')">
+                {{ 'CUSTOMER.CITY_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.ZIP_CODE' | translate }}</mat-label>
+              <input formControlName="zipCode" matInput required>
+              <mat-error *ngIf="customerForm.get('address.zipCode')?.hasError('required')">
+                {{ 'CUSTOMER.ZIP_CODE_REQUIRED' | translate }}
+              </mat-error>
+              <mat-error *ngIf="customerForm.get('address.zipCode')?.hasError('pattern')">
+                {{ 'CUSTOMER.ZIP_CODE_NUMBERS_ONLY' | translate }}
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.COUNTRY' | translate }}</mat-label>
+              <mat-select formControlName="country" required>
+                <mat-option value="Switzerland">Switzerland</mat-option>
+              </mat-select>
+              <mat-error *ngIf="customerForm.get('address.country')?.hasError('required')">
+                {{ 'CUSTOMER.COUNTRY_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <mat-checkbox formControlName="sameBillingAddress">
+            {{ 'CUSTOMER.SAME_BILLING_ADDRESS' | translate }}
+          </mat-checkbox>
+        </div>
+        <div *ngIf="showBillingAddress" @slideDown class="form-section" formGroupName="billingAddress">
+          <h3 class="section-subtitle">
+            <mat-icon>business</mat-icon>
+            {{ 'CUSTOMER.BILLING_ADDRESS' | translate }}
+          </h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.FIRST_NAME' | translate }}</mat-label>
+              <input formControlName="firstName" matInput required>
+              <mat-error *ngIf="customerForm.get('billingAddress.firstName')?.hasError('required')">
+                {{ 'USER_REGISTRATION.FIRST_NAME_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.LAST_NAME' | translate }}</mat-label>
+              <input formControlName="lastName" matInput required>
+              <mat-error *ngIf="customerForm.get('billingAddress.lastName')?.hasError('required')">
+                {{ 'USER_REGISTRATION.LAST_NAME_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>{{ 'CUSTOMER.PHONE' | translate }}</mat-label>
+              <input formControlName="phone" matInput>
+              <mat-error *ngIf="customerForm.get('billingAddress.phone')?.hasError('pattern')">
+                {{ 'CUSTOMER.PHONE_INVALID' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.STREET' | translate }}</mat-label>
+              <input formControlName="street" matInput required>
+              <mat-error *ngIf="customerForm.get('billingAddress.street')?.hasError('required')">
+                {{ 'CUSTOMER.STREET_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.HOUSE_NUMBER' | translate }}</mat-label>
+              <input formControlName="houseNumber" matInput required>
+              <mat-error *ngIf="customerForm.get('billingAddress.houseNumber')?.hasError('required')">
+                {{ 'CUSTOMER.HOUSE_NUMBER_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.CITY' | translate }}</mat-label>
+              <input formControlName="city" matInput required>
+              <mat-error *ngIf="customerForm.get('billingAddress.city')?.hasError('required')">
+                {{ 'CUSTOMER.CITY_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.ZIP_CODE' | translate }}</mat-label>
+              <input formControlName="zipCode" matInput required>
+              <mat-error *ngIf="customerForm.get('billingAddress.zipCode')?.hasError('required')">
+                {{ 'CUSTOMER.ZIP_CODE_REQUIRED' | translate }}
+              </mat-error>
+              <mat-error *ngIf="customerForm.get('billingAddress.zipCode')?.hasError('pattern')">
+                {{ 'CUSTOMER.ZIP_CODE_NUMBERS_ONLY' | translate }}
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMER.COUNTRY' | translate }}</mat-label>
+              <mat-select formControlName="country" required>
+                <mat-option value="Switzerland">Switzerland</mat-option>
+              </mat-select>
+              <mat-error *ngIf="customerForm.get('billingAddress.country')?.hasError('required')">
+                {{ 'CUSTOMER.COUNTRY_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </form>
+    <form #passwordFormDirective="ngForm" (ngSubmit)="onChangePassword(passwordFormDirective)"
+          [formGroup]="passwordForm"
+          class="form-one-column-wrapper">
+      <div class="form-content">
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>lock</mat-icon>
+            {{ 'CUSTOMER.CHANGE_PASSWORD' | translate }}
+          </h3>
+          <div formGroupName="passwordChange">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field full-width">
+                <mat-label>{{ 'CUSTOMER.CURRENT_PASSWORD' | translate }}</mat-label>
+                <input formControlName="currentPassword" matInput type="password">
+                <mat-error *ngIf="passwordForm.get('passwordChange.currentPassword')?.hasError('required')">
+                  {{ 'CUSTOMER.CURRENT_PASSWORD_REQUIRED' | translate }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.NEW_PASSWORD' | translate }}</mat-label>
+                <input formControlName="newPassword" matInput type="password">
+                <mat-error *ngIf="passwordForm.get('passwordChange.newPassword')?.hasError('required')">
+                  {{ 'USER_REGISTRATION.PASSWORD_REQUIRED' | translate }}
+                </mat-error>
+                <mat-error *ngIf="passwordForm.get('passwordChange.newPassword')?.hasError('minlength')">
+                  {{ 'USER_REGISTRATION.PASSWORD_MINLENGTH' | translate }}
+                </mat-error>
+                <mat-error *ngIf="passwordForm.get('passwordChange.newPassword')?.hasError('pattern')">
+                  {{ 'USER_REGISTRATION.PASSWORD_PATTERN' | translate }}
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMER.CONFIRM_NEW_PASSWORD' | translate }}</mat-label>
+                <input formControlName="confirmNewPassword" matInput type="password">
+                <mat-error *ngIf="passwordForm.get('passwordChange.confirmNewPassword')?.hasError('required')">
+                  {{ 'USER_REGISTRATION.PASSWORD_REQUIRED' | translate }}
+                </mat-error>
+                <mat-error
+                  *ngIf="passwordForm.get('passwordChange')?.hasError('mismatch') && (passwordForm.get('passwordChange.confirmNewPassword')?.dirty || passwordForm.get('passwordChange.confirmNewPassword')?.dirty)">
+                  {{ 'USER_REGISTRATION.PASSWORDS_MISMATCH' | translate }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="form-row action-row">
+              <button
+                [disabled]="passwordForm.get('passwordChange')?.invalid || !passwordForm.get('passwordChange')?.dirty || savingPassword"
+                color="primary" mat-flat-button
+                type="submit">
+                <mat-icon>lock_open</mat-icon>
+                {{ savingPassword ? ('COMMON.SAVING' | translate) : ('COMMON.CHANGE_PASSWORD' | translate) }}
+              </button>
+              <mat-progress-bar *ngIf="savingPassword" class="admin-save-progress"
+                                mode="indeterminate"></mat-progress-bar>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </mat-card>
+
+  <div class="admin-actions-bar">
+    <div class="admin-action-buttons">
+      <button (click)="onCancel()" color="warn" mat-stroked-button type="button">
+        <mat-icon>close</mat-icon>
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button [disabled]="customerForm.invalid || !customerForm.dirty || saving" color="primary" form="customerForm"
+              mat-flat-button type="submit">
+        <mat-icon>save</mat-icon>
+        {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>

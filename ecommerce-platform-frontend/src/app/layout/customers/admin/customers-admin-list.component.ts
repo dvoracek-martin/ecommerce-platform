@@ -7,6 +7,8 @@ import {CustomerService} from '../../../services/customer.service';
 import {Customer} from '../../../dto/customer/customer-dto';
 import {FormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
+import {OrderStateService} from '../../../services/order-state.service';
+import {CustomerStateService} from '../../../services/customer-state.service';
 
 @Component({
   selector: 'app-customers-admin-list',
@@ -34,6 +36,7 @@ export class CustomersAdminListComponent implements OnInit {
 
   constructor(
     private customerService: CustomerService,
+    private customerState: CustomerStateService,
     private router: Router,
   ) {}
 
@@ -97,11 +100,12 @@ export class CustomersAdminListComponent implements OnInit {
   }
 
   viewCustomerDetails(customerId?: string): void {
-    if (!customerId) return;
-    this.router.navigate(['/admin/customers/detail', customerId]);
+    this.customerState.setSelectedCustomer(customerId);
+    console.log(this.customerState.getSelectedCustomer());
+    this.router.navigate(['/admin/customers/detail']);
   }
 
-  navigateHome(): void {
+    navigateHome(): void {
     this.router.navigate(['/']);
   }
 

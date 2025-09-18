@@ -30,6 +30,13 @@ public class CustomerAdminControllerV1 {
         return customerService.getAllCustomers();
     }
 
+    @GetMapping("/{customerId}")
+    public ResponseEntity<ResponseCustomerDTO> getCustomerById(@PathVariable @NotBlank String customerId) {
+        log.debug("Fetching customer: {}", customerId);
+        ResponseCustomerDTO dto = customerService.getCustomerById(customerId);
+        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
+    }
+
     @DeleteMapping("/{customerId}")
     public ResponseEntity<Void> deleteCustomerAdmin(@PathVariable @NotBlank String customerId) {
         log.info("Admin deleting customer: {}", customerId);

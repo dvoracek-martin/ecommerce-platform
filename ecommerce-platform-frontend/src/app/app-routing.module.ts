@@ -33,6 +33,7 @@ import {OrderDetailComponent} from './layout/orders/client/order-detail.componen
 import {OrdersAdminListComponent} from './layout/orders/admin/orders-admin-list.component';
 import {OrdersAdminDetailComponent} from './layout/orders/admin/orders-admin-detail.component';
 import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
+import {CustomersAdminDetailComponent} from './layout/customers/admin/customers-admin-detail.component';
 
 const routes: Routes = [
   {path: '', component: WelcomeComponent},
@@ -60,6 +61,7 @@ const routes: Routes = [
     children: [
       {path: '', redirectTo: 'customers', pathMatch: 'full'},
       {path: 'customers', component: CustomersAdminListComponent},
+      {path: 'customers/detail', component: CustomersAdminDetailComponent},
       {path: 'products', component: ProductsAdminListComponent},
       {path: 'products/create', component: ProductsAdminCreateComponent},
       {path: 'products/update/:id', component: ProductsAdminUpdateComponent},
