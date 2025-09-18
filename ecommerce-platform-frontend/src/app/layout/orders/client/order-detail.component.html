@@ -7,13 +7,16 @@
       </div>
     </div>
 
-    <div class="order-status-section">
-      <div class="status-badge" [ngClass]="getStatusClass(order?.status)">
-        {{ getStatusText(order?.status) }}
+    <div class="admin-status-section">
+      <div class="status-badge-container">
+        <div class="status-badge" [ngClass]="getStatusClass(order?.status)">
+          <span class="status-icon material-icons">{{ getStatusIcon(order?.status) }}</span>
+          {{ getStatusText(order?.status) }}
+        </div>
       </div>
       <div class="order-totals">
         <div class="total-label">{{ 'ORDER_DETAIL.TOTAL' | translate }}</div>
-        <div class="total-amount">{{ order?.finalTotal | currency }}</div>
+        <div class="price">{{ order?.finalTotal | currency }}</div>
       </div>
     </div>
   </div>
@@ -34,6 +37,7 @@
       </div>
 
       <div *ngIf="isOrderLoaded && order" class="order-content">
+        <!-- Order Items Section -->
         <div class="order-items-section">
           <h2>{{ 'ORDER_DETAIL.ITEMS' | translate }}</h2>
           <div class="order-items">
@@ -41,7 +45,17 @@
                  class="order-item"
                  [class.mixture-item]="item.cartItemType === CartItemType.MIXTURE">
 
-              <div class="item-media">
+              <div class="item-media" (click)="navigateToProduct(item.product.id)"
+                   *ngIf="item.cartItemType === CartItemType.PRODUCT && item.product">
+                <img *ngIf="item.product?.media?.[0]"
+                     [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
+                     alt="{{ item.itemName }}"/>
+                <div *ngIf="!item.product?.media?.[0]" class="no-image">
+                  <span class="material-icons">inventory_2</span>
+                </div>
+              </div>
+
+              <div class="item-media" *ngIf="item.cartItemType !== CartItemType.PRODUCT || !item.product">
                 <ng-container *ngIf="item.product || item.mixture">
                   <img *ngIf="(item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0])"
                        [src]="item.product?.media?.[0] ? 'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data :
@@ -57,20 +71,27 @@
 
               <div class="item-info">
                 <div class="item-header">
-                  <h3 class="item-name">{{ item.itemName }}</h3>
+                  <h3 class="item-name"
+                      (click)="navigateToProduct(item.product.id)"
+                      *ngIf="item.cartItemType === CartItemType.PRODUCT && item.product">
+                    {{ item.itemName }}
+                  </h3>
+
+                  <h3 class="item-name" *ngIf="item.cartItemType !== CartItemType.PRODUCT || !item.product">
+                    {{ item.itemName }}
+                  </h3>
                   <div class="item-price">{{ item.itemPrice | currency }}</div>
                 </div>
 
-                <div class="item-description" *ngIf="item.product?.description">
+                <div class="item-description truncate-text" *ngIf="item.product?.description"
+                     [title]="item.product.description">
                   {{ item.product.description }}
                 </div>
 
-                <div *ngIf="item.cartItemType === CartItemType.MIXTURE && item.mixture"
-                     class="mixture-display">
+                <div *ngIf="item.cartItemType === CartItemType.MIXTURE && item.mixture" class="mixture-display">
                   <h4>{{ 'ORDER_DETAIL.MIXTURE_CONTAINS' | translate }}</h4>
                   <div class="mixture-products-list">
-                    <div *ngFor="let product of item.mixture.products"
-                         class="mixture-product-item">
+                    <div *ngFor="let product of item.mixture.products" class="mixture-product-item">
                       <div class="mixture-product-info">
                         <div class="mixture-product-name">{{ product.name }}</div>
                         <div class="mixture-product-price">{{ product.price | currency }}</div>
@@ -91,6 +112,7 @@
           </div>
         </div>
 
+        <!-- Order Info Section -->
         <div class="order-info-section">
           <h2>{{ 'ORDER_DETAIL.ORDER_INFO' | translate }}</h2>
           <div class="info-grid">
@@ -101,9 +123,10 @@
             <div class="info-row">
               <div class="info-label">{{ 'ORDER_DETAIL.STATUS' | translate }}:</div>
               <div class="info-value">
-                <span class="status-text" [ngClass]="getStatusClass(order?.status)">
+                <div class="status-badge" [ngClass]="getStatusClass(order?.status)">
+                  <span class="status-icon material-icons">{{ getStatusIcon(order?.status) }}</span>
                   {{ getStatusText(order?.status) }}
-                </span>
+                </div>
               </div>
             </div>
             <div class="info-row" *ngIf="order?.trackingNumber">
@@ -123,6 +146,7 @@
       </div>
     </div>
 
+    <!-- Order Summary Section -->
     <div class="order-summary" *ngIf="isOrderLoaded && order">
       <div class="summary-card">
         <h3>{{ 'ORDER_DETAIL.ORDER_SUMMARY' | translate }}</h3>
@@ -139,10 +163,18 @@
           <span>{{ order?.finalTotal | currency }}</span>
         </div>
       </div>
+
       <div class="invoice-section">
-        <button class="btn-download-invoice" (click)="downloadInvoice(order.id)">
+        <button mat-flat-button color="primary" (click)="downloadInvoice(order.id)" class="btn-download-invoice">
           <mat-icon>download</mat-icon>
           {{ 'ORDER_DETAIL.DOWNLOAD_INVOICE' | translate }}
+        </button>
+      </div>
+      <!-- Back to Orders Button -->
+      <div class="back-button-container">
+        <button (click)="navigateBackToList()" class="navigate-back-btn" mat-stroked-button>
+          <mat-icon>arrow_back</mat-icon>
+          Back to Products
         </button>
       </div>
     </div>

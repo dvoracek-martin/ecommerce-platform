@@ -16,7 +16,7 @@
       </div>
       <div class="order-totals">
         <div class="total-label">{{ 'ORDER_DETAIL.TOTAL' | translate }}</div>
-        <div class="total-amount">{{ order?.finalTotal | currency }}</div>
+        <div class="price">{{ order?.finalTotal | currency }}</div>
       </div>
     </div>
   </div>
@@ -205,7 +205,7 @@
       </div>
       <!-- Back to Orders Button -->
       <div class="back-button-container">
-        <button (click)="backToList()" class="navigate-back-btn" mat-stroked-button>
+        <button (click)="navigateBackToList()" class="navigate-back-btn" mat-stroked-button>
           <mat-icon>arrow_back</mat-icon>
           Back to Products
         </button>

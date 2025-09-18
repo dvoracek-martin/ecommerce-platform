@@ -135,7 +135,7 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
     );
   }
 
-  getStatusClass(status?: OrderStatus): string {
+  getStatusClass(status?: string): string {
     switch (status) {
       case this.OrderStatus.CREATED: return 'status-created';
       case this.OrderStatus.PENDING: return 'status-pending';
@@ -253,7 +253,7 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  backToList() {
+  navigateBackToList() {
     this.router.navigate(['/admin/orders']);
   }
 }

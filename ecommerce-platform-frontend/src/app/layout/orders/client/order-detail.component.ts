@@ -129,33 +129,37 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       0
     );
   }
-
   getStatusClass(status?: OrderStatus): string {
     switch (status) {
-      case this.OrderStatus.CREATED:
-        return 'status-created';
-      case this.OrderStatus.PENDING:
-        return 'status-pending';
-      case this.OrderStatus.CONFIRMED:
-        return 'status-confirmed';
-      case this.OrderStatus.PROCESSING:
-        return 'status-processing';
-      case this.OrderStatus.SHIPPED:
-        return 'status-shipped';
-      case this.OrderStatus.DELIVERED:
-        return 'status-delivered';
-      case this.OrderStatus.FINISHED:
-        return 'status-finished';
-      case this.OrderStatus.REJECTED:
-        return 'status-rejected';
-      case this.OrderStatus.CANCELLED:
-        return 'status-cancelled';
-      default:
-        return '';
+      case this.OrderStatus.CREATED: return 'status-created';
+      case this.OrderStatus.PENDING: return 'status-pending';
+      case this.OrderStatus.CONFIRMED: return 'status-confirmed';
+      case this.OrderStatus.PROCESSING: return 'status-processing';
+      case this.OrderStatus.SHIPPED: return 'status-shipped';
+      case this.OrderStatus.DELIVERED: return 'status-delivered';
+      case this.OrderStatus.FINISHED: return 'status-finished';
+      case this.OrderStatus.REJECTED: return 'status-rejected';
+      case this.OrderStatus.CANCELLED: return 'status-cancelled';
+      default: return '';
     }
   }
 
-  getStatusText(status?: OrderStatus): string {
+  getStatusIcon(status?: OrderStatus): string {
+    switch (status) {
+      case this.OrderStatus.CREATED: return 'add';
+      case this.OrderStatus.PENDING: return 'schedule';
+      case this.OrderStatus.CONFIRMED: return 'check_circle';
+      case this.OrderStatus.PROCESSING: return 'build';
+      case this.OrderStatus.SHIPPED: return 'local_shipping';
+      case this.OrderStatus.DELIVERED: return 'assignment_turned_in';
+      case this.OrderStatus.FINISHED: return 'done_all';
+      case this.OrderStatus.REJECTED: return 'cancel';
+      case this.OrderStatus.CANCELLED: return 'not_interested';
+      default: return 'help';
+    }
+  }
+
+  getStatusText(status?: string): string {
     return status?.toUpperCase() || '';
   }
 
@@ -204,5 +208,13 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
         console.error('Error downloading invoice:', err);
       }
     });
+  }
+
+  navigateToProduct(productId: number): void {
+    this.router.navigate(['/products', productId]);
+  }
+
+  navigateBackToList() {
+    this.router.navigate(['/admin/orders']);
   }
 }
