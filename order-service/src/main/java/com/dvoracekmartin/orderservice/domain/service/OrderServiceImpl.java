@@ -86,6 +86,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<OrderResponseDTO> getOrdersByCustomerIdAdmin(String customerId) {
+        return orderRepository.findByCustomerId(customerId).stream().sorted(Comparator.comparing(Order::getOrderDate).reversed()).map(orderMapper::mapOrderToOrderResponseDTO).toList();
+    }
+
+    @Override
     public PdfDataWrapper getInvoiceByOrderId(String username, String customerId, Long orderId) {
         if (!customerId.equals(username)) {
             throw new IllegalArgumentException("id doesn't match with the current user");

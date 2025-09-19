@@ -9,4 +9,5 @@ export class Customer {
   address?: CustomerAddress | null;
   billingAddress?: CustomerBillingAddress | null;
   preferredLanguage: string;
+  active: boolean;
 }

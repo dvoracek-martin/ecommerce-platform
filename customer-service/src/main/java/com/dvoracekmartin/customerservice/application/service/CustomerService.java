@@ -20,6 +20,8 @@ public interface CustomerService {
 
     ResponseCustomerDTO updateCustomer(String customerId, UpdateCustomerDTO updateCustomerDTO);
 
+    ResponseCustomerDTO updateCustomerAdmin(String customerId, UpdateCustomerDTO updateCustomerDTO);
+
     void deleteCustomer(String customerId);
 
     ResponseCustomerDTO createGuestCustomer(@Valid CreateGuestCustomerDTO createGuestCustomerDTO);

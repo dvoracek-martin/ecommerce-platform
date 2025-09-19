@@ -4,6 +4,7 @@ public record ResponseUserDTO(
         String id,
         String username,
         String email,
-        int statusCode
+        int statusCode,
+        boolean active
 ) {
 }

@@ -1,6 +1,6 @@
 package com.dvoracekmartin.userservice.application.event.publisher;
 
-import com.dvoracekmartin.common.event.UserCreatedEvent;
+import com.dvoracekmartin.common.event.CreateUserEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -22,13 +22,14 @@ public class UserEventPublisher {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void publishUserCreatedEvent(String userId, String username, String email,String preferredLanguage) {
-        UserCreatedEvent event = new UserCreatedEvent(
+    public void publishUserCreatedEvent(String userId, String username, String email, String preferredLanguage, boolean active) {
+        CreateUserEvent event = new CreateUserEvent(
                 userId,
                 username,
                 email,
                 Instant.now(),
-                preferredLanguage
+                preferredLanguage,
+                active
         );
 
         log.debug("Publishing event: {}", event);

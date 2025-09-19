@@ -1,10 +1,11 @@
 package com.dvoracekmartin.customerservice.application.service;
 
+import com.dvoracekmartin.common.dto.customer.ResponseCustomerDTO;
 import com.dvoracekmartin.customerservice.application.dto.CreateCustomerDTO;
 import com.dvoracekmartin.customerservice.application.dto.CreateGuestCustomerDTO;
 import com.dvoracekmartin.customerservice.application.dto.CustomerMapper;
-import com.dvoracekmartin.common.dto.customer.ResponseCustomerDTO;
 import com.dvoracekmartin.customerservice.application.dto.UpdateCustomerDTO;
+import com.dvoracekmartin.customerservice.application.event.publisher.CustomerEventPublisher;
 import com.dvoracekmartin.customerservice.domain.model.Customer;
 import com.dvoracekmartin.customerservice.domain.repository.CustomerRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +25,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerMapper customerMapper;
     private final CustomerRepository customerRepository;
+    private final CustomerEventPublisher publishUserUpdatedEvent;
 
     @Override
     public List<ResponseCustomerDTO> getAllCustomers() {
@@ -73,6 +75,57 @@ public class CustomerServiceImpl implements CustomerService {
 
         return new ResponseCustomerDTO(
                 updatedCustomer.getId(),
+                updatedCustomer.isActive(),
+                updatedCustomer.getEmail(),
+                updatedCustomer.getFirstName(),
+                updatedCustomer.getLastName(),
+                customerMapper.addressToCustomerAddressDTO(updatedCustomer.getAddress()),
+                customerMapper.billingAaddressToCustomerBillingAddressDTO(updatedCustomer.getBillingAddress()),
+                Response.Status.OK.getStatusCode(),
+                updatedCustomer.getPreferredLanguage()
+        );
+    }
+
+    @Override
+    public ResponseCustomerDTO updateCustomerAdmin(String customerId, UpdateCustomerDTO updateCustomerDTO) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + customerId));
+
+        customer.setFirstName(updateCustomerDTO.firstName());
+        customer.setLastName(updateCustomerDTO.lastName());
+        customer.setAddress(customerMapper.customerAddressDTOToAddress(updateCustomerDTO.address()));
+        customer.setBillingAddress(customerMapper.customerBillingAddressDTOToAddress(updateCustomerDTO.billingAddress()));
+
+        boolean userNeedsUpdate = false;
+        if (!customer.getEmail().equals(updateCustomerDTO.email())) {
+            userNeedsUpdate = true;
+            customer.setEmail(updateCustomerDTO.email());
+        }
+        if (customer.isActive() != updateCustomerDTO.active()) {
+            userNeedsUpdate = true;
+            customer.setActive(updateCustomerDTO.active());
+        }
+        if (!customer.getPreferredLanguage().equals(updateCustomerDTO.preferredLanguage())) {
+            userNeedsUpdate = true;
+            customer.setPreferredLanguage(updateCustomerDTO.preferredLanguage());
+        }
+        if (userNeedsUpdate) {
+            publishUserUpdatedEvent.publishUserUpdatedEvent(
+                    customer.getId(),
+                    customer.getUsername(),
+                    customer.getEmail(),
+                    customer.getPreferredLanguage(),
+                    customer.isActive()
+            );
+            log.debug("Published UpdateUserEvent for customerId: {}", customer.getId());
+        }
+
+        Customer updatedCustomer = customerRepository.save(customer);
+        log.debug("Updated Customer: {}", updatedCustomer);
+
+        return new ResponseCustomerDTO(
+                updatedCustomer.getId(),
+                updatedCustomer.isActive(),
                 updatedCustomer.getEmail(),
                 updatedCustomer.getFirstName(),
                 updatedCustomer.getLastName(),
@@ -102,7 +155,6 @@ public class CustomerServiceImpl implements CustomerService {
 
         // Set additional properties for guest customer
         customer.setGuest(true);
-        customer.setActive(true);
         customer.setPreferredLanguage(createGuestCustomerDTO.getPreferredLanguage());
 
         // Save the customer

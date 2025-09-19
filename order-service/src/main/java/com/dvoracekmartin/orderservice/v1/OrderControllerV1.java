@@ -21,7 +21,6 @@ import java.util.List;
 @Validated
 public class OrderControllerV1 {
 
-
     private String usernameOrNull(@Nullable Jwt jwt) {
         return jwt != null ? jwt.getSubject() : null;
     }

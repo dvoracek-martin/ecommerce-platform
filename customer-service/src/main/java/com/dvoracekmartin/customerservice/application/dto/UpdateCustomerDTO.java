@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record UpdateCustomerDTO(
         @NotBlank String email,
+        boolean active,
         String firstName,
         String lastName,
         CustomerAddressDTO address,

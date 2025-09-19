@@ -49,7 +49,7 @@ public class CustomerAdminControllerV1 {
     public ResponseEntity<ResponseCustomerDTO> updateCustomer(@PathVariable @NotBlank String customerId,
                                                               @Valid @RequestBody UpdateCustomerDTO updateCustomerDTO) {
         log.info("Updating customer: {}", customerId);
-        ResponseCustomerDTO updated = customerService.updateCustomer(customerId, updateCustomerDTO);
+        ResponseCustomerDTO updated = customerService.updateCustomerAdmin(customerId, updateCustomerDTO);
         return ResponseEntity.status(updated.statusCode()).body(updated);
     }
 }

@@ -62,8 +62,9 @@ export class OrderService {
   }
 
   getByCustomerId(customerId: string): Observable<ResponseOrderDTO[]> {
+    console.log('dsfkljsadlfj')
     return this.http.get<ResponseOrderDTO[]>(
-      `${this.apiUrl}/customer/${customerId}`,
+      `${this.apiAdminUrl}/customer/${customerId}`,
       { headers: this.getAuthHeaders() }
     );
   }

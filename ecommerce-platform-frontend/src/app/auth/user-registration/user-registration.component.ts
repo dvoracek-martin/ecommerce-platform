@@ -63,7 +63,8 @@ export class UserRegistrationComponent implements OnInit {
           type: 'password',
           value: this.registrationForm.get('password')?.value
         }
-      ]
+      ],
+      active: true
     };
 
     // TODO move to service

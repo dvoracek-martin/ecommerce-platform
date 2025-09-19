@@ -2,11 +2,12 @@ package com.dvoracekmartin.common.event;
 
 import java.time.Instant;
 
-public record UserCreatedEvent(
+public record CreateUserEvent(
         String userId,
         String username,
         String email,
         Instant createdAt,
-        String preferredLanguage
+        String preferredLanguage,
+        boolean active
 ) {
 }

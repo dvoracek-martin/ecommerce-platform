@@ -16,6 +16,8 @@ public interface OrderService {
 
     List<OrderResponseDTO> getOrdersByCustomerId(String username, String customerId);
 
+    List<OrderResponseDTO> getOrdersByCustomerIdAdmin( String customerId);
+
     PdfDataWrapper getInvoiceByOrderId(String s, String customerId, Long orderId);
 
     List<OrderResponseDTO> findAll();

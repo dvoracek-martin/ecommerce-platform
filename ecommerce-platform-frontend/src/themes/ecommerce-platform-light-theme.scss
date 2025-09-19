@@ -33,6 +33,7 @@
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
+
 }
 
 // Base Styles
@@ -55,7 +56,7 @@ h1, h2, h3, h4, h5, h6 {
 
 p, span, label {
   font-size: var(--font-size-base);
-  color: var(--text-secondary);
+  color:  #000000;
 }
 
 a {

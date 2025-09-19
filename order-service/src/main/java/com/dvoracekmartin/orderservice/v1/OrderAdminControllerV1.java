@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,5 +31,12 @@ public class OrderAdminControllerV1 {
     @PutMapping
     public ResponseEntity<OrderResponseDTO> updateOrder(@Valid @RequestBody UpdateOrderDTO updateOrderDTO) {
         return ResponseEntity.ok(orderService.updateOrder(updateOrderDTO));
+    }
+
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<OrderResponseDTO>> getOrdersByCustomer(@AuthenticationPrincipal Jwt jwt,
+                                                                      @PathVariable String customerId) {
+        List<OrderResponseDTO> orders = orderService.getOrdersByCustomerIdAdmin(customerId);
+        return ResponseEntity.ok(orders);
     }
 }

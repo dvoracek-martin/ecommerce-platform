@@ -1,6 +1,6 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractControl, FormBuilder, FormGroup, FormGroupDirective, ValidatorFn, Validators} from '@angular/forms';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpResponse} from '@angular/common/http';
 import {AuthService} from '../../../auth/auth.service';
 import {Router} from '@angular/router';
 import {MatSnackBar} from '@angular/material/snack-bar';
@@ -14,8 +14,17 @@ import {CustomerBillingAddress} from '../../../dto/customer/custommer-billing-ad
 import {Customer} from '../../../dto/customer/customer-dto';
 import {MatDialog} from '@angular/material/dialog';
 import {Subject, takeUntil} from 'rxjs';
-import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import {CustomerStateService} from '../../../services/customer-state.service';
+import {MatTableDataSource} from '@angular/material/table';
+import {MatSort} from '@angular/material/sort';
+import {MatPaginator} from '@angular/material/paginator';
+import {OrderService} from '../../../services/order.service';
+import {OrderStateService} from '../../../services/order-state.service';
+import {ResponseOrderDTO} from '../../../dto/order/response-order-dto';
+
+interface ClientOrder extends ResponseOrderDTO {
+  invoiceId?: string;
+}
 
 @Component({
   selector: 'app-customers-admin-detail',
@@ -41,6 +50,14 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
   initialBillingAddress: CustomerBillingAddress | null = null;
   initialAddress: CustomerAddress | null = null;
   private readonly destroy$ = new Subject<void>();
+  ordersDataSource = new MatTableDataSource<ClientOrder>();
+  ordersDisplayedColumns: string[] = ['invoiceId', 'orderDate', 'shippingMethod', 'paymentMethod', 'finalTotal', 'status', 'actions'];
+  isOrdersLoading = true;
+  ordersError: string | null = null;
+  customerId: string;
+
+  @ViewChild(MatSort) ordersSort!: MatSort;
+  @ViewChild(MatPaginator) ordersPaginator!: MatPaginator;
 
   languages = [
     {code: 'en', name: 'English', icon: 'flag_us'},
@@ -50,6 +67,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     {code: 'es', name: 'Español', icon: 'flag_es'}
   ];
   selectedLanguage = this.languages[0];
+  protected customer: Customer;
 
   constructor(
     private fb: FormBuilder,
@@ -62,7 +80,9 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     private domSanitizer: DomSanitizer,
     private customerService: CustomerService,
     private dialog: MatDialog,
-    private customerState: CustomerStateService
+    private customerState: CustomerStateService,
+    private orderService: OrderService,
+    private orderState: OrderStateService,
   ) {
     ['ch', 'cz', 'us', 'es'].forEach(code =>
       this.matIconRegistry.addSvgIcon(
@@ -74,10 +94,11 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const customerId = this.customerState.getSelectedCustomer();
-    this.loadCustomerData(customerId);
+    this.customerId = this.customerState.getSelectedCustomer();
+    this.loadCustomerData(this.customerId);
     const activeLang = this.translate.currentLang || 'en';
     this.selectedLanguage = this.languages.find(l => l.code === activeLang) ?? this.languages[0];
+    this.loadOrders();
   }
 
   ngOnDestroy(): void {
@@ -105,12 +126,11 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       return;
     }
     this.saving = true;
-    const userId = this.authService.getUserId();
     const token = this.authService.token;
 
-    if (userId && token) {
+    if (this.customerId && token) {
       const payload = this.createCustomerPayload();
-      this.http.put(`http://localhost:8080/api/customers/v1/${userId}`, payload, {
+      this.http.put(`http://localhost:8080/api/customers/v1/admin/${this.customerId}`, payload, {
         headers: {'Authorization': `Bearer ${token}`}
       }).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => this.handleSaveSuccess(),
@@ -133,10 +153,10 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     const token = this.authService.token;
 
     if (userId && token) {
-      const {currentPassword, newPassword} = passwordGroup.value;
+      const {newPassword} = passwordGroup.value;
       this.http.put(
-        `http://localhost:8080/api/users/v1/${userId}/password`,
-        {currentPassword, newPassword},
+        `http://localhost:8080/api/users/v1/admin/${userId}/password`,
+        {newPassword},
         {headers: {'Authorization': `Bearer ${token}`}}
       ).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => this.handlePasswordChangeSuccess(formDirective),
@@ -145,22 +165,9 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  onCancel(): void {
-    if (this.customerForm.dirty) {
-      this.dialog.open(ConfirmationDialogComponent, {
-        data: {title: 'Cancel Changes', message: 'Are you sure you want to discard your changes?', warn: true}
-      }).afterClosed().subscribe(confirmed => {
-        if (confirmed) {
-          this.router.navigate(['/dashboard']);
-        }
-      });
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
-  }
-
   private initializeForms(): void {
     this.customerForm = this.fb.group({
+      email: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       preferredLanguage: ['en'],
@@ -172,6 +179,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
         zipCode: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
         country: [this.DEFAULT_COUNTRY, Validators.required]
       }),
+      active: [true],
       sameBillingAddress: [true],
       billingAddress: this.fb.group({
         firstName: [''],
@@ -189,7 +197,6 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
 
     this.passwordForm = this.fb.group({
       passwordChange: this.fb.group({
-        currentPassword: ['', Validators.required],
         newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^\S+$/)]],
         confirmNewPassword: ['', Validators.required]
       }, {validators: this.passwordMatchValidator()})
@@ -235,6 +242,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
 
 
   private handleCustomerDataSuccess(customer: Customer): void {
+    this.customer = customer;
     this.initialBillingAddress = customer.billingAddress;
     this.initialAddress = customer.address;
     this.patchFormValues(customer);
@@ -248,12 +256,14 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
   private patchFormValues(customer: Customer): void {
     const sameBillingAddress = this.isBillingAddressSameAsShipping(customer, this.customerForm.value);
     this.customerForm.patchValue({
+      email: customer.email || '',
       firstName: customer.firstName || '',
       lastName: customer.lastName || '',
       preferredLanguage: customer.preferredLanguage || this.selectedLanguage.code,
       address: {...customer.address},
       sameBillingAddress: sameBillingAddress,
-      billingAddress: customer.billingAddress || {}
+      billingAddress: customer.billingAddress || {},
+      active: customer.active
     });
     this.showBillingAddress = !sameBillingAddress;
   }
@@ -297,10 +307,11 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     const formValue = this.customerForm.value;
     const useShippingAddress = formValue.sameBillingAddress;
     return {
-      email: this.authService.getEmail().trim().toLowerCase(),
+      email: formValue.email,
       firstName: formValue.firstName,
       lastName: formValue.lastName,
       phone: formValue.address.phone,
+      active: formValue.active,
       preferredLanguage: formValue.preferredLanguage,
       address: {...formValue.address},
       billingAddress: useShippingAddress ? {
@@ -318,7 +329,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     this.showSnackbar('CUSTOMER.SAVE_SUCCESS');
     this.customerForm.markAsPristine();
     this.saving = false;
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/admin/customers']);
   }
 
   private handleSaveError(err: any): void {
@@ -330,7 +341,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
   private handlePasswordChangeSuccess(formDirective: FormGroupDirective): void {
     this.showSnackbar('CUSTOMER.PASSWORD_CHANGE_SUCCESS');
     formDirective.resetForm();
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/admin/customers']);
   }
 
   private handlePasswordChangeError(err: any, userId: string): void {
@@ -360,5 +371,125 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       console.error('Failed to fetch customer data:', err);
       this.loading = false;
     }
+  }
+
+  private loadOrders(): void {
+    this.isOrdersLoading = true;
+    this.ordersError = null;
+    this.customerId = this.customerState.getSelectedCustomer();
+    if (!this.customerId) {
+      this.isOrdersLoading = false;
+      return;
+    }
+    this.orderService.getByCustomerId(this.customerId).subscribe({
+      next: (orders) => {
+        if (!orders || orders.length === 0) {
+          this.ordersDataSource.data = [];
+          this.isOrdersLoading = false;
+          return;
+        }
+        this.ordersDataSource.sortingDataAccessor = (item, property) => {
+          switch (property) {
+            case 'invoiceId':
+              return item.invoiceId || '';
+            case 'shippingMethod':
+              return item.shippingMethod;
+            case 'paymentMethod':
+              return item.paymentMethod;
+            case 'finalTotal':
+              return item.finalTotal || 0;
+            case 'status':
+              return item.status || '';
+            default:
+              return item[property as keyof ClientOrder] as string;
+          }
+        };
+
+        const ordersWithInvoice: ClientOrder[] = orders.map(order => {
+          const orderDate = new Date(order.orderDate);
+          const year = orderDate.getFullYear();
+          const invoiceId = `${year}${order.orderYearOrderCounter.toString().padStart(5, '0')}`;
+          return {...order, invoiceId};
+        });
+
+        this.ordersDataSource.data = ordersWithInvoice;
+        this.ordersDataSource.sort = this.ordersSort;
+        this.ordersDataSource.paginator = this.ordersPaginator;
+        this.isOrdersLoading = false;
+      },
+      error: (err) => {
+        this.ordersError = err.message || 'Failed to load orders.';
+        this.isOrdersLoading = false;
+      }
+    });
+  }
+
+  viewOrderDetails(orderId: number): void {
+    this.orderState.setSelectedOrder(orderId);
+    this.router.navigate(['/admin/orders/detail']);
+  }
+
+  downloadOrderInvoice(order: ClientOrder): void {
+    if (!this.customer?.id) return;
+
+    this.orderService.downloadInvoice(this.customer.id.toString(), order.id).subscribe({
+      next: (response: HttpResponse<ArrayBuffer>) => {
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = `invoice_${order.invoiceId}.pdf`;
+
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+          if (filenameMatch != null && filenameMatch[1]) {
+            filename = filenameMatch[1];
+          }
+        }
+
+        const blob = new Blob([response.body!], {type: 'application/pdf'});
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error downloading invoice:', err);
+      }
+    });
+  }
+
+  getOrderStatusClass(status?: string): string {
+    switch (status) {
+      case 'CREATED':
+        return 'status-created';
+      case 'PENDING':
+        return 'status-pending';
+      case 'CONFIRMED':
+        return 'status-confirmed';
+      case 'PROCESSING':
+        return 'status-processing';
+      case 'SHIPPED':
+        return 'status-shipped';
+      case 'DELIVERED':
+        return 'status-delivered';
+      case 'FINISHED':
+        return 'status-finished';
+      case 'REJECTED':
+        return 'status-rejected';
+      case 'CANCELLED':
+        return 'status-cancelled';
+      default:
+        return '';
+    }
+  }
+
+  getOrderStatusText(status?: string): string {
+    return status?.toUpperCase() || '';
+  }
+
+  navigateBackToList() {
+    this.router.navigate(['/admin/customers']);
   }
 }

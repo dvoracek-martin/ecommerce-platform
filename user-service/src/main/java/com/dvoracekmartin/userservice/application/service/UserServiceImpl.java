@@ -62,11 +62,10 @@ public class UserServiceImpl implements UserService {
         if (status == Response.Status.CREATED.getStatusCode()) {
             String userId = parseUserIdFromLocation(keycloakResponse.getHeaderString("Location"));
             log.debug("Parsed new user ID: {}", userId);
-
             User savedUser = userRepository.save(userMapper.createUserDTOToUser(createUserDTO, userId));
             log.info("User {} saved in local DB", savedUser.getUsername());
 
-            userEventPublisher.publishUserCreatedEvent(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), createUserDTO.preferredLanguage());
+            userEventPublisher.publishUserCreatedEvent(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), createUserDTO.preferredLanguage(), savedUser.isActive());
             log.debug("Published user created event for userId: {}", savedUser.getId());
 
             return userMapper.userToResponseUserDTO(savedUser, status);
@@ -106,7 +105,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> maybeUser = userRepository.findById(userId);
         if (maybeUser.isEmpty()) {
             log.warn("User with ID {} not found", userId);
-            return new ResponseUserDTO(userId, null, null, Response.Status.NOT_FOUND.getStatusCode());
+            return new ResponseUserDTO(userId, null, null, Response.Status.NOT_FOUND.getStatusCode(), false);
         }
 
         Response keycloakResponse = keycloakUserService.deleteUser(userId);
@@ -120,7 +119,7 @@ public class UserServiceImpl implements UserService {
         }
 
         log.error("Failed to delete user with ID {}. Status: {}", userId, status);
-        return new ResponseUserDTO(userId, null, null, Response.Status.NOT_FOUND.getStatusCode());
+        return new ResponseUserDTO(userId, null, null, Response.Status.NOT_FOUND.getStatusCode(), false);
     }
 
     @Override
@@ -191,6 +190,24 @@ public class UserServiceImpl implements UserService {
 
         passwordResetService.invalidateToken(token);
         return ResponseEntity.ok().body("Password has been reset successfully.");
+    }
+
+    @Override
+    public void updateUserWithoutCredentials(UpdateUserDTO updateUserDTO) {
+        String userId = updateUserDTO.id();
+        log.info("Updating without Keyclak user with ID: {}", userId);
+
+        if (!userRepository.existsByUsername(updateUserDTO.username())) {
+            log.warn("User with username {} does not exist", updateUserDTO.username());
+        }
+
+        // TODO try with resource
+        keycloakUserService.addOrRevokeUserAccess(userId, updateUserDTO.active());
+        keycloakUserService.updateUserEmail(updateUserDTO);
+        userRepository.save(userMapper.updateUserDTOToUser(updateUserDTO, userId));
+        log.info("User with ID {} updated successfully", userId);
+
+        log.error("Failed to update user with ID {}, userId");
     }
 
     @Override

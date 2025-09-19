@@ -3,6 +3,7 @@ package com.dvoracekmartin.userservice.web.controller.v1;
 import com.dvoracekmartin.userservice.application.dto.CreateUserDTO;
 import com.dvoracekmartin.userservice.application.dto.ResponseUserDTO;
 import com.dvoracekmartin.userservice.application.dto.UpdateUserDTO;
+import com.dvoracekmartin.userservice.application.dto.UpdateUserPasswordDTO;
 import com.dvoracekmartin.userservice.application.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,15 @@ public class UserAdminControllerV1 {
                                                       @Valid @RequestBody UpdateUserDTO updateUserDTO) {
         log.info("Updating user: {}", userId);
         ResponseUserDTO response = userService.updateUser(userId, updateUserDTO);
+        return ResponseEntity.status(response.statusCode()).body(response);
+    }
+
+    @PutMapping("/{userId}/password")
+    @PreAuthorize("hasRole('user_client')")
+    public ResponseEntity<ResponseUserDTO> updateUserPassword(@PathVariable String userId,
+                                                              @Valid @RequestBody UpdateUserPasswordDTO updateUserPasswordDTO) {
+        log.info("Updating password for user: {}", userId);
+        ResponseUserDTO response = userService.updateUserPassword(userId, updateUserPasswordDTO);
         return ResponseEntity.status(response.statusCode()).body(response);
     }
 }

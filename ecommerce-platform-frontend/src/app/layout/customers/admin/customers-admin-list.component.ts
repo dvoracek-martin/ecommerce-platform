@@ -101,7 +101,6 @@ export class CustomersAdminListComponent implements OnInit {
 
   viewCustomerDetails(customerId?: string): void {
     this.customerState.setSelectedCustomer(customerId);
-    console.log(this.customerState.getSelectedCustomer());
     this.router.navigate(['/admin/customers/detail']);
   }
 
