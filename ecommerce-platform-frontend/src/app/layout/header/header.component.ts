@@ -12,14 +12,14 @@ import {SearchResultDTO} from '../../dto/search/search-result-dto';
 import {Cart, CartItem, CartService} from '../../services/cart.service';
 import {AuthService} from '../../auth/auth.service';
 import {SearchService} from '../../services/search.service';
-import {CustomerService} from '../../services/customer.service';
 import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
 import {ResponseProductDTO} from '../../dto/product/response-product-dto';
 import {ResponseMixtureDTO} from '../../dto/mixtures/response-mixture-dto';
 import {ResponseTagDTO} from '../../dto/tag/response-tag-dto';
 import {CartItemType} from '../../dto/cart/cart-item-type';
-import {ConfirmationDialogComponent} from '../confirmation-dialog/confirmation-dialog.component';
+import {ConfirmationDialogComponent} from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import {Customer} from '../../dto/customer/customer-dto';
+import {CustomerService} from '../../services/customer.service';
 
 interface CartItemWithDetails extends CartItem {
   product?: ResponseProductDTO;
@@ -53,6 +53,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isCartPreviewOpen = false;
   private closeCartPreviewTimeout: any = null;
   private cartPreviewCloseDelay = 300;
+
+  // New property to track loading state
+  isLoadingCart = true;
+  private cartSubscription!: Subscription;
 
   @ViewChild('cartButton', {read: ElementRef}) cartButtonRef!: ElementRef<HTMLElement>;
 
@@ -97,6 +101,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.showResults = false;
       }
     });
+
+    // Subscribe to the cart service to know when loading is complete
+    this.cartSubscription = this.cartService.cart$.subscribe(cart => {
+      this.isLoadingCart = false;
+    });
+
     this.setPreferredLanguage();
     this.customerService.userLanguage$.subscribe(lang => {
       this.translate.use(lang).subscribe(() => {
@@ -110,6 +120,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.searchSubscription) this.searchSubscription.unsubscribe();
+    if (this.cartSubscription) this.cartSubscription.unsubscribe();
     this.cancelCloseCartPreview();
     this.searchSubject.complete();
   }
@@ -292,7 +303,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return;
     }
     if (isNaN(newQuantity) || newQuantity < 0) {
-      // FIX: Get the value from the BehaviorSubject directly
       const currentCart = this.cartService.getCurrentCartValue();
       const currentItem = currentCart?.items.find(i => i.itemId === item.itemId && i.cartItemType === item.cartItemType);
       if (currentItem) {

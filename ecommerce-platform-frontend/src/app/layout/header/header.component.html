@@ -61,90 +61,96 @@
       </button>
 
       <div class="cart-preview-panel"
-           *ngIf="isCartPreviewOpen && (cartService.cart$ | async) as cart"
+           *ngIf="isCartPreviewOpen"
            (mouseenter)="onCartPreviewMouseEnter()"
            (mouseleave)="onCartPreviewMouseLeave()">
 
-        <ng-container *ngIf="cart.items?.length > 0; else emptyCart">
-          <div class="cart-preview">
-            <h4>{{ 'CART.SUMMARY' | translate }}</h4>
+        <div *ngIf="isLoadingCart" class="loading-section">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
 
-            <div class="cart-item" *ngFor="let item of cart.items">
-              <ng-container *ngIf="item.cartItemType === 'PRODUCT' && item.product">
-                <img *ngIf="item.product.media?.[0]"
-                     [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
-                     [alt]="item.product.name"
-                     class="item-image"
-                     (click)="goToProduct(item.product); $event.stopPropagation()"/>
+        <ng-container *ngIf="!isLoadingCart && (cartService.cart$ | async) as cart">
+          <ng-container *ngIf="cart.items?.length > 0; else emptyCart">
+            <div class="cart-preview">
+              <h4>{{ 'CART.SUMMARY' | translate }}</h4>
 
-                <div class="item-info">
-                  <span class="item-name">{{ item.product.name }}</span>
-                  <span class="item-price-per-unit">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }} each</span>
-                  <span class="item-total-price">{{ item.product.price * item.quantity | currency:'USD':'symbol':'1.2-2' }}</span>
-                </div>
-                <div class="quantity-controls">
-                  <button mat-icon-button color="warn"
-                          (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
-                    <mat-icon>remove</mat-icon>
-                  </button>
-                  <input type="number"
-                         [value]="item.quantity"
-                         min="0"
-                         (change)="onQuantityChange($event, item)"
-                         (keydown)="$event.stopPropagation()"
-                         class="quantity-input">
-                  <button mat-icon-button color="primary"
-                          (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
-                    <mat-icon>add</mat-icon>
-                  </button>
-                </div>
-              </ng-container>
+              <div class="cart-item" *ngFor="let item of cart.items">
+                <ng-container *ngIf="item.cartItemType === 'PRODUCT' && item.product">
+                  <img *ngIf="item.product.media?.[0]"
+                       [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
+                       [alt]="item.product.name"
+                       class="item-image"
+                       (click)="goToProduct(item.product); $event.stopPropagation()"/>
 
-              <ng-container *ngIf="item.cartItemType === 'MIXTURE' && item.mixture">
-                <mat-icon class="item-image mixture-icon">science</mat-icon>
-                <div class="item-info">
-                  <span class="item-name">{{ item.mixture.name }}</span>
-                  <span class="item-total-price">{{ item.mixture.price * item.quantity | currency:'USD':'symbol':'1.2-2' }}</span>
-                </div>
-                <div class="quantity-controls">
-                  <button mat-icon-button color="warn"
-                          (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
-                    <mat-icon>remove</mat-icon>
-                  </button>
-                  <input type="number"
-                         [value]="item.quantity"
-                         min="0"
-                         (change)="onQuantityChange($event, item)"
-                         (keydown)="$event.stopPropagation()"
-                         class="quantity-input">
-                  <button mat-icon-button color="primary"
-                          (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
-                    <mat-icon>add</mat-icon>
-                  </button>
-                </div>
-              </ng-container>
+                  <div class="item-info">
+                    <span class="item-name">{{ item.product.name }}</span>
+                    <span class="item-price-per-unit">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }} each</span>
+                    <span class="item-total-price">{{ item.product.price * item.quantity | currency:'USD':'symbol':'1.2-2' }}</span>
+                  </div>
+                  <div class="quantity-controls">
+                    <button mat-icon-button color="warn"
+                            (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
+                      <mat-icon>remove</mat-icon>
+                    </button>
+                    <input type="number"
+                           [value]="item.quantity"
+                           min="0"
+                           (change)="onQuantityChange($event, item)"
+                           (keydown)="$event.stopPropagation()"
+                           class="quantity-input">
+                    <button mat-icon-button color="primary"
+                            (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
+                </ng-container>
 
-              <div class="item-actions">
-                <button mat-icon-button color="warn" (click)="removeItem(item.itemId); $event.stopPropagation()">
-                  <span class="material-icons">delete_outline</span>
+                <ng-container *ngIf="item.cartItemType === 'MIXTURE' && item.mixture">
+                  <mat-icon class="item-image mixture-icon">science</mat-icon>
+                  <div class="item-info">
+                    <span class="item-name">{{ item.mixture.name }}</span>
+                    <span class="item-total-price">{{ item.mixture.price * item.quantity | currency:'USD':'symbol':'1.2-2' }}</span>
+                  </div>
+                  <div class="quantity-controls">
+                    <button mat-icon-button color="warn"
+                            (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
+                      <mat-icon>remove</mat-icon>
+                    </button>
+                    <input type="number"
+                           [value]="item.quantity"
+                           min="0"
+                           (change)="onQuantityChange($event, item)"
+                           (keydown)="$event.stopPropagation()"
+                           class="quantity-input">
+                    <button mat-icon-button color="primary"
+                            (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
+                </ng-container>
+
+                <div class="item-actions">
+                  <button mat-icon-button color="warn" (click)="removeItem(item.itemId); $event.stopPropagation()">
+                    <span class="material-icons">delete_outline</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="cart-footer">
+                <div class="cart-total">{{ cart.totalPrice | currency:'USD':'symbol':'1.2-2' }}</div>
+                <button mat-flat-button color="primary"
+                        (click)="goToCart(); $event.stopPropagation()">{{ 'CART.VIEW_CART' | translate }}
                 </button>
               </div>
             </div>
+          </ng-container>
 
-            <div class="cart-footer">
-              <div class="cart-total">{{ cart.totalPrice | currency:'USD':'symbol':'1.2-2' }}</div>
-              <button mat-flat-button color="primary"
-                      (click)="goToCart(); $event.stopPropagation()">{{ 'CART.VIEW_CART' | translate }}
-              </button>
+          <ng-template #emptyCart>
+            <div class="empty-cart">
+              {{ 'CART.EMPTY' | translate }}
             </div>
-          </div>
+          </ng-template>
         </ng-container>
-
-        <ng-template #emptyCart>
-          <div class="empty-cart">
-            {{ 'CART.EMPTY' | translate }}
-          </div>
-        </ng-template>
       </div>
     </div>
 
