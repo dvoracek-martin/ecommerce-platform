@@ -24,4 +24,6 @@ public interface UserService {
     ResponseUserDTO forgotUserPassword(ForgotPasswordDTO updateUserPasswordDTO);
 
     ResponseEntity<String> resetUserPassword(String email, String newPassword);
+
+    void updateUserWithoutCredentials(UpdateUserDTO updateUserDTO);
 }

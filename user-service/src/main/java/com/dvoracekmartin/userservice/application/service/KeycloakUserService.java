@@ -87,6 +87,43 @@ public class KeycloakUserService {
         }
     }
 
+    private static void revokeUserClientRole(RealmResource realmResource, String userId) {
+        try {
+            RoleRepresentation role = realmResource.roles().get(USER_CLIENT_ROLE).toRepresentation();
+            realmResource.users().get(userId).roles().realmLevel().remove(Collections.singletonList(role));
+        } catch (Exception ex) {
+            log.warn("Role revocation failed: {}", userId);
+        }
+    }
+
+    public void addOrRevokeUserAccess(String userId, boolean assign) {
+        try {
+            log.debug("{} role '{}' for user: {}", assign ? "Assigning" : "Revoking", USER_CLIENT_ROLE, userId);
+
+            RealmResource realmResource = buildKeycloakClient().realm(realm);
+            // first, fetch the current user representation
+            UserRepresentation user = realmResource.users().get(userId).toRepresentation();
+
+            if (assign) {
+                assignUserClientRole(realmResource, userId);
+                // set enabled flag to true
+                user.setEnabled(true);
+            } else {
+                revokeUserClientRole(realmResource, userId);
+                // set enabled flag to false
+                user.setEnabled(false);
+            }
+
+            // update the user with the new state
+            realmResource.users().get(userId).update(user);
+
+            Response.status(Response.Status.NO_CONTENT).build();
+        } catch (Exception ex) {
+            log.error("Role {} failed: {} - {}", assign ? "assignment" : "revocation", userId, ex.getMessage());
+            Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     public Response createUser(CreateUserDTO dto) {
         try {
             log.debug("Creating user: {}", dto.username());
@@ -195,7 +232,7 @@ public class KeycloakUserService {
     }
 
     private Keycloak buildKeycloakClient() {
-        log.debug("Building admin client");
+        log.debug("Building client");
         return KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
                 .realm(realm)
@@ -204,5 +241,39 @@ public class KeycloakUserService {
                 .password(adminPassword)
                 .grantType(OAuth2Constants.PASSWORD)
                 .build();
+    }
+
+    public void updateUserEmail(UpdateUserDTO updateUserDTO) {
+        try {
+            log.debug("Updating user by username/email: {}", updateUserDTO.username());
+
+            RealmResource realmResource = buildKeycloakClient().realm(realm);
+
+            // Find user by username or email
+            UserRepresentation user = null;
+
+            if (updateUserDTO.username() != null && !updateUserDTO.username().isBlank()) {
+                user = realmResource.users().search(updateUserDTO.username()).stream().findFirst().orElse(null);
+            }
+
+            if (user == null && updateUserDTO.email() != null && !updateUserDTO.email().isBlank()) {
+                user = realmResource.users().search(updateUserDTO.email()).stream().findFirst().orElse(null);
+            }
+
+            if (user == null) {
+                log.warn("User not found for update: {}", updateUserDTO.username());
+                return;
+            }
+
+            if (updateUserDTO.email() != null && !updateUserDTO.email().isBlank()) {
+                user.setEmail(updateUserDTO.email());
+            }
+
+            realmResource.users().get(user.getId()).update(user);
+            log.info("User updated successfully: {}", user.getId());
+
+        } catch (Exception ex) {
+            log.error("Failed to update user by email: {}", updateUserDTO.username(), ex);
+        }
     }
 }
