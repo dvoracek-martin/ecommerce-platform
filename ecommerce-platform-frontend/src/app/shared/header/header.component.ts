@@ -3,8 +3,8 @@ import {TranslateService} from '@ngx-translate/core';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {Router} from '@angular/router';
-import {forkJoin, Observable, of, Subject, Subscription} from 'rxjs';
-import {catchError, debounceTime, map, switchMap} from 'rxjs/operators';
+import {Observable, of, Subject, Subscription} from 'rxjs';
+import {debounceTime, map, tap} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {HttpClient} from '@angular/common/http';
@@ -12,8 +12,6 @@ import {SearchResultDTO} from '../../dto/search/search-result-dto';
 import {Cart, CartItem, CartService} from '../../services/cart.service';
 import {AuthService} from '../../auth/auth.service';
 import {SearchService} from '../../services/search.service';
-import {ProductService} from '../../services/product.service';
-import {MixtureService} from '../../services/mixture.service';
 import {CustomerService} from '../../services/customer.service';
 import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
 import {ResponseProductDTO} from '../../dto/product/response-product-dto';
@@ -26,8 +24,6 @@ import {Customer} from '../../dto/customer/customer-dto';
 interface CartItemWithDetails extends CartItem {
   product?: ResponseProductDTO;
   mixture?: ResponseMixtureDTO;
-  optimisticQuantity?: number;
-  updating?: boolean;
 }
 
 @Component({
@@ -38,7 +34,6 @@ interface CartItemWithDetails extends CartItem {
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   title = 'ecommerce-platform-frontend';
-
   languages = [
     {code: 'de', name: 'Deutsch', icon: 'flag_ch'},
     {code: 'fr', name: 'Français', icon: 'flag_ch'},
@@ -47,21 +42,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     {code: 'es', name: 'Español', icon: 'flag_es'}
   ];
   selectedLanguage = this.languages[0];
-
   isPopupOpen = false;
-
   searchQuery = '';
   searchResults: SearchResultDTO | null = null;
   showResults = false;
   isSearchFocused = false;
   private searchSubject = new Subject<string>();
   private searchSubscription!: Subscription;
-
-  cart: Cart | null = null;
-  cartItemsWithDetails: CartItemWithDetails[] = [];
   totalCartItemCount$: Observable<number>;
-  private cartSubscription!: Subscription;
-
   isCartPreviewOpen = false;
   private closeCartPreviewTimeout: any = null;
   private cartPreviewCloseDelay = 300;
@@ -75,10 +63,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     public authService: AuthService,
     private router: Router,
     private searchService: SearchService,
-    private cartService: CartService,
+    public cartService: CartService,
     private snackBar: MatSnackBar,
-    private productService: ProductService,
-    private mixtureService: MixtureService,
     private dialog: MatDialog,
     private customerService: CustomerService,
     private http: HttpClient,
@@ -89,16 +75,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.domSanitizer.bypassSecurityTrustResourceUrl(`assets/flags/${code}.svg`)
       )
     );
-
     translate.addLangs(this.languages.map(l => l.code));
-
     const browserLang = (navigator.language || 'de').split('-')[0];
     translate.setDefaultLang(browserLang);
     this.setLanguage(/en|de|fr|cs|es/.test(browserLang) ? browserLang : 'de');
-    this.listenToCartChanges();
     translate.setDefaultLang('de');
-
-
     this.totalCartItemCount$ = this.cartService.cart$.pipe(
       map(cart => cart ? cart.items.reduce((acc, item) => acc + item.quantity, 0) : 0)
     );
@@ -116,10 +97,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.showResults = false;
       }
     });
-    // if userId is present, then set his preferred language, otherwise set browser's default language
     this.setPreferredLanguage();
-
-    // subscribe to changes if the user changes language
     this.customerService.userLanguage$.subscribe(lang => {
       this.translate.use(lang).subscribe(() => {
         const selected = this.languages.find(l => l.code === lang);
@@ -132,7 +110,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.searchSubscription) this.searchSubscription.unsubscribe();
-    if (this.cartSubscription) this.cartSubscription.unsubscribe();
     this.cancelCloseCartPreview();
     this.searchSubject.complete();
   }
@@ -261,62 +238,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isPopupOpen = false;
   }
 
-  getCartTotal(): number {
-    return this.cartItemsWithDetails.reduce((total, item) => {
-      return total + this.getItemTotal(item);
-    }, 0);
-  }
-
-  listenToCartChanges(): void {
-    this.cartSubscription = this.cartService.getCart().pipe(
-      switchMap(cart => {
-        this.cart = cart;
-        if (!cart?.items?.length) {
-          this.cartItemsWithDetails = [];
-          return of([]);
-        }
-
-        const detailObservables = cart.items.map(item => {
-          if (item.cartItemType === CartItemType.PRODUCT) {
-            return this.productService.getProductById(item.itemId).pipe(
-              map(product => ({...item, product})),
-              catchError(() => {
-                this.showSnackbar(`Failed to load product details for an item.`, 'warning');
-                return of({...item, product: undefined});
-              })
-            );
-          } else if (item.cartItemType === CartItemType.MIXTURE) {
-            return this.mixtureService.getMixtureById(item.itemId).pipe(
-              map(mixture => ({...item, mixture})),
-              catchError(() => {
-                this.showSnackbar(`Failed to load mixture details for an item.`, 'warning');
-                return of({...item, mixture: undefined});
-              })
-            );
-          }
-          return of(item);
-        });
-
-        return forkJoin(detailObservables).pipe(
-          map(items => items.map(item => {
-            const existingItem = this.cartItemsWithDetails.find(i => i.itemId === item.itemId);
-            return {
-              ...item,
-              optimisticQuantity: existingItem?.optimisticQuantity ?? item.quantity,
-              updating: existingItem?.updating ?? false
-            };
-          }))
-        );
-      })
-    ).subscribe(itemsWithDetails => {
-      this.cartItemsWithDetails = itemsWithDetails;
-    }, err => {
-      console.error('Failed to load cart with details', err);
-      this.cart = {id: 0, username: '', items: [], totalPrice: 0};
-      this.cartItemsWithDetails = [];
-    });
-  }
-
   onCartButtonMouseEnter(): void {
     this.cancelCloseCartPreview();
     this.isCartPreviewOpen = true;
@@ -350,39 +271,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   updateItemQuantity(item: CartItemWithDetails, action: 'increase' | 'decrease'): void {
     const newQuantity = action === 'increase' ? item.quantity + 1 : item.quantity - 1;
-
     if (newQuantity < 1) {
       this.removeItem(item.itemId);
       return;
     }
-
-    // Optimistic update
-    const updatedItems = this.cartItemsWithDetails.map(i =>
-      i.itemId === item.itemId
-        ? {...i, optimisticQuantity: newQuantity, updating: true}
-        : i
-    );
-    this.cartItemsWithDetails = updatedItems;
-
-    // Server update
     this.cartService.updateItem(item.itemId, newQuantity, item.cartItemType).subscribe(
-      () => {
-        // Update with server response
-        const finalItems = this.cartItemsWithDetails.map(i =>
-          i.itemId === item.itemId
-            ? {...i, quantity: newQuantity, optimisticQuantity: undefined, updating: false}
-            : i
-        );
-        this.cartItemsWithDetails = finalItems;
-      },
+      () => this.showSnackbar('Cart item quantity updated!', 'success'),
       error => {
-        // Revert on error
-        const revertedItems = this.cartItemsWithDetails.map(i =>
-          i.itemId === item.itemId
-            ? {...i, optimisticQuantity: undefined, updating: false}
-            : i
-        );
-        this.cartItemsWithDetails = revertedItems;
         this.showSnackbar('Failed to update item quantity.', 'error');
         console.error('Update quantity error:', error);
       }
@@ -392,43 +287,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
   onQuantityChange(event: Event, item: CartItemWithDetails): void {
     const input = event.target as HTMLInputElement;
     const newQuantity = parseInt(input.value, 10);
-
     if (newQuantity === 0) {
       this.removeItem(item.itemId);
       return;
     }
-
     if (isNaN(newQuantity) || newQuantity < 0) {
-      input.value = item.quantity.toString();
+      // FIX: Get the value from the BehaviorSubject directly
+      const currentCart = this.cartService.getCurrentCartValue();
+      const currentItem = currentCart?.items.find(i => i.itemId === item.itemId && i.cartItemType === item.cartItemType);
+      if (currentItem) {
+        input.value = currentItem.quantity.toString();
+      }
       return;
     }
-
-    // Optimistic update
-    const updatedItems = this.cartItemsWithDetails.map(i =>
-      i.itemId === item.itemId
-        ? {...i, optimisticQuantity: newQuantity, updating: true}
-        : i
-    );
-    this.cartItemsWithDetails = updatedItems;
-
-    // Server update
     this.cartService.updateItem(item.itemId, newQuantity, item.cartItemType).subscribe(
-      () => {
-        const finalItems = this.cartItemsWithDetails.map(i =>
-          i.itemId === item.itemId
-            ? {...i, quantity: newQuantity, optimisticQuantity: undefined, updating: false}
-            : i
-        );
-        this.cartItemsWithDetails = finalItems;
-      },
+      () => this.showSnackbar('Cart item quantity updated!', 'success'),
       error => {
-        const revertedItems = this.cartItemsWithDetails.map(i =>
-          i.itemId === item.itemId
-            ? {...i, optimisticQuantity: undefined, updating: false}
-            : i
-        );
-        this.cartItemsWithDetails = revertedItems;
-        input.value = item.quantity.toString();
         this.showSnackbar('Failed to update item quantity.', 'error');
         console.error('Update quantity error:', error);
       }
@@ -437,7 +311,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   removeItem(itemId: number | undefined): void {
     if (itemId === undefined) return;
-
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '300px',
       data: {
@@ -445,17 +318,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
         message: this.translate.instant('DIALOG.CONFIRM_DELETE_MESSAGE')
       }
     });
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Optimistic removal
-        this.cartItemsWithDetails = this.cartItemsWithDetails.filter(item => item.itemId !== itemId);
-
         this.cartService.removeItem(itemId).subscribe(
           () => this.showSnackbar('Item removed from cart!', 'success'),
           error => {
-            // Re-add item on error
-            this.listenToCartChanges(); // Reload cart items
             this.showSnackbar('Failed to remove item.', 'error');
             console.error('Remove item error:', error);
           }
@@ -469,7 +336,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (type === 'success') panelClass = ['success-snackbar'];
     else if (type === 'error') panelClass = ['error-snackbar'];
     else if (type === 'warning') panelClass = ['warning-snackbar'];
-
     this.snackBar.open(message, 'Close', {
       duration: 3000,
       panelClass
@@ -479,12 +345,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   goToCart(): void {
     this.isCartPreviewOpen = false;
     this.router.navigate(['/cart']);
-  }
-
-  getItemTotal(item: CartItemWithDetails): number {
-    const quantity = item.optimisticQuantity !== undefined ? item.optimisticQuantity : item.quantity;
-    const price = item.product?.price || item.mixture?.price || 0;
-    return price * quantity;
   }
 
   navigateToOrders() {

@@ -1,15 +1,15 @@
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, forkJoin, Observable, of, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { isPlatformBrowser } from '@angular/common';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ResponseProductDTO } from "../dto/product/response-product-dto";
-import { AuthService } from '../auth/auth.service';
-import { ProductService } from "./product.service";
-import { ResponseMixtureDTO } from '../dto/mixtures/response-mixture-dto';
-import { CartItemType } from '../dto/cart/cart-item-type';
-import { MixtureService } from './mixture.service';
+import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BehaviorSubject, forkJoin, Observable, of, throwError} from 'rxjs';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
+import {isPlatformBrowser} from '@angular/common';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {ResponseProductDTO} from "../dto/product/response-product-dto";
+import {AuthService} from '../auth/auth.service';
+import {ProductService} from "./product.service";
+import {ResponseMixtureDTO} from '../dto/mixtures/response-mixture-dto';
+import {CartItemType} from '../dto/cart/cart-item-type';
+import {MixtureService} from './mixture.service';
 
 export interface CartItem {
   id?: number;
@@ -29,11 +29,10 @@ export interface Cart {
   discountCode?: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class CartService {
   private apiUrl = 'http://localhost:8080/api/cart/v1';
   private isBrowser: boolean;
-
   private _cart = new BehaviorSubject<Cart | null>(null);
   readonly cart$ = this._cart.asObservable();
 
@@ -57,15 +56,20 @@ export class CartService {
     }
   }
 
+  /**
+   * Public method to get the current value of the cart without subscribing.
+   * This is safe because it only exposes the value from the private BehaviorSubject.
+   */
+  public getCurrentCartValue(): Cart | null {
+    return this._cart.getValue();
+  }
+
   private calculateAndSetTotalPrice(cart: Cart): void {
     const subtotal = cart.items.reduce((sum, item) => {
       const price = item.product?.price || item.mixture?.price || 0;
       return sum + price * item.quantity;
     }, 0);
-
-    // Apply discount if exists
     cart.totalPrice = subtotal - (cart.discount || 0);
-    this._cart.next(cart);
   }
 
   private loadGuestCartFromStorage(): void {
@@ -79,12 +83,11 @@ export class CartService {
         discount: guestCartData.discount || 0,
         discountCode: guestCartData.discountCode
       };
-      this.calculateAndSetTotalPrice(guestCart);
+      this.enrichCartAndSetState(guestCart);
     } catch (e) {
-      // Fallback for old format
       const items = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-      const guestCart: Cart = { id: 0, username: 'guest', items: items, totalPrice: 0, discount: 0 };
-      this.calculateAndSetTotalPrice(guestCart);
+      const guestCart: Cart = {id: 0, username: 'guest', items: items, totalPrice: 0, discount: 0};
+      this.enrichCartAndSetState(guestCart);
     }
   }
 
@@ -95,13 +98,11 @@ export class CartService {
         quantity: item.quantity,
         cartItemType: item.cartItemType
       }));
-
       const guestCartData = {
         items: simpleItems,
         discount: cart.discount,
         discountCode: cart.discountCode
       };
-
       localStorage.setItem('guest_cart', JSON.stringify(guestCartData));
     }
   }
@@ -109,10 +110,9 @@ export class CartService {
   private loadUserCart(): void {
     if (!this.authService.isTokenValid()) {
       this.showSnackbar('Please log in to view your cart.', 'warning');
-      this._cart.next({ id: 0, username: 'guest', items: [], totalPrice: 0, discount: 0 });
+      this._cart.next({id: 0, username: 'guest', items: [], totalPrice: 0, discount: 0});
       return;
     }
-
     this.http.get<Cart>(this.apiUrl)
       .pipe(
         switchMap(cart => this.enrichCartWithDetails(cart)),
@@ -122,7 +122,7 @@ export class CartService {
         catchError(error => {
           this.showSnackbar('Failed to load cart. Please try again.', 'error');
           console.error('Failed to load user cart:', error);
-          this._cart.next({ id: 0, username: 'guest', items: [], totalPrice: 0, discount: 0 });
+          this._cart.next({id: 0, username: 'guest', items: [], totalPrice: 0, discount: 0});
           return throwError(() => error);
         })
       )
@@ -133,24 +133,60 @@ export class CartService {
     if (!cart || !cart.items || cart.items.length === 0) {
       return of(cart);
     }
-
     const detailObservables = cart.items.map(item => {
       if (item.cartItemType === CartItemType.PRODUCT) {
         return this.productService.getProductById(item.itemId).pipe(
-          map(product => ({ ...item, product })),
-          catchError(() => of({ ...item, product: undefined }))
+          map(product => ({...item, product})),
+          catchError(() => of({...item, product: undefined}))
         );
       } else if (item.cartItemType === CartItemType.MIXTURE) {
         return this.mixtureService.getMixtureById(item.itemId).pipe(
-          map(mixture => ({ ...item, mixture })),
-          catchError(() => of({ ...item, mixture: undefined }))
+          map(mixture => ({...item, mixture})),
+          catchError(() => of({...item, mixture: undefined}))
         );
       }
       return of(item);
     });
-
     return forkJoin(detailObservables).pipe(
-      map(itemsWithDetails => ({ ...cart, items: itemsWithDetails }))
+      map(itemsWithDetails => {
+        const enrichedCart = {...cart, items: itemsWithDetails as any[]};
+        this.calculateAndSetTotalPrice(enrichedCart);
+        return enrichedCart;
+      })
+    );
+  }
+
+  private enrichCartAndSetState(cart: Cart): void {
+    if (!cart || !cart.items || cart.items.length === 0) {
+      this._cart.next(cart);
+      this.calculateAndSetTotalPrice(cart);
+      return;
+    }
+    const detailObservables = cart.items.map(item => {
+      if (item.cartItemType === CartItemType.PRODUCT) {
+        return this.productService.getProductById(item.itemId).pipe(
+          map(product => ({...item, product})),
+          catchError(() => of({...item, product: undefined}))
+        );
+      } else if (item.cartItemType === CartItemType.MIXTURE) {
+        return this.mixtureService.getMixtureById(item.itemId).pipe(
+          map(mixture => ({...item, mixture})),
+          catchError(() => of({...item, mixture: undefined}))
+        );
+      }
+      return of(item);
+    });
+    forkJoin(detailObservables).pipe(
+      map(itemsWithDetails => ({...cart, items: itemsWithDetails as any[]}))
+    ).subscribe(
+      (enrichedCart) => {
+        this._cart.next(enrichedCart);
+        this.calculateAndSetTotalPrice(enrichedCart);
+      },
+      (error) => {
+        console.error('Failed to enrich cart with details:', error);
+        this._cart.next({id: 0, username: '', items: [], totalPrice: 0});
+      }
     );
   }
 
@@ -160,8 +196,7 @@ export class CartService {
     else if (type === 'error') panelClass = ['error-snackbar'];
     else if (type === 'warning') panelClass = ['warning-snackbar'];
     else if (type === 'info') panelClass = ['info-snackbar'];
-
-    this.snackBar.open(message, 'Close', { duration: 3000, panelClass });
+    this.snackBar.open(message, 'Close', {duration: 3000, panelClass});
   }
 
   getCart(): Observable<Cart | null> {
@@ -191,19 +226,17 @@ export class CartService {
         totalPrice: 0,
         discount: 0
       };
-
       const existingItem = currentCart.items.find(ci =>
         ci.itemId === item.itemId && ci.cartItemType === item.cartItemType
       );
-
       if (existingItem) {
         existingItem.quantity += item.quantity;
       } else {
         currentCart.items.push(item);
       }
-
       this.saveGuestCart(currentCart);
-      this.calculateAndSetTotalPrice(currentCart);
+      this.enrichCartAndSetState(currentCart);
+      this.showSnackbar('Item added to cart!', 'success');
       return of(currentCart);
     }
   }
@@ -212,30 +245,20 @@ export class CartService {
     if (this.authService.isTokenValid()) {
       const currentCart = this._cart.getValue();
       if (currentCart) {
-        const item = currentCart.items.find(i => i.itemId === itemId && i.cartItemType === cartItemType);
-        if (item) {
-          const oldQuantity = item.quantity;
-          item.quantity = quantity;
-          this.calculateAndSetTotalPrice(currentCart);
-
-          return this.http.post<Cart>(`${this.apiUrl}/update?itemId=${itemId}&quantity=${quantity}&cartItemType=${cartItemType}`, {})
-            .pipe(
-              switchMap(cart => this.enrichCartWithDetails(cart)),
-              tap(cart => {
-                this._cart.next(cart);
-                this.showSnackbar('Cart item quantity updated!', 'success');
-              }),
-              catchError(error => {
-                this.showSnackbar('Failed to update item quantity.', 'error');
-                console.error('Failed to update user cart item:', error);
-                if (item) {
-                  item.quantity = oldQuantity;
-                  this.calculateAndSetTotalPrice(currentCart);
-                }
-                return throwError(() => error);
-              })
-            );
-        }
+        return this.http.post<Cart>(`${this.apiUrl}/update?itemId=${itemId}&quantity=${quantity}&cartItemType=${cartItemType}`, {})
+          .pipe(
+            switchMap(cart => this.enrichCartWithDetails(cart)),
+            tap(cart => {
+              this._cart.next(cart);
+              this.showSnackbar('Cart item quantity updated!', 'success');
+            }),
+            catchError(error => {
+              this.showSnackbar('Failed to update item quantity.', 'error');
+              console.error('Failed to update user cart item:', error);
+              this.enrichCartAndSetState(this._cart.getValue()!);
+              return throwError(() => error);
+            })
+          );
       }
       return throwError(() => new Error('Item not found in cart.'));
     } else {
@@ -246,17 +269,14 @@ export class CartService {
         totalPrice: 0,
         discount: 0
       };
-
-      // Create a new array to ensure immutability
       const newItems = currentCart.items.map(item =>
         item.itemId === itemId && item.cartItemType === cartItemType
-          ? { ...item, quantity }
+          ? {...item, quantity}
           : item
       );
-
-      const newCart = { ...currentCart, items: newItems };
+      const newCart = {...currentCart, items: newItems};
       this.saveGuestCart(newCart);
-      this.calculateAndSetTotalPrice(newCart);
+      this.enrichCartAndSetState(newCart);
       this.showSnackbar('Cart updated!', 'success');
       return of(newCart);
     }
@@ -266,11 +286,6 @@ export class CartService {
     if (this.authService.isTokenValid()) {
       const currentCart = this._cart.getValue();
       if (currentCart) {
-        const itemToRemove = currentCart.items.find(i => i.itemId === itemId);
-        const oldItems = [...currentCart.items];
-        currentCart.items = currentCart.items.filter(i => i.itemId !== itemId);
-        this.calculateAndSetTotalPrice(currentCart);
-
         return this.http.delete<Cart>(`${this.apiUrl}/remove/${itemId}`)
           .pipe(
             switchMap(cart => this.enrichCartWithDetails(cart)),
@@ -281,10 +296,7 @@ export class CartService {
             catchError(error => {
               this.showSnackbar('Failed to remove item from cart.', 'error');
               console.error('Failed to remove item from user cart:', error);
-              if (itemToRemove) {
-                currentCart.items = oldItems;
-                this.calculateAndSetTotalPrice(currentCart);
-              }
+              this.enrichCartAndSetState(this._cart.getValue()!);
               return throwError(() => error);
             })
           );
@@ -298,10 +310,9 @@ export class CartService {
         totalPrice: 0,
         discount: 0
       };
-
       currentCart.items = currentCart.items.filter(item => item.itemId !== itemId);
       this.saveGuestCart(currentCart);
-      this.calculateAndSetTotalPrice(currentCart);
+      this.enrichCartAndSetState(currentCart);
       this.showSnackbar('Item removed from cart!', 'success');
       return of(currentCart);
     }
@@ -309,7 +320,7 @@ export class CartService {
 
   applyDiscount(code: string): Observable<Cart> {
     if (this.authService.isTokenValid()) {
-      return this.http.post<Cart>(`${this.apiUrl}/apply-discount`, { code })
+      return this.http.post<Cart>(`${this.apiUrl}/apply-discount`, {code})
         .pipe(
           switchMap(cart => this.enrichCartWithDetails(cart)),
           tap(cart => {
@@ -323,7 +334,6 @@ export class CartService {
           })
         );
     } else {
-      // For guest users, simulate discount locally
       const currentCart = this._cart.getValue() || {
         id: 0,
         username: 'guest',
@@ -331,17 +341,14 @@ export class CartService {
         totalPrice: 0,
         discount: 0
       };
-
-      // Apply 20% discount for any code (demo purposes)
       const subtotal = currentCart.items.reduce((sum, item) => {
         const price = item.product?.price || item.mixture?.price || 0;
         return sum + price * item.quantity;
       }, 0);
-
       currentCart.discount = subtotal * 0.2;
       currentCart.discountCode = code;
       this.saveGuestCart(currentCart);
-      this.calculateAndSetTotalPrice(currentCart);
+      this.enrichCartAndSetState(currentCart);
       this.showSnackbar('Discount applied successfully!', 'success');
       return of(currentCart);
     }
@@ -363,7 +370,6 @@ export class CartService {
           })
         );
     } else {
-      // For guest users, remove discount locally
       const currentCart = this._cart.getValue() || {
         id: 0,
         username: 'guest',
@@ -371,11 +377,10 @@ export class CartService {
         totalPrice: 0,
         discount: 0
       };
-
       currentCart.discount = 0;
       delete currentCart.discountCode;
       this.saveGuestCart(currentCart);
-      this.calculateAndSetTotalPrice(currentCart);
+      this.enrichCartAndSetState(currentCart);
       this.showSnackbar('Discount removed', 'info');
       return of(currentCart);
     }
@@ -384,11 +389,9 @@ export class CartService {
   mergeGuestCart(): Observable<Cart> {
     const guestCartData = JSON.parse(localStorage.getItem('guest_cart') || '{}');
     const guestItems = guestCartData.items || [];
-
     if (guestItems.length === 0) {
       return of(this._cart.getValue() as Cart);
     }
-
     return this.http.post<Cart>(`${this.apiUrl}/merge`, guestItems)
       .pipe(
         switchMap(cart => this.enrichCartWithDetails(cart)),
@@ -423,11 +426,9 @@ export class CartService {
           })
         );
     } else {
-      // For guest, clear local storage and reset cart
       if (this.isBrowser) {
         localStorage.removeItem('guest_cart');
       }
-
       const emptyCart: Cart = {
         id: 0,
         username: 'guest',
@@ -435,8 +436,7 @@ export class CartService {
         totalPrice: 0,
         discount: 0
       };
-
-      this._cart.next(emptyCart);
+      this.enrichCartAndSetState(emptyCart);
       this.showSnackbar('Guest cart cleared successfully!', 'success');
       return of(emptyCart);
     }
