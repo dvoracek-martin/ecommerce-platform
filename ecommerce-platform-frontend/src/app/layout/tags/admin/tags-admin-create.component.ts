@@ -87,7 +87,8 @@ export class TagsAdminCreateComponent implements OnInit, OnDestroy {
       media: this.fb.array([]),
       categoryIds: [[]],
       productIds: [[]],
-      mixtureIds: [[]]
+      mixtureIds: [[]],
+      url:['', [Validators.required, Validators.minLength(3)]],
     });
   }
 

@@ -14,6 +14,7 @@ public class ResponseMixtureDTO extends BaseUpdateOrResponseDTO {
     private Long categoryId;
     private List<ResponseProductDTO> products;
     private List<Long> tagIds;
+    private boolean displayInProducts;
 
     public ResponseMixtureDTO(Long id,
                               String name,
@@ -25,13 +26,16 @@ public class ResponseMixtureDTO extends BaseUpdateOrResponseDTO {
                               List<ResponseProductDTO> products,
                               List<Long> tagIds,
                               Double price,
-                              Double weightGrams
+                              Double weightGrams,
+                              boolean displayInProducts,
+                              String url
     ) {
-        super(id, name, description, priority, active, media);
+        super(id, name, description, priority, active, media, url);
         this.categoryId = categoryId;
         this.products = products;
         this.tagIds = tagIds;
         this.price = price;
         this.weightGrams = weightGrams;
+        this.displayInProducts = displayInProducts;
     }
 }

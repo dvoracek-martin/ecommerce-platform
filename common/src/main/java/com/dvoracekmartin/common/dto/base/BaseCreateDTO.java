@@ -25,4 +25,7 @@ public abstract class BaseCreateDTO {
     private boolean active;
 
     private List<MediaDTO> media;
+
+    @NotBlank
+    private String url;
 }

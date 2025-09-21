@@ -34,7 +34,7 @@ public class Tag extends BaseEntity {
     private List<Mixture> mixtures;
 
 
-    public Tag(@NotBlank @Size(min = 3) String name, String description, int priority, boolean active) {
-        super(null, name, description, priority, active, new ArrayList<>());
+    public Tag(@NotBlank @Size(min = 3) String name, String description, int priority, boolean active, String url) {
+        super(null, name, description, priority, active, new ArrayList<>(), url);
     }
 }

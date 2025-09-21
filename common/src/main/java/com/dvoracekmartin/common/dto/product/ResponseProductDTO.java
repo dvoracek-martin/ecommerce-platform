@@ -1,3 +1,4 @@
+
 package com.dvoracekmartin.common.dto.product;
 
 import com.dvoracekmartin.common.dto.base.BaseUpdateOrResponseDTO;
@@ -14,6 +15,8 @@ public class ResponseProductDTO extends BaseUpdateOrResponseDTO {
     private Double weightGrams;
     private List<ResponseTagDTO> responseTagDTOS;
     private Long categoryId;
+    boolean mixable;
+    private boolean displayInProducts;
 
     public ResponseProductDTO(Long id,
                               String name,
@@ -24,12 +27,17 @@ public class ResponseProductDTO extends BaseUpdateOrResponseDTO {
                               List<ResponseTagDTO> responseTagDTOS,
                               Long categoryId,
                               Double price,
-                              Double weightGrams
+                              Double weightGrams,
+                              boolean mixable,
+                              boolean displayInProducts,
+                              String url
     ) {
-        super(id, name, description, priority, active, media);
+        super(id, name, description, priority, active, media, url);
         this.responseTagDTOS = responseTagDTOS;
         this.categoryId = categoryId;
         this.price = price;
         this.weightGrams = weightGrams;
+        this.mixable = mixable;
+        this.displayInProducts = displayInProducts;
     }
 }

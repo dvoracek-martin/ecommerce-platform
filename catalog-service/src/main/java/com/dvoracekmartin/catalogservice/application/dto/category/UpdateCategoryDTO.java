@@ -12,10 +12,12 @@ import java.util.List;
 public class UpdateCategoryDTO extends BaseUpdateOrResponseDTO {
 
     private List<Long> tagIds;
+    private boolean mixable;
 
-    public UpdateCategoryDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media, List<Long> tagIds) {
-        super(id, name, description, priority, active, media);
+    public UpdateCategoryDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media, List<Long> tagIds, boolean mixable, String url) {
+        super(id, name, description, priority, active, media, url);
         this.tagIds = tagIds;
+        this.mixable = mixable;
     }
 }
 

@@ -1,14 +1,14 @@
 package com.dvoracekmartin.catalogservice.v1;
 
-import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
-import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
-import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.search.ResponseSearchResultDTO;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchServiceImpl;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
 import com.dvoracekmartin.catalogservice.application.service.media.MediaRetriever;
 import com.dvoracekmartin.catalogservice.config.RateLimit;
+import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -92,7 +92,6 @@ public class CatalogControllerV1 {
         return catalogService.getAllProductsByCategoryId(categoryId);
     }
 
-
     @GetMapping("/active-products-by-category-id/{categoryId}")
     public List<ResponseProductDTO> getActiveProductsByCategoryId(@PathVariable Long categoryId) {
         log.info("Fetching all products for category ID: {}", categoryId);
@@ -104,9 +103,33 @@ public class CatalogControllerV1 {
         return catalogService.getActiveProductsByCategoryId(categoryId);
     }
 
+    @GetMapping("/active-products-for-mixing-by-category-id/{categoryId}")
+    public List<ResponseProductDTO> getActiveProductsForMixingByCategoryId(@PathVariable Long categoryId) {
+        log.info("Fetching all active products for mixing for category ID: {}", categoryId);
+        if (categoryId == null || categoryId <= 0) {
+            log.warn("Invalid category ID: {}", categoryId);
+            return new ArrayList<>();
+        }
+        log.info("Retrieving active products for mixing for category ID: {}", categoryId);
+        return catalogService.getActiveProductsForMixingByCategoryId(categoryId);
+    }
+
+    @GetMapping("/active-products-for-display-in-products")
+    public List<ResponseProductDTO> getActiveProductsForDisplayInProducts() {
+        log.info("Fetching all products for display in products.");
+        return catalogService.getActiveProductsForDisplayInProducts();
+    }
+
     @GetMapping("/all-mixtures")
     public List<ResponseMixtureDTO> getAllMixtures() {
         return catalogService.getAllMixtures();
+    }
+
+
+    @GetMapping("/active-mixtures-for-display-in-products")
+    public List<ResponseMixtureDTO> getActiveMixturesForDisplayInProducts() {
+        log.info("Fetching all products for display in products.");
+        return catalogService.getActiveMixturesForDisplayInProducts();
     }
 
     @GetMapping("/all-categories")
@@ -117,6 +140,11 @@ public class CatalogControllerV1 {
     @GetMapping("/active-categories")
     public List<ResponseCategoryDTO> getActiveCategories() {
         return catalogService.getActiveCategories();
+    }
+
+    @GetMapping("/active-categories-for-mixing")
+    public List<ResponseCategoryDTO> getActiveCategoriesForMixing() {
+        return catalogService.getActiveCategoriesForMixing();
     }
 
     @GetMapping("/products/{id}")
@@ -139,7 +167,6 @@ public class CatalogControllerV1 {
     public ResponseEntity<ResponseCategoryDTO> getCategoryById(@PathVariable Long id) {
         return ResponseEntity.ok(catalogService.getCategoryById(id));
     }
-
 
     @RateLimit(limit = 100, durationInSeconds = 15)
     @GetMapping("/search")

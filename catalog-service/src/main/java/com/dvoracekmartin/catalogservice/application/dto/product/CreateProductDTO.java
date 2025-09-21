@@ -13,6 +13,8 @@ public class CreateProductDTO extends BaseCreateDTO {
     private Double weightGrams;
     private Long categoryId;
     private List<Long> tagIds;
+    private boolean mixable;
+    private boolean displayInProducts;
 
     public CreateProductDTO(String name,
                             String description,
@@ -22,12 +24,17 @@ public class CreateProductDTO extends BaseCreateDTO {
                             Long categoryId,
                             List<Long> tagIds,
                             Double price,
-                            Double weightGrams
+                            Double weightGrams,
+                            boolean mixable,
+                            boolean displayInProducts,
+                            String url
     ) {
-        super(name, description, priority, active, media);
+        super(name, description, priority, active, media, url);
         this.categoryId = categoryId;
         this.tagIds = tagIds;
         this.price = price;
         this.weightGrams = weightGrams;
+        this.mixable = mixable;
+        this.displayInProducts = displayInProducts;
     }
 }

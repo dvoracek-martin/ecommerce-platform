@@ -21,10 +21,17 @@ public class Product extends BaseEntity {
     @NotNull
     private Double price;
 
+    @Column
+    private boolean mixable;
+
+    @Column
+    private boolean displayInProducts;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @Column
     private Double weightGrams;
 
     @ManyToMany

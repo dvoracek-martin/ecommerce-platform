@@ -15,6 +15,8 @@ public class CreateMixtureDTO extends BaseCreateDTO {
     private Long categoryId;
     private List<Long> productIds;
     private List<Long> tagIds;
+    private boolean mixable;
+    private boolean displayInProducts;
 
     public CreateMixtureDTO(String name,
                             String description,
@@ -25,13 +27,18 @@ public class CreateMixtureDTO extends BaseCreateDTO {
                             List<Long> productIds,
                             List<Long> tagIds,
                             Double price,
-                            Double weightGrams
+                            Double weightGrams,
+                            boolean mixable,
+                            boolean displayInProducts,
+                            String url
     ) {
-        super(name, description, priority, active, media);
+        super(name, description, priority, active, media, url);
         this.categoryId = categoryId;
         this.productIds = productIds;
         this.tagIds = tagIds;
         this.price = price;
         this.weightGrams = weightGrams;
+        this.mixable = mixable;
+        this.displayInProducts = displayInProducts;
     }
 }

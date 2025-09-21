@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 public class CreateTagDTO extends BaseCreateDTO {
 
-    public CreateTagDTO(String name, String description, int priority, boolean active, List<MediaDTO> media) {
-        super(name, description, priority, active, media);
+    public CreateTagDTO(String name, String description, int priority, boolean active, List<MediaDTO> media, String url) {
+        super(name, description, priority, active, media, url);
     }
 }

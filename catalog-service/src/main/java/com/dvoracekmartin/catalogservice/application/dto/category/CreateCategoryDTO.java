@@ -12,9 +12,11 @@ import java.util.List;
 public class CreateCategoryDTO extends BaseCreateDTO {
 
     private List<Long> tagIds;
+    private boolean mixable;
 
-    public CreateCategoryDTO(String name, String description, int priority, boolean active, List<MediaDTO> media, List<Long> tagIds) {
-        super(name, description, priority, active, media);
+    public CreateCategoryDTO(String name, String description, int priority, boolean active, List<MediaDTO> media, List<Long> tagIds, boolean mixable, String url) {
+        super(name, description, priority, active, media, url);
         this.tagIds = tagIds;
+        this.mixable = mixable;
     }
 }

@@ -124,7 +124,8 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
       active: [true],
       categoryIds: [[]],
       productIds: [[]],
-      mixtureIds: [[]]
+      mixtureIds: [[]],
+      url:['', [Validators.required, Validators.minLength(3)]],
     });
   }
 
@@ -153,6 +154,7 @@ export class TagsAdminUpdateComponent implements OnInit, OnDestroy {
             description: tag.description,
             priority: tag.priority,
             active: tag.active,
+            url: tag.url,
             categoryIds: tag.categories.map(c => c.id),
             productIds: tag.products.map(p => p.id),
             mixtureIds: tag.mixtures.map(m => m.id)

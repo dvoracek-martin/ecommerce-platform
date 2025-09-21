@@ -27,4 +27,7 @@ public abstract class BaseUpdateOrResponseDTO {
     private boolean active;
 
     private List<MediaDTO> media;
+
+    @NotBlank
+    private String url;
 }

@@ -38,6 +38,15 @@
                         placeholder="{{ 'TAGS.ADMIN.DESCRIPTION_PLACEHOLDER' | translate }}"></textarea>
             </mat-form-field>
           </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'PRODUCTS.URL' | translate }}</mat-label>
+              <input formControlName="url" matInput required>
+              <mat-error *ngIf="tagForm.get('url')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">

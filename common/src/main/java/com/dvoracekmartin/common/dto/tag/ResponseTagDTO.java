@@ -16,8 +16,8 @@ public class ResponseTagDTO extends BaseUpdateOrResponseDTO {
     List<ResponseProductDTO> products;
     List<ResponseMixtureDTO> mixtures;
 
-    public ResponseTagDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media, List<ResponseCategoryDTO> categories, List<ResponseProductDTO> products, List<ResponseMixtureDTO> mixtures) {
-        super(id, name, description, priority, active, media);
+    public ResponseTagDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media, List<ResponseCategoryDTO> categories, List<ResponseProductDTO> products, List<ResponseMixtureDTO> mixtures, String url) {
+        super(id, name, description, priority, active, media, url);
         this.categories = categories;
         this.products = products;
         this.mixtures = mixtures;

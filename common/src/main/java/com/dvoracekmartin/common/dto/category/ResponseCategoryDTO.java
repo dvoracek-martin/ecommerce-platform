@@ -14,8 +14,8 @@ public class ResponseCategoryDTO extends BaseUpdateOrResponseDTO {
 
     private List<ResponseTagDTO> responseTagDTOS;
 
-    public ResponseCategoryDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media, List<ResponseTagDTO> responseTagDTOS) {
-        super(id, name, description, priority, active, media);
+    public ResponseCategoryDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media, List<ResponseTagDTO> responseTagDTOS, String url) {
+        super(id, name, description, priority, active, media, url);
         this.responseTagDTOS = responseTagDTOS;
     }
 }

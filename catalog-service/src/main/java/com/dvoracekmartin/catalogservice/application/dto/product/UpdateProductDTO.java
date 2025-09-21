@@ -14,6 +14,8 @@ public class UpdateProductDTO extends BaseUpdateOrResponseDTO {
     private List<Long> tagIds;
     private Double price;
     private Double weightGrams;
+    private boolean mixable;
+    private boolean displayInProducts;
 
     public UpdateProductDTO(Long id,
                             String name,
@@ -24,12 +26,17 @@ public class UpdateProductDTO extends BaseUpdateOrResponseDTO {
                             List<Long> tagIds,
                             Long categoryId,
                             Double price,
-                            Double weightGrams
+                            Double weightGrams,
+                            boolean mixable,
+                            boolean displayInProducts,
+                            String url
     ) {
-        super(id, name, description, priority, active, media);
+        super(id, name, description, priority, active, media, url);
         this.tagIds = tagIds;
         this.categoryId = categoryId;
         this.price = price;
         this.weightGrams = weightGrams;
+        this.mixable = mixable;
+        this.displayInProducts = displayInProducts;
     }
 }

@@ -23,6 +23,9 @@ public class Mixture extends BaseEntity {
 
     private Double weightGrams;
 
+    @Column
+    private boolean displayInProducts;
+
     @ManyToMany
     @JsonManagedReference
     @JoinTable(

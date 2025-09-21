@@ -81,4 +81,12 @@ public interface CatalogService {
     List<ResponseProductDTO> getAllProductsByCategoryId(Long categoryId);
 
     List<ResponseProductDTO> getActiveProductsByCategoryId(Long categoryId);
+
+    List<ResponseProductDTO> getActiveProductsForMixingByCategoryId(Long categoryId);
+
+    List<ResponseProductDTO> getActiveProductsForDisplayInProducts();
+
+    List<ResponseMixtureDTO> getActiveMixturesForDisplayInProducts();
+
+    List<ResponseCategoryDTO> getActiveCategoriesForMixing();
 }

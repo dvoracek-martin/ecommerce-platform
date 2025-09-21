@@ -1,17 +1,17 @@
 package com.dvoracekmartin.catalogservice.application.dto.utils;
 
-import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
-import com.dvoracekmartin.common.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
-import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.UpdateMixtureDTO;
-import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
-import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.domain.model.Category;
 import com.dvoracekmartin.catalogservice.domain.model.Mixture;
 import com.dvoracekmartin.catalogservice.domain.model.Product;
 import com.dvoracekmartin.catalogservice.domain.model.Tag;
+import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.common.dto.media.MediaDTO;
+import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -35,7 +35,10 @@ public interface CatalogMapper {
                 product.getTags().stream().map(this::mapTagToResponseTagDTO).toList(),
                 product.getCategory().getId(),
                 product.getPrice(),
-                product.getWeightGrams()
+                product.getWeightGrams(),
+                product.isMixable(),
+                product.isDisplayInProducts(),
+                product.getUrl()
         );
     }
 
@@ -60,7 +63,8 @@ public interface CatalogMapper {
                 createTagDTO.getName(),
                 createTagDTO.getDescription(),
                 createTagDTO.getPriority(),
-                createTagDTO.isActive()
+                createTagDTO.isActive(),
+                createTagDTO.getUrl()
         );
     }
 

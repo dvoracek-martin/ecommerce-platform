@@ -1,18 +1,13 @@
 package com.dvoracekmartin.catalogservice.application.service;
 
 import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategoryDTO;
-import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.UpdateCategoryDTO;
-import com.dvoracekmartin.common.dto.media.MediaDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
-import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.UpdateMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.CreateProductDTO;
-import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductStockDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
-import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.UpdateTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.utils.CatalogMapper;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchService;
@@ -29,6 +24,11 @@ import com.dvoracekmartin.catalogservice.domain.repository.ProductRepository;
 import com.dvoracekmartin.catalogservice.domain.repository.TagRepository;
 import com.dvoracekmartin.catalogservice.domain.service.CatalogDomainService;
 import com.dvoracekmartin.catalogservice.domain.utils.BucketName;
+import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.common.dto.media.MediaDTO;
+import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -143,6 +143,46 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     @Override
+    public List<ResponseProductDTO> getActiveProductsForMixingByCategoryId(Long categoryId) {
+        mediaUploader.createBucketIfNotExists(BucketName.PRODUCTS.getName());
+        return productRepository.findAllByCategoryIdAndActiveTrueAndMixableTrue(categoryId).stream()
+                .map(this::mapProductToResponseDTO)
+                .sorted(Comparator.comparingInt(ResponseProductDTO::getPriority)
+                        .thenComparingLong(ResponseProductDTO::getId))
+                .toList();
+    }
+
+    @Override
+    public List<ResponseProductDTO> getActiveProductsForDisplayInProducts() {
+        mediaUploader.createBucketIfNotExists(BucketName.PRODUCTS.getName());
+        return productRepository.findAllByActiveTrueAndDisplayInProductsTrue().stream()
+                .map(this::mapProductToResponseDTO)
+                .sorted(Comparator.comparingInt(ResponseProductDTO::getPriority)
+                        .thenComparingLong(ResponseProductDTO::getId))
+                .toList();
+    }
+
+    @Override
+    public List<ResponseMixtureDTO> getActiveMixturesForDisplayInProducts() {
+        mediaUploader.createBucketIfNotExists(BucketName.MIXTURES.getName());
+        return mixtureRepository.findAllByActiveTrueAndDisplayInProductsTrue().stream()
+                .map(this::mapMixtureToResponseDTO)
+                .sorted(Comparator.comparingInt(ResponseMixtureDTO::getPriority)
+                        .thenComparingLong(ResponseMixtureDTO::getId))
+                .toList();
+    }
+
+    @Override
+    public List<ResponseCategoryDTO> getActiveCategoriesForMixing() {
+        mediaUploader.createBucketIfNotExists(BucketName.CATEGORIES.getName());
+        return categoryRepository.findByActiveTrueAndMixableTrue().stream()
+                .map(this::mapCategoryToResponseDTO)
+                .sorted(Comparator.comparingInt(ResponseCategoryDTO::getPriority)
+                        .thenComparingLong(ResponseCategoryDTO::getId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ResponseProductDTO> createProduct(@Valid List<CreateProductDTO> createProductDTOList) {
         List<CreateProductDTO> validDTOs = createProductDTOList.stream()
                 .filter(dto -> !productRepository.existsByName(dto.getName()))
@@ -169,6 +209,9 @@ public class CatalogServiceImpl implements CatalogService {
         product.setWeightGrams(createProductDTO.getWeightGrams());
         product.setCategory(categoryRepository.findById(createProductDTO.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + createProductDTO.getCategoryId())));
+        product.setMixable(createProductDTO.isMixable());
+        product.setDisplayInProducts(createProductDTO.isDisplayInProducts());
+        product.setUrl(createProductDTO.getUrl());
 
         // Fix: Use mutable ArrayList
         if (createProductDTO.getTagIds() != null) {
@@ -210,6 +253,9 @@ public class CatalogServiceImpl implements CatalogService {
         existing.setActive(updateProductDTO.isActive());
         existing.setPriority(updateProductDTO.getPriority());
         existing.setCategory(categoryRepository.findById(updateProductDTO.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + updateProductDTO.getCategoryId())));
+        existing.setMixable(updateProductDTO.isMixable());
+        existing.setDisplayInProducts(updateProductDTO.isDisplayInProducts());
+        existing.setUrl(updateProductDTO.getUrl());
 
         // Fix: Use mutable ArrayList
         if (updateProductDTO.getTagIds() != null) {
@@ -260,7 +306,10 @@ public class CatalogServiceImpl implements CatalogService {
                 product.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList(),
                 product.getCategory().getId(),
                 product.getPrice(),
-                product.getWeightGrams()
+                product.getWeightGrams(),
+                product.isMixable(),
+                product.isDisplayInProducts(),
+                product.getUrl()
         );
     }
 
@@ -292,6 +341,7 @@ public class CatalogServiceImpl implements CatalogService {
         mixture.setActive(createMixtureDTO.isActive());
         mixture.setPrice(createMixtureDTO.getPrice());
         mixture.setWeightGrams(createMixtureDTO.getWeightGrams());
+        mixture.setDisplayInProducts(createMixtureDTO.isDisplayInProducts());
 
         // Fix: Use mutable ArrayLists
         mixture.setProducts(createMixtureDTO.getProductIds().stream()
@@ -338,6 +388,8 @@ public class CatalogServiceImpl implements CatalogService {
         existing.setActive(updateMixtureDTO.isActive());
         existing.setPrice(updateMixtureDTO.getPrice());
         existing.setWeightGrams(updateMixtureDTO.getWeightGrams());
+        existing.setUrl(updateMixtureDTO.getUrl());
+        existing.setDisplayInProducts(updateMixtureDTO.isDisplayInProducts());
 
         // Fix: Use mutable ArrayLists
         existing.setProducts(updateMixtureDTO.getProductIds().stream()
@@ -401,7 +453,9 @@ public class CatalogServiceImpl implements CatalogService {
                 mixture.getProducts().stream().map(catalogMapper::mapProductToResponseProductDTO).toList(),
                 mixture.getTags().stream().map(Tag::getId).toList(),
                 mixture.getPrice(),
-                mixture.getWeightGrams()
+                mixture.getWeightGrams(),
+                mixture.isDisplayInProducts(),
+                mixture.getUrl()
         );
     }
 
@@ -449,6 +503,8 @@ public class CatalogServiceImpl implements CatalogService {
         category.setDescription(createCategoryDTO.getDescription());
         category.setPriority(createCategoryDTO.getPriority());
         category.setActive(createCategoryDTO.isActive());
+        category.setMixable(createCategoryDTO.isMixable());
+        category.setUrl(createCategoryDTO.getUrl());
 
         // Fix: Use mutable ArrayList
         if (createCategoryDTO.getTagIds() != null) {
@@ -477,7 +533,8 @@ public class CatalogServiceImpl implements CatalogService {
                 finalCategory.getPriority(),
                 finalCategory.isActive(),
                 uploadResult.mediaDTOs(),
-                finalCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList()
+                finalCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList(),
+                finalCategory.getUrl()
         );
     }
 
@@ -500,6 +557,8 @@ public class CatalogServiceImpl implements CatalogService {
         existing.setDescription(updateCategoryDTO.getDescription());
         existing.setPriority(updateCategoryDTO.getPriority());
         existing.setActive(updateCategoryDTO.isActive());
+        existing.setMixable(updateCategoryDTO.isMixable());
+        existing.setUrl(updateCategoryDTO.getUrl());
         existing.getImageUrl().addAll(uploadResult.imageUrls());
 
         // Fix: Use mutable ArrayList
@@ -524,7 +583,8 @@ public class CatalogServiceImpl implements CatalogService {
                 savedCategory.getPriority(),
                 savedCategory.isActive(),
                 uploadResult.mediaDTOs(),
-                savedCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList()
+                savedCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList(),
+                savedCategory.getUrl()
         );
     }
 
@@ -553,7 +613,8 @@ public class CatalogServiceImpl implements CatalogService {
                 category.getPriority(),
                 category.isActive(),
                 mediaDTOs,
-                category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList()
+                category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList(),
+                category.getUrl()
         );
     }
 
@@ -581,6 +642,7 @@ public class CatalogServiceImpl implements CatalogService {
         tag.setDescription(createTagDTO.getDescription());
         tag.setPriority(createTagDTO.getPriority());
         tag.setActive(createTagDTO.isActive());
+        tag.setUrl(createTagDTO.getUrl());
 
         Tag savedTag = tagRepository.save(tag);
         MediaUploadResult uploadResult = uploadMedia(createTagDTO.getMedia(),
@@ -599,7 +661,8 @@ public class CatalogServiceImpl implements CatalogService {
                 uploadResult.mediaDTOs(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                new ArrayList<>()
+                new ArrayList<>(),
+                finalTag.getUrl()
         );
     }
 
@@ -633,6 +696,7 @@ public class CatalogServiceImpl implements CatalogService {
         existing.setPriority(updateTagDTO.getPriority());
         existing.setActive(updateTagDTO.isActive());
         existing.getImageUrl().addAll(uploadResult.imageUrls());
+        existing.setUrl(updateTagDTO.getUrl());
 
         // Fix: Use mutable ArrayLists
         if (updateTagDTO.getCategoryIds() != null) {
@@ -680,7 +744,8 @@ public class CatalogServiceImpl implements CatalogService {
                 uploadResult.mediaDTOs(),
                 savedTag.getCategories().stream().map(catalogMapper::mapCategoryToResponseCategoryDTO).toList(),
                 savedTag.getProducts().stream().map(catalogMapper::mapProductToResponseProductDTO).toList(),
-                savedTag.getMixtures().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList()
+                savedTag.getMixtures().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList(),
+                savedTag.getUrl()
         );
     }
 
@@ -711,7 +776,8 @@ public class CatalogServiceImpl implements CatalogService {
                 mediaDTOs,
                 tag.getCategories().stream().map(catalogMapper::mapCategoryToResponseCategoryDTO).toList(),
                 tag.getProducts().stream().map(catalogMapper::mapProductToResponseProductDTO).toList(),
-                tag.getMixtures().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList()
+                tag.getMixtures().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList(),
+                tag.getUrl()
         );
     }
 

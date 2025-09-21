@@ -15,8 +15,8 @@ public class UpdateTagDTO extends BaseUpdateOrResponseDTO {
     List<Long> productIds;
     List<Long> mixtureIds;
 
-    public UpdateTagDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media, List<Long> categoryIds, List<Long> productIds, List<Long> mixtureIds) {
-        super(id, name, description, priority, active, media);
+    public UpdateTagDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media, List<Long> categoryIds, List<Long> productIds, List<Long> mixtureIds, String url) {
+        super(id, name, description, priority, active, media, url);
         this.categoryIds = categoryIds;
         this.productIds = productIds;
         this.mixtureIds = mixtureIds;

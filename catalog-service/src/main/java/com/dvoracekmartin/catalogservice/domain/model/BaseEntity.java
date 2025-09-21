@@ -26,7 +26,7 @@ public abstract class BaseEntity {
     private String description;
 
     @Column
-    private int priority;
+    private Integer priority;
 
     @Column
     private boolean active;
@@ -34,4 +34,7 @@ public abstract class BaseEntity {
     @ElementCollection
     @Column(name = "image_url", length = 512)
     private List<String> imageUrl;
+
+    @Column(nullable = false, columnDefinition = "TEXT", length = 512)
+    private String url;
 }
