@@ -1,4 +1,3 @@
-// src/app/app-routing.module.ts
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 
@@ -43,7 +42,10 @@ const routes: Routes = [
   {path: 'categories', component: CategoriesComponent},
   {path: 'mixtures', component: MixturesComponent},
   {path: 'products', component: ProductsListComponent},
-  {path: 'products/:id', component: ProductsDetailComponent},
+
+  // Detail with SEO-friendly slug
+  {path: 'products/:id/:slug', component: ProductsDetailComponent},
+
   {path: 'mixing', component: MixingComponent},
   {path: 'cart', component: CartComponent},
   {path: 'checkout', component: CheckoutComponent},
@@ -85,5 +87,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule {
-}
+export class AppRoutingModule { }

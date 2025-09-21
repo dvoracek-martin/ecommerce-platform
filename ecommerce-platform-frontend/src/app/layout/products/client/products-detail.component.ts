@@ -45,6 +45,14 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.product = data;
         this.loading = false;
+
+        // Slug for SEO
+        const slugParam = this.route.snapshot.paramMap.get('slug');
+        const correctSlug = this.product ? this.slugify(this.product.name) : '';
+        if (slugParam !== correctSlug) {
+          this.router.navigate([`/products/${this.product?.id}/${correctSlug}`], { replaceUrl: true });
+        }
+
         if (this.interval) clearInterval(this.interval);
         this.startCarousel();
       },
@@ -56,14 +64,18 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadProduct(id: number) {
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/--+/g, '-');
   }
 
   startCarousel() {
     if (!this.product?.media || this.product.media.length <= 1) return;
-    this.interval = setInterval(() => {
-      this.nextSlide();
-    }, 5000);
+    this.interval = setInterval(() => this.nextSlide(), 5000);
   }
 
   nextSlide() {
@@ -86,9 +98,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
 
   openGallery() {
     this.isGalleryOpen = true;
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
+    if (this.interval) clearInterval(this.interval);
   }
 
   closeGallery() {
@@ -99,13 +109,9 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     if (this.isGalleryOpen) {
-      if (event.key === 'Escape') {
-        this.closeGallery();
-      } else if (event.key === 'ArrowLeft') {
-        this.prevSlide();
-      } else if (event.key === 'ArrowRight') {
-        this.nextSlide();
-      }
+      if (event.key === 'Escape') this.closeGallery();
+      else if (event.key === 'ArrowLeft') this.prevSlide();
+      else if (event.key === 'ArrowRight') this.nextSlide();
     }
   }
 

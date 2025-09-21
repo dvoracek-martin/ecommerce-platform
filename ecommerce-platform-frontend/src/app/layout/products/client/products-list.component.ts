@@ -1,4 +1,3 @@
-// src/app/components/products/products.component.ts
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {ProductService} from '../../../services/product.service';
@@ -79,12 +78,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
       product: product,
       cartItemType: CartItemType.PRODUCT
     }).subscribe({
-      next: () => {
-        console.log(`${product.name} added to cart`);
-      },
-      error: (err) => {
-        console.error('Failed to add to cart', err);
-      }
+      next: () => console.log(`${product.name} added to cart`),
+      error: (err) => console.error('Failed to add to cart', err)
     });
   }
 
@@ -93,7 +88,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   }
 
   trackById(_idx: number, item: ResponseProductDTO): number {
-    return item.id;
+    return item.id!;
   }
 
   trackByObjectKey(_idx: number, item: { contentType: string; base64Data: string; objectKey: string }): string {
@@ -101,7 +96,17 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   }
 
   goToProduct(product: ResponseProductDTO) {
-    this.router.navigate([`/products/${product.id}`]);
+    const slug = this.slugify(product.name);
+    this.router.navigate([`/products/${product.id}/${slug}`]);
+  }
+
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/--+/g, '-');
   }
 
   navigateHome() {
