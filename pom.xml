@@ -10,6 +10,7 @@
 
     <modules>
         <module>config-server</module>
+        <module>configuration-service</module>
         <module>eureka-server</module>
         <module>api-gateway-service</module>
         <module>catalog-service</module>

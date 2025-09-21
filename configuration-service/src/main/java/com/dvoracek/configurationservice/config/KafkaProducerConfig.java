@@ -1,4 +1,4 @@
-package com.dvoracek.translationservice.config;
+package com.dvoracek.configurationservice.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -20,8 +20,8 @@ public class KafkaProducerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${global.kafka.topics.translations.configuration-request}")
-    private String configurationRequestTopic;
+    @Value("${global.kafka.topics.translations.translation-request}")
+    private String translationRequestTopic;
 
     @Bean
     public Map<String, Object> producerConfigs() {
@@ -44,6 +44,6 @@ public class KafkaProducerConfig {
 
     @Bean
     public NewTopic userCreatedTopic() {
-        return new NewTopic(configurationRequestTopic, 3, (short) 1);
+        return new NewTopic(translationRequestTopic, 3, (short) 1);
     }
 }

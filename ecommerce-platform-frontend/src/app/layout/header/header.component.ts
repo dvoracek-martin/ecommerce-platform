@@ -243,6 +243,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.router.navigate(['/admin/tags']);
   }
 
+  navigateToAdminConfiguration() {
+    this.router.navigate([`/admin/configuration`]);
+  }
+
   onUserIconClick(): void {
     if (!this.authService.isTokenValid()) this.isPopupOpen = true;
   }

@@ -11,10 +11,10 @@
     </parent>
 
     <groupId>com.dvoracekmartin</groupId>
-    <artifactId>translation-service</artifactId>
+    <artifactId>configuration-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>translation-service</name>
-    <description>translation-service</description>
+    <name>configuration-service</name>
+    <description>configuration-service</description>
     <url/>
     <licenses>
         <license/>

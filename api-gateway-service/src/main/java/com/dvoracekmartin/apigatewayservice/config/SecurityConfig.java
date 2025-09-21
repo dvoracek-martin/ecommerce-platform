@@ -35,6 +35,12 @@ public class SecurityConfig {
     @Value("${global.controller.path.orders.base}")
     private String orderBasePath;
 
+    @Value("${global.controller.path.translations.base}")
+    private String translationBasePath;
+
+    @Value("${global.controller.path.configuration.base}")
+    private String configurationBasePath;
+
     public SecurityConfig(JwtAuthConverter jwtAuthConverter) {
         this.jwtAuthConverter = jwtAuthConverter;
     }
@@ -53,6 +59,8 @@ public class SecurityConfig {
                         .pathMatchers(customerBasePath + apiVersion + "/admin/**").hasRole("user_admin")
                         .pathMatchers(cartBasePath + apiVersion + "/admin/**").hasRole("user_admin")
                         .pathMatchers(orderBasePath + apiVersion + "/admin/**").hasRole("user_admin")
+                        .pathMatchers(translationBasePath + apiVersion + "/admin/**").hasRole("user_admin")
+                        .pathMatchers(configurationBasePath + apiVersion + "/admin/**").hasRole("user_admin")
 
                         // 3. Permit all GET requests to non-admin paths after admin rules are applied
                         .pathMatchers(HttpMethod.GET, catalogBasePath + apiVersion + "/**").permitAll()
@@ -60,7 +68,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, customerBasePath + apiVersion + "/**").permitAll()
                         .pathMatchers(HttpMethod.GET, cartBasePath + apiVersion + "/**").permitAll()
                         .pathMatchers(HttpMethod.GET, orderBasePath + apiVersion + "/**").permitAll()
-
+                        .pathMatchers(HttpMethod.GET, translationBasePath + apiVersion + "/**").permitAll()
 
                         // 4. Permit POST requests to non-admin paths in specific cases
                         .pathMatchers(HttpMethod.POST, catalogBasePath + apiVersion + "/mixtures").permitAll()
