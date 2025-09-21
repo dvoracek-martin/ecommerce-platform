@@ -166,7 +166,9 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
       priority: [0, [Validators.required, Validators.min(0)]],
       active: [false],
       tagIds: [[]],
-      media: this.fb.array([])
+      media: this.fb.array([]),
+      url:['', [Validators.required, Validators.minLength(3)]],
+      mixable: [false]
     });
   }
 
@@ -196,7 +198,9 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
       name: cat.name,
       description: cat.description,
       priority: cat.priority,
-      active: cat.active
+      active: cat.active,
+      mixable: cat.mixable,
+      url: cat.url
     });
 
     const existingIds = cat.responseTagDTOS.map(t => t.id);

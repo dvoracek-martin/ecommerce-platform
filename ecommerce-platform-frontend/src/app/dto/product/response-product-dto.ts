@@ -8,5 +8,6 @@ export interface ResponseProductDTO extends BaseUpdateOrResponseDTO {
   categoryId?: number;
   responseCategoryDTOs?: ResponseCategoryDTO[];
   responseTagDTOS?: ResponseTagDTO[];
-  images?: string[]; // Opt
+  mixable: boolean;
+  displayInProducts: boolean;
 }

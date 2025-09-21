@@ -6,4 +6,5 @@ export interface CreateMixtureDTO extends BaseCreateDTO {
   categoryId: number; // Assuming a single category for creation
   productIds?: number[];
   tagIds?: number[];
+  displayInProducts: boolean;
 }

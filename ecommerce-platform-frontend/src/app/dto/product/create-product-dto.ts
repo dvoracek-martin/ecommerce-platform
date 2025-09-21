@@ -6,4 +6,6 @@ export interface CreateProductDTO extends BaseCreateDTO {
   weightGrams?: number;
   createCategoryDTOs?: CreateCategoryDTO[];
   tagIds?: number[];
+  mixable: boolean;
+  displayInProducts: boolean;
 }

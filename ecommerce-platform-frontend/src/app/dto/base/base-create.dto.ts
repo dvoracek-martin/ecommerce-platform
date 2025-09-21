@@ -6,4 +6,5 @@ export interface BaseCreateDTO {
   priority?: number;
   active?: boolean;
   media?: MediaDTO[];
+  url: string;
 }

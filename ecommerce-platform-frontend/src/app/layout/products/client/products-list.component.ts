@@ -33,7 +33,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
 
-    this.productService.getAllProducts().subscribe({
+    this.productService.getActiveProductsForDisplayInProducts().subscribe({
       next: (data) => {
         this.products = data;
         this.initializeCarousels();

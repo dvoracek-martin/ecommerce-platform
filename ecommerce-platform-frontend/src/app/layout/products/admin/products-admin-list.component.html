@@ -47,10 +47,6 @@
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     <div class="loading-text">{{ 'PRODUCTS.LOADING' | translate }}</div>
   </div>
-  <div *ngIf="error" class="error">
-    {{ 'TAGS.ERROR_LOADING' | translate:{error: error} }}
-  </div>
-
   <div *ngIf="error" class="error-section">
     <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
     <div class="error-text">{{ error }}</div>
@@ -61,10 +57,7 @@
   </div>
 
   <div *ngIf="!isLoading && !error" class="products-grid">
-    <div
-      *ngFor="let product of filteredProducts; let prodIndex = index; trackBy: trackById"
-      class="product-card"
-    >
+    <div *ngFor="let product of filteredProducts; let prodIndex = index; trackBy: trackById" class="product-card">
       <div (click)="navigateToUpdate(product.id)" class="card-link">
         <ng-container *ngIf="product.media?.length; else noMedia">
           <div class="product-image-container">

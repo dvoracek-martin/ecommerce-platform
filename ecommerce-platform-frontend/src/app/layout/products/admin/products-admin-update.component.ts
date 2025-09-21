@@ -189,7 +189,10 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       active: [false],
       weightGrams: [0],
       tagIds: [[]],
-      media: this.fb.array([])
+      media: this.fb.array([]),
+      url:['', [Validators.required, Validators.minLength(3)]],
+      mixable: false,
+      displayInProducts: false,
     });
   }
 
@@ -241,7 +244,10 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       weightGrams: p.weightGrams,
       categoryId: p.categoryId,
       priority: p.priority,
-      active: p.active
+      active: p.active,
+      url: p.url,
+      mixable: p.mixable,
+      displayInProducts: p.displayInProducts
     });
 
     // Media

@@ -111,7 +111,9 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
       priority: [0, [Validators.required, Validators.min(0)]],
       active: [false],
       tagIds: [[]],
-      media: this.fb.array([])
+      media: this.fb.array([]),
+      url:['', [Validators.required, Validators.minLength(3)]],
+      mixable: [false]
     });
   }
 

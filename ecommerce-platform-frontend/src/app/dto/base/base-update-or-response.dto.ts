@@ -7,4 +7,5 @@ export interface BaseUpdateOrResponseDTO {
   priority: number;
   active: boolean;
   media?: MediaDTO[];
+  url: string;
 }

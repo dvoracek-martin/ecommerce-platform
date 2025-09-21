@@ -5,4 +5,6 @@ export interface UpdateProductDTO extends BaseUpdateOrResponseDTO {
   weightGrams?: number;
   categoryId?: number;
   tagIds?: number[];
+  mixable: boolean;
+  displayInProducts: boolean;
 }

@@ -8,4 +8,5 @@ export interface ResponseMixtureDTO extends BaseUpdateOrResponseDTO {
   products?: ResponseProductDTO[];
   tagIds?: number[];
   totalPrice?: number;
+  displayInProducts: boolean;
 }

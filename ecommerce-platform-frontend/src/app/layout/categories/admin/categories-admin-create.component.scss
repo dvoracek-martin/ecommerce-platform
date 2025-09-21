@@ -17,6 +17,22 @@
   margin-bottom: 1.5rem;
 }
 
+.checkboxes-row {
+  display: flex;
+  width: 100%;
+  gap: 0;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .form-field {
   flex: 1;
 }

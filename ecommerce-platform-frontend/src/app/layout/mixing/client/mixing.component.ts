@@ -72,12 +72,12 @@ export class MixingComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
 
-    this.categoryService.getActiveCategories().subscribe({
+    this.categoryService.getActiveCategoriesForMixing().subscribe({
       next: (categories) => {
         this.categories = categories;
         this.getPremiumCategoryId();
 
-        const requests = categories.map(cat => this.productService.getActiveProductsByCategoryId(cat.id));
+        const requests = categories.map(cat => this.productService.getActiveProductsForMixingByCategoryId(cat.id));
         forkJoin(requests).subscribe({
           next: (results) => {
             categories.forEach((cat, index) => {
@@ -313,6 +313,8 @@ export class MixingComponent implements OnInit, OnDestroy {
       priority: 0,
       active: false,
       media: [],
+      displayInProducts: false,
+      url:''
     };
 
     this.mixtureService.saveMixture([createMixtureRequest]).subscribe({

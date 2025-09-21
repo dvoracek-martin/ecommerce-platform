@@ -48,7 +48,15 @@
               <textarea formControlName="description" matInput></textarea>
             </mat-form-field>
           </div>
-
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'PRODUCTS.URL' | translate }}</mat-label>
+              <input formControlName="url" matInput required>
+              <mat-error *ngIf="productForm.get('url')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'PRODUCTS.CATEGORY' | translate }}</mat-label>
@@ -62,14 +70,7 @@
               </mat-error>
             </mat-form-field>
 
-            <div class="form-field form-section">
-              <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
-                {{ 'PRODUCTS.ACTIVE' | translate }}
-              </mat-checkbox>
-            </div>
-          </div>
 
-          <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'PRODUCTS.PRIORITY' | translate }}</mat-label>
               <input formControlName="priority" matInput type="number">
@@ -77,6 +78,28 @@
                 {{ 'VALIDATION.MIN' | translate }}: 0
               </mat-error>
             </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field form-section">
+              <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
+                {{ 'PRODUCTS.ACTIVE' | translate }}
+              </mat-checkbox>
+            </div>
+            <div class="form-row">
+              <div class="form-field form-section">
+                <mat-checkbox class="admin-mixable-checkbox-wrapper" formControlName="mixable">
+                  {{ 'PRODUCTS.MIXABLE' | translate }}
+                </mat-checkbox>
+              </div>
+              <div class="form-row">
+                <div class="form-field form-section">
+                  <mat-checkbox class="admin-display-in-products-checkbox-wrapper" formControlName="displayInProducts">
+                    {{ 'PRODUCTS.DISPLAY_IN_PRODUCTS' | translate }}
+                  </mat-checkbox>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

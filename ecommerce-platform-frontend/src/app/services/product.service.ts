@@ -53,4 +53,12 @@ export class ProductService {
       { params: { objectKey } }
     );
   }
+
+  getActiveProductsForMixingByCategoryId(id: number) {
+    return this.http.get<ResponseProductDTO[]>(`${this.apiUrl}/active-products-for-mixing-by-category-id/${id}`);
+  }
+
+  getActiveProductsForDisplayInProducts() {
+    return this.http.get<ResponseProductDTO[]>(`${this.apiUrl}/active-products-for-display-in-products`);
+  }
 }

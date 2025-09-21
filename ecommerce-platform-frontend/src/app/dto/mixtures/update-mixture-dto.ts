@@ -6,4 +6,5 @@ export interface UpdateMixtureDTO extends BaseUpdateOrResponseDTO {
   categoryId: number;
   productIds?: number[];
   tagIds?: number[];
+  displayInProducts: boolean;
 }

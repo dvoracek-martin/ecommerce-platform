@@ -53,6 +53,15 @@
               <textarea formControlName="description" matInput></textarea>
             </mat-form-field>
           </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'PRODUCTS.URL' | translate }}</mat-label>
+              <input formControlName="url" matInput required>
+              <mat-error *ngIf="productForm.get('url')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
@@ -68,12 +77,41 @@
               <mat-label>{{ 'PRODUCTS.PRIORITY' | translate }}</mat-label>
               <input formControlName="priority" matInput type="number">
             </mat-form-field>
-
+          </div>
+          <div class="form-row">
             <div class="form-field form-section">
               <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
                 {{ 'PRODUCTS.ACTIVE' | translate }}
               </mat-checkbox>
             </div>
+            <div class="form-row">
+              <div class="form-field form-section">
+                <mat-checkbox class="admin-mixable-checkbox-wrapper" formControlName="mixable">
+                  {{ 'PRODUCTS.MIXABLE' | translate }}
+                </mat-checkbox>
+              </div>
+              <div class="form-row">
+                <div class="form-field form-section">
+                  <mat-checkbox class="admin-display-in-products-checkbox-wrapper" formControlName="displayInProducts">
+                    {{ 'PRODUCTS.DISPLAY_IN_PRODUCTS' | translate }}
+                  </mat-checkbox>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>spa</mat-icon>
+            {{ 'PRODUCTS.ADMIN.DETAILS' | translate }}
+          </h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'PRODUCTS.WEIGHT_GRAMS' | translate }}</mat-label>
+              <input formControlName="weightGrams" matInput type="number">
+            </mat-form-field>
           </div>
         </div>
 
@@ -93,20 +131,6 @@
                   {{ t.name }}
                 </mat-option>
               </mat-select>
-            </mat-form-field>
-          </div>
-        </div>
-
-        <!-- Details -->
-        <div class="form-section">
-          <h3 class="section-subtitle">
-            <mat-icon>spa</mat-icon>
-            {{ 'PRODUCTS.ADMIN.DETAILS' | translate }}
-          </h3>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'PRODUCTS.WEIGHT_GRAMS' | translate }}</mat-label>
-              <input formControlName="weightGrams" matInput type="number">
             </mat-form-field>
           </div>
         </div>

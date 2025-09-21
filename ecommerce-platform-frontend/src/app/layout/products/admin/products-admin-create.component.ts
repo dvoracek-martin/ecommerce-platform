@@ -80,7 +80,10 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
       active: [false],
       weightGrams: [0],
       tagIds: [[]],
-      media: this.fb.array([])
+      media: this.fb.array([]),
+      url:['', [Validators.required, Validators.minLength(3)]],
+      mixable: false,
+      displayInProducts: false,
     });
   }
 

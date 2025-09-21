@@ -44,25 +44,40 @@
                         placeholder="{{ 'CATEGORIES.ADMIN.DESCRIPTION_PLACEHOLDER' | translate }}"></textarea>
             </mat-form-field>
           </div>
-
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CATEGORIES.URL' | translate }}</mat-label>
+              <input formControlName="url" matInput required>
+              <mat-error *ngIf="categoryForm.get('url')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'CATEGORIES.PRIORITY' | translate }}</mat-label>
               <input formControlName="priority" matInput required type="number">
-              <mat-error *ngIf="categoryForm.get('priority')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
+              <mat-error
+                *ngIf="categoryForm.get('priority')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
-              <mat-error *ngIf="categoryForm.get('priority')?.hasError('min')">
-                {{ 'VALIDATION.MIN' | translate }}: 0
+              <mat-error *ngIf="categoryForm.get('priority')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}: 0
               </mat-error>
             </mat-form-field>
-
-            <div class="form-field form-section">
+          </div>
+          <div class="form-row checkboxes-row">
+            <div class="form-field half-width centered">
               <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
                 {{ 'CATEGORIES.ACTIVE' | translate }}
               </mat-checkbox>
             </div>
+
+            <div class="form-field half-width centered">
+              <mat-checkbox class="admin-mixable-checkbox-wrapper" formControlName="mixable">
+                {{ 'CATEGORIES.MIXABLE' | translate }}
+              </mat-checkbox>
+            </div>
           </div>
+
         </div>
 
         <!-- TAGS -->
