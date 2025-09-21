@@ -1,8 +1,8 @@
-<div class="order-container">
-  <div class="order-header">
+<div class="customer-container">
+  <div class="customer-header">
     <div class="admin-title-section">
       <h1>{{ 'CUSTOMER.TITLE' | translate }}</h1>
-      <div class="order-date">
+      <div class="customer-id">
         {{ 'CUSTOMER.ID' | translate }}: {{ (customer.id) }}
       </div>
     </div>
@@ -12,11 +12,11 @@
     </div>
   </div>
 
-  <div class="order-layout-wrapper">
-    <div class="order-main-content-wrapper">
-      <div class="order-content">
+  <div class="customer-layout-wrapper">
+    <div class="customer-main-content-wrapper">
+      <div class="customer-content">
         <!-- Customer Form -->
-        <div class="order-items-section">
+        <div class="customer-items-section">
           <form id="customerForm" (ngSubmit)="onSave()" [formGroup]="customerForm" class="form-one-column-wrapper" id="customerForm">
             <div class="form-content">
               <mat-progress-bar *ngIf="saving || savingPassword" class="admin-save-progress"

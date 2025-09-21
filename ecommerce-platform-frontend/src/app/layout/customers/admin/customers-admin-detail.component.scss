@@ -184,7 +184,7 @@
 /*==============================
   Order Page Layout
 ==============================*/
-.order-container {
+.customer-container {
   font-family: 'Poppins', sans-serif;
   color: #2c3e50;
   background-color: #f4f6f9;
@@ -194,7 +194,7 @@
   padding: 20px;
 }
 
-.order-header {
+.customer-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -211,14 +211,14 @@
       font-size: 2rem;
       color: white;
     }
-    .order-date {
+    .customer-id {
       color: rgba(255, 255, 255, 0.9);
       font-size: 1rem;
     }
   }
 }
 
-.order-layout-wrapper {
+.customer-layout-wrapper {
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -226,19 +226,19 @@
   width: 100%;
 }
 
-.order-main-content-wrapper {
+.customer-main-content-wrapper {
   flex: 1;
   max-width: 900px;
   min-height: 60vh;
 }
 
-.order-content {
+.customer-content {
   display: flex;
   flex-direction: column;
   gap: 30px;
 }
 
-.order-items-section,
+.customer-items-section,
 .order-info-section {
   background: #ffffff;
   border-radius: 16px;
@@ -279,12 +279,12 @@
 }
 
 @media (max-width: 768px) {
-  .order-layout-wrapper {
+  .customer-layout-wrapper {
     flex-direction: column;
     align-items: center;
   }
 
-  .order-main-content-wrapper {
+  .customer-main-content-wrapper {
     max-width: 100%;
   }
 
@@ -295,14 +295,14 @@
     margin-top: 30px;
   }
 
-  .order-header {
+  .customer-header {
     flex-direction: column;
     gap: 20px;
   }
 }
 
 @media (max-width: 600px) {
-  .order-container {
+  .customer-container {
     padding: 10px;
   }
 
