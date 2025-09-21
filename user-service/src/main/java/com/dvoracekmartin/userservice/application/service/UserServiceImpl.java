@@ -25,13 +25,12 @@ import java.util.Optional;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    private final KeycloakUserService keycloakUserService;
+    private final UserAuthenticationService userAuthenticationService;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final UserEventPublisher userEventPublisher;
     private final JavaMailSender mailSender;
     private final PasswordResetService passwordResetService;
-    private final ServletContext servletContext;
 
     @Value("${global.mailserver.reset-link.subject}")
     private String resetUserPasswordSubject;
@@ -55,7 +54,7 @@ public class UserServiceImpl implements UserService {
             return userMapper.createUserDTOToResponseUserDTO(createUserDTO, Response.Status.CONFLICT.getStatusCode());
         }
 
-        Response keycloakResponse = keycloakUserService.createUser(createUserDTO);
+        Response keycloakResponse = userAuthenticationService.createUser(createUserDTO);
         int status = keycloakResponse.getStatus();
         log.info("Keycloak user creation responded with status: {}", status);
 
@@ -84,7 +83,7 @@ public class UserServiceImpl implements UserService {
             return userMapper.updateUserDTOToResponseUserDTO(updateUserDTO, Response.Status.CONFLICT.getStatusCode());
         }
 
-        Response keycloakResponse = keycloakUserService.updateUser(userId, updateUserDTO);
+        Response keycloakResponse = userAuthenticationService.updateUser(userId, updateUserDTO);
         int status = keycloakResponse.getStatus();
         log.info("Keycloak update responded with status: {}", status);
 
@@ -108,7 +107,7 @@ public class UserServiceImpl implements UserService {
             return new ResponseUserDTO(userId, null, null, Response.Status.NOT_FOUND.getStatusCode(), false);
         }
 
-        Response keycloakResponse = keycloakUserService.deleteUser(userId);
+        Response keycloakResponse = userAuthenticationService.deleteUser(userId);
         int status = keycloakResponse.getStatus();
         log.info("Keycloak deletion responded with status: {}", status);
 
@@ -131,7 +130,7 @@ public class UserServiceImpl implements UserService {
             return userMapper.updateUserPasswordDTOToResponseUserDTO(updateUserPasswordDTO, Response.Status.NOT_FOUND.getStatusCode());
         }
 
-        Response keycloakResponse = keycloakUserService.updateUserPassword(userId, updateUserPasswordDTO);
+        Response keycloakResponse = userAuthenticationService.updateUserPassword(userId, updateUserPasswordDTO);
         int status = keycloakResponse.getStatus();
         log.info("Keycloak password update responded with status: {}", status);
 
@@ -181,10 +180,10 @@ public class UserServiceImpl implements UserService {
             return ResponseEntity.notFound().build();
         }
 
-        String userId = keycloakUserService.getUserIdByUsername(email);
+        String userId = userAuthenticationService.getUserIdByUsername(email);
         log.debug("Found userId {} for email {}", userId, email);
 
-        Response keycloakResponse = keycloakUserService.resetPassword(userId, newPassword);
+        Response keycloakResponse = userAuthenticationService.resetPassword(userId, newPassword);
         int status = keycloakResponse.getStatus();
         log.info("Keycloak reset password responded with status: {}", status);
 
@@ -202,8 +201,8 @@ public class UserServiceImpl implements UserService {
         }
 
         // TODO try with resource
-        keycloakUserService.addOrRevokeUserAccess(userId, updateUserDTO.active());
-        keycloakUserService.updateUserEmail(updateUserDTO);
+        userAuthenticationService.addOrRevokeUserAccess(userId, updateUserDTO.active());
+        userAuthenticationService.updateUserEmail(updateUserDTO);
         userRepository.save(userMapper.updateUserDTOToUser(updateUserDTO, userId));
         log.info("User with ID {} updated successfully", userId);
 
@@ -213,16 +212,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<ResponseUserDTO> getAllUsers() {
         log.info("Fetching all users");
-        return userRepository.findAll().stream()
-                .map(userMapper::userToResponseUserDTO)
-                .toList();
+        return userRepository.findAll().stream().map(userMapper::userToResponseUserDTO).toList();
     }
 
     @Override
     public ResponseUserDTO getUserById(String userId) {
         log.info("Fetching user by ID: {}", userId);
-        return userRepository.findById(userId)
-                .map(userMapper::userToResponseUserDTO)
-                .orElse(null);
+        return userRepository.findById(userId).map(userMapper::userToResponseUserDTO).orElse(null);
     }
 }

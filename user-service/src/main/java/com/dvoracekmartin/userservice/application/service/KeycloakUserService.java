@@ -13,13 +13,13 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 
-@Component
+@Service
 @Slf4j
-public class KeycloakUserService {
+public class KeycloakUserService implements UserAuthenticationService{
 
     private static final String USER_CLIENT_ROLE = "user_client";
 
