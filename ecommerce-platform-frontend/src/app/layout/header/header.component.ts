@@ -2,7 +2,7 @@ import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from 
 import {TranslateService} from '@ngx-translate/core';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
-import {Router} from '@angular/router';
+import {NavigationStart, Router} from '@angular/router';
 import {Observable, Subject, Subscription} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';
@@ -19,11 +19,6 @@ import {ResponseTagDTO} from '../../dto/tag/response-tag-dto';
 import {ConfirmationDialogComponent} from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import {Customer} from '../../dto/customer/customer-dto';
 import {CustomerService} from '../../services/customer.service';
-
-interface CartItemWithDetails extends CartItem {
-  product?: ResponseProductDTO;
-  mixture?: ResponseMixtureDTO;
-}
 
 @Component({
   selector: 'app-header',
@@ -53,10 +48,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private closeCartPreviewTimeout: any = null;
   private cartPreviewCloseDelay = 300;
   loadingItems = new Map<string, boolean>();
-
-  // New property to track loading state
   isLoadingCart = true;
   private cartSubscription!: Subscription;
+  private routerSubscription!: Subscription;
 
   @ViewChild('cartButton', {read: ElementRef}) cartButtonRef!: ElementRef<HTMLElement>;
 
@@ -107,6 +101,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.isLoadingCart = false;
     });
 
+    this.routerSubscription = this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.isCartPreviewOpen = false;
+        this.cancelCloseCartPreview();
+      }
+    });
+
     this.setPreferredLanguage();
     this.customerService.userLanguage$.subscribe(lang => {
       this.translate.use(lang).subscribe(() => {
@@ -121,6 +122,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.searchSubscription) this.searchSubscription.unsubscribe();
     if (this.cartSubscription) this.cartSubscription.unsubscribe();
+    if (this.routerSubscription) this.routerSubscription.unsubscribe(); // FIX: Unsubscribe from router events
     this.cancelCloseCartPreview();
     this.searchSubject.complete();
   }
@@ -408,5 +410,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.translate.use(browserLang);
       this.selectedLanguage = this.languages.find(l => l.code === browserLang)! || this.selectedLanguage;
     }
+  }
+
+  goToProductFromCart(product: ResponseProductDTO): void {
+    console.log('Navigating to product from cart:', product.id);
+    this.router.navigate([`/products/${product.id}`]);
   }
 }

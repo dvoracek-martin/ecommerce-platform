@@ -82,11 +82,14 @@
                        [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
                        [alt]="item.product.name"
                        class="item-image"
-                       (click)="goToProduct(item.product); $event.stopPropagation()"/>
+                       (click)="goToProductFromCart(item.product); $event.stopPropagation()"/>
 
                   <div class="item-info">
                     <div class="item-header">
-                      <span class="item-name" (click)="goToProduct(item.product); $event.stopPropagation()">{{ item.product.name }}</span>
+                    <span class="item-name"
+                          (click)="goToProductFromCart(item.product); $event.stopPropagation()">
+  {{ item.product.name }}
+</span>
                       <span class="item-price">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }}</span>
                     </div>
 

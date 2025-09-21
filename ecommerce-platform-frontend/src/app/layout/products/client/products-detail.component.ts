@@ -4,6 +4,8 @@ import { ProductService } from '../../../services/product.service';
 import { CartService } from '../../../services/cart.service';
 import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
 import { CartItemType } from '../../../dto/cart/cart-item-type';
+import { switchMap } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-products-detail',
@@ -18,6 +20,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   activeSlideIndex = 0;
   isGalleryOpen = false;
   private interval: any;
+  private routeSub!: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -27,28 +30,33 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    const productId = this.route.snapshot.paramMap.get('id');
-    if (!productId) {
-      this.error = 'Product not found';
-      this.loading = false;
-      return;
-    }
-    this.loadProduct(+productId);
-  }
-
-  loadProduct(id: number) {
-    this.loading = true;
-    this.productService.getProductById(id).subscribe({
+    this.routeSub = this.route.paramMap.pipe(
+      switchMap(params => {
+        const productId = params.get('id');
+        this.loading = true;
+        if (!productId) {
+          this.error = 'Product not found';
+          this.loading = false;
+          return new Promise<ResponseProductDTO | null>(resolve => resolve(null));
+        }
+        return this.productService.getProductById(+productId);
+      })
+    ).subscribe({
       next: (data) => {
         this.product = data;
         this.loading = false;
+        if (this.interval) clearInterval(this.interval);
         this.startCarousel();
       },
       error: (err) => {
         this.error = err.message || 'Failed to load product';
         this.loading = false;
+        this.product = null;
       }
     });
+  }
+
+  loadProduct(id: number) {
   }
 
   startCarousel() {
@@ -78,7 +86,6 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
 
   openGallery() {
     this.isGalleryOpen = true;
-    // Pause carousel when gallery is open
     if (this.interval) {
       clearInterval(this.interval);
     }
@@ -86,7 +93,6 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
 
   closeGallery() {
     this.isGalleryOpen = false;
-    // Resume carousel when gallery is closed
     this.startCarousel();
   }
 
@@ -122,5 +128,6 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.interval) clearInterval(this.interval);
+    if (this.routeSub) this.routeSub.unsubscribe();
   }
 }
