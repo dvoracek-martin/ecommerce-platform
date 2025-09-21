@@ -1,4 +1,4 @@
-package com.dvoracekmartin.catalogservice.v1;
+package com.dvoracekmartin.catalogservice.web.controller.v1;
 
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.search.ResponseSearchResultDTO;

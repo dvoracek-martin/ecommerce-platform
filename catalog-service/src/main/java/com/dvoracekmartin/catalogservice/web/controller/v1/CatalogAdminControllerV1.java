@@ -1,4 +1,4 @@
-package com.dvoracekmartin.catalogservice.v1;
+package com.dvoracekmartin.catalogservice.web.controller.v1;
 
 import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategoryDTO;
 import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;

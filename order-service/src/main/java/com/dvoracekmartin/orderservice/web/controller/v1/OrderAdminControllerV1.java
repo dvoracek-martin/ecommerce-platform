@@ -1,4 +1,4 @@
-package com.dvoracekmartin.orderservice.v1;
+package com.dvoracekmartin.orderservice.web.controller.v1;
 
 import com.dvoracekmartin.orderservice.application.dto.OrderResponseDTO;
 import com.dvoracekmartin.orderservice.application.dto.UpdateOrderDTO;
