@@ -410,6 +410,29 @@ export class CartService {
       );
   }
 
+  updateQuantity(itemId: number, quantity: number): void {
+    const currentCart = this._cart.getValue();
+    if (!currentCart) {
+      this.showSnackbar('No cart available.', 'error');
+      return;
+    }
+
+    const item = currentCart.items.find(ci => ci.itemId === itemId);
+    if (!item) {
+      this.showSnackbar('Item not found in cart.', 'error');
+      return;
+    }
+
+    this.updateItem(itemId, quantity, item.cartItemType).subscribe({
+      next: (cart) => {
+        this._cart.next(cart);
+      },
+      error: (err) => {
+        console.error('Failed to update quantity:', err);
+      }
+    });
+  }
+
   clearCart(): Observable<Cart> {
     if (this.authService.isTokenValid()) {
       return this.http.delete<Cart>(`${this.apiUrl}/clear`)
