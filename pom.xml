@@ -20,6 +20,7 @@
         <module>payment-service</module>
         <module>shipping-service</module>
         <module>cart-service</module>
+        <module>translation-service</module>
         <module>common</module>
     </modules>
 
