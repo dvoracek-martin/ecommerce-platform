@@ -90,28 +90,37 @@
                       <span class="item-price">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }}</span>
                     </div>
 
+                    <!-- Inside the cart preview panel, update the quantity controls -->
                     <div class="item-controls">
                       <div class="item-quantity">
-                        <div class="quantity-selector">
-                          <button class="quantity-btn decrease"
-                                  (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
-                            <mat-icon>remove</mat-icon>
-                          </button>
-                          <input type="number"
-                                 [value]="item.quantity"
-                                 min="0"
-                                 (change)="onQuantityChange($event, item)"
-                                 (keydown)="$event.stopPropagation()"
-                                 class="quantity-input">
-                          <button class="quantity-btn increase"
-                                  (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
-                            <mat-icon>add</mat-icon>
-                          </button>
+                        <div class="quantity-controls-container">
+                          <div class="quantity-selector" [class.loading]="isItemLoading(item)">
+                            <button class="quantity-btn decrease"
+                                    [disabled]="isItemLoading(item)"
+                                    (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
+                              <mat-icon>remove</mat-icon>
+                            </button>
+                            <input type="number"
+                                   [value]="item.quantity"
+                                   min="0"
+                                   (change)="onQuantityChange($event, item)"
+                                   (keydown)="$event.stopPropagation()"
+                                   class="quantity-input"
+                                   [disabled]="isItemLoading(item)">
+                            <button class="quantity-btn increase"
+                                    [disabled]="isItemLoading(item)"
+                                    (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
+                              <mat-icon>add</mat-icon>
+                            </button>
+                          </div>
+                          <div class="quantity-loading" *ngIf="isItemLoading(item)">
+                            <div class="spinner"></div>
+                          </div>
                         </div>
                       </div>
 
                       <div class="item-total">
-                        {{ item.product.price * item.quantity | currency:'USD':'symbol':'1.2-2' }}
+                        {{ (item.product?.price || item.mixture?.price || 0) * item.quantity | currency:'USD':'symbol':'1.2-2' }}
                       </div>
                     </div>
                   </div>

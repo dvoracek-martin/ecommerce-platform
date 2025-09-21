@@ -52,6 +52,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isCartPreviewOpen = false;
   private closeCartPreviewTimeout: any = null;
   private cartPreviewCloseDelay = 300;
+  loadingItems = new Map<string, boolean>();
 
   // New property to track loading state
   isLoadingCart = true;
@@ -279,43 +280,69 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  updateItemQuantity(item: CartItemWithDetails, action: 'increase' | 'decrease'): void {
+  updateItemQuantity(item: CartItem, action: 'increase' | 'decrease'): void {
+    const key = `${item.itemId}-${item.cartItemType}`;
+    this.loadingItems.set(key, true);
+
     const newQuantity = action === 'increase' ? item.quantity + 1 : item.quantity - 1;
     if (newQuantity < 1) {
       this.removeItem(item.itemId);
+      this.loadingItems.delete(key);
       return;
     }
+
     this.cartService.updateItem(item.itemId, newQuantity, item.cartItemType).subscribe(
-      () => this.showSnackbar('Cart item quantity updated!', 'success'),
+      () => {
+        this.loadingItems.delete(key);
+        this.showSnackbar('Cart item quantity updated!', 'success');
+      },
       error => {
+        this.loadingItems.delete(key);
         this.showSnackbar('Failed to update item quantity.', 'error');
         console.error('Update quantity error:', error);
       }
     );
   }
 
-  onQuantityChange(event: Event, item: CartItemWithDetails): void {
+  onQuantityChange(event: Event, item: CartItem): void {
+    const key = `${item.itemId}-${item.cartItemType}`;
+    this.loadingItems.set(key, true);
+
     const input = event.target as HTMLInputElement;
     const newQuantity = parseInt(input.value, 10);
+
     if (newQuantity === 0) {
       this.removeItem(item.itemId);
+      this.loadingItems.delete(key);
       return;
     }
+
     if (isNaN(newQuantity) || newQuantity < 0) {
       const currentCart = this.cartService.getCurrentCartValue();
       const currentItem = currentCart?.items.find(i => i.itemId === item.itemId && i.cartItemType === item.cartItemType);
       if (currentItem) {
         input.value = currentItem.quantity.toString();
       }
+      this.loadingItems.delete(key);
       return;
     }
+
     this.cartService.updateItem(item.itemId, newQuantity, item.cartItemType).subscribe(
-      () => this.showSnackbar('Cart item quantity updated!', 'success'),
+      () => {
+        this.loadingItems.delete(key);
+        this.showSnackbar('Cart item quantity updated!', 'success');
+      },
       error => {
+        this.loadingItems.delete(key);
         this.showSnackbar('Failed to update item quantity.', 'error');
         console.error('Update quantity error:', error);
       }
     );
+  }
+
+  isItemLoading(item: CartItem): boolean {
+    const key = `${item.itemId}-${item.cartItemType}`;
+    return this.loadingItems.get(key) || false;
   }
 
   removeItem(itemId: number | undefined): void {

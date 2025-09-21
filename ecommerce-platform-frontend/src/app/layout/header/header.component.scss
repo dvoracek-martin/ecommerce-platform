@@ -396,6 +396,45 @@
     }
   }
 }
+// Add these styles to your SCSS file
+.quantity-controls-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  border: 1px solid #bdc3c7;
+  border-radius: 20px;
+  overflow: hidden;
+  transition: opacity 0.3s ease;
+
+  &.loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.quantity-loading {
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+// Ensure the buttons and input are properly styled when disabled
+.quantity-btn:disabled,
+.quantity-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 
 // ===== USER MENU =====
 .modern-user-menu-container {
