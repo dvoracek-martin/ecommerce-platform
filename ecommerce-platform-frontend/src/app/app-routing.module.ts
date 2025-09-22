@@ -33,6 +33,9 @@ import {OrdersAdminListComponent} from './layout/orders/admin/orders-admin-list.
 import {OrdersAdminDetailComponent} from './layout/orders/admin/orders-admin-detail.component';
 import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 import {CustomersAdminDetailComponent} from './layout/customers/admin/customers-admin-detail.component';
+import {
+  ConfigurationAdminComponent
+} from './layout/configuration/admin/configuration-admin/configuration-admin.component';
 
 const routes: Routes = [
   {path: '', component: WelcomeComponent},
@@ -77,6 +80,7 @@ const routes: Routes = [
       {path: 'tags/create', component: TagsAdminCreateComponent},
       {path: 'orders', component: OrdersAdminListComponent},
       {path: 'orders/detail', component: OrdersAdminDetailComponent},
+      {path: 'configuration', component: ConfigurationAdminComponent},
     ]
   },
 
@@ -87,4 +91,5 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {
+}

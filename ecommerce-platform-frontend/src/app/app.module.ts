@@ -49,6 +49,9 @@ import {MatChip, MatChipSet} from '@angular/material/chips';
 import {HeaderComponent} from './layout/header/header.component';
 import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 import {CustomersAdminDetailComponent} from './layout/customers/admin/customers-admin-detail.component';
+import {
+  ConfigurationAdminComponent
+} from './layout/configuration/admin/configuration-admin/configuration-admin.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -92,7 +95,8 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     CategoriesAdminUpdateComponent,
     ConfirmationDialogComponent,
     CheckoutComponent,
-    HeaderComponent
+    HeaderComponent,
+    ConfigurationAdminComponent
   ],
   imports: [
     BrowserModule,

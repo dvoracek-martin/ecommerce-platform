@@ -1,5 +1,9 @@
-<svg clip-rule="evenodd" fill-rule="evenodd" image-rendering="optimizeQuality"
-     shape-rendering="geometricPrecision" text-rendering="geometricPrecision" viewBox="0 0 36.86 25.64" xmlns="http://www.w3.org/2000/svg">
-  <rect fill="red" height="25.64" rx="1.96" ry="2.03" width="36.86"/>
-  <path d="M16.18 5.31h4.5v5.26h5.26v4.5h-5.26v5.26h-4.5v-5.26h-5.26v-4.5h5.26z" fill="#FEFEFE" fill-rule="nonzero"/>
+<svg xmlns="http://www.w3.org/2000/svg" id="flag-icons-ch" viewBox="0 0 640 480">
+  <g fill-rule="evenodd" stroke-width="1pt">
+    <path fill="red" d="M0 0h640v480H0z"/>
+    <g fill="#fff">
+      <path d="M170 195h300v90H170z"/>
+      <path d="M275 90h90v300h-90z"/>
+    </g>
+  </g>
 </svg>

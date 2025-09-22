@@ -1,0 +1,65 @@
+.section-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  color: #424242;
+  margin-bottom: 1.5rem;
+}
+
+.section-subtitle mat-icon {
+  color: #757575;
+}
+
+.form-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-field {
+  flex: 1;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Locale flags */
+.locale-flag {
+  width: 20px;
+  height: 15px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+
+/* Locale dropdown grid */
+.mat-select-panel .mat-option {
+  display: flex;
+  align-items: center;
+}
+
+/* Admin buttons */
+.admin-action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .form-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .admin-action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+}

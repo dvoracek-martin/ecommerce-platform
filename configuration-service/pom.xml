@@ -126,6 +126,12 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
 
+        <!-- Liquibase -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+
         <!-- Kafka Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

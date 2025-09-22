@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!-- Table: theme -->
+    <changeSet id="0001-create-theme" author="martin">
+        <createTable tableName="theme">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="definition" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Table: app_settings -->
+    <changeSet id="0002-create-app-settings" author="martin">
+        <createTable tableName="app_settings">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="theme" type="VARCHAR(255)"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Table: locale -->
+    <changeSet id="0003-create-locale" author="martin">
+        <createTable tableName="locale">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="language_code" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="region_code" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="in_use" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="app_settings_id" type="BIGINT"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="locale"
+                                 baseColumnNames="app_settings_id"
+                                 referencedTableName="app_settings"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_locale_app_settings"/>
+    </changeSet>
+
+</databaseChangeLog>

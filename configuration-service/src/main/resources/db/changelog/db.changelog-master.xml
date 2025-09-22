@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!-- Include your initial schema creation changelog if it exists -->
+    <!-- <include file="db/changelog/changes/000-initial-schema.xml" relativeToChangelogFile="true"/> -->
+
+    <!-- Include the changelog that populates the available_locales -->
+    <include file="changelog/001-create-tables.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/002-populate-available-locales.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

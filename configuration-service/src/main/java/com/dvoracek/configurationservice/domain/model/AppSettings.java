@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "app_settings")
@@ -18,7 +19,15 @@ public class AppSettings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String enabledLocales;
+
+    @ManyToMany
+    @JoinTable(
+            name = "app_settings_locales",
+            joinColumns = @JoinColumn(name = "app_settings_id"),
+            inverseJoinColumns = @JoinColumn(name = "locale_id")
+    )
+    private List<Locale> usedLocales;
+
     private String theme;
     private LocalDateTime updatedAt;
 }

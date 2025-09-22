@@ -1,0 +1,65 @@
+<div class="admin-container">
+  <mat-card class="admin-card">
+    <div class="admin-header-section">
+      <div class="admin-header-content">
+        <div class="admin-title-section">
+          <h1>{{ 'CONFIGURATION.TITLE' | translate }}</h1>
+          <p class="admin-subtitle">{{ 'CONFIGURATION.ADMIN_SUBTITLE.UPDATE' | translate }}</p>
+        </div>
+      </div>
+    </div>
+
+    <form (ngSubmit)="onSave()" [formGroup]="configurationForm" class="form-one-column-wrapper" id="configurationForm">
+
+      <div class="form-content">
+        <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
+
+        <!-- BASIC INFO -->
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>settings</mat-icon>
+            {{ 'CONFIGURATION.BASIC_SETTINGS' | translate }}
+          </h3>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CONFIGURATION.THEME' | translate }}</mat-label>
+              <input formControlName="theme" matInput required>
+              <mat-error *ngIf="configurationForm.get('theme')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CONFIGURATION.UPDATED_AT' | translate }}</mat-label>
+              <input formControlName="updatedAt" matInput readonly>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- AVAILABLE LOCALES -->
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>language</mat-icon>
+            {{ 'CONFIGURATION.AVAILABLE_LOCALES' | translate }}
+          </h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'CONFIGURATION.SELECT_LOCALES' | translate }}</mat-label>
+            <mat-select formControlName="usedLocales" multiple>
+              <mat-option *ngFor="let locale of inUseLocales" [value]="locale">
+                <img [src]="'assets/flags/' + locale.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
+                {{ locale.languageCode.toUpperCase() }}_{{ locale.regionCode.toUpperCase() }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </form>
+    <div class="admin-action-buttons">
+      <button mat-raised-button color="primary" [disabled]="saving" (click)="onSave()">
+        <mat-icon>save</mat-icon>
+        {{ 'COMMON.SAVE_SETTINGS' | translate }}
+      </button>
+    </div>
+  </mat-card>
+</div>
