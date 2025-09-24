@@ -82,7 +82,7 @@ export class CustomersAdminListComponent implements OnInit {
         (data.firstName || '').toLowerCase().includes(searchStr) ||
         (data.lastName || '').toLowerCase().includes(searchStr) ||
         (data.email || '').toLowerCase().includes(searchStr) ||
-        ( this.localeMapperService.mapLocaleByLocale(this.inUseLocales.find(l => l.id === data.preferredLanguageId)) || '').toLowerCase().includes(searchStr)
+        ( this.localeMapperService.mapLocaleByLocaleSync(this.inUseLocales.find(l => l.id === data.preferredLanguageId)) || '').toLowerCase().includes(searchStr)
       );
     };
     this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -106,7 +106,7 @@ export class CustomersAdminListComponent implements OnInit {
         // Map preferredLanguage to translated label
         this.dataSource.data = customers.map(customer => ({
           ...customer,
-          preferredLanguage: this.localeMapperService.mapLocaleByLocale(this.inUseLocales.find(l => l.id === customer.preferredLanguageId))
+          preferredLanguage: this.localeMapperService.mapLocaleByLocaleAsync(this.inUseLocales.find(l => l.id === customer.preferredLanguageId))
         }));
         this.isLoading = false;
       },

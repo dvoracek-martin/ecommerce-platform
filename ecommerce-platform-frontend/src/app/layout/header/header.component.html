@@ -35,17 +35,23 @@
   <span class="spacer"></span>
 
   <div class="toolbar-actions">
-    <div class="language-menu-container" *ngIf="languages.length > 0">
-      <button class="language-button" mat-icon-button [matMenuTriggerFor]="langMenu"
-              *ngIf="selectedLanguage">
-        <img [src]="'assets/flags/' + selectedLanguage.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
-      </button>
-      <mat-menu #langMenu="matMenu" class="language-menu">
-        <button mat-menu-item *ngFor="let lang of languages" (click)="changeLanguage(lang.languageCode)">
-          <img [src]="'assets/flags/' + lang.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
-          <span>{{ lang.languageCode.toUpperCase() }}</span>
+      <div class="language-menu-container" *ngIf="languages.length > 0">
+        <button
+          class="language-button"
+          mat-icon-button
+          [matMenuTriggerFor]="langMenu"
+          #menuTrigger="matMenuTrigger"
+          *ngIf="selectedLanguage"
+          (menuOpened)="onLanguageMenuOpened()">
+          <img [src]="'assets/flags/' + selectedLanguage.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
         </button>
-      </mat-menu>
+
+        <mat-menu #langMenu="matMenu" class="language-menu">
+          <button mat-menu-item *ngFor="let lang of languages" (click)="changeLanguage(lang.languageCode)">
+            <img [src]="'assets/flags/' + lang.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
+            {{ lang.translatedName }}
+          </button>
+        </mat-menu>
     </div>
 
     <div class="cart-container">

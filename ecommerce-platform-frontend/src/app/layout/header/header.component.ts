@@ -21,6 +21,7 @@ import {Customer} from '../../dto/customer/customer-dto';
 import {CustomerService} from '../../services/customer.service';
 import {ResponseLocaleDto} from '../../dto/configuration/response-locale-dto';
 import {ConfigurationService} from '../../services/configuration.service';
+import {LocaleMapperService} from '../../services/locale-mapper.service';
 
 @Component({
   selector: 'app-header',
@@ -63,6 +64,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private customerService: CustomerService,
     private http: HttpClient,
     private configurationService: ConfigurationService,
+    private localeMapperService: LocaleMapperService,
   ) {
   }
 
@@ -426,5 +428,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   goToProductFromCart(product: ResponseProductDTO): void {
     this.router.navigate([`/products/${product.id}`]);
+  }
+
+  onLanguageMenuOpened() {
+    this.languages.forEach(lang => {
+      lang.translatedName = this.localeMapperService.mapLocale(lang.languageCode, lang.regionCode);
+    });
   }
 }
