@@ -52,6 +52,8 @@ import {CustomersAdminDetailComponent} from './layout/customers/admin/customers-
 import {
   ConfigurationAdminComponent
 } from './layout/configuration/admin/configuration-admin/configuration-admin.component';
+import {MatDatepicker, MatDatepickerInput, MatDatepickerToggle} from "@angular/material/datepicker";
+import {MatNativeDateModule} from '@angular/material/core';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -96,7 +98,7 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     ConfirmationDialogComponent,
     CheckoutComponent,
     HeaderComponent,
-    ConfigurationAdminComponent
+    ConfigurationAdminComponent,
   ],
   imports: [
     BrowserModule,
@@ -117,6 +119,10 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     }),
     MatChip,
     MatChipSet,
+    MatDatepickerToggle,
+    MatDatepicker,
+    MatDatepickerInput,
+    MatNativeDateModule,
   ],
   providers: [
     {

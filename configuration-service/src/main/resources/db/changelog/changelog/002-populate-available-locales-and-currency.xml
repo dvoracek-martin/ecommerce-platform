@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!-- Insert default theme -->
+    <changeSet id="0006-insert-theme" author="martin">
+        <insert tableName="theme">
+            <column name="name" value="default"/>
+            <column name="definition" value="{}"/>
+        </insert>
+    </changeSet>
+
+    <!-- Insert 30 locales -->
+    <changeSet id="0007-insert-locales" author="martin">
+        <insert tableName="locale"><column name="language_code" value="de"/><column name="region_code" value="CH"/><column name="in_use" valueBoolean="true"/></insert>
+        <insert tableName="locale"><column name="language_code" value="de"/><column name="region_code" value="DE"/><column name="in_use" valueBoolean="false"/></insert>
+        <insert tableName="locale"><column name="language_code" value="en"/><column name="region_code" value="US"/><column name="in_use" valueBoolean="true"/></insert>
+        <insert tableName="locale"><column name="language_code" value="fr"/><column name="region_code" value="FR"/><column name="in_use" valueBoolean="true"/></insert>
+        <insert tableName="locale"><column name="language_code" value="fr"/><column name="region_code" value="CH"/><column name="in_use" valueBoolean="false"/></insert>
+        <insert tableName="locale"><column name="language_code" value="es"/><column name="region_code" value="ES"/><column name="in_use" valueBoolean="true"/></insert>
+        <insert tableName="locale"><column name="language_code" value="it"/><column name="region_code" value="IT"/><column name="in_use" valueBoolean="false"/></insert>
+        <insert tableName="locale"><column name="language_code" value="it"/><column name="region_code" value="CH"/><column name="in_use" valueBoolean="true"/></insert>
+    </changeSet>
+
+    <!-- Insert default currency and locale-->
+    <changeSet id="0010-insert-default-currency" author="martin">
+        <insert tableName="app_settings">
+            <column name="theme" value="default"/>
+            <column name="updated_at" valueDate="2025-01-01T00:00:00"/>
+            <column name="default_locale_id" valueNumeric="1"/> <!-- de_CH -->
+            <column name="currency" value="CHF"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

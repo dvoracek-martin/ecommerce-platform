@@ -9,6 +9,6 @@ public record ResponseCustomerDTO(
         CustomerAddressDTO address,
         CustomerBillingAddressDTO billingAddress,
         int statusCode,
-        String preferredLanguage
+        Integer preferredLanguageId
 ) {
 }

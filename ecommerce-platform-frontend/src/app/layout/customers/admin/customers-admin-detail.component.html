@@ -3,7 +3,7 @@
     <div class="admin-title-section">
       <h1>{{ 'CUSTOMER.TITLE' | translate }}</h1>
       <div class="customer-id">
-        {{ 'CUSTOMER.ID' | translate }}: {{ (customer.id) }}
+        {{ 'CUSTOMER.ID' | translate }}: {{ (customer?.id) }}
       </div>
     </div>
 
@@ -57,13 +57,29 @@
                 </div>
 
                 <div class="form-row">
-                  <mat-form-field appearance="outline" class="form-field">
+                  <mat-form-field appearance="outline" class="form-field" *ngIf="locales.length > 0">
                     <mat-label>{{ 'CUSTOMER.PREFERRED_LANGUAGE' | translate }}</mat-label>
-                    <mat-select formControlName="preferredLanguage" (selectionChange)="onLanguageChange($event.value)">
-                      <mat-option *ngFor="let lang of languages" [value]="lang.code">
-                        <mat-icon class="flag-icon" *ngIf="lang.icon" [svgIcon]="lang.icon"></mat-icon>
-                        {{ lang.name }}
+                    <mat-select
+                      formControlName="preferredLanguageId"
+                      (selectionChange)="onLanguageChange($event.value)">
+
+                      <!-- Show selected language with flag -->
+                      <mat-select-trigger>
+                        <ng-container *ngIf="selectedLanguage">
+                          <img
+                            [src]="'assets/flags/' + selectedLanguage.regionCode.toLowerCase() + '.svg'"
+                            class="locale-flag"
+                            alt="flag">
+                          {{ translateLocale(selectedLanguage) }}
+                        </ng-container>
+                      </mat-select-trigger>
+
+                      <!-- Options -->
+                      <mat-option *ngFor="let locale of locales" [value]="locale.id">
+                        <img [src]="'assets/flags/' + locale.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
+                        {{ translateLocale(locale) }}
                       </mat-option>
+
                     </mat-select>
                   </mat-form-field>
                 </div>

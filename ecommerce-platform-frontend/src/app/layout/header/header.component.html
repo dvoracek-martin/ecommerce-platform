@@ -8,19 +8,19 @@
       <mat-icon>home</mat-icon>
       <span>Home</span>
     </button>
-    <button mat-menu-item (click)="navigateToProducts()">
+    <button mat-menu-item>
       <mat-icon>shopping_bag</mat-icon>
       <span>Products</span>
     </button>
-    <button mat-menu-item (click)="navigateToMixtures()">
+    <button mat-menu-item>
       <mat-icon>blender</mat-icon>
       <span>Mixtures</span>
     </button>
-    <button mat-menu-item (click)="navigateToSales()">
+    <button mat-menu-item>
       <mat-icon>local_offer</mat-icon>
       <span>Sales</span>
     </button>
-    <button mat-menu-item (click)="navigateToAboutUs()">
+    <button mat-menu-item>
       <mat-icon>info</mat-icon>
       <span>About Us</span>
     </button>
@@ -35,15 +35,15 @@
   <span class="spacer"></span>
 
   <div class="toolbar-actions">
-    <div class="language-menu-container">
-      <button class="language-button" mat-icon-button [matMenuTriggerFor]="langMenu">
-        <mat-icon class="language-icon" svgIcon="{{ selectedLanguage.icon }}"></mat-icon>
+    <div class="language-menu-container" *ngIf="languages.length > 0">
+      <button class="language-button" mat-icon-button [matMenuTriggerFor]="langMenu"
+              *ngIf="selectedLanguage">
+        <img [src]="'assets/flags/' + selectedLanguage.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
       </button>
       <mat-menu #langMenu="matMenu" class="language-menu">
-        <button (click)="changeLanguage(lang.code)" *ngFor="let lang of languages" mat-menu-item
-                class="language-menu-item">
-          <mat-icon svgIcon="{{ lang.icon }}" class="menu-language-icon"></mat-icon>
-          <span>{{ lang.name }}</span>
+        <button mat-menu-item *ngFor="let lang of languages" (click)="changeLanguage(lang.languageCode)">
+          <img [src]="'assets/flags/' + lang.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
+          <span>{{ lang.languageCode.toUpperCase() }}</span>
         </button>
       </mat-menu>
     </div>

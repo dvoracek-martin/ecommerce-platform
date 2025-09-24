@@ -189,10 +189,10 @@ export class OrdersAdminListComponent implements OnInit {
 
         // Fetch customer info for each order
         const customerObservables: Observable<Customer>[] = orders.map(order =>
-          this.customerService.getById(order.customerId).pipe(
+          this.customerService.getByIdAdmin(order.customerId).pipe(
             catchError(err => {
               console.error(`Failed to load customer ${order.customerId}`, err);
-              return [{firstName: null, lastName: null, email: null, preferredLanguage: 'en'} as Customer];
+              return [{firstName: null, lastName: null, email: null, preferredLanguageId: 1} as Customer];
             })
           )
         );

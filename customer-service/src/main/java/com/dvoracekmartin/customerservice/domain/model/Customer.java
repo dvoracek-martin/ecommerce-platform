@@ -32,7 +32,7 @@ public class Customer {
     private boolean active;
 
     @Column
-    private String preferredLanguage;
+    private Integer preferredLanguageId;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", referencedColumnName = "id")

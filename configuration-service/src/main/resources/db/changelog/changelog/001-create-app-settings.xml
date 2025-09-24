@@ -28,6 +28,8 @@
             </column>
             <column name="theme" type="VARCHAR(255)"/>
             <column name="updated_at" type="TIMESTAMP"/>
+            <column name="default_locale_id" type="BIGINT"/>
+            <column name="currency" type="VARCHAR(10)"/>
         </createTable>
     </changeSet>
 
@@ -44,14 +46,40 @@
                 <constraints nullable="false"/>
             </column>
             <column name="in_use" type="BOOLEAN" defaultValueBoolean="false"/>
-            <column name="app_settings_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Table: app_settings_locales (Many-to-Many) -->
+    <changeSet id="0004-create-app-settings-locales" author="martin">
+        <createTable tableName="app_settings_locales">
+            <column name="app_settings_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="locale_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="locale"
+        <addForeignKeyConstraint baseTableName="app_settings_locales"
                                  baseColumnNames="app_settings_id"
                                  referencedTableName="app_settings"
                                  referencedColumnNames="id"
-                                 constraintName="fk_locale_app_settings"/>
+                                 constraintName="fk_app_settings_locales_app_settings"/>
+
+        <addForeignKeyConstraint baseTableName="app_settings_locales"
+                                 baseColumnNames="locale_id"
+                                 referencedTableName="locale"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_app_settings_locales_locale"/>
+    </changeSet>
+
+    <!-- Foreign key: default_locale_id in app_settings -->
+    <changeSet id="0005-add-fk-default-locale" author="martin">
+        <addForeignKeyConstraint baseTableName="app_settings"
+                                 baseColumnNames="default_locale_id"
+                                 referencedTableName="locale"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_app_settings_default_locale"/>
     </changeSet>
 
 </databaseChangeLog>

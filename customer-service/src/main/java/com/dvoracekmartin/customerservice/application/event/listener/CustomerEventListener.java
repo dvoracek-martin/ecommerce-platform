@@ -28,7 +28,7 @@ public class CustomerEventListener {
                 null,
                 null,
                 null,
-                event.preferredLanguage(),
+                event.preferredLanguageId(),
                 event.active()
 
         );

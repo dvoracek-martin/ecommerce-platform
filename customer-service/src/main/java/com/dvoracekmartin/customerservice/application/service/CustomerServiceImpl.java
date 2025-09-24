@@ -66,7 +66,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         customer.setFirstName(updateCustomerDTO.firstName());
         customer.setLastName(updateCustomerDTO.lastName());
-        customer.setPreferredLanguage(updateCustomerDTO.preferredLanguage());
+        customer.setPreferredLanguageId(updateCustomerDTO.preferredLanguageId());
         customer.setAddress(customerMapper.customerAddressDTOToAddress(updateCustomerDTO.address()));
         customer.setBillingAddress(customerMapper.customerBillingAddressDTOToAddress(updateCustomerDTO.billingAddress()));
 
@@ -82,7 +82,7 @@ public class CustomerServiceImpl implements CustomerService {
                 customerMapper.addressToCustomerAddressDTO(updatedCustomer.getAddress()),
                 customerMapper.billingAaddressToCustomerBillingAddressDTO(updatedCustomer.getBillingAddress()),
                 Response.Status.OK.getStatusCode(),
-                updatedCustomer.getPreferredLanguage()
+                updatedCustomer.getPreferredLanguageId()
         );
     }
 
@@ -105,16 +105,16 @@ public class CustomerServiceImpl implements CustomerService {
             userNeedsUpdate = true;
             customer.setActive(updateCustomerDTO.active());
         }
-        if (!customer.getPreferredLanguage().equals(updateCustomerDTO.preferredLanguage())) {
+        if (!customer.getPreferredLanguageId().equals(updateCustomerDTO.preferredLanguageId())) {
             userNeedsUpdate = true;
-            customer.setPreferredLanguage(updateCustomerDTO.preferredLanguage());
+            customer.setPreferredLanguageId(updateCustomerDTO.preferredLanguageId());
         }
         if (userNeedsUpdate) {
             publishUserUpdatedEvent.publishUserUpdatedEvent(
                     customer.getId(),
                     customer.getUsername(),
                     customer.getEmail(),
-                    customer.getPreferredLanguage(),
+                    customer.getPreferredLanguageId(),
                     customer.isActive()
             );
             log.debug("Published UpdateUserEvent for customerId: {}", customer.getId());
@@ -132,7 +132,7 @@ public class CustomerServiceImpl implements CustomerService {
                 customerMapper.addressToCustomerAddressDTO(updatedCustomer.getAddress()),
                 customerMapper.billingAaddressToCustomerBillingAddressDTO(updatedCustomer.getBillingAddress()),
                 Response.Status.OK.getStatusCode(),
-                updatedCustomer.getPreferredLanguage()
+                updatedCustomer.getPreferredLanguageId()
         );
     }
 
@@ -155,7 +155,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         // Set additional properties for guest customer
         customer.setGuest(true);
-        customer.setPreferredLanguage(createGuestCustomerDTO.getPreferredLanguage());
+        customer.setPreferredLanguageId(createGuestCustomerDTO.getPreferredLanguageId());
 
         // Save the customer
         Customer savedCustomer = customerRepository.save(customer);

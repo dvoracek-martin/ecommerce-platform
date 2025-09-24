@@ -5,7 +5,6 @@ import com.dvoracekmartin.userservice.application.event.publisher.UserEventPubli
 import com.dvoracekmartin.userservice.domain.model.User;
 import com.dvoracekmartin.userservice.domain.repository.UserRepository;
 import com.dvoracekmartin.userservice.domain.service.PasswordResetService;
-import jakarta.servlet.ServletContext;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +63,7 @@ public class UserServiceImpl implements UserService {
             User savedUser = userRepository.save(userMapper.createUserDTOToUser(createUserDTO, userId));
             log.info("User {} saved in local DB", savedUser.getUsername());
 
-            userEventPublisher.publishUserCreatedEvent(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), createUserDTO.preferredLanguage(), savedUser.isActive());
+            userEventPublisher.publishUserCreatedEvent(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), createUserDTO.preferredLanguageId(), savedUser.isActive());
             log.debug("Published user created event for userId: {}", savedUser.getId());
 
             return userMapper.userToResponseUserDTO(savedUser, status);

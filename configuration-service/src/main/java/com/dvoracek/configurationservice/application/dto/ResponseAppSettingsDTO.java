@@ -10,5 +10,7 @@ public class ResponseAppSettingsDTO {
     private Long id;
     private String theme;
     private List<ResponseLocaleDTO> usedLocales;
+    private ResponseLocaleDTO defaultLocale;
+    private String currency;
     private LocalDateTime updatedAt;
 }

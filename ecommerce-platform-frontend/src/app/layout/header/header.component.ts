@@ -1,10 +1,10 @@
-import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {NavigationStart, Router} from '@angular/router';
 import {Observable, Subject, Subscription} from 'rxjs';
-import {debounceTime, map} from 'rxjs/operators';
+import {debounceTime} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {HttpClient} from '@angular/common/http';
@@ -19,6 +19,8 @@ import {ResponseTagDTO} from '../../dto/tag/response-tag-dto';
 import {ConfirmationDialogComponent} from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import {Customer} from '../../dto/customer/customer-dto';
 import {CustomerService} from '../../services/customer.service';
+import {ResponseLocaleDto} from '../../dto/configuration/response-locale-dto';
+import {ConfigurationService} from '../../services/configuration.service';
 
 @Component({
   selector: 'app-header',
@@ -28,14 +30,8 @@ import {CustomerService} from '../../services/customer.service';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   title = 'ecommerce-platform-frontend';
-  languages = [
-    {code: 'de', name: 'Deutsch', icon: 'flag_ch'},
-    {code: 'fr', name: 'Français', icon: 'flag_ch'},
-    {code: 'en', name: 'English', icon: 'flag_us'},
-    {code: 'cs', name: 'Česky', icon: 'flag_cz'},
-    {code: 'es', name: 'Español', icon: 'flag_es'}
-  ];
-  selectedLanguage = this.languages[0];
+  languages: ResponseLocaleDto[] = [];
+  selectedLanguage!: ResponseLocaleDto;
   isPopupOpen = false;
   searchQuery = '';
   searchResults: SearchResultDTO | null = null;
@@ -66,24 +62,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private customerService: CustomerService,
     private http: HttpClient,
+    private configurationService: ConfigurationService,
   ) {
-    ['us', 'ch', 'cz', 'es'].forEach(code =>
-      this.matIconRegistry.addSvgIcon(
-        `flag_${code}`,
-        this.domSanitizer.bypassSecurityTrustResourceUrl(`assets/flags/${code}.svg`)
-      )
-    );
-    translate.addLangs(this.languages.map(l => l.code));
-    const browserLang = (navigator.language || 'de').split('-')[0];
-    translate.setDefaultLang(browserLang);
-    this.setLanguage(/en|de|fr|cs|es/.test(browserLang) ? browserLang : 'de');
-    translate.setDefaultLang('de');
-    this.totalCartItemCount$ = this.cartService.cart$.pipe(
-      map(cart => cart ? cart.items.reduce((acc, item) => acc + item.quantity, 0) : 0)
-    );
   }
 
   ngOnInit(): void {
+    this.loadAppSettings();
+
     this.searchSubscription = this.searchSubject.pipe(debounceTime(300)).subscribe(q => {
       if (q.trim().length > 1) {
         this.searchService.search(q).subscribe(res => {
@@ -96,7 +81,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Subscribe to the cart service to know when loading is complete
     this.cartSubscription = this.cartService.cart$.subscribe(cart => {
       this.isLoadingCart = false;
     });
@@ -108,23 +92,109 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.setPreferredLanguage();
     this.customerService.userLanguage$.subscribe(lang => {
-      this.translate.use(lang).subscribe(() => {
-        const selected = this.languages.find(l => l.code === lang);
-        if (selected) {
-          this.selectedLanguage = selected;
-        }
-      });
+      if (lang) {
+        this.translate.use(lang).subscribe(() => {
+          const selected = this.languages.find(l => l.languageCode === lang);
+          if (selected) {
+            this.selectedLanguage = selected;
+          }
+        });
+      }
     });
   }
 
   ngOnDestroy(): void {
     if (this.searchSubscription) this.searchSubscription.unsubscribe();
     if (this.cartSubscription) this.cartSubscription.unsubscribe();
-    if (this.routerSubscription) this.routerSubscription.unsubscribe(); // FIX: Unsubscribe from router events
+    if (this.routerSubscription) this.routerSubscription.unsubscribe();
     this.cancelCloseCartPreview();
     this.searchSubject.complete();
+  }
+
+  private loadAppSettings(): void {
+    this.configurationService.getLastAppSettings().subscribe({
+      next: (settings) => {
+        this.languages = settings.usedLocales && settings.usedLocales.length > 0
+          ? settings.usedLocales
+          : [settings.defaultLocale];
+
+        const userId = this.authService.getUserId();
+        const token = this.authService.token;
+
+        if (userId && token) {
+          this.setPreferredLanguageForUser(this.languages);
+        } else {
+
+          this.selectedLanguage = settings.defaultLocale;
+          this.translate.use(settings.defaultLocale.languageCode);
+        }
+      },
+      error: (err) => console.error('Failed to load app settings:', err)
+    });
+  }
+
+  private setPreferredLanguageForUser(locales: ResponseLocaleDto[]) {
+    const userId = this.authService.getUserId();
+    const token = this.authService.token;
+
+    if (!userId || !token) return;
+
+    this.http.get<Customer>(`http://localhost:8080/api/customers/v1/${userId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).subscribe({
+      next: (customer: Customer) => {
+        const lang = locales.find(l => l.id === customer.preferredLanguageId)
+          || locales[0];
+        this.selectedLanguage = lang;
+        this.translate.use(lang.languageCode);
+      },
+      error: () => {
+        this.selectedLanguage = locales[0];
+        this.translate.use(locales[0].languageCode);
+      }
+    });
+  }
+
+
+  changeLanguage(code: string): void {
+    const lang = this.languages.find(l => l.languageCode === code);
+    if (!lang) return;
+
+    this.selectedLanguage = lang;
+    this.translate.use(lang.languageCode);
+
+    if (this.authService.isTokenValid()) {
+      this.persistUserLanguage(lang.languageCode);
+    }
+  }
+
+
+  private persistUserLanguage(languageCode: string): void {
+    const userId = this.authService.getUserId();
+    const token = this.authService.token;
+    if (!userId || !token) return;
+
+    this.http.get<Customer>(`http://localhost:8080/api/customers/v1/${userId}`, {
+      headers: {'Authorization': `Bearer ${token}`}
+    }).subscribe({
+      next: (customer) => {
+        const updatedCustomer = {...customer, preferredLanguage: languageCode};
+        this.http.put(`http://localhost:8080/api/customers/v1/${userId}`, updatedCustomer, {
+          headers: {'Authorization': `Bearer ${token}`}
+        }).subscribe({
+          error: (err) => console.error('Failed to update user language:', err)
+        });
+      },
+      error: (err) => console.error('Failed to fetch user data for language persistence', err)
+    });
+  }
+
+
+  private setLanguage(code: string) {
+    const lang = this.languages.find(l => l.languageCode === code) || this.languages[0];
+    this.selectedLanguage = lang;
+    this.translate.use(lang.languageCode);
   }
 
   onSearchChange(): void {
@@ -133,9 +203,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   onSearchFocus(): void {
     this.isSearchFocused = true;
-    if (this.searchQuery.trim().length > 1) {
-      this.showResults = true;
-    }
+    if (this.searchQuery.trim().length > 1) this.showResults = true;
   }
 
   onSearchBlur(): void {
@@ -152,13 +220,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.router.navigate([`/categories/${category.id}`]);
   }
 
-  goToProduct(product: ResponseProductDTO) {
+  navigateToProducts(product: ResponseProductDTO) {
     this.showResults = false;
     this.isSearchFocused = false;
     this.router.navigate([`/products/${product.id}`]);
   }
 
-  goToMixture(mixture: ResponseMixtureDTO) {
+  navigateToMixtures(mixture: ResponseMixtureDTO) {
     this.showResults = false;
     this.isSearchFocused = false;
     this.router.navigate([`/mixtures/${mixture.id}`]);
@@ -170,41 +238,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.router.navigate([`/tags/${tag.id}`]);
   }
 
-  navigateToProducts(): void {
-    this.router.navigate(['/products']);
-  }
-
-  navigateToMixtures(): void {
-    this.router.navigate(['/mixtures']);
-  }
-
-  navigateToSales(): void {
-    this.router.navigate(['/sales']);
-  }
-
-  navigateToAboutUs(): void {
-    this.router.navigate(['/about']);
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    const clickedInsideSearch = target.closest('.search-container');
-    if (!clickedInsideSearch && !this.isSearchFocused) {
-      this.searchQuery = '';
-      this.showResults = false;
-    }
-  }
-
-  changeLanguage(code: string): void {
-    this.setLanguage(code);
-  }
-
-  private setLanguage(code?: string) {
-    const validCode = code && ['en', 'de', 'fr', 'cs', 'es'].includes(code) ? code : 'de';
-    this.translate.use(validCode);
-    this.selectedLanguage = this.languages.find(l => l.code === validCode)!;
-  }
+  // private setDefaultBrowserLanguage(usedLocales: ResponseLocaleDto[]) {
+  //   const browserLang = (navigator.language || 'de').split('-')[0];
+  //   const lang = usedLocales.find(l => l.languageCode === browserLang) || usedLocales[0];
+  //   if (lang) this.selectedLanguage = lang;
+  //   if (lang) this.translate.use(lang.languageCode);
+  // }
 
   navigateToRoot(): void {
     this.router.navigate(['/']);
@@ -305,7 +344,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       error => {
         this.loadingItems.delete(key);
         this.showSnackbar('Failed to update item quantity.', 'error');
-        console.error('Update quantity error:', error);
+        console.error(error);
       }
     );
   }
@@ -313,7 +352,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   onQuantityChange(event: Event, item: CartItem): void {
     const key = `${item.itemId}-${item.cartItemType}`;
     this.loadingItems.set(key, true);
-
     const input = event.target as HTMLInputElement;
     const newQuantity = parseInt(input.value, 10);
 
@@ -322,13 +360,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.loadingItems.delete(key);
       return;
     }
-
     if (isNaN(newQuantity) || newQuantity < 0) {
       const currentCart = this.cartService.getCurrentCartValue();
       const currentItem = currentCart?.items.find(i => i.itemId === item.itemId && i.cartItemType === item.cartItemType);
-      if (currentItem) {
-        input.value = currentItem.quantity.toString();
-      }
+      if (currentItem) input.value = currentItem.quantity.toString();
       this.loadingItems.delete(key);
       return;
     }
@@ -341,14 +376,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
       error => {
         this.loadingItems.delete(key);
         this.showSnackbar('Failed to update item quantity.', 'error');
-        console.error('Update quantity error:', error);
+        console.error(error);
       }
     );
   }
 
   isItemLoading(item: CartItem): boolean {
-    const key = `${item.itemId}-${item.cartItemType}`;
-    return this.loadingItems.get(key) || false;
+    return this.loadingItems.get(`${item.itemId}-${item.cartItemType}`) || false;
   }
 
   removeItem(itemId: number | undefined): void {
@@ -366,7 +400,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           () => this.showSnackbar('Item removed from cart!', 'success'),
           error => {
             this.showSnackbar('Failed to remove item.', 'error');
-            console.error('Remove item error:', error);
+            console.error(error);
           }
         );
       }
@@ -378,10 +412,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (type === 'success') panelClass = ['success-snackbar'];
     else if (type === 'error') panelClass = ['error-snackbar'];
     else if (type === 'warning') panelClass = ['warning-snackbar'];
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      panelClass
-    });
+    this.snackBar.open(message, 'Close', {duration: 3000, panelClass});
   }
 
   goToCart(): void {
@@ -393,31 +424,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.router.navigate(['/orders']);
   }
 
-  setPreferredLanguage(): void {
-    const userId = this.authService.getUserId();
-    const token = this.authService.token;
-    if (userId && token) {
-      this.http.get<Customer>(`http://localhost:8080/api/customers/v1/${userId}`, {
-        headers: {'Authorization': `Bearer ${token}`}
-      }).subscribe({
-        next: (customer: Customer) => {
-          this.selectedLanguage = this.languages.find(l => l.code === customer.preferredLanguage)! || this.selectedLanguage;
-          this.translate.use(customer.preferredLanguage);
-        },
-        error: (err) => {
-          console.error('Failed to fetch customer data:', err);
-        }
-      });
-    } else {
-      const browserLang = (navigator.language || 'de').split('-')[0];
-      this.translate.setDefaultLang(browserLang);
-      this.translate.use(browserLang);
-      this.selectedLanguage = this.languages.find(l => l.code === browserLang)! || this.selectedLanguage;
-    }
-  }
-
   goToProductFromCart(product: ResponseProductDTO): void {
-    console.log('Navigating to product from cart:', product.id);
     this.router.navigate([`/products/${product.id}`]);
   }
 }

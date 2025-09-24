@@ -8,6 +8,6 @@ export class Customer {
   email: string | null;
   address?: CustomerAddress | null;
   billingAddress?: CustomerBillingAddress | null;
-  preferredLanguage: string;
+  preferredLanguageId: number;
   active: boolean;
 }

@@ -9,7 +9,7 @@ public record UpdateUserDTO(
         @NotBlank String username,
         @NotBlank String email,
         List<CreateUserDTO.CredentialDTO> credentials,
-        String preferredLanguage,
+        Integer preferredLanguageId,
         boolean active
 ) {
 }

@@ -7,7 +7,7 @@ import com.dvoracek.configurationservice.domain.model.Locale;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface AppSettingsMapper {
+public interface  AppSettingsMapper {
     ResponseLocaleDTO localeToResponseLocaleDTO(Locale discount);
 
     ResponseAppSettingsDTO appSettingsToResponseAppSettingsDTO(AppSettings saved);

@@ -9,7 +9,7 @@
     <!-- <include file="db/changelog/changes/000-initial-schema.xml" relativeToChangelogFile="true"/> -->
 
     <!-- Include the changelog that populates the available_locales -->
-    <include file="changelog/001-create-tables.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/002-populate-available-locales.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/001-create-app-settings.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/002-populate-available-locales-and-currency.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Currency;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,9 +68,10 @@ public class AppSettingsServiceImpl implements AppSettingsService {
 
         existing.setTheme(request.getTheme());
         existing.setUpdatedAt(LocalDateTime.now());
-
+        existing.setCurrency(Currency.getInstance(request.getCurrency()));
+        existing.setDefaultLocale(localeRepository.findByLanguageCodeAndRegionCode(request.getDefaultLocale().languageCode(), request.getDefaultLocale().regionCode())
+                .orElseThrow(() -> new RuntimeException("Locale not found with code " + request.getDefaultLocale().languageCode() + "-" + request.getDefaultLocale().regionCode())));
         if (request.getUsedLocales() != null) {
-
             existing.getUsedLocales().clear();
             List<Locale> locales = request.getUsedLocales().stream()
                     .map(l -> localeRepository.findById(l.id())
@@ -99,7 +101,7 @@ public class AppSettingsServiceImpl implements AppSettingsService {
 
     @Override
     public ResponseAppSettingsDTO getLastAppSettings() {
-        AppSettings last = appSettingsRepository.findTopByOrderByIdDesc()
+        AppSettings last = appSettingsRepository.findFirstByOrderByIdDesc()
                 .orElseThrow(() -> new RuntimeException("No AppSettings found"));
         return appSettingsMapper.appSettingsToResponseAppSettingsDTO(last);
     }

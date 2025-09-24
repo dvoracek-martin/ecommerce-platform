@@ -24,7 +24,7 @@ public class UserEventListener {
                 event.username(),
                 event.email(),
                 null,
-                event.preferredLanguage(),
+                event.preferredLanguageId(),
                 event.active()
 
         );

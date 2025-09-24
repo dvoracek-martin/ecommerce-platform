@@ -71,4 +71,12 @@ export class CustomerService {
     });
     return this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers });
   }
+
+  getByIdAdmin(id: string): Observable<Customer> {
+    const token = this.authService.token;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<Customer>(`${this.apiAdminUrl}/${id}`, { headers });
+  }
 }

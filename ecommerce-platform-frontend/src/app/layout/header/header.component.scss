@@ -101,34 +101,43 @@
 // ===== LANGUAGE MENU =====
 .language-menu-container {
   .language-button {
-    width: 40px;
-    height: 40px;
+    width: 32px;          // menší než předtím
+    height: 32px;
     border-radius: 50%;
     overflow: hidden;
-    transition: all 0.3s ease;
+    padding: 0;
 
-    &:hover {
-      background-color: #f1f3f5;
-      transform: scale(1.05);
+    img.locale-flag {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
   }
 
   .language-menu {
     border-radius: 12px;
-    overflow: hidden;
+    overflow: visible;
     margin-top: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    max-height: none;
 
-    .language-menu-item {
+    button.mat-menu-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      height: 48px;
-      padding: 0 16px;
-      color: #2c3e50;
+      gap: 8px;
+      height: 36px;
+      padding: 0 12px;
 
-      &:hover {
-        background-color: #f8f9fa;
+      img.locale-flag {
+        width: 24px;
+        height: 24px;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+
+      span {
+        font-size: 0.85rem;
       }
     }
   }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Currency;
 import java.util.List;
 
 @Entity
@@ -27,6 +28,12 @@ public class AppSettings {
             inverseJoinColumns = @JoinColumn(name = "locale_id")
     )
     private List<Locale> usedLocales;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "default_locale_id")
+    private Locale defaultLocale;
+
+    private Currency currency;
 
     private String theme;
     private LocalDateTime updatedAt;

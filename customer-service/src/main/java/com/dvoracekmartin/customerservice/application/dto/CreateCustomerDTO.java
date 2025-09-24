@@ -13,7 +13,7 @@ public record CreateCustomerDTO(
         String lastName,
         CustomerAddressDTO address,
         CustomerBillingAddressDTO billingAddress,
-        String preferredLanguage,
+        Integer preferredLanguageId,
         boolean active
 ) {
 }

@@ -38,12 +38,10 @@ export class ProductService {
   }
 
   createProduct(createProductDTO: CreateProductDTO[]): Observable<ResponseProductDTO[]> {
-    console.log('product: ' + JSON.stringify(createProductDTO));
     return this.http.post<ResponseProductDTO[]>(`${this.apiAdminUrl}/products`, createProductDTO);
   }
 
   updateProduct(id: number, updateProductDTO: UpdateProductDTO): Observable<ResponseProductDTO> {
-    console.log('update product: ' + JSON.stringify(updateProductDTO));
     return this.http.put<ResponseProductDTO>(`${this.apiAdminUrl}/products/${id}`, updateProductDTO);
   }
 

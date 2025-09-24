@@ -20,12 +20,12 @@ public class CustomerEventPublisher {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void publishUserUpdatedEvent(String userId, String username, String email, String preferredLanguage, boolean active) {
+    public void publishUserUpdatedEvent(String userId, String username, String email, Integer preferredLanguageId, boolean active) {
         UpdateUserEvent event = new UpdateUserEvent(
                 userId,
                 username,
                 email,
-                preferredLanguage,
+                preferredLanguageId,
                 active
         );
 

@@ -69,6 +69,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, cartBasePath + apiVersion + "/**").permitAll()
                         .pathMatchers(HttpMethod.GET, orderBasePath + apiVersion + "/**").permitAll()
                         .pathMatchers(HttpMethod.GET, translationBasePath + apiVersion + "/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, configurationBasePath + apiVersion + "/**").permitAll()
 
                         // 4. Permit POST requests to non-admin paths in specific cases
                         .pathMatchers(HttpMethod.POST, catalogBasePath + apiVersion + "/mixtures").permitAll()

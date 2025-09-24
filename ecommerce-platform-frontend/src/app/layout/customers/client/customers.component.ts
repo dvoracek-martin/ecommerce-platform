@@ -15,6 +15,9 @@ import {Customer} from '../../../dto/customer/customer-dto';
 import {MatDialog} from '@angular/material/dialog';
 import {Subject, takeUntil} from 'rxjs';
 import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
+import {ConfigurationService} from '../../../services/configuration.service';
+import {ResponseLocaleDto} from '../../../dto/configuration/response-locale-dto';
+import {LocaleMapperService} from '../../../services/locale-mapper.service';
 
 @Component({
   selector: 'app-customers',
@@ -41,14 +44,8 @@ export class CustomersComponent implements OnInit, OnDestroy {
   initialAddress: CustomerAddress | null = null;
   private readonly destroy$ = new Subject<void>();
 
-  languages = [
-    {code: 'en', name: 'English', icon: 'flag_us'},
-    {code: 'de', name: 'Deutsch', icon: 'flag_ch'},
-    {code: 'fr', name: 'Français', icon: 'flag_ch'},
-    {code: 'cs', name: 'Česky', icon: 'flag_cz'},
-    {code: 'es', name: 'Español', icon: 'flag_es'}
-  ];
-  selectedLanguage = this.languages[0];
+  locales: ResponseLocaleDto[] = [];
+  selectedLanguage?: ResponseLocaleDto;
 
   constructor(
     private fb: FormBuilder,
@@ -56,18 +53,14 @@ export class CustomersComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private snackBar: MatSnackBar,
-    public translate: TranslateService,
+    public translateService: TranslateService,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
     private customerService: CustomerService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private configurationService: ConfigurationService,
+    private localeMapperService: LocaleMapperService,
   ) {
-    ['ch', 'cz', 'us', 'es'].forEach(code =>
-      this.matIconRegistry.addSvgIcon(
-        `flag_${code}`,
-        this.domSanitizer.bypassSecurityTrustResourceUrl(`assets/flags/${code}.svg`)
-      )
-    );
     this.initializeForms();
   }
 
@@ -76,9 +69,32 @@ export class CustomersComponent implements OnInit, OnDestroy {
       this.handleUnauthorized();
       return;
     }
+
+    // Load locales from last app settings (usedLocales) instead of getInUseLocales()
+    this.configurationService.getLastAppSettings()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (settings) => {
+          this.locales = settings.usedLocales || [];
+          const defaultLocale = settings.defaultLocale;
+          const preferredLangId = this.customerForm.value.preferredLanguageId;
+          if (preferredLangId) {
+            // match saved preferred language with available locales
+            this.selectedLanguage = this.locales.find(l => l.id === preferredLangId) || defaultLocale;
+          } else {
+            // fallback to defaultLocale if user has no preferred language
+            this.selectedLanguage = defaultLocale || this.locales[0];
+            this.customerForm.patchValue({preferredLanguageId: this.selectedLanguage?.id});
+          }
+
+          if (this.selectedLanguage) {
+            this.translateService.use(this.selectedLanguage.languageCode.toLowerCase());
+          }
+        },
+        error: err => console.error('Error loading app settings:', err)
+      });
+
     this.loadCustomerData();
-    const activeLang = this.translate.currentLang || 'en';
-    this.selectedLanguage = this.languages.find(l => l.code === activeLang) ?? this.languages[0];
   }
 
   ngOnDestroy(): void {
@@ -86,14 +102,15 @@ export class CustomersComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onLanguageChange(langCode: string): void {
-    if (!langCode) return;
-    this.translate.use(langCode).subscribe({
+  onLanguageChange(langId: number): void {
+    const lang = this.locales.find(l => l.id === langId);
+    if (!lang) return;
+
+    this.translateService.use(lang.languageCode.toLowerCase()).subscribe({
       next: () => {
-        const lang = this.languages.find(l => l.code === langCode);
-        if (lang) this.selectedLanguage = lang;
-        this.customerForm.patchValue({preferredLanguage: langCode});
-        this.customerService.setUserLanguage(langCode);
+        this.selectedLanguage = lang;
+        this.customerForm.patchValue({preferredLanguageId: lang.id});
+        this.customerService.setUserLanguage(lang.languageCode.toLowerCase());
       },
       error: err => console.error('Error loading translations:', err)
     });
@@ -137,7 +154,9 @@ export class CustomersComponent implements OnInit, OnDestroy {
       this.http.put(
         `http://localhost:8080/api/users/v1/${userId}/password`,
         {currentPassword, newPassword},
-        {headers: {'Authorization': `Bearer ${token}`}}
+        {
+          headers: {'Authorization': `Bearer ${token}`}
+        }
       ).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => this.handlePasswordChangeSuccess(formDirective),
         error: err => this.handlePasswordChangeError(err, userId)
@@ -163,7 +182,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
     this.customerForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      preferredLanguage: ['en'],
+      preferredLanguageId: [],
       address: this.fb.group({
         phone: ['', [Validators.pattern(/^\+?[0-9\s-]+$/)]],
         street: ['', Validators.required],
@@ -240,10 +259,14 @@ export class CustomersComponent implements OnInit, OnDestroy {
     this.initialBillingAddress = customer.billingAddress;
     this.initialAddress = customer.address;
     this.patchFormValues(customer);
-    if (customer.preferredLanguage) {
-      this.translate.use(customer.preferredLanguage.toLowerCase());
-      this.selectedLanguage = this.languages.find(l => l.code === customer.preferredLanguage.toLowerCase()) ?? this.languages[0];
+
+    if (customer.preferredLanguageId && this.locales.length > 0) {
+      this.selectedLanguage = this.locales.find(l => l.id === customer.preferredLanguageId) || this.selectedLanguage;
+      if (this.selectedLanguage) {
+        this.translateService.use(this.selectedLanguage.languageCode.toLowerCase());
+      }
     }
+
     this.loading = false;
   }
 
@@ -252,7 +275,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
     this.customerForm.patchValue({
       firstName: customer.firstName || '',
       lastName: customer.lastName || '',
-      preferredLanguage: customer.preferredLanguage || this.selectedLanguage.code,
+      preferredLanguage: customer.preferredLanguageId || this.selectedLanguage?.id,
       address: {...customer.address},
       sameBillingAddress: sameBillingAddress,
       billingAddress: customer.billingAddress || {}
@@ -303,7 +326,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
       firstName: formValue.firstName,
       lastName: formValue.lastName,
       phone: formValue.address.phone,
-      preferredLanguage: formValue.preferredLanguage,
+      preferredLanguageId: formValue.preferredLanguageId,
       address: {...formValue.address},
       billingAddress: useShippingAddress ? {
         firstName: formValue.firstName,
@@ -343,8 +366,8 @@ export class CustomersComponent implements OnInit, OnDestroy {
 
   private showSnackbar(translationKey: string, panelClass: string = ''): void {
     this.snackBar.open(
-      this.translate.instant(translationKey),
-      this.translate.instant('COMMON.CLOSE'),
+      this.translateService.instant(translationKey),
+      this.translateService.instant('COMMON.CLOSE'),
       {duration: 5000, panelClass: panelClass ? [panelClass] : []}
     );
   }
@@ -362,5 +385,9 @@ export class CustomersComponent implements OnInit, OnDestroy {
       console.error('Failed to fetch customer data:', err);
       this.loading = false;
     }
+  }
+
+  translateLocale(locale: ResponseLocaleDto) {
+    return this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode);
   }
 }

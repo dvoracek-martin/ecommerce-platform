@@ -5,4 +5,6 @@ export interface RequestAppSettingsDto {
   usedLocales: ResponseLocaleDto[];
   theme?: string;
   updatedAt?: string; // ISO 8601 date string
+  defaultLocale: ResponseLocaleDto;
+  currency: string;
 }

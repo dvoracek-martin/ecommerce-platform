@@ -78,7 +78,6 @@ export class ProductsListComponent implements OnInit, OnDestroy {
       product: product,
       cartItemType: CartItemType.PRODUCT
     }).subscribe({
-      next: () => console.log(`${product.name} added to cart`),
       error: (err) => console.error('Failed to add to cart', err)
     });
   }

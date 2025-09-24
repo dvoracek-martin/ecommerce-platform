@@ -7,7 +7,7 @@ public record CreateUserEvent(
         String username,
         String email,
         Instant createdAt,
-        String preferredLanguage,
+        Integer preferredLanguageId,
         boolean active
 ) {
 }

@@ -4,7 +4,7 @@ public record UpdateUserEvent(
         String userId,
         String username,
         String email,
-        String preferredLanguage,
+        Integer preferredLanguageId,
         boolean active
 ) {
 }

@@ -67,6 +67,14 @@
   margin-bottom: var(--spacing-md);
 }
 
+/* Flags in the language selector */
+.locale-flag {
+  width: 1em;       /* matches font size */
+  height: 1em;      /* matches font size */
+  vertical-align: text-bottom; /* aligns nicely with text */
+  margin-right: 0.3em; /* small gap between flag and text */
+}
+
 .section-subtitle {
   display: flex;
   align-items: center;

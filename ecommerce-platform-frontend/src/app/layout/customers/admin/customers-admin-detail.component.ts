@@ -21,6 +21,9 @@ import {MatPaginator} from '@angular/material/paginator';
 import {OrderService} from '../../../services/order.service';
 import {OrderStateService} from '../../../services/order-state.service';
 import {ResponseOrderDTO} from '../../../dto/order/response-order-dto';
+import {ConfigurationService} from '../../../services/configuration.service';
+import {ResponseLocaleDto} from '../../../dto/configuration/response-locale-dto';
+import {LocaleMapperService} from '../../../services/locale-mapper.service';
 
 interface ClientOrder extends ResponseOrderDTO {
   invoiceId?: string;
@@ -56,17 +59,13 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
   ordersError: string | null = null;
   customerId: string;
 
+  locales: ResponseLocaleDto[] = [];
+
   @ViewChild(MatSort) ordersSort!: MatSort;
   @ViewChild(MatPaginator) ordersPaginator!: MatPaginator;
 
-  languages = [
-    {code: 'en', name: 'English', icon: 'flag_us'},
-    {code: 'de', name: 'Deutsch', icon: 'flag_ch'},
-    {code: 'fr', name: 'Français', icon: 'flag_ch'},
-    {code: 'cs', name: 'Česky', icon: 'flag_cz'},
-    {code: 'es', name: 'Español', icon: 'flag_es'}
-  ];
-  selectedLanguage = this.languages[0];
+  inUseLocales = [];
+  selectedLanguage = this.inUseLocales[0];
   protected customer: Customer;
 
   constructor(
@@ -75,7 +74,6 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private snackBar: MatSnackBar,
-    public translate: TranslateService,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
     private customerService: CustomerService,
@@ -83,21 +81,48 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     private customerState: CustomerStateService,
     private orderService: OrderService,
     private orderState: OrderStateService,
+    private configurationService: ConfigurationService,
+    private localeMapperService: LocaleMapperService,
+    public translateService: TranslateService,
   ) {
-    ['ch', 'cz', 'us', 'es'].forEach(code =>
-      this.matIconRegistry.addSvgIcon(
-        `flag_${code}`,
-        this.domSanitizer.bypassSecurityTrustResourceUrl(`assets/flags/${code}.svg`)
-      )
-    );
     this.initializeForms();
   }
 
   ngOnInit(): void {
+    // Load last app settings to get locales and default locale
+    this.configurationService.getLastAppSettings()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (settings) => {
+          this.locales = settings.usedLocales || [];
+          const defaultLocale = settings.defaultLocale;
+
+          const preferredLangId = this.customerForm.value.preferredLanguageId;
+          if (preferredLangId) {
+            // match saved preferred language with available locales
+            this.selectedLanguage = this.locales.find(l => l.id === preferredLangId) || defaultLocale;
+          } else {
+            // fallback to defaultLocale if user has no preferred language
+            this.selectedLanguage = defaultLocale;
+            this.customerForm.patchValue({ preferredLanguageId: this.selectedLanguage?.id });
+          }
+
+          if (this.selectedLanguage) {
+            this.translateService.use(this.selectedLanguage.languageCode.toLowerCase());
+          }
+
+          // align inUseLocales with usedLocales from settings
+          this.inUseLocales = this.locales;
+          const activeLang = this.translateService.currentLang || this.selectedLanguage.languageCode.toLowerCase();
+          this.selectedLanguage = this.inUseLocales.find(
+            l => l.languageCode.toLowerCase() === activeLang
+          ) || this.inUseLocales[0];
+        },
+        error: err => console.error('Error loading app settings:', err)
+      });
+
     this.customerId = this.customerState.getSelectedCustomer();
     this.loadCustomerData(this.customerId);
-    const activeLang = this.translate.currentLang || 'en';
-    this.selectedLanguage = this.languages.find(l => l.code === activeLang) ?? this.languages[0];
     this.loadOrders();
   }
 
@@ -107,18 +132,20 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onLanguageChange(langCode: string): void {
-    if (!langCode) return;
-    this.translate.use(langCode).subscribe({
+  onLanguageChange(langId: number): void {
+    const lang = this.locales.find(l => l.id === langId);
+    if (!lang) return;
+
+    this.translateService.use(lang.languageCode.toLowerCase()).subscribe({
       next: () => {
-        const lang = this.languages.find(l => l.code === langCode);
-        if (lang) this.selectedLanguage = lang;
-        this.customerForm.patchValue({preferredLanguage: langCode});
-        this.customerService.setUserLanguage(langCode);
+        this.selectedLanguage = lang;
+        this.customerForm.patchValue({preferredLanguageId: lang.id});
+        this.customerService.setUserLanguage(lang.languageCode.toLowerCase());
       },
       error: err => console.error('Error loading translations:', err)
     });
   }
+
 
   onSave(): void {
     if (!this.customerForm.dirty || this.customerForm.invalid) {
@@ -170,7 +197,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       email: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      preferredLanguage: ['en'],
+      preferredLanguageId: [''],
       address: this.fb.group({
         phone: ['', [Validators.pattern(/^\+?[0-9\s-]+$/)]],
         street: ['', Validators.required],
@@ -246,9 +273,11 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     this.initialBillingAddress = customer.billingAddress;
     this.initialAddress = customer.address;
     this.patchFormValues(customer);
-    if (customer.preferredLanguage) {
-      this.translate.use(customer.preferredLanguage.toLowerCase());
-      this.selectedLanguage = this.languages.find(l => l.code === customer.preferredLanguage.toLowerCase()) ?? this.languages[0];
+    if (customer.preferredLanguageId && this.locales.length > 0) {
+      this.selectedLanguage = this.locales.find(l => l.id === customer.preferredLanguageId) || this.selectedLanguage;
+      if (this.selectedLanguage) {
+        this.translateService.use(this.selectedLanguage.languageCode.toLowerCase());
+      }
     }
     this.loading = false;
   }
@@ -259,7 +288,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       email: customer.email || '',
       firstName: customer.firstName || '',
       lastName: customer.lastName || '',
-      preferredLanguage: customer.preferredLanguage || this.selectedLanguage.code,
+      preferredLanguageId: customer.preferredLanguageId || this.selectedLanguage.code,
       address: {...customer.address},
       sameBillingAddress: sameBillingAddress,
       billingAddress: customer.billingAddress || {},
@@ -312,7 +341,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       lastName: formValue.lastName,
       phone: formValue.address.phone,
       active: formValue.active,
-      preferredLanguage: formValue.preferredLanguage,
+      preferredLanguageId: formValue.preferredLanguageId,
       address: {...formValue.address},
       billingAddress: useShippingAddress ? {
         firstName: formValue.firstName,
@@ -352,8 +381,8 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
 
   private showSnackbar(translationKey: string, panelClass: string = ''): void {
     this.snackBar.open(
-      this.translate.instant(translationKey),
-      this.translate.instant('COMMON.CLOSE'),
+      this.translateService.instant(translationKey),
+      this.translateService.instant('COMMON.CLOSE'),
       {duration: 5000, panelClass: panelClass ? [panelClass] : []}
     );
   }
@@ -491,5 +520,10 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
 
   navigateBackToList() {
     this.router.navigate(['/admin/customers']);
+  }
+
+
+  translateLocale(locale: ResponseLocaleDto) {
+    return this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode);
   }
 }

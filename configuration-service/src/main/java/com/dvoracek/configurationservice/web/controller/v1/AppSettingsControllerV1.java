@@ -1,5 +1,6 @@
 package com.dvoracek.configurationservice.web.controller.v1;
 
+import com.dvoracek.configurationservice.application.dto.ResponseAppSettingsDTO;
 import com.dvoracek.configurationservice.application.dto.ResponseLocaleDTO;
 import com.dvoracek.configurationservice.domain.service.AppSettingsService;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,26 @@ import java.util.List;
 @Slf4j
 public class AppSettingsControllerV1 {
 
+
     private final AppSettingsService appSettingsService;
 
+    // --- LOCALES ---
+    @GetMapping("/available-locales")
+    public ResponseEntity<List<ResponseLocaleDTO>> getAvailableLocales() {
+        log.info("User getting available locales.");
+        return ResponseEntity.ok(appSettingsService.getAvailableLocales());
+    }
+
     @GetMapping("/in-use-locales")
-    public ResponseEntity< List <ResponseLocaleDTO>> getInUseLocales() {
+    public ResponseEntity<List<ResponseLocaleDTO>> getInUseLocales() {
+        log.info("User getting in-use locales.");
         return ResponseEntity.ok(appSettingsService.getInUseLocales());
+    }
+
+
+    @GetMapping()
+    public ResponseEntity<ResponseAppSettingsDTO> getLastAppSettings() {
+        log.info("Fetching last AppSettings");
+        return ResponseEntity.ok(appSettingsService.getLastAppSettings());
     }
 }

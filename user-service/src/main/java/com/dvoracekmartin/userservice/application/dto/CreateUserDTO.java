@@ -9,7 +9,7 @@ public record CreateUserDTO(
         @NotBlank String username,
         @NotBlank String email,
         @NotEmpty List<CredentialDTO> credentials,
-        @NotEmpty String preferredLanguage,
+        Integer preferredLanguageId,
         boolean active
 ) {
     public record CredentialDTO(String type, String value, boolean temporary) {

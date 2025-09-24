@@ -11,6 +11,6 @@ public record UpdateCustomerDTO(
         String lastName,
         CustomerAddressDTO address,
         CustomerBillingAddressDTO billingAddress,
-        String preferredLanguage
+        Integer preferredLanguageId
 ) {
 }
