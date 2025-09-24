@@ -667,6 +667,7 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ResponseTagDTO> getAllTags() {
         mediaUploader.createBucketIfNotExists(BucketName.TAGS.getName());
         return tagRepository.findAll().stream()
@@ -687,49 +688,70 @@ public class CatalogServiceImpl implements CatalogService {
             }
         });
 
-        deleteMediaForEntity(existing.getImageUrl());
-        MediaUploadResult uploadResult = uploadMedia(updateTagDTO.getMedia(),
-                id.toString(), BucketName.TAGS);
-
         existing.setName(updateTagDTO.getName());
         existing.setDescription(updateTagDTO.getDescription());
         existing.setPriority(updateTagDTO.getPriority());
         existing.setActive(updateTagDTO.isActive());
-        existing.getImageUrl().addAll(uploadResult.imageUrls());
         existing.setUrl(updateTagDTO.getUrl());
 
-        // Fix: Use mutable ArrayLists
-        if (updateTagDTO.getCategoryIds() != null) {
-            List<Category> categories = updateTagDTO.getCategoryIds().stream()
-                    .map(categoryRepository::findById)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toCollection(ArrayList::new));
-            existing.setCategories(categories);
-        } else {
-            existing.setCategories(new ArrayList<>());
+        List<Category> newCategories = updateTagDTO.getCategoryIds() != null
+                ? updateTagDTO.getCategoryIds().stream()
+                .map(categoryRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toCollection(ArrayList::new))
+                : new ArrayList<>();
+        List<Category> oldCategories = new ArrayList<>(existing.getCategories());
+        existing.setCategories(newCategories);
+        for (Category oldCat : oldCategories) {
+            if (!newCategories.contains(oldCat)) {
+                oldCat.getTags().remove(existing);
+            }
+        }
+        for (Category category : newCategories) {
+            if (!category.getTags().contains(existing)) {
+                category.getTags().add(existing);
+            }
         }
 
-        if (updateTagDTO.getProductIds() != null) {
-            List<Product> products = updateTagDTO.getProductIds().stream()
-                    .map(productRepository::findById)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toCollection(ArrayList::new));
-            existing.setProducts(products);
-        } else {
-            existing.setProducts(new ArrayList<>());
+        List<Product> newProducts = updateTagDTO.getProductIds() != null
+                ? updateTagDTO.getProductIds().stream()
+                .map(productRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toCollection(ArrayList::new))
+                : new ArrayList<>();
+        List<Product> oldProducts = new ArrayList<>(existing.getProducts());
+        existing.setProducts(newProducts);
+        for (Product oldProd : oldProducts) {
+            if (!newProducts.contains(oldProd)) {
+                oldProd.getTags().remove(existing);
+            }
+        }
+        for (Product product : newProducts) {
+            if (!product.getTags().contains(existing)) {
+                product.getTags().add(existing);
+            }
         }
 
-        if (updateTagDTO.getMixtureIds() != null) {
-            List<Mixture> mixtures = updateTagDTO.getMixtureIds().stream()
-                    .map(mixtureRepository::findById)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toCollection(ArrayList::new));
-            existing.setMixtures(mixtures);
-        } else {
-            existing.setMixtures(new ArrayList<>());
+        List<Mixture> newMixtures = updateTagDTO.getMixtureIds() != null
+                ? updateTagDTO.getMixtureIds().stream()
+                .map(mixtureRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toCollection(ArrayList::new))
+                : new ArrayList<>();
+        List<Mixture> oldMixtures = new ArrayList<>(existing.getMixtures());
+        existing.setMixtures(newMixtures);
+        for (Mixture oldMix : oldMixtures) {
+            if (!newMixtures.contains(oldMix)) {
+                oldMix.getTags().remove(existing);
+            }
+        }
+        for (Mixture mixture : newMixtures) {
+            if (!mixture.getTags().contains(existing)) {
+                mixture.getTags().add(existing);
+            }
         }
 
         Tag savedTag = tagRepository.save(existing);
@@ -741,7 +763,7 @@ public class CatalogServiceImpl implements CatalogService {
                 savedTag.getDescription(),
                 savedTag.getPriority(),
                 savedTag.isActive(),
-                uploadResult.mediaDTOs(),
+                null,
                 savedTag.getCategories().stream().map(catalogMapper::mapCategoryToResponseCategoryDTO).toList(),
                 savedTag.getProducts().stream().map(catalogMapper::mapProductToResponseProductDTO).toList(),
                 savedTag.getMixtures().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList(),

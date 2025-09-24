@@ -17,13 +17,14 @@ export interface CreateMixtureRequest {
 export class MixtureService {
 
   private apiUrl = 'http://localhost:8080/api/catalog/v1/mixtures';
+  private adminApiUrl: 'http://localhost:8080/api/catalog/v1/admin/mixtures';
 
   constructor(private http: HttpClient) {
   }
 
   // New method to create a mixture on the backend
   public createMixture(request: CreateMixtureRequest): Observable<ResponseMixtureDTO> {
-    return this.http.post<ResponseMixtureDTO>(this.apiUrl, request);
+    return this.http.post<ResponseMixtureDTO>(this.adminApiUrl, request);
   }
 
   // New method to retrieve mixture details by ID
@@ -33,12 +34,12 @@ export class MixtureService {
 
   // Original method (unmodified)
   public getAllMixturesAdmin(): Observable<ResponseProductDTO[]> {
-    return this.http.get<ResponseProductDTO[]>(`${this.apiUrl}/all-mixtures`);
+    return this.http.get<ResponseProductDTO[]>(`${this.adminApiUrl}/all-mixtures`);
   }
 
   saveMixture(mixtures: CreateMixtureDTO[]): Observable<ResponseMixtureDTO[]> {
     return this.http.post<ResponseMixtureDTO[]>(
-      `${this.apiUrl}`,
+      `${this.adminApiUrl}`,
       mixtures // Send the array directly, not wrapped in an object
     );
   }
