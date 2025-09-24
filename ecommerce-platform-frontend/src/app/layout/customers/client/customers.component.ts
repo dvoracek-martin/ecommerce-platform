@@ -72,7 +72,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
     }
 
     // Load locales from last app settings (usedLocales) instead of getInUseLocales()
-    this.configurationService.getLastAppSettings()
+    this.configurationService.getLastAppSettingsWithCache()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (settings) => {

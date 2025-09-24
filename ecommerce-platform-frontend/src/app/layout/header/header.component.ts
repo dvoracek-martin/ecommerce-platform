@@ -115,7 +115,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private loadAppSettings(): void {
-    this.configurationService.getLastAppSettings().subscribe({
+    this.configurationService.getLastAppSettingsWithCache().subscribe({
       next: (settings) => {
         this.languages = settings.usedLocales && settings.usedLocales.length > 0
           ? settings.usedLocales
