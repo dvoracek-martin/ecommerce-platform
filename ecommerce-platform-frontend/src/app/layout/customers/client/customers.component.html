@@ -273,7 +273,7 @@
         <mat-icon>close</mat-icon>
         {{ 'COMMON.CANCEL' | translate }}
       </button>
-      <button [disabled]="customerForm.invalid || !customerForm.dirty || saving" color="primary" form="customerForm"
+      <button [disabled]="(customerForm.invalid || !customerForm.dirty || saving) && !languageChanged" color="primary" form="customerForm"
               mat-flat-button type="submit">
         <mat-icon>save</mat-icon>
         {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}

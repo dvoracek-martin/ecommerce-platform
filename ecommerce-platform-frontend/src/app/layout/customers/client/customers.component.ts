@@ -46,6 +46,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
 
   locales: ResponseLocaleDto[] = [];
   selectedLanguage?: ResponseLocaleDto;
+  languageChanged = false;
 
   constructor(
     private fb: FormBuilder,
@@ -111,6 +112,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
         this.selectedLanguage = lang;
         this.customerForm.patchValue({preferredLanguageId: lang.id});
         this.customerService.setUserLanguage(lang.languageCode.toLowerCase());
+        this.languageChanged = true;
       },
       error: err => console.error('Error loading translations:', err)
     });

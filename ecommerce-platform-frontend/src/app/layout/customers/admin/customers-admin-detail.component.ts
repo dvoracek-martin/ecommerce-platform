@@ -58,6 +58,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
   isOrdersLoading = true;
   ordersError: string | null = null;
   customerId: string;
+  languageChanged = false;
 
   locales: ResponseLocaleDto[] = [];
 
@@ -141,6 +142,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
         this.selectedLanguage = lang;
         this.customerForm.patchValue({preferredLanguageId: lang.id});
         this.customerService.setUserLanguage(lang.languageCode.toLowerCase());
+        this.languageChanged = true;
       },
       error: err => console.error('Error loading translations:', err)
     });

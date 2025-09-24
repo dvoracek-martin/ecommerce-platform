@@ -404,8 +404,8 @@
       </div>
 
       <div class="admin-action-buttons">
-        <button type="submit" form="customerForm" color="primary" mat-flat-button
-        [disabled]="!customerForm.dirty || customerForm.invalid || saving">
+        <button [disabled]="(customerForm.invalid || !customerForm.dirty || saving) && !languageChanged" color="primary" form="customerForm"
+                mat-flat-button type="submit">
           <mat-icon>save</mat-icon>
           {{ 'ORDER_DETAIL.SAVE_CHANGES' | translate }}
         </button>
