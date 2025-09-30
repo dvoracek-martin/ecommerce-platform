@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -14,7 +14,7 @@ import { HeaderComponent } from '../../layout/header/header.component';
   standalone: false,
   styleUrls: ['./user-login.component.scss']
 })
-export class UserLoginComponent implements OnDestroy {
+export class UserLoginComponent implements OnInit, OnDestroy {
   @Output() loginSuccess = new EventEmitter<void>();
   loginForm: FormGroup;
   loading = false;
@@ -33,8 +33,13 @@ export class UserLoginComponent implements OnDestroy {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      rememberMe: [false] // Added rememberMe control
     });
+  }
+
+  ngOnInit(): void {
+    this.loadSavedCredentials();
   }
 
   ngOnDestroy(): void {
@@ -49,15 +54,22 @@ export class UserLoginComponent implements OnDestroy {
     }
 
     this.loading = true;
-    const { email, password } = this.loginForm.value;
+    const { email, password, rememberMe } = this.loginForm.value;
 
     this.authService.login(email, password).subscribe({
-      next: () => this.handleLoginSuccess(),
+      next: () => this.handleLoginSuccess(rememberMe, email),
       error: (err) => this.handleLoginError(err)
     });
   }
 
-  private handleLoginSuccess(): void {
+  private handleLoginSuccess(rememberMe: boolean, email: string): void {
+    // Save email if remember me is checked
+    if (rememberMe) {
+      localStorage.setItem('rememberedEmail', email);
+    } else {
+      localStorage.removeItem('rememberedEmail');
+    }
+
     this.loginSuccess.emit();
 
     this.cartService.mergeGuestCart().subscribe({
@@ -72,5 +84,15 @@ export class UserLoginComponent implements OnDestroy {
   private handleLoginError(err: any): void {
     this.snackBar.open('Login failed. Please check your credentials.', 'Close', { duration: 5000 });
     this.loading = false;
+  }
+
+  private loadSavedCredentials(): void {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+      this.loginForm.patchValue({
+        email: savedEmail,
+        rememberMe: true
+      });
+    }
   }
 }

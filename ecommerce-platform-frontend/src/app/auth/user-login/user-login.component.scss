@@ -38,6 +38,38 @@
   }
 }
 
+// ===== REMEMBER ME CHECKBOX =====
+.remember-me-checkbox {
+  margin: var(--spacing-sm) 0 var(--spacing-xs) 0;
+
+  ::ng-deep .mat-checkbox-frame {
+    border-color: var(--border-color);
+    transition: border-color var(--transition-fast);
+  }
+
+  ::ng-deep .mat-checkbox-background {
+    background-color: transparent;
+  }
+
+  ::ng-deep .mat-checkbox-checkmark-path {
+    stroke: white !important;
+  }
+
+  ::ng-deep &.mat-checkbox-checked .mat-checkbox-background {
+    background-color: var(--primary-color);
+  }
+
+  ::ng-deep .mat-checkbox-label {
+    color: var(--text-color);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+
+  &:hover ::ng-deep .mat-checkbox-frame {
+    border-color: var(--primary-color);
+  }
+}
+
 // ===== SUBMIT BUTTON =====
 .login-submit-btn {
   background: var(--primary-color) !important;

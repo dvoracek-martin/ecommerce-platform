@@ -7,7 +7,9 @@
         [placeholder]="'LOGIN.ENTER_EMAIL' | translate"
         formControlName="email"
         matInput
-        type="email">
+        type="email"
+        autocomplete="email username"
+        name="email">
       <mat-icon matSuffix>email</mat-icon>
       <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
         {{ 'USER_REGISTRATION.EMAIL_REQUIRED' | translate }}
@@ -24,7 +26,9 @@
         [placeholder]="'LOGIN.ENTER_PASSWORD' | translate"
         formControlName="password"
         matInput
-        [type]="hidePassword ? 'password' : 'text'">
+        [type]="hidePassword ? 'password' : 'text'"
+        autocomplete="current-password"
+        name="password">
       <button
         mat-icon-button
         matSuffix
@@ -37,6 +41,14 @@
       </mat-error>
     </mat-form-field>
 
+    <!-- Remember Me Checkbox -->
+    <mat-checkbox
+      formControlName="rememberMe"
+      class="remember-me-checkbox"
+      color="primary">
+      {{ 'LOGIN.REMEMBER_ME' | translate }}
+    </mat-checkbox>
+
     <!-- Submit Button -->
     <button
       [disabled]="loading || loginForm.invalid"
@@ -44,7 +56,6 @@
       mat-raised-button
       type="submit">
       <div class="btn-content">
-        <div class="spinner-small" *ngIf="loading"></div>
         <span class="btn-text">
           {{ loading ? ('LOGIN.LOGGING_IN' | translate) : ('LOGIN.LOGIN' | translate) }}
         </span>
