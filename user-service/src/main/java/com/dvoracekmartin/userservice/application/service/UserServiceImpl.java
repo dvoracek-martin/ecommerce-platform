@@ -144,6 +144,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseUserDTO forgotUserPassword(ForgotPasswordDTO updateUserPasswordDTO) {
         log.info("Processing forgot password for email: {}", updateUserPasswordDTO.email());
+        // Check if user exists
+        Optional<User> userOptional = userRepository.findByUsername(updateUserPasswordDTO.email());
+        if (userOptional.isEmpty()) {
+            log.info("No user found with email: {}", updateUserPasswordDTO.email());
+            return userMapper.updateUserDTOToResponseUserDTO(updateUserPasswordDTO, Response.Status.OK.getStatusCode());
+        }
 
         String token = passwordResetService.generateResetToken(updateUserPasswordDTO.email());
         log.debug("Reset token generated for email {}: {}", updateUserPasswordDTO.email(), token);
@@ -199,7 +205,6 @@ public class UserServiceImpl implements UserService {
             log.warn("User with username {} does not exist", updateUserDTO.username());
         }
 
-        // TODO try with resource
         userAuthenticationService.addOrRevokeUserAccess(userId, updateUserDTO.active());
         userAuthenticationService.updateUserEmail(updateUserDTO);
         userRepository.save(userMapper.updateUserDTOToUser(updateUserDTO, userId));

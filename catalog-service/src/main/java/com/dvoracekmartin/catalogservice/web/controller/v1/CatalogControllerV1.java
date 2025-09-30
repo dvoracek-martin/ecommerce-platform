@@ -32,11 +32,6 @@ public class CatalogControllerV1 {
     private final MediaRetriever mediaRetriever;
     private final ElasticsearchServiceImpl elasticsearchService;
 
-//    @GetMapping("/all-products-and-mixtures")
-//    public List<ResponseCatalogItemDTO> getAllProductsAndMixtures() {
-//        return catalogService.getAllProductsAndMixtures();
-//    }
-
     @GetMapping("/media")
     public ResponseEntity<byte[]> getMedia(@RequestParam String objectKey, @RequestParam String bucketName) {
         byte[] mediaData = mediaRetriever.retrieveMedia(objectKey, bucketName);
@@ -153,7 +148,7 @@ public class CatalogControllerV1 {
     }
 
     @PostMapping("/mixtures")
-    public ResponseEntity<List<ResponseMixtureDTO>> createMixture(@Valid @RequestBody List<CreateMixtureDTO> createMixtureDTO) {
+    public ResponseEntity<ResponseMixtureDTO> createMixture(@Valid @RequestBody CreateMixtureDTO createMixtureDTO) {
         log.info("Admin creating mixtures: {}", createMixtureDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(catalogService.createMixture(createMixtureDTO));
     }

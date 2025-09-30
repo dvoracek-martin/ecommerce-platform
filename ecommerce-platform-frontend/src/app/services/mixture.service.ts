@@ -37,11 +37,23 @@ export class MixtureService {
     return this.http.get<ResponseProductDTO[]>(`${this.adminApiUrl}/all-mixtures`);
   }
 
-  saveMixture(mixtures: CreateMixtureDTO[]): Observable<ResponseMixtureDTO[]> {
-    return this.http.post<ResponseMixtureDTO[]>(
-      `${this.adminApiUrl}`,
+  saveMixture(mixtures: CreateMixtureDTO): Observable<ResponseMixtureDTO> {
+    console.log('Saving mixture:', mixtures);
+    return this.http.post<ResponseMixtureDTO>(
+      `${this.apiUrl}`,
       mixtures // Send the array directly, not wrapped in an object
     );
   }
 
+  getLocalizedName(mixture: ResponseMixtureDTO) {
+    return '';
+  }
+
+  getLocalizedDescription(mixture: ResponseMixtureDTO) {
+    return '';
+  }
+
+  getLocalizedUrl(mixture: ResponseMixtureDTO) {
+    return '';
+  }
 }

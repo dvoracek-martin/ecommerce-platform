@@ -5,7 +5,7 @@ import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {isPlatformBrowser} from '@angular/common';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ResponseProductDTO} from "../dto/product/response-product-dto";
-import {AuthService} from '../auth/auth.service';
+import {AuthService} from './auth.service';
 import {ProductService} from "./product.service";
 import {ResponseMixtureDTO} from '../dto/mixtures/response-mixture-dto';
 import {CartItemType} from '../dto/cart/cart-item-type';

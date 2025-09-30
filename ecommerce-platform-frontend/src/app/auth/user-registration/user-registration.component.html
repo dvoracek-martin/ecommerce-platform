@@ -1,54 +1,102 @@
 <div class="registration-container">
-  <form (ngSubmit)="onSubmit()" [formGroup]="registrationForm" class="form-grid">
+  <form (ngSubmit)="onSubmit()" [formGroup]="registrationForm" class="registration-form">
     <!-- Email Field -->
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" class="form-field-minimal">
       <mat-label>{{ 'USER_REGISTRATION.EMAIL' | translate }}</mat-label>
-      <input [placeholder]="'LOGIN.ENTER_EMAIL' | translate" formControlName="email" matInput type="email">
+      <input
+        [placeholder]="'LOGIN.ENTER_EMAIL' | translate"
+        formControlName="email"
+        matInput
+        type="email">
+      <mat-icon matSuffix>email</mat-icon>
       <mat-error *ngIf="registrationForm.get('email')?.hasError('required')">
         {{ 'USER_REGISTRATION.EMAIL_REQUIRED' | translate }}
       </mat-error>
-      <mat-error
-        *ngIf="registrationForm.get('email')?.hasError('email') || registrationForm.get('email')?.hasError('pattern')">
+      <mat-error *ngIf="registrationForm.get('email')?.hasError('email') || registrationForm.get('email')?.hasError('pattern')">
         {{ 'USER_REGISTRATION.EMAIL_INVALID' | translate }}
       </mat-error>
     </mat-form-field>
 
     <!-- Password Field -->
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" class="form-field-minimal">
       <mat-label>{{ 'USER_REGISTRATION.PASSWORD' | translate }}</mat-label>
-      <input [placeholder]="'LOGIN.ENTER_PASSWORD' | translate" formControlName="password" matInput type="password">
+      <input
+        [placeholder]="'LOGIN.ENTER_PASSWORD' | translate"
+        formControlName="password"
+        matInput
+        [type]="hidePassword ? 'password' : 'text'"
+        (input)="checkPasswordStrength()">
+      <button
+        mat-icon-button
+        matSuffix
+        (click)="hidePassword = !hidePassword"
+        type="button">
+        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
       <mat-error *ngIf="registrationForm.get('password')?.hasError('required')">
         {{ 'USER_REGISTRATION.PASSWORD_REQUIRED' | translate }}
       </mat-error>
       <mat-error *ngIf="registrationForm.get('password')?.hasError('minlength')">
         {{ 'USER_REGISTRATION.PASSWORD_MINLENGTH' | translate }}
       </mat-error>
-      <mat-error *ngIf="registrationForm.get('password')?.hasError('pattern')">
-        {{ 'USER_REGISTRATION.PASSWORD_PATTERN' | translate }}
-      </mat-error>
     </mat-form-field>
 
+    <!-- Password Strength Indicator - Shows immediately -->
+    <div class="password-strength" *ngIf="registrationForm.get('password')?.value">
+      <div class="strength-bars">
+        <div class="strength-bar" [class]="getStrengthClass(1)"></div>
+        <div class="strength-bar" [class]="getStrengthClass(2)"></div>
+        <div class="strength-bar" [class]="getStrengthClass(3)"></div>
+        <div class="strength-bar" [class]="getStrengthClass(4)"></div>
+      </div>
+      <div class="strength-text" [class]="passwordStrength?.class">
+        {{ passwordStrength?.text | translate }}
+      </div>
+    </div>
+
     <!-- Confirm Password Field -->
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" class="form-field-minimal">
       <mat-label>{{ 'USER_REGISTRATION.CONFIRM_PASSWORD' | translate }}</mat-label>
-      <input [placeholder]="'LOGIN.ENTER_PASSWORD' | translate" formControlName="confirmPassword" matInput
-             type="password">
+      <input
+        [placeholder]="'LOGIN.ENTER_PASSWORD' | translate"
+        formControlName="confirmPassword"
+        matInput
+        [type]="hideConfirmPassword ? 'password' : 'text'">
+      <button
+        mat-icon-button
+        matSuffix
+        (click)="hideConfirmPassword = !hideConfirmPassword"
+        type="button">
+        <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
       <mat-error *ngIf="registrationForm.get('confirmPassword')?.hasError('required')">
         {{ 'USER_REGISTRATION.PASSWORD_REQUIRED' | translate }}
       </mat-error>
-      <mat-error
-        *ngIf="registrationForm.hasError('mismatch') && (registrationForm.get('confirmPassword')?.dirty || registrationForm.get('confirmPassword')?.dirty)">
+      <mat-error *ngIf="registrationForm.hasError('mismatch') && registrationForm.get('confirmPassword')?.touched">
         {{ 'USER_REGISTRATION.PASSWORDS_MISMATCH' | translate }}
       </mat-error>
     </mat-form-field>
 
     <!-- Submit Button -->
-    <div class="actions">
-      <button [disabled]="saving || registrationForm.invalid" color="primary" mat-raised-button type="submit">
-        <mat-icon>how_to_reg</mat-icon>
-        {{ saving ? ('COMMON.SAVING' | translate) : ('USER_REGISTRATION.REGISTER' | translate) }}
-      </button>
-    </div>
-    <mat-progress-bar *ngIf="saving" class="save-progress" mode="indeterminate"></mat-progress-bar>
+    <button
+      [disabled]="saving || registrationForm.invalid"
+      class="register-submit-btn"
+      mat-raised-button
+      type="submit">
+      <div class="btn-content">
+        <div class="spinner-small" *ngIf="saving"></div>
+        <mat-icon *ngIf="!saving" class="btn-icon">how_to_reg</mat-icon>
+        <span class="btn-text">
+          {{ saving ? ('COMMON.SAVING' | translate) : ('USER_REGISTRATION.REGISTER' | translate) }}
+        </span>
+      </div>
+    </button>
+
+    <!-- Progress Bar -->
+    <mat-progress-bar
+      *ngIf="saving"
+      class="register-progress"
+      mode="indeterminate">
+    </mat-progress-bar>
   </form>
 </div>

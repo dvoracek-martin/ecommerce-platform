@@ -33,8 +33,8 @@ public class Tag extends BaseEntity {
     @EqualsAndHashCode.Exclude
     private List<Mixture> mixtures;
 
-
+// TOOD
     public Tag(@NotBlank @Size(min = 3) String name, String description, int priority, boolean active, String url) {
-        super(null, name, description, priority, active, new ArrayList<>(), url);
+        super(null, priority, active, new ArrayList<>());
     }
 }

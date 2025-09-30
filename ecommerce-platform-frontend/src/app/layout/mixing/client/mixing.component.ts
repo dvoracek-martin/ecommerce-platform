@@ -1,15 +1,16 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
-import { ProductService } from '../../../services/product.service';
-import { MixtureService } from '../../../services/mixture.service';
-import { CartItem, CartService } from '../../../services/cart.service';
-import { Router } from '@angular/router';
-import { CategoryService } from '../../../services/category.service';
-import { ResponseCategoryDTO } from '../../../dto/category/response-category-dto';
-import { forkJoin } from 'rxjs';
-import { CartItemType } from '../../../dto/cart/cart-item-type';
-import { CreateMixtureDTO } from '../../../dto/mixtures/create-mixture-dto';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
+import {ProductService} from '../../../services/product.service';
+import {MixtureService} from '../../../services/mixture.service';
+import {CartItem, CartService} from '../../../services/cart.service';
+import {Router} from '@angular/router';
+import {CategoryService} from '../../../services/category.service';
+import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
+import {forkJoin} from 'rxjs';
+import {CartItemType} from '../../../dto/cart/cart-item-type';
+import {CreateMixtureDTO} from '../../../dto/mixtures/create-mixture-dto';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {TagService} from '../../../services/tag.service';
 
 interface ProductSummary {
   product: ResponseProductDTO;
@@ -56,8 +57,10 @@ export class MixingComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private categoryService: CategoryService,
     private router: Router,
-    private snackBar: MatSnackBar
-  ) {}
+    private snackBar: MatSnackBar,
+    private tagService: TagService
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadProducts();
@@ -85,6 +88,7 @@ export class MixingComponent implements OnInit, OnDestroy {
             });
             this.initializeCarousels();
             this.isLoading = false;
+            this.translateCategories();
           },
           error: (err) => {
             this.error = err.message || 'Failed to load products';
@@ -212,7 +216,7 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   getProductsByCategoryInMixture(): { [categoryName: string]: ProductSummary[] } {
     const groupedProducts: { [categoryName: string]: ProductSummary[] } = {};
-    const categoryMap = new Map<number, string>(this.categories.map(cat => [cat.id, cat.name]));
+    const categoryMap = new Map<number, string>(this.categories.map(cat => [cat.id, cat.translatedName]));
 
     this.mixedProducts.forEach(product => {
       if (!product) return;
@@ -254,6 +258,7 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   /** PRODUCT INFO POPUP */
   showProductInfo(product: ResponseProductDTO): void {
+    this.translateProduct(product);
     this.selectedProduct = product;
     this.showInfoPopup = true;
   }
@@ -301,29 +306,25 @@ export class MixingComponent implements OnInit, OnDestroy {
 
     // Set loading state
     this.isAddingToCart = true;
-
     const createMixtureRequest: CreateMixtureDTO = {
+      localizedFields: null,
       name: this.mixtureName,
       price: this.calculateTotalPrice(),
       categoryId: this.premiumCategoryId || 0,
       productIds: mixtureProducts.map(p => p.id),
       weightGrams: undefined,
       tagIds: [],
-      description: '',
       priority: 0,
       active: false,
       media: [],
       displayInProducts: false,
-      url:''
     };
-
-    this.mixtureService.saveMixture([createMixtureRequest]).subscribe({
-      next: mixtures => {
-        const mixture = mixtures[0];
+    this.mixtureService.saveMixture(createMixtureRequest).subscribe({
+      next: responseMixtureDTO => {
         const cartItem: CartItem = {
-          itemId: mixture.id!,
+          itemId: responseMixtureDTO.id!,
           quantity: 1,
-          mixture: mixture,
+          mixture: responseMixtureDTO,
           cartItemType: CartItemType.MIXTURE
         };
         this.cartService.addItem(cartItem).subscribe({
@@ -349,7 +350,7 @@ export class MixingComponent implements OnInit, OnDestroy {
       },
       error: err => {
         console.error('Failed to save mixture:', err);
-        this.isAddingToCart = false; // Reset loading state
+        this.isAddingToCart = false;
         this.snackBar.open('Failed to create mixture', 'OK', {
           duration: 3000,
           panelClass: ['error-snackbar']
@@ -357,6 +358,7 @@ export class MixingComponent implements OnInit, OnDestroy {
       }
     });
   }
+
   scrollToTop(): void {
     // For modern browsers
     if ('scrollBehavior' in document.documentElement.style) {
@@ -390,5 +392,29 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   navigateHome() {
     this.router.navigate(['/']);
+  }
+
+  private translateCategories() {
+    this.categories.forEach(category => {
+      category.translatedName = this.categoryService.getLocalizedName(category);
+      category.translatedDescription = this.categoryService.getLocalizedDescription(category);
+      category.translatedUrl = this.categoryService.getLocalizedUrl(category);
+
+      this.productsByCategory[category.id].forEach(product => {
+        product.translatedName = this.productService.getLocalizedName(product);
+        product.translatedDescription = this.productService.getLocalizedDescription(product);
+      });
+    });
+  }
+
+  private translateProduct(product: ResponseProductDTO) {
+    product.translatedName = this.productService.getLocalizedName(product);
+    product.translatedDescription = this.productService.getLocalizedDescription(product);
+    product.translatedUrl = this.productService.getLocalizedUrl(product);
+    product.responseTagDTOS.forEach(tag => {
+      this.tagService.getTagById(tag.id).subscribe(responseTagDTO => {
+        tag.translatedName = this.tagService.getLocalizedName(responseTagDTO);
+      });
+    });
   }
 }

@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@EqualsAndHashCode()
 @MappedSuperclass
 @Data
 @NoArgsConstructor
@@ -18,13 +20,6 @@ public abstract class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    @Size(min = 3, message = "Name must be at least 3 characters long")
-    private String name;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
     @Column
     private Integer priority;
 
@@ -34,7 +29,4 @@ public abstract class BaseEntity {
     @ElementCollection
     @Column(name = "image_url", length = 512)
     private List<String> imageUrl;
-
-    @Column(nullable = false, columnDefinition = "TEXT", length = 512)
-    private String url;
 }

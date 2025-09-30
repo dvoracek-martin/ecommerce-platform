@@ -1,7 +1,8 @@
-import {Component, EventEmitter, Output} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {HttpClient} from '@angular/common/http';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-forgot-password',
@@ -11,14 +12,15 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 })
 export class ForgotPasswordComponent {
   @Output() close = new EventEmitter<void>(); // For successful close
-  @Output() cancel = new EventEmitter<void>(); // New event for cancel
+  @Output() cancel = new EventEmitter<void>(); // For cancel/back action
   forgotForm: FormGroup;
   loading = false;
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private translate: TranslateService
   ) {
     this.forgotForm = this.fb.group({
       email: ['', [
@@ -30,21 +32,60 @@ export class ForgotPasswordComponent {
   }
 
   onSubmit(): void {
-    if (this.forgotForm.invalid) return;
+    if (this.forgotForm.invalid) {
+      this.showError('ERRORS.FIX_FORM');
+      return;
+    }
 
     this.loading = true;
     const email = this.forgotForm.value.email.trim().toLowerCase();
 
-    this.http.post('http://localhost:8080/api/users/v1/forgot-password', {email})
+    this.http.post('http://localhost:8080/api/users/v1/forgot-password', { email })
       .subscribe({
         next: () => {
-          this.snackBar.open('Password reset link sent to your email', 'Close', {duration: 5000});
+          this.showSuccess('SUCCESS.RESET_LINK_SENT');
           this.close.emit();
         },
-        error: () => {
-          this.snackBar.open('Failed to send reset link. Please try again.', 'Close', {duration: 5000});
+        error: (error) => {
+          this.handleError(error);
         }
       })
       .add(() => this.loading = false);
+  }
+
+  onCancel(): void {
+    this.cancel.emit();
+  }
+
+  private handleError(error: any): void {
+    console.error('Password reset error:', error);
+
+    if (error.status === 404) {
+      this.showError('ERRORS.EMAIL_NOT_FOUND');
+    } else if (error.status === 429) {
+      this.showError('ERRORS.TOO_MANY_REQUESTS');
+    } else {
+      this.showError('ERRORS.RESET_LINK_FAILED');
+    }
+  }
+
+  private showError(messageKey: string): void {
+    const message = this.translate.instant(messageKey);
+    const closeText = this.translate.instant('COMMON.CLOSE');
+
+    this.snackBar.open(message, closeText, {
+      duration: 5000,
+      panelClass: ['error-snackbar']
+    });
+  }
+
+  private showSuccess(messageKey: string): void {
+    const message = this.translate.instant(messageKey);
+    const closeText = this.translate.instant('COMMON.CLOSE');
+
+    this.snackBar.open(message, closeText, {
+      duration: 5000,
+      panelClass: ['success-snackbar']
+    });
   }
 }

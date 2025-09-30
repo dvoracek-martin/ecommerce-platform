@@ -5,7 +5,7 @@ import {MatSort} from '@angular/material/sort';
 import {OrderService} from '../../../services/order.service';
 import {ResponseOrderDTO} from '../../../dto/order/response-order-dto';
 import {OrderStatus} from '../../../dto/order/order-status';
-import {AuthService} from '../../../auth/auth.service';
+import {AuthService} from '../../../services/auth.service';
 import {HttpResponse} from '@angular/common/http';
 import {FormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';

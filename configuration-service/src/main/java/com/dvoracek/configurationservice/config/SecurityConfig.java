@@ -28,11 +28,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/configuration/v1",
-                                "/api/configuration/v1/available-locales",
-                                "/api/configuration/v1/in-use-locales"
-                        ).permitAll()
+                        .requestMatchers("/api/configuration/v1/last").permitAll()
+                        .requestMatchers("/api/configuration/v1/available-locales").permitAll()
+                        .requestMatchers("/api/configuration/v1/in-use-locales").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

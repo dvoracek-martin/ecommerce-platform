@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Collection;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    boolean existsByName(@NotBlank String name);
+//    boolean existsByName(@NotBlank String name);
 
     Collection<Product> findAllByCategoryId(Long categoryId);
 

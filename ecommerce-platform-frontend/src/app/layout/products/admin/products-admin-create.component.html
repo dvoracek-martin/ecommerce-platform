@@ -9,7 +9,8 @@
       </div>
     </div>
 
-    <form (ngSubmit)="onSave()" [formGroup]="productForm" class="form-and-media-wrapper" id="productForm">
+    <form *ngIf="productForm" (ngSubmit)="onSave()" [formGroup]="productForm" class="form-and-media-wrapper"
+          id="productForm">
 
       <div class="form-content">
         <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
@@ -21,18 +22,76 @@
             {{ 'PRODUCTS.ADMIN.BASIC_INFO' | translate }}
           </h3>
 
+          <!-- TABS CONTAINER -->
+          <mat-tab-group *ngIf="usedLocales.length > 0">
+            <mat-tab *ngFor="let locale of usedLocales" label="{{ locale.translatedName }}">
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label>{{ 'PRODUCTS.ADMIN.NAME' | translate }}</mat-label>
+                  <input matInput
+                         [formControlName]="'name_' + locale.languageCode + '_' + locale.regionCode"
+                         placeholder="Enter name">
+                  <mat-error
+                    *ngIf="productForm.get('name_' + locale.languageCode + '_' + locale.regionCode)?.hasError('required')">
+                    {{ 'VALIDATION.REQUIRED' | translate }}
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label>{{ 'PRODUCTS.ADMIN.DESCRIPTION' | translate }}</mat-label>
+                  <textarea matInput
+                            [formControlName]="'description_' + locale.languageCode + '_' + locale.regionCode"
+                            placeholder="Enter description"></textarea>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label>{{ 'PRODUCTS.URL' | translate }}</mat-label>
+                  <input matInput
+                         [formControlName]="'url_' + locale.languageCode + '_' + locale.regionCode"
+                         placeholder="Enter URL">
+                  <mat-error
+                    *ngIf="productForm.get('url_' + locale.languageCode + '_' + locale.regionCode)?.hasError('required')">
+                    {{ 'VALIDATION.REQUIRED' | translate }}
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+            </mat-tab>
+          </mat-tab-group>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'PRODUCTS.NAME' | translate }}</mat-label>
-              <input formControlName="name" matInput required>
-              <mat-error *ngIf="productForm.get('name')?.hasError('required')">
+              <mat-label>{{ 'PRODUCTS.CATEGORY' | translate }}</mat-label>
+              <mat-select formControlName="categoryId" required>
+                <mat-option *ngFor="let category of categories" [value]="category.id">
+                  {{ category.translatedName }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="productForm.get('categoryId')?.hasError('required')">
                 {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'PRODUCTS.PRIORITY' | translate }}</mat-label>
+              <input formControlName="priority" matInput type="number">
+              <mat-error *ngIf="productForm.get('priority')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+              <mat-error *ngIf="productForm.get('priority')?.hasError('min')">
+                {{ 'VALIDATION.MIN' | translate }}: 0
               </mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'PRODUCTS.PRICE' | translate }}</mat-label>
-              <input formControlName="price" matInput required type="number">
+              <input formControlName="price" matInput type="number" step="0.01">
               <mat-error *ngIf="productForm.get('price')?.hasError('required')">
                 {{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
@@ -42,63 +101,23 @@
             </mat-form-field>
           </div>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field full-width">
-              <mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label>
-              <textarea formControlName="description" matInput></textarea>
-            </mat-form-field>
-          </div>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'PRODUCTS.URL' | translate }}</mat-label>
-              <input formControlName="url" matInput required>
-              <mat-error *ngIf="productForm.get('url')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
-          </div>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'PRODUCTS.CATEGORY' | translate }}</mat-label>
-              <mat-select formControlName="categoryId" required>
-                <mat-option *ngFor="let category of categories" [value]="category.id">
-                  {{ category.name }}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="productForm.get('categoryId')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
-
-
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'PRODUCTS.PRIORITY' | translate }}</mat-label>
-              <input formControlName="priority" matInput type="number">
-              <mat-error *ngIf="productForm.get('priority')?.hasError('min')">
-                {{ 'VALIDATION.MIN' | translate }}: 0
-              </mat-error>
-            </mat-form-field>
-          </div>
-
-          <div class="form-row">
-            <div class="form-field form-section">
+          <div class="form-row checkboxes-row">
+            <div class="form-field half-width centered">
               <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
                 {{ 'PRODUCTS.ACTIVE' | translate }}
               </mat-checkbox>
             </div>
-            <div class="form-row">
-              <div class="form-field form-section">
-                <mat-checkbox class="admin-mixable-checkbox-wrapper" formControlName="mixable">
-                  {{ 'PRODUCTS.MIXABLE' | translate }}
-                </mat-checkbox>
-              </div>
-              <div class="form-row">
-                <div class="form-field form-section">
-                  <mat-checkbox class="admin-display-in-products-checkbox-wrapper" formControlName="displayInProducts">
-                    {{ 'PRODUCTS.DISPLAY_IN_PRODUCTS' | translate }}
-                  </mat-checkbox>
-                </div>
-              </div>
+
+            <div class="form-field half-width centered">
+              <mat-checkbox class="admin-mixable-checkbox-wrapper" formControlName="mixable">
+                {{ 'PRODUCTS.MIXABLE' | translate }}
+              </mat-checkbox>
+            </div>
+
+            <div class="form-field half-width centered">
+              <mat-checkbox class="admin-display-in-products-checkbox-wrapper" formControlName="displayInProducts">
+                {{ 'PRODUCTS.DISPLAY_IN_PRODUCTS' | translate }}
+              </mat-checkbox>
             </div>
           </div>
         </div>
@@ -110,9 +129,9 @@
             {{ 'PRODUCTS.ADMIN.DETAILS' | translate }}
           </h3>
           <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
+            <mat-form-field appearance="outline" class="form-field" >
               <mat-label>{{ 'PRODUCTS.WEIGHT_GRAMS' | translate }}</mat-label>
-              <input formControlName="weightGrams" matInput type="number">
+              <input formControlName="weightGrams" matInput type="number" step="0.01" required>
               <mat-error *ngIf="productForm.get('weightGrams')?.hasError('min')">
                 {{ 'VALIDATION.MIN' | translate }}: 0.01
               </mat-error>
@@ -133,7 +152,7 @@
               <mat-label>{{ 'PRODUCTS.ADMIN.SELECT_TAGS' | translate }}</mat-label>
               <mat-select formControlName="tagIds" multiple>
                 <mat-option *ngFor="let t of allTags" [value]="t.id">
-                  {{ t.name }}
+                                    {{ t.translatedName }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
@@ -183,7 +202,8 @@
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
-        <button [disabled]="productForm.invalid || saving" color="primary" form="productForm" mat-flat-button
+        <button [disabled]="!productForm || productForm.invalid || saving" color="primary" form="productForm"
+                mat-flat-button
                 type="submit">
           <mat-icon>save</mat-icon>
           {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}

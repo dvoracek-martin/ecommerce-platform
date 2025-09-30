@@ -20,7 +20,7 @@ public class KafkaProducerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${global.kafka.topics.translations.translation-request}")
+    @Value("${global.kafka.topics.translations.translation-save}")
     private String translationRequestTopic;
 
     @Bean

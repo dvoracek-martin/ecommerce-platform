@@ -2,7 +2,9 @@ package com.dvoracek.cartservice.application.dto.discount;
 
 import com.dvoracekmartin.common.dto.cart.CartDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode()
 @Data
 public class DiscountApplicationResultDTO {
     private boolean success;

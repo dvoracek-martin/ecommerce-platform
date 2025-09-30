@@ -5,10 +5,14 @@ import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
 import com.dvoracekmartin.common.dto.media.MediaDTO;
 import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.common.event.translation.LocalizedField;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Map;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ResponseTagDTO extends BaseUpdateOrResponseDTO {
 
@@ -16,8 +20,8 @@ public class ResponseTagDTO extends BaseUpdateOrResponseDTO {
     List<ResponseProductDTO> products;
     List<ResponseMixtureDTO> mixtures;
 
-    public ResponseTagDTO(Long id, String name, String description, int priority, boolean active, List<MediaDTO> media, List<ResponseCategoryDTO> categories, List<ResponseProductDTO> products, List<ResponseMixtureDTO> mixtures, String url) {
-        super(id, name, description, priority, active, media, url);
+    public ResponseTagDTO(Long id, Map<String, LocalizedField> localizedFields, int priority, boolean active, List<MediaDTO> media, List<ResponseCategoryDTO> categories, List<ResponseProductDTO> products, List<ResponseMixtureDTO> mixtures) {
+        super(id, localizedFields, priority, active, media);
         this.categories = categories;
         this.products = products;
         this.mixtures = mixtures;

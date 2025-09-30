@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+@EqualsAndHashCode()
 @Entity
 @Table(name = "order_items")
 @Data

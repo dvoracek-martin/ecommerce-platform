@@ -1,40 +1,75 @@
-@use '@angular/material' as mat;
+// ecommerce-platform-light-theme.scss
 
+// =============================================
+// CSS VARIABLES - DESIGN TOKENS
+// =============================================
 :root {
+  // Colors - Primary Palette
   --primary-color: #3498db;
   --primary-hover: #2980b9;
   --secondary-color: #e67e22;
   --tertiary-color: #9b59b6;
   --quaternary-color: #1abc9c;
   --quinary-color: #f1c40f;
+
+  // Colors - Semantic
   --success-color: #2ecc71;
   --error-color: #e74c3c;
+  --warning-color: #f39c12;
+
+  // Colors - Background
   --background-light: #f9fafb;
   --background-card: #ffffff;
+  --background-hover: #f1f3f5;
+
+  // Colors - Text
   --text-primary: #2c3e50;
   --text-secondary: #34495e;
+  --text-muted: #6c757d;
+  --text-light: #95a5a6;
+
+  // Colors - UI Elements
   --icon-color: #34495e;
   --border-color: #e0e0e0;
+  --divider-color: #e9ecef;
+
+  // Colors - Shadows
   --shadow-light: rgba(0, 0, 0, 0.08);
   --shadow-medium: rgba(0, 0, 0, 0.15);
+  --shadow-large: rgba(0, 0, 0, 0.12);
 
+  // Typography
   --font-primary: 'Poppins', sans-serif;
   --font-secondary: 'Inter', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.85rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.2rem;
   --font-size-xl: 1.5rem;
   --font-size-xxl: 2rem;
 
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  // Spacing
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
+
+  // Border Radius
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  // Transitions
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
 }
 
+// =============================================
+// BASE STYLES
+// =============================================
 html, body {
   font-family: var(--font-primary);
   font-size: var(--font-size-base);
@@ -53,19 +88,73 @@ h1, h2, h3, h4, h5, h6 {
 
 p, span, label {
   font-size: var(--font-size-base);
-  color: #000000;
+  color: var(--text-primary);
 }
 
 a {
   color: var(--primary-color);
   text-decoration: none;
-  transition: color 0.3s;
+  transition: color var(--transition-normal);
 
   &:hover {
     color: var(--primary-hover);
   }
 }
 
+// =============================================
+// MATERIAL COMPONENTS OVERRIDES
+// =============================================
+.mat-mdc-dialog-container,
+.mat-mdc-card,
+.mat-mdc-table,
+.mat-mdc-paginator,
+.mat-mdc-form-field,
+.mat-mdc-select-panel,
+.mat-mdc-menu-panel {
+  background: var(--background-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-form-field {
+  .mdc-text-field__input {
+    color: var(--text-primary) !important;
+
+    &::placeholder {
+      color: var(--text-muted) !important;
+    }
+  }
+
+  .mdc-floating-label {
+    color: var(--text-muted) !important;
+  }
+
+  &.mat-focused .mdc-floating-label {
+    color: var(--primary-color) !important;
+  }
+}
+
+// =============================================
+// FORM ELEMENTS
+// =============================================
+input, textarea, select, mat-form-field {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm);
+  background-color: var(--background-card);
+  transition: border-color var(--transition-normal), background-color var(--transition-normal);
+
+  &:focus {
+    border-color: var(--primary-color);
+    outline: none;
+  }
+}
+
+// =============================================
+// BUTTON COMPONENTS
+// =============================================
 .add-to-cart-btn {
   display: inline-flex;
   align-items: center;
@@ -75,7 +164,7 @@ a {
   border-radius: var(--radius-md);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
   border: none;
   text-align: center;
 
@@ -100,6 +189,9 @@ a {
   }
 }
 
+// =============================================
+// CARD COMPONENTS
+// =============================================
 .card {
   background: var(--background-card);
   border-radius: var(--radius-md);
@@ -108,102 +200,12 @@ a {
   margin-bottom: var(--spacing-lg);
 }
 
-input, textarea, select, mat-form-field {
-  font-family: var(--font-primary);
-  font-size: var(--font-size-base);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: var(--spacing-sm);
-  background-color: #fff;
-  transition: border-color 0.3s, background-color 0.3s;
-
-  &:focus {
-    border-color: var(--primary-color);
-    outline: none;
-  }
-}
-
-.shadow-light {
-  box-shadow: 0 4px 15px var(--shadow-light);
-}
-
-.shadow-medium {
-  box-shadow: 0 8px 20px var(--shadow-medium);
-}
-
-.text-center {
-  text-align: center;
-}
-
-.flex {
-  display: flex;
-}
-
-.flex-column {
-  flex-direction: column;
-}
-
-.gap-sm {
-  gap: var(--spacing-sm);
-}
-
-.gap-md {
-  gap: var(--spacing-md);
-}
-
-.gap-lg {
-  gap: var(--spacing-lg);
-}
-
-.rounded {
-  border-radius: var(--radius-md);
-}
-
-.hidden {
-  display: none;
-}
-
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: var(--spacing-lg);
-}
-
-.spinner {
-  border: 4px solid #ecf0f1;
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin: auto;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.mat-mdc-dialog-container,
-.mat-mdc-card,
-.mat-mdc-table,
-.mat-mdc-paginator,
-.mat-mdc-form-field,
-.mat-mdc-select-panel,
-.mat-mdc-menu-panel {
-  background: var(--background-card) !important;
-  color: var(--text-primary) !important;
-}
-
-// Admin Components - upravené šířky
+// =============================================
+// ADMIN COMPONENTS
+// =============================================
 .admin-container {
   padding: 2rem;
-  background-color: #f9f9f9;
+  background-color: var(--background-light);
   min-height: calc(100vh - 64px);
   display: flex;
   justify-content: center;
@@ -213,9 +215,9 @@ input, textarea, select, mat-form-field {
   margin-top: 20px;
   width: 100%;
   max-width: 1200px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: var(--background-card);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px var(--shadow-light);
   position: relative;
   padding-bottom: 100px;
 }
@@ -225,10 +227,10 @@ input, textarea, select, mat-form-field {
   width: 100%;
   max-width: 100%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 0;
   color: white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px var(--shadow-medium);
   box-sizing: border-box;
 
   .admin-header {
@@ -247,13 +249,13 @@ input, textarea, select, mat-form-field {
 
       h1 {
         margin: 0 0 10px 0;
-        font-size: 2rem;
+        font-size: var(--font-size-xxl);
         color: white;
       }
 
       .admin-date {
         color: rgba(255, 255, 255, 0.8);
-        font-size: 1rem;
+        font-size: var(--font-size-base);
       }
     }
 
@@ -261,13 +263,13 @@ input, textarea, select, mat-form-field {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 15px;
+      gap: var(--spacing-md);
 
       .status-badge {
         padding: 8px 16px;
         border-radius: 20px;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: var(--font-size-sm);
         text-transform: uppercase;
 
         &.status-pending {
@@ -300,15 +302,15 @@ input, textarea, select, mat-form-field {
         text-align: right;
 
         .total-label {
-          font-size: 0.9rem;
+          font-size: var(--font-size-sm);
           color: rgba(255, 255, 255, 0.8);
           margin-bottom: 5px;
         }
 
         .total-amount {
-          font-size: 1.5rem;
+          font-size: var(--font-size-xl);
           font-weight: 700;
-          color: #e67e22;
+          color: var(--secondary-color);
         }
       }
     }
@@ -320,31 +322,30 @@ input, textarea, select, mat-form-field {
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
-    padding: 16px;
+    padding: var(--spacing-md);
     box-sizing: border-box;
 
     .admin-actions {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 12px;
+      gap: var(--spacing-sm);
     }
 
     .admin-new-btn {
-      padding: 12px 24px;
-      border-radius: 12px;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
       font-weight: 600;
-      font-size: 1rem;
+      font-size: var(--font-size-base);
       color: #fff;
-      background-color: #e67e22;
+      background-color: var(--secondary-color);
       border: none;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0,
-        0.15);
+      box-shadow: 0 4px 12px var(--shadow-medium);
       display: inline-flex;
       align-items: center;
       text-align: center;
-      gap: 8px;
+      gap: var(--spacing-sm);
 
       mat-icon {
         font-size: 20px;
@@ -353,25 +354,24 @@ input, textarea, select, mat-form-field {
 
       &:hover {
         background-color: #d35400;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 6px 20px var(--shadow-medium);
       }
     }
 
     .admin-delete-btn {
-      padding: 12px 24px;
-      border-radius: 12px;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
       font-weight: 600;
-      font-size: 1rem;
+      font-size: var(--font-size-base);
       color: #f9ebea;
       background-color: #e37267;
       border: none;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0,
-        0.15);
+      box-shadow: 0 4px 12px var(--shadow-medium);
       display: inline-flex;
       align-items: center;
       text-align: center;
-      gap: 8px;
+      gap: var(--spacing-sm);
       justify-content: center;
 
       mat-icon {
@@ -381,30 +381,18 @@ input, textarea, select, mat-form-field {
 
       &:hover {
         background-color: #c41508;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 6px 20px var(--shadow-medium);
       }
     }
   }
 }
 
-.drag-handle {
-  cursor: grab;
-  color: rgba(0, 0, 0, 0.8);
-  font-size: 20px;
-}
-
-.form-and-media-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 2rem;
-  padding: 24px;
-}
-
-// Search Components
+// =============================================
+// SEARCH COMPONENTS
+// =============================================
 .admin-search-section {
   display: flex;
-  gap: 16px;
-
+  gap: var(--spacing-md);
   flex-wrap: wrap;
 
   .admin-search-container {
@@ -415,9 +403,9 @@ input, textarea, select, mat-form-field {
       display: flex;
       align-items: center;
       background: rgba(255, 255, 255, 0.15);
-      border-radius: 8px;
-      padding: 8px 16px;
-      transition: background 0.3s, box-shadow 0.3s;
+      border-radius: var(--radius-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      transition: background var(--transition-normal), box-shadow var(--transition-normal);
 
       &:hover, &:focus-within {
         background: rgba(255, 255, 255, 0.25);
@@ -426,7 +414,7 @@ input, textarea, select, mat-form-field {
 
       .admin-search-icon {
         color: white;
-        margin-right: 12px;
+        margin-right: var(--spacing-sm);
       }
 
       .admin-search-input {
@@ -434,8 +422,8 @@ input, textarea, select, mat-form-field {
         background: transparent;
         border: none;
         color: white;
-        font-size: 1rem;
-        padding: 8px 0;
+        font-size: var(--font-size-base);
+        padding: var(--spacing-sm) 0;
 
         &::placeholder {
           color: rgba(255, 255, 255, 0.7);
@@ -449,17 +437,18 @@ input, textarea, select, mat-form-field {
   }
 }
 
-
+// =============================================
+// CHECKBOX COMPONENTS
+// =============================================
 @mixin checkbox-wrapper-base($bg-color) {
   display: inline-flex;
   align-items: center;
-  padding: 4px 12px;
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: 20px;
   background: $bg-color;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  background: $bg-color;
+  transition: all var(--transition-normal);
+  box-shadow: 0 2px 5px var(--shadow-light);
   flex: 0 0 auto;
 
   mat-checkbox {
@@ -468,7 +457,7 @@ input, textarea, select, mat-form-field {
 
     ::ng-deep .mat-checkbox-layout {
       margin: 0;
-      gap: 4px;
+      gap: var(--spacing-xs);
     }
 
     ::ng-deep .mat-checkbox-inner-container {
@@ -502,6 +491,9 @@ input, textarea, select, mat-form-field {
   }
 }
 
+// =============================================
+// TAG COMPONENTS
+// =============================================
 .tags-container {
   display: flex;
   flex-wrap: wrap;
@@ -509,27 +501,136 @@ input, textarea, select, mat-form-field {
 }
 
 .tag {
-  background-color: #3498db;
+  background-color: var(--primary-color);
   color: #fff;
   padding: 6px 12px;
   border-radius: 16px;
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   font-weight: 500;
   white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px var(--shadow-light);
+  transition: all var(--transition-fast);
 
   &:hover {
-    background-color: #2980b9;
+    background-color: var(--primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px var(--shadow-medium);
   }
 }
 
+// =============================================
+// MODERN USER MENU
+// =============================================
+::ng-deep .modern-user-menu-panel {
+  min-width: 280px;
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden !important;
+  box-shadow: 0 12px 28px var(--shadow-large) !important;
+  background: var(--background-card) !important;
+  border: 1px solid var(--border-color) !important;
 
-/* GALLERY */
+  .mat-menu-content {
+    padding: 0;
 
-/* Gallery Modal */
+    .modern-menu-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md) 20px;
+      background: var(--background-light);
+      border-bottom: 1px solid var(--divider-color);
+      color: var(--text-primary);
+
+      .user-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--background-card);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        mat-icon {
+          font-size: 28px;
+          color: var(--primary-color);
+        }
+      }
+
+      .user-info {
+        h4 {
+          margin: 0;
+          font-weight: 600;
+          font-size: var(--font-size-base);
+        }
+        p {
+          margin: 4px 0 0;
+          font-size: var(--font-size-sm);
+          color: var(--text-muted);
+        }
+      }
+    }
+
+    .modern-menu-section {
+      padding: var(--spacing-sm) 0;
+
+      .modern-section-title {
+        margin: 0 var(--spacing-md) var(--spacing-sm);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .mat-menu-item {
+        display: flex !important;
+        align-items: center;
+        gap: var(--spacing-sm);
+        margin: 0 var(--spacing-sm);
+        padding: var(--spacing-sm) var(--spacing-sm);
+        border-radius: var(--radius-md);
+        transition: all 0.25s ease;
+        color: var(--text-primary);
+
+        mat-icon {
+          font-size: 20px;
+          color: var(--icon-color);
+          transition: all var(--transition-normal);
+        }
+
+        &:hover {
+          background: var(--background-hover) !important;
+          transform: translateX(4px);
+
+          mat-icon {
+            color: var(--primary-color);
+          }
+        }
+
+        &.logout-item {
+          color: var(--error-color);
+
+          mat-icon {
+            color: var(--error-color);
+          }
+
+          &:hover {
+            background: rgba(231, 76, 60, 0.1) !important;
+
+            mat-icon {
+              color: var(--error-color);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// =============================================
+// GALLERY & MEDIA COMPONENTS
+// =============================================
 .gallery-modal {
   position: fixed;
   top: 0;
@@ -633,7 +734,7 @@ input, textarea, select, mat-form-field {
 
         &.active {
           opacity: 1;
-          border: 2px solid var(--primary-color);;
+          border: 2px solid var(--primary-color);
         }
 
         &:hover {
@@ -660,7 +761,6 @@ input, textarea, select, mat-form-field {
   }
 }
 
-/* Product image container and carousel */
 .product-image-container {
   width: 100%;
   aspect-ratio: 4/5;
@@ -753,72 +853,9 @@ input, textarea, select, mat-form-field {
   }
 }
 
-
-/* Floating Action Bar */
-.admin-actions-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  padding: 1rem 2rem;
-  border-top: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: center;
-  z-index: 100;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.admin-action-buttons {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10rem;
-  width: 100%;
-  max-width: 600px;
-}
-
-.admin-action-buttons button:nth-child(2) {
-  flex-grow: 1;
-  height: 50px;
-  font-size: 1.1rem;
-  margin: 0;
-}
-
-.admin-action-buttons button:nth-child(1) {
-  order: 1;
-}
-
-.admin-action-buttons button:nth-child(2) {
-  order: 2;
-}
-
-.admin-action-buttons button:nth-child(3) {
-  order: 3;
-}
-
-/* Progress bar styling */
-.admin-save-progress {
-  margin-top: 8px;
-  height: 2px;
-}
-
-// Status Sections
-.loading-section, .error-section, .no-orders-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  text-align: center;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-// CLIENT
+// =============================================
+// CLIENT SPECIFIC STYLES
+// =============================================
 .add-to-cart-btn {
   width: 100%;
   padding: 12px;
@@ -858,153 +895,43 @@ input, textarea, select, mat-form-field {
   padding: 10px;
 }
 
-// Modern User Menu
-::ng-deep .modern-user-menu-panel {
-  min-width: 280px;
-  border-radius: 16px !important;
-  overflow: hidden !important;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12) !important;
-  background: #fff !important;
 
-  .mat-menu-content {
-    padding: 0;
 
-    .modern-menu-header {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      padding: 16px 20px;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-      color: var(--text-primary);
 
-      .user-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: #fff;
-        border: 1px solid #e0e0e0;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        mat-icon {
-          font-size: 28px;
-          color: var(--icon-color);
-        }
-      }
-
-      .user-info {
-        h4 {
-          margin: 0;
-          font-weight: 600;
-          font-size: 1rem;
-        }
-
-        p {
-          margin: 4px 0 0;
-          font-size: 0.85rem;
-          color: var(--text-secondary);
-        }
-      }
-    }
-
-    .modern-menu-section {
-      padding: 8px 0;
-
-      .modern-section-title {
-        margin: 0 16px 8px;
-        font-size: 0.8rem;
-        font-weight: 600;
-
-        color: #95a5a6;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .mat-menu-item {
-        display: flex !important;
-        align-items: center;
-        gap: 12px;
-        margin: 0 12px;
-        padding: 8px 12px;
-        border-radius: 12px;
-        transition: all 0.25s ease;
-        color: var(--text-secondary);
-
-        mat-icon {
-          font-size: 20px;
-          color: var(--icon-color);
-          transition: all 0.3s ease;
-        }
-
-        &:hover {
-          background: #f1f3f5 !important;
-          transform: translateX(4px);
-
-          mat-icon {
-            color: var(--primary-color);
-          }
-        }
-
-        &.logout-item {
-          color: var(--error-color);
-
-          mat-icon {
-            color: var(--error-color);
-          }
-
-          &:hover {
-            background: rgba(231, 76, 60, 0.1) !important;
-
-            mat-icon {
-              color: #fff;
-            }
-          }
-        }
-      }
+// ===== GLOBÁLNÍ FIX PRO IKONY V MENU =====
+.mat-menu-panel {
+  .mat-menu-item {
+    mat-icon {
+      color: #000000 !important; // Černá barva pro všechny ikony v menu
     }
   }
 }
 
-/* Responsive Styles */
-@media (max-width: 1000px) {
-  .form-and-media-wrapper {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 16px;
-  }
-  .media-sidebar {
-    position: static;
-    top: auto;
-  }
-  .category-card {
-    padding-bottom: 120px;
-  }
-  .form-row {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .admin-actions-bar {
-    padding: 1rem;
-  }
-  .admin-action-buttons {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-  .admin-action-buttons button {
-    width: 100%;
-    margin: 0 !important;
-  }
-  .admin-action-buttons button:nth-child(1) {
-    order: 1;
-  }
-  .admin-action-buttons button:nth-child(2) {
-    order: 2;
-  }
-  .admin-action-buttons button:nth-child(3) {
-    order: 3;
+// ===== SPECIFICKÉ PRO NAVIGAČNÍ MENU =====
+.navigation-menu {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+  .mat-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 48px;
+    padding: 0 16px;
+    color: #2c3e50;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #f8f9fa;
+      transform: translateX(4px);
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
   }
 }

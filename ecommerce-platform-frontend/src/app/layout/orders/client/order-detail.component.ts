@@ -13,7 +13,7 @@ import {CartItemType} from '../../../dto/cart/cart-item-type';
 import {OrderStatus} from '../../../dto/order/order-status';
 import {Router} from '@angular/router';
 import {OrderStateService} from '../../../services/order-state.service';
-import {AuthService} from '../../../auth/auth.service';
+import {AuthService} from '../../../services/auth.service';
 import {HttpResponse} from '@angular/common/http';
 
 interface OrderItemWithDetails extends CartItemDTO {
@@ -82,7 +82,8 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
                 ...item,
                 product,
                 itemPrice: product.price,
-                itemName: product.name,
+                // TODO
+                // itemName: product.name,
                 loaded: true
               })),
               catchError(() => of({...item, loaded: false}))
@@ -93,7 +94,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
                 ...item,
                 mixture,
                 itemPrice: mixture.price,
-                itemName: mixture.name,
+                // itemName: mixture.name,
                 loaded: true
               })),
               catchError(() => of({...item, loaded: false}))

@@ -1,21 +1,21 @@
 package com.dvoracekmartin.catalogservice.web.controller.v1;
 
 import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategoryDTO;
-import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.UpdateCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
-import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.UpdateMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.CreateProductDTO;
-import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductStockDTO;
 import com.dvoracekmartin.catalogservice.application.dto.search.ResponseSearchResultDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
-import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.UpdateTagDTO;
 import com.dvoracekmartin.catalogservice.application.elasticsearch.service.ElasticsearchServiceImpl;
 import com.dvoracekmartin.catalogservice.application.service.CatalogService;
+import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +54,7 @@ public class CatalogAdminControllerV1 {
     }
 
     @PostMapping("/products")
-    public ResponseEntity<List<ResponseProductDTO>> createProduct(@Valid @RequestBody List<CreateProductDTO> createProductDTO) {
+    public ResponseEntity<ResponseProductDTO> createProduct(@Valid @RequestBody CreateProductDTO createProductDTO) {
         log.info("Admin creating products: {}", createProductDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(catalogService.createProduct(createProductDTO));
     }
@@ -100,7 +100,7 @@ public class CatalogAdminControllerV1 {
     }
 
     @PostMapping("/mixtures")
-    public ResponseEntity<List<ResponseMixtureDTO>> createMixture(@Valid @RequestBody List<CreateMixtureDTO> createMixtureDTO) {
+    public ResponseEntity<ResponseMixtureDTO> createMixture(@Valid @RequestBody CreateMixtureDTO createMixtureDTO) {
         log.info("Admin creating mixtures: {}", createMixtureDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(catalogService.createMixture(createMixtureDTO));
     }
@@ -133,7 +133,7 @@ public class CatalogAdminControllerV1 {
     }
 
     @PostMapping("/categories")
-    public ResponseEntity<List<ResponseCategoryDTO>> createCategory(@Valid @RequestBody List<CreateCategoryDTO> createCategoryDTO) {
+    public ResponseEntity<ResponseCategoryDTO> createCategory(@Valid @RequestBody CreateCategoryDTO createCategoryDTO) {
         log.info("Admin creating categories: {}", createCategoryDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(catalogService.createCategory(createCategoryDTO));
     }
@@ -166,9 +166,9 @@ public class CatalogAdminControllerV1 {
     }
 
     @PostMapping("/tags")
-    public ResponseEntity<List<ResponseTagDTO>> createTags(@Valid @RequestBody List<CreateTagDTO> createTagDTOs) {
+    public ResponseEntity<ResponseTagDTO> createTags(@Valid @RequestBody CreateTagDTO createTagDTOs) {
         log.info("Admin creating tags: {}", createTagDTOs);
-        return ResponseEntity.status(HttpStatus.CREATED).body(catalogService.createTags(createTagDTOs));
+        return ResponseEntity.status(HttpStatus.CREATED).body(catalogService.createTag(createTagDTOs));
     }
 
     @PutMapping("/tags/{id}")

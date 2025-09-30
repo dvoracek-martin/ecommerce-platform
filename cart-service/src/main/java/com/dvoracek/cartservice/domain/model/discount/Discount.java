@@ -2,12 +2,13 @@ package com.dvoracek.cartservice.domain.model.discount;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 
+@EqualsAndHashCode()
 @Entity
 @Data
 @NoArgsConstructor

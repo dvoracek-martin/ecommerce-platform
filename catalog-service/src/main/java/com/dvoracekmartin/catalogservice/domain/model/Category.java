@@ -17,13 +17,13 @@ public class Category extends BaseEntity {
     @Column
     private boolean mixable;
 
-    @ManyToMany(mappedBy = "categories")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     @JsonBackReference
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Product> products;
 
-    @ManyToMany(mappedBy = "categories")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     @JsonBackReference
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

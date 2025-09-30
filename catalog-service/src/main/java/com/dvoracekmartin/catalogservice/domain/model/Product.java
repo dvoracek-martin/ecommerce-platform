@@ -37,15 +37,6 @@ public class Product extends BaseEntity {
     @ManyToMany
     @JsonManagedReference
     @JoinTable(
-            name = "product_categories",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    private List<Category> categories;
-
-    @ManyToMany
-    @JsonManagedReference
-    @JoinTable(
             name = "product_tags",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")

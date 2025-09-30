@@ -1,18 +1,18 @@
 package com.dvoracekmartin.catalogservice.application.service;
 
 import com.dvoracekmartin.catalogservice.application.dto.category.CreateCategoryDTO;
-import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.category.UpdateCategoryDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.CreateMixtureDTO;
-import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.mixture.UpdateMixtureDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.CreateProductDTO;
-import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductDTO;
 import com.dvoracekmartin.catalogservice.application.dto.product.UpdateProductStockDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.CreateTagDTO;
-import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.catalogservice.application.dto.tag.UpdateTagDTO;
+import com.dvoracekmartin.common.dto.category.ResponseCategoryDTO;
+import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
+import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.common.event.ResponseProductStockEvent;
 import jakarta.validation.Valid;
 
@@ -26,7 +26,7 @@ public interface CatalogService {
 
     ResponseProductDTO getProductById(Long id);
 
-    List<ResponseProductDTO> createProduct(@Valid List<CreateProductDTO> createProductDTO);
+    ResponseProductDTO createProduct(@Valid CreateProductDTO createProductDTO);
 
     ResponseProductDTO updateProduct(Long id, UpdateProductDTO updateProductDTO);
 
@@ -42,7 +42,7 @@ public interface CatalogService {
 
     ResponseMixtureDTO getMixtureById(Long id);
 
-    List<ResponseMixtureDTO> createMixture(@Valid List<CreateMixtureDTO> createMixtureDTO);
+   ResponseMixtureDTO createMixture(@Valid CreateMixtureDTO createMixtureDTO);
 
     ResponseMixtureDTO updateMixture(Long id, UpdateMixtureDTO updateMixtureDTO);
 
@@ -54,9 +54,9 @@ public interface CatalogService {
 
     ResponseCategoryDTO getCategoryById(Long id);
 
-    List<ResponseCategoryDTO> createCategory(@Valid List<CreateCategoryDTO> createCategoryDTO);
+    ResponseCategoryDTO createCategory(@Valid CreateCategoryDTO createCategoryDTO);
 
-    ResponseCategoryDTO updateCategory(Long id, UpdateCategoryDTO updateCategoryDTO);
+    ResponseCategoryDTO updateCategory( Long id, UpdateCategoryDTO updateCategoryDTO);
 
     void deleteCategoryById(Long id);
 
@@ -66,7 +66,7 @@ public interface CatalogService {
 
     ResponseTagDTO getTagById(Long id);
 
-    List<ResponseTagDTO> createTags(@Valid List<CreateTagDTO> createTagDTOs);
+    ResponseTagDTO createTag(@Valid CreateTagDTO createTagDTOs);
 
     ResponseTagDTO updateTag(Long id, UpdateTagDTO updateTagDTO);
 

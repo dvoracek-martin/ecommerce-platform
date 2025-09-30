@@ -3,12 +3,14 @@ package com.dvoracek.configurationservice.domain.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Currency;
 import java.util.List;
 
+@EqualsAndHashCode()
 @Entity
 @Table(name = "app_settings")
 @Data

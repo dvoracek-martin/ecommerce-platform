@@ -4,58 +4,107 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(4px);
 }
 
 .auth-popup-container {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
+  background: var(--background-card);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-xl);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   position: relative;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 60px var(--shadow-large);
+  border: 1px solid var(--border-color);
+  animation: slideIn 0.5s ease-out;
 
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
+  @media (max-width: 480px) {
+    margin: var(--spacing-md);
+    padding: var(--spacing-lg);
   }
 }
 
 .close-btn {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-  padding: 5px;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
 
   &:hover {
-    color: #333;
+    color: var(--text-primary);
+    background: var(--background-hover);
+    transform: scale(1.1);
   }
 }
 
-.switch-mode {
+.auth-header {
   text-align: center;
-  margin-top: 20px;
-  color: #666;
-  font-size: 14px;
+  margin-bottom: var(--spacing-xl);
 
-  a {
-    color: #1976d2;
-    text-decoration: none;
-    cursor: pointer;
+  h2 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm);
+  }
+
+  .auth-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+.auth-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+
+  .auth-link {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    text-transform: none;
+    font-weight: 500;
+    transition: all var(--transition-fast);
 
     &:hover {
-      text-decoration: underline;
+      color: var(--primary-color);
+      background: none;
     }
+
+    &.primary {
+      color: var(--primary-color);
+      font-weight: 600;
+
+      &:hover {
+        color: var(--primary-hover);
+      }
+    }
+  }
+
+  .auth-divider {
+    width: 1px;
+    height: 12px;
+    background: var(--border-color);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }

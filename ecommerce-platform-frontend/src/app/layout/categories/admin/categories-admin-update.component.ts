@@ -12,6 +12,10 @@ import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 import {UpdateCategoryDTO} from '../../../dto/category/update-category-dto';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
 import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
+import {ConfigurationService} from '../../../services/configuration.service';
+import {ResponseLocaleDto} from '../../../dto/configuration/response-locale-dto';
+import {LocaleMapperService} from '../../../services/locale-mapper.service';
+import {LocalizedFieldDTO} from '../../../dto/base/localized-field-dto';
 
 @Component({
   selector: 'app-categories-admin-update',
@@ -23,8 +27,11 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   categoryForm!: FormGroup;
   saving = false;
   allTags: ResponseTagDTO[] = [];
+  usedLocales: ResponseLocaleDto[] = [];
   private categoryId!: number;
   private readonly destroy$ = new Subject<void>();
+  formInitialized = false;
+  private category: ResponseCategoryDTO;
 
   constructor(
     private fb: FormBuilder,
@@ -33,24 +40,24 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     private categoryService: CategoryService,
     private tagService: TagService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private configService: ConfigurationService,
+    private localeMapperService: LocaleMapperService,
   ) {
   }
 
   get mediaControls(): FormArray {
-    return this.categoryForm.get('media') as FormArray;
+    return this.categoryForm?.get('media') as FormArray;
   }
 
   get tagIdsControl(): FormControl {
-    return this.categoryForm.get('tagIds') as FormControl;
+    return this.categoryForm?.get('tagIds') as FormControl;
   }
 
   ngOnInit() {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.categoryId = +params['id'];
-      this.initForm();
-      this.loadTags();
-      this.loadCategory();
+      this.initTabs();
     });
   }
 
@@ -59,7 +66,31 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  private initTabs() {
+    this.configService.getLastAppSettings()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (settings) => {
+          this.usedLocales = settings.usedLocales.map(locale => ({
+            ...locale,
+            translatedName: this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode)
+          }));
+          this.initForm();
+          this.loadTags();
+          this.loadCategory();
+        },
+        error: () => {
+          this.usedLocales = [{languageCode: 'en', regionCode: 'US', translatedName: 'English'}];
+          this.initForm();
+          this.loadTags();
+          this.loadCategory();
+        }
+      });
+  }
+
   onFileSelected(event: Event): void {
+    if (!this.categoryForm) return;
+
     const input = event.target as HTMLInputElement;
     Array.from(input.files || []).forEach(file => {
       const reader = new FileReader();
@@ -89,13 +120,15 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   }
 
   drop(event: CdkDragDrop<any[]>) {
+    if (!this.categoryForm) return;
+
     moveItemInArray(this.mediaControls.controls, event.previousIndex, event.currentIndex);
     this.categoryForm.markAsDirty();
   }
 
   onSave() {
-    if (this.categoryForm.invalid) {
-      this.categoryForm.markAllAsTouched();
+    if (!this.categoryForm || this.categoryForm.invalid) {
+      this.categoryForm?.markAllAsTouched();
       this.snackBar.open('Please correct the highlighted fields.', 'Close', {
         duration: 5000,
         panelClass: ['error-snackbar']
@@ -105,7 +138,17 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
 
     this.saving = true;
 
-    // Správně mapujeme media
+    // Build localizedFields map according to backend
+    const localizedFields: Record<string, LocalizedFieldDTO> = {};
+    this.usedLocales.forEach(locale => {
+      const suffix = `_${locale.languageCode}_${locale.regionCode}`;
+      localizedFields[`${locale.languageCode}_${locale.regionCode}`] = {
+        name: this.categoryForm.get(`name${suffix}`)?.value,
+        description: this.categoryForm.get(`description${suffix}`)?.value,
+        url: this.categoryForm.get(`url${suffix}`)?.value
+      };
+    });
+
     const mediaPayload = this.mediaControls.controls.map(ctrl => {
       const value = ctrl.value;
       const mediaItem: any = {
@@ -118,10 +161,18 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
       return mediaItem;
     });
 
+    // Build main payload
     const payload: UpdateCategoryDTO = {
       id: this.categoryId,
-      ...this.categoryForm.value,
-      media: mediaPayload
+      localizedFields: localizedFields,
+      priority: this.categoryForm.get('priority')?.value,
+      active: this.categoryForm.get('active')?.value,
+      mixable: this.categoryForm.get('mixable')?.value,
+      media: mediaPayload,
+      tagIds: this.categoryForm.get('tagIds')?.value,
+      translatedName: null,
+      translatedDescription: null,
+      translatedUrl: null
     };
 
     this.categoryService.updateCategory(payload)
@@ -146,7 +197,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   }
 
   openCancelDialog(): void {
-    if (this.categoryForm.dirty) {
+    if (this.categoryForm?.dirty) {
       this.dialog.open(ConfirmationDialogComponent, {
         data: {title: 'Cancel Update', message: 'Discard changes?', warn: true}
       }).afterClosed().subscribe(ok => {
@@ -160,23 +211,33 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   }
 
   private initForm(): void {
-    this.categoryForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
-      priority: [0, [Validators.required, Validators.min(0)]],
+    const formConfig: any = {
+      priority: ['0', [Validators.required, Validators.min(0)]],
       active: [false],
+      mixable: [false],
       tagIds: [[]],
       media: this.fb.array([]),
-      url:['', [Validators.required, Validators.minLength(3)]],
-      mixable: [false]
+    };
+
+    this.usedLocales.forEach(locale => {
+      const suffix = `_${locale.languageCode}_${locale.regionCode}`;
+      formConfig[`name${suffix}`] = ['', [Validators.required, Validators.minLength(3)]];
+      formConfig[`description${suffix}`] = [''];
+      formConfig[`url${suffix}`] = ['', [Validators.required, Validators.minLength(3)]];
     });
+
+    this.categoryForm = this.fb.group(formConfig);
+    this.formInitialized = true; // Set flag when form is ready
   }
 
   private loadTags() {
     this.tagService.getAllTags()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: tags => this.allTags = tags,
+        next: tags => {
+          this.allTags = tags;
+          this.translateTags();
+        },
         error: () => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
       });
   }
@@ -185,7 +246,10 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     this.categoryService.getCategoryById(this.categoryId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: c => this.patchForm(c),
+        next: c => {
+          this.patchForm(c)
+          this.category = c;
+        },
         error: () => {
           this.snackBar.open('Error loading category', 'Close', {duration: 3000, panelClass: ['error-snackbar']});
           this.router.navigate(['/admin/categories']);
@@ -193,21 +257,37 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
       });
   }
 
-  private patchForm(cat: ResponseCategoryDTO) {
+  private patchForm(responseCategoryDTO: ResponseCategoryDTO) {
+    if (!this.categoryForm) return;
+
+    // Set non-localized fields
     this.categoryForm.patchValue({
-      name: cat.name,
-      description: cat.description,
-      priority: cat.priority,
-      active: cat.active,
-      mixable: cat.mixable,
-      url: cat.url
+      priority: responseCategoryDTO.priority,
+      active: responseCategoryDTO.active,
+      mixable: responseCategoryDTO.mixable,
     });
 
-    const existingIds = cat.responseTagDTOS.map(t => t.id);
+    // Set localized fields
+    this.usedLocales.forEach(locale => {
+      const localeKey = `${locale.languageCode}_${locale.regionCode}`;
+      const suffix = `_${locale.languageCode}_${locale.regionCode}`;
+
+      const localizedData = responseCategoryDTO.localizedFields?.[localeKey] || {};
+
+      this.categoryForm.patchValue({
+        [`name${suffix}`]: localizedData['name'] || '',
+        [`description${suffix}`]: localizedData['description'] || '',
+        [`url${suffix}`]: localizedData['url'] || '',
+      });
+    });
+
+    // Set tag IDs
+    const existingIds = responseCategoryDTO.responseTagDTOS.map(t => t.id);
     this.tagIdsControl.setValue(existingIds);
 
+    // Set media
     this.mediaControls.clear();
-    (cat.media || []).forEach(m => {
+    (responseCategoryDTO.media || []).forEach(m => {
       this.mediaControls.push(this.fb.group({
         objectKey: [m.objectKey],
         contentType: [m.contentType],
@@ -215,7 +295,8 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
         base64Data: [m.base64Data || null] // existující soubory mohou mít null
       }));
     });
-    this.categoryForm.markAsPristine(); // Resets the dirty state after loading
+
+    this.categoryForm.markAsPristine();
     this.categoryForm.markAsUntouched();
   }
 
@@ -230,5 +311,13 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     this.saving = false;
     console.error('Update failed', err);
     this.snackBar.open('Failed to update category', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
+  }
+
+  private translateTags() {
+    this.allTags.forEach(tags => {
+      tags.translatedName = this.tagService.getLocalizedName(tags);
+      tags.translatedDescription = this.tagService.getLocalizedDescription(tags);
+      tags.translatedUrl = this.tagService.getLocalizedUrl(tags);
+    });
   }
 }

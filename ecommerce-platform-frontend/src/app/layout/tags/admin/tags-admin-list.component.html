@@ -52,15 +52,15 @@
       class="tag-card">
       <div (click)="navigateToUpdate(tag.id)" class="card-link">
         <div class="tag-details">
-          <h2 class="tag-name">{{ tag.name }}</h2>
-          <p class="tag-description">{{ tag.description }}</p>
+          <h2 class="tag-name">{{ tag.translatedName }}</h2>
+          <p class="tag-description">{{ tag.translatedDescription }}</p>
           <div class="related-info">
             <!-- Categories -->
             <div *ngIf="tag.categories?.length" class="card-details group-block">
               <strong>Categories:</strong>
               <div class="tags-container">
                         <span *ngFor="let category of tag.categories" class="tag">
-                        {{ category.name }}
+                        {{ category.translatedName }}
                         </span>
               </div>
             </div>
@@ -69,7 +69,7 @@
               <strong>Products:</strong>
               <div class="tags-container">
                         <span *ngFor="let product of tag.products" class="tag">
-                        {{ product.name }}
+                        {{ product.translatedName }}
                         </span>
               </div>
             </div>
@@ -78,7 +78,7 @@
               <strong>Mixtures:</strong>
               <div class="tags-container">
                         <span *ngFor="let mixture of tag.mixtures" class="tag">
-                        {{ mixture.name }}
+                        {{ mixture.translatedName }}
                         </span>
               </div>
             </div>

@@ -1,37 +1,111 @@
 .login-container {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  background: white;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+  width: 100%;
+}
 
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+// ===== MINIMAL FORM FIELDS =====
+.form-field-minimal {
+  width: 100%;
+
+  ::ng-deep .mat-form-field-outline {
+    color: var(--border-color);
   }
 
-  form {
+  ::ng-deep .mat-form-field-outline-thick {
+    color: var(--primary-color);
+  }
+
+  ::ng-deep .mat-form-field-label {
+    color: var(--text-muted);
+  }
+
+  ::ng-deep &.mat-focused .mat-form-field-label {
+    color: var(--primary-color);
+  }
+
+  mat-icon[matSuffix] {
+    color: var(--text-light);
+    transition: color var(--transition-fast);
+  }
+
+  &:hover mat-icon[matSuffix] {
+    color: var(--primary-color);
+  }
+}
+
+// ===== SUBMIT BUTTON =====
+.login-submit-btn {
+  background: var(--primary-color) !important;
+  color: white !important;
+  border-radius: var(--radius-md) !important;
+  padding: var(--spacing-md) !important;
+  font-weight: 600 !important;
+  font-size: var(--font-size-base) !important;
+  height: 48px !important;
+  transition: all var(--transition-normal) !important;
+  margin-top: var(--spacing-sm);
+
+  &:hover:not(:disabled) {
+    background: var(--primary-hover) !important;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  .btn-content {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
   }
 
-  mat-form-field {
-    width: 100%;
+  .btn-text {
+    font-weight: 600;
+  }
+}
+
+// ===== PROGRESS BAR =====
+.login-progress {
+  margin-top: var(--spacing-xs);
+  border-radius: var(--radius-sm);
+  height: 2px !important;
+
+  ::ng-deep .mat-progress-bar-buffer {
+    background-color: var(--background-hover);
+  }
+}
+
+// ===== LOADING SPINNER =====
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// ===== ERROR STATES =====
+::ng-deep .mat-form-field.mat-form-field-invalid {
+  .mat-form-field-outline-thick {
+    color: var(--error-color) !important;
   }
 
-  button.full-width {
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  .forgot-password {
-    text-align: center;
-    margin-top: 10px;
-
-    button {
-      font-size: 0.8rem;
-    }
+  mat-icon[matSuffix] {
+    color: var(--error-color) !important;
   }
 }

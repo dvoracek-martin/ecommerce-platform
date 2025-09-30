@@ -1,12 +1,19 @@
-<div class="light-terms-modal-backdrop">
-  <div class="light-terms-modal">
-    <div class="modal-header">
-      <h2 class="modal-title">
+<div class="auth-popup-overlay" (click)="onClose()">
+  <div class="auth-popup-container" (click)="$event.stopPropagation()">
+    <!-- Close Button -->
+    <button (click)="onClose()" class="close-btn" mat-icon-button>
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <!-- Modal Header -->
+    <div class="auth-header">
+      <h2>
         <mat-icon class="title-icon">description</mat-icon>
         {{ 'CHECKOUT.TERMS_AND_CONDITIONS' | translate }}
       </h2>
     </div>
 
+    <!-- Modal Content -->
     <div class="modal-content">
       <div class="terms-content">
         <p>{{ 'CHECKOUT.TERMS_CONTENT_PART1' | translate }}</p>
@@ -17,8 +24,12 @@
       </div>
     </div>
 
+    <!-- Modal Actions -->
     <div class="modal-actions">
-      <button mat-raised-button (click)="onClose()" class="close-btn">
+      <button
+        mat-raised-button
+        (click)="onClose()"
+        class="close-action-btn">
         {{ 'COMMON.CLOSE' | translate }}
       </button>
     </div>

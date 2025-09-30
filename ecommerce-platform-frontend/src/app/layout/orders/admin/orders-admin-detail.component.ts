@@ -12,7 +12,7 @@ import {CartItemType} from '../../../dto/cart/cart-item-type';
 import {OrderStatus} from '../../../dto/order/order-status';
 import {Router} from '@angular/router';
 import {OrderStateService} from '../../../services/order-state.service';
-import {AuthService} from '../../../auth/auth.service';
+import {AuthService} from '../../../services/auth.service';
 import {HttpResponse} from '@angular/common/http';
 import {UpdateOrderDTO} from '../../../dto/order/update-order-dto';
 import {MatSnackBar} from '@angular/material/snack-bar';
@@ -87,20 +87,21 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
                 ...item,
                 product,
                 itemPrice: product.price,
-                itemName: product.name,
+                // TODO
+                // itemName: product.name,
                 loaded: true
               })),
               catchError(() => of({...item, loaded: false}))
             );
           } else if (item.cartItemType === CartItemType.MIXTURE) {
             return this.mixtureService.getMixtureById(item.itemId).pipe(
-              map(mixture => ({
-                ...item,
-                mixture,
-                itemPrice: mixture.price,
-                itemName: mixture.name,
-                loaded: true
-              })),
+              // map(mixture => ({
+              //   ...item,
+              //   mixture,
+              //   itemPrice: mixture.price,
+              //   itemName: mixture.name,
+              //   loaded: true
+              // })),
               catchError(() => of({...item, loaded: false}))
             );
           }

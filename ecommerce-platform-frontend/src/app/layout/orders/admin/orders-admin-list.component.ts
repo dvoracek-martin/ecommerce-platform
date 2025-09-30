@@ -5,7 +5,7 @@ import {MatPaginator} from '@angular/material/paginator';
 import {MatSort, Sort} from '@angular/material/sort';
 import {OrderService} from '../../../services/order.service';
 import {ResponseOrderDTO} from '../../../dto/order/response-order-dto';
-import {AuthService} from '../../../auth/auth.service';
+import {AuthService} from '../../../services/auth.service';
 import {OrderStateService} from '../../../services/order-state.service';
 import {OrderStatus} from '../../../dto/order/order-status';
 import {HttpResponse} from '@angular/common/http';

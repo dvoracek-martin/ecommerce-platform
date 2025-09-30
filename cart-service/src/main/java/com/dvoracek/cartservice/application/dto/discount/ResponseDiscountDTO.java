@@ -1,8 +1,11 @@
 package com.dvoracek.cartservice.application.dto.discount;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode()
 @Data
 public class ResponseDiscountDTO {
     private Long id;

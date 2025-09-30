@@ -1,17 +1,20 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Cart, CartItem, CartService } from '../../../services/cart.service';
-import { ProductService } from '../../../services/product.service';
-import { MixtureService } from '../../../services/mixture.service';
-import { forkJoin, of, Subscription } from 'rxjs';
-import { catchError, finalize, map, switchMap } from 'rxjs/operators';
-import { Router } from '@angular/router';
-import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
-import { CartItemType } from '../../../dto/cart/cart-item-type';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
-import { TranslateService } from '@ngx-translate/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Cart, CartItem, CartService} from '../../../services/cart.service';
+import {ProductService} from '../../../services/product.service';
+import {MixtureService} from '../../../services/mixture.service';
+import {forkJoin, of, Subscription} from 'rxjs';
+import {catchError, finalize, map, switchMap} from 'rxjs/operators';
+import {Router} from '@angular/router';
+import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
+import {CartItemType} from '../../../dto/cart/cart-item-type';
+import {MatDialog} from '@angular/material/dialog';
+import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
+import {TranslateService} from '@ngx-translate/core';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {ResponseMixtureDTO} from '../../../dto/mixtures/response-mixture-dto';
+import {ResponseLocaleDto} from '../../../dto/configuration/response-locale-dto';
+import {ConfigurationService} from '../../../services/configuration.service';
+import {LocaleMapperService} from '../../../services/locale-mapper.service';
 
 interface CartItemWithDetails extends CartItem {
   product?: ResponseProductDTO;
@@ -29,12 +32,11 @@ interface CartItemWithDetails extends CartItem {
 export class CartComponent implements OnInit, OnDestroy {
   cart: Cart | null = null;
   cartItemsWithDetails: CartItemWithDetails[] = [];
-  isLoading = true; // Start with loading state
-  isCartLoaded = false; // New flag to track when data is ready
+  isLoading = true;
+  isCartLoaded = false;
   CartItemType = CartItemType;
   private cartSubscription!: Subscription;
-
-  // Discount code properties
+  usedLocales: ResponseLocaleDto[] = [];
   discountCode: string = '';
 
   constructor(
@@ -44,11 +46,18 @@ export class CartComponent implements OnInit, OnDestroy {
     private router: Router,
     private translate: TranslateService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private configService: ConfigurationService,
+    private localeMapperService: LocaleMapperService,
   ) {}
 
   ngOnInit(): void {
     this.loadCart();
+    this.cartSubscription = this.cartService.cart$.subscribe(() => {
+      if (this.isCartLoaded) {
+        this.loadCart(); // Reload everything when cart changes
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -61,7 +70,7 @@ export class CartComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.isCartLoaded = false;
 
-    this.cartSubscription = this.cartService.getCart().pipe(
+    this.cartService.getCart().pipe(
       switchMap(cart => {
         this.cart = cart;
         if (!cart?.items?.length) {
@@ -72,46 +81,32 @@ export class CartComponent implements OnInit, OnDestroy {
         const detailObservables = cart.items.map(item => {
           if (item.cartItemType === CartItemType.PRODUCT) {
             return this.productService.getProductById(item.itemId).pipe(
-              map(product => ({ ...item, product })),
-              catchError(() => {
-                this.showSnackbar(`Failed to load product details for an item.`, 'warning');
-                return of({ ...item, product: undefined });
-              })
+              map(product => ({...item, product})),
+              catchError(() => of({...item, product: undefined}))
             );
           } else if (item.cartItemType === CartItemType.MIXTURE) {
             return this.mixtureService.getMixtureById(item.itemId).pipe(
-              map(mixture => ({ ...item, mixture })),
-              catchError(() => {
-                this.showSnackbar(`Failed to load mixture details for an item.`, 'warning');
-                return of({ ...item, mixture: undefined });
-              })
+              map(mixture => ({...item, mixture})),
+              catchError(() => of({...item, mixture: undefined}))
             );
           }
           return of(item);
         });
 
-        return forkJoin(detailObservables).pipe(
-          map(items => items.map(item => {
-            const existingItem = this.cartItemsWithDetails.find(i => i.itemId === item.itemId);
-            return {
-              ...item,
-              optimisticQuantity: existingItem?.optimisticQuantity ?? item.quantity,
-              updating: existingItem?.updating ?? false
-            } as CartItemWithDetails;
-          }))
-        );
+        return forkJoin(detailObservables);
       })
     ).subscribe({
       next: (itemsWithDetails) => {
         this.isLoading = false;
         this.isCartLoaded = true;
         this.cartItemsWithDetails = itemsWithDetails as CartItemWithDetails[];
+        this.translateCartItems();
       },
       error: (err) => {
         this.isLoading = false;
         this.isCartLoaded = true;
         console.error('Failed to load cart with details', err);
-        this.cart = { id: 0, username: '', items: [], totalPrice: 0, discount: 0 };
+        this.cart = {id: 0, username: '', items: [], totalPrice: 0, discount: 0};
         this.cartItemsWithDetails = [];
       }
     });
@@ -222,7 +217,8 @@ export class CartComponent implements OnInit, OnDestroy {
       this.cartItemsWithDetails = newArray;
 
       this.cartService.removeItem(itemId).pipe(
-        finalize(() => {})
+        finalize(() => {
+        })
       ).subscribe(
         () => {
           this.showSnackbar(this.translate.instant('CART.ITEM_REMOVED') || 'Item removed from cart!', 'success');
@@ -242,8 +238,9 @@ export class CartComponent implements OnInit, OnDestroy {
     });
   }
 
-  goToProduct(productId: number) {
-    this.router.navigate([`/products/${productId}`]);
+  goToProduct(product: ResponseProductDTO) {
+    const slug = this.productService.slugify(product.translatedName);
+    this.router.navigate([`/products/${product.id}/${slug}`]);
   }
 
   goToMixture(mixtureId: number) {
@@ -286,7 +283,8 @@ export class CartComponent implements OnInit, OnDestroy {
 
   removeDiscount(): void {
     this.cartService.removeDiscount().subscribe(
-      () => {},
+      () => {
+      },
       error => {
         console.error('Failed to remove discount:', error);
       }
@@ -325,5 +323,26 @@ export class CartComponent implements OnInit, OnDestroy {
 
   navigateHome() {
     this.router.navigate(['/']);
+  }
+
+  private translateCartItems() {
+    this.cartItemsWithDetails.forEach(cartItem => {
+      if (cartItem.cartItemType === CartItemType.PRODUCT && cartItem.product) {
+        cartItem.product.translatedName = this.productService.getLocalizedName(cartItem.product);
+      } else if (cartItem.cartItemType === CartItemType.MIXTURE && cartItem.mixture) {
+        console.log(cartItem.mixture);
+        if (Object.keys(cartItem.mixture.localizedFields).length === 0) {
+          // customer-created mixtures don't have localized fields
+          cartItem.mixture.translatedName = cartItem.mixture.name;
+        } else {
+          cartItem.mixture.translatedName = this.mixtureService.getLocalizedName(cartItem.mixture);
+        }
+        cartItem.mixture.products.forEach(product => {
+          this.productService.getProductById(product.id).subscribe( responseProductDTO=>{
+            product.translatedName = this.productService.getLocalizedName(responseProductDTO);
+          })
+        });
+      }
+    });
   }
 }

@@ -1,33 +1,28 @@
 package com.dvoracekmartin.common.dto.base;
 
 import com.dvoracekmartin.common.dto.media.MediaDTO;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import com.dvoracekmartin.common.event.translation.LocalizedField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.Map;
 
+@EqualsAndHashCode()
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
 public abstract class BaseCreateDTO {
 
-    @NotBlank
-    @Size(min = 3)
-    private String name;
-
-    private String description;
+    private Map<String, LocalizedField> localizedFields;
 
     private int priority;
 
     private boolean active;
 
     private List<MediaDTO> media;
-
-    @NotBlank
-    private String url;
 }

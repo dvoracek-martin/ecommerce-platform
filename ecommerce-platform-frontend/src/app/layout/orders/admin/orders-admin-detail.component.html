@@ -82,18 +82,18 @@
                   </h3>
                   <div class="item-price">{{ item.itemPrice | currency }}</div>
                 </div>
-
-                <div class="item-description truncate-text" *ngIf="item.product?.description"
-                     [title]="item.product.description">
-                  {{ item.product.description }}
-                </div>
+<!--TODO-->
+<!--                <div class="item-description truncate-text" *ngIf="item.product?.description"-->
+<!--                     [title]="item.product.description">-->
+<!--                  {{ item.product.description }}-->
+<!--                </div>-->
 
                 <div *ngIf="item.cartItemType === CartItemType.MIXTURE && item.mixture" class="mixture-display">
                   <h4>{{ 'ORDER_DETAIL.MIXTURE_CONTAINS' | translate }}</h4>
                   <div class="mixture-products-list">
                     <div *ngFor="let product of item.mixture.products" class="mixture-product-item">
                       <div class="mixture-product-info">
-                        <div class="mixture-product-name">{{ product.name }}</div>
+<!--                        <div class="mixture-product-name">{{ product.name }}</div>-->
                         <div class="mixture-product-price">{{ product.price | currency }}</div>
                       </div>
                     </div>

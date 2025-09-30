@@ -4,7 +4,7 @@ import {CreateCategoryDTO} from '../category/create-category-dto';
 export interface CreateProductDTO extends BaseCreateDTO {
   price?: number;
   weightGrams?: number;
-  createCategoryDTOs?: CreateCategoryDTO[];
+  categoryId: number;
   tagIds?: number[];
   mixable: boolean;
   displayInProducts: boolean;

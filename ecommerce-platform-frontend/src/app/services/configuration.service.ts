@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap } from 'rxjs';
-import { RequestAppSettingsDto } from '../dto/configuration/request-app-settings-dto';
-import { AuthService } from '../auth/auth.service';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable, of, tap} from 'rxjs';
+import {RequestAppSettingsDto} from '../dto/configuration/request-app-settings-dto';
+import {AuthService} from './auth.service';
 import {ResponseLocaleDto} from '../dto/configuration/response-locale-dto';
 
 @Injectable({
@@ -18,12 +18,13 @@ export class ConfigurationService {
   private cacheTimestamp?: number;
   private readonly CACHE_TTL = 15 * 60 * 1000; // 15 minutes in milliseconds
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) {
+  }
 
   // --- READ ---
   getAvailableLocales(): Observable<ResponseLocaleDto[]> {
     return this.http.get<ResponseLocaleDto[]>(`${this.apiAdminUrl}/available-locales`,
-      { headers: { 'Authorization': `Bearer ${this.authService.token}` } });
+      {headers: {'Authorization': `Bearer ${this.authService.token}`}});
   }
 
   getInUseLocales(): Observable<ResponseLocaleDto[]> {
@@ -41,8 +42,8 @@ export class ConfigurationService {
       return of(this.cachedAppSettings);
     }
 
-    // Fetch from backend and cache it
-    return this.http.get<RequestAppSettingsDto>(`${this.apiUrl}`).pipe(
+    // Make sure no Authorization header is sent for public endpoints
+    return this.http.get<RequestAppSettingsDto>(`${this.apiUrl}/last`).pipe(
       tap(settings => {
         this.cachedAppSettings = settings;
         this.cacheTimestamp = Date.now();
@@ -52,13 +53,13 @@ export class ConfigurationService {
 
 
   getLastAppSettings(): Observable<RequestAppSettingsDto> {
-    return this.http.get<RequestAppSettingsDto>(`${this.apiUrl}`);
+    return this.http.get<RequestAppSettingsDto>(`${this.apiUrl}/last`);
   }
 
   // --- CREATE ---
   saveConfiguration(payload: RequestAppSettingsDto): Observable<void> {
     return this.http.post<void>(`${this.apiAdminUrl}`, payload,
-      { headers: { 'Authorization': `Bearer ${this.authService.token}` } });
+      {headers: {'Authorization': `Bearer ${this.authService.token}`}});
   }
 
   createAppSettings(payload: RequestAppSettingsDto): Observable<void> {
@@ -68,7 +69,7 @@ export class ConfigurationService {
   // --- UPDATE ---
   updateConfiguration(id: number, payload: RequestAppSettingsDto): Observable<void> {
     return this.http.put<void>(`${this.apiAdminUrl}/${id}`, payload,
-      { headers: { 'Authorization': `Bearer ${this.authService.token}` } });
+      {headers: {'Authorization': `Bearer ${this.authService.token}`}});
   }
 
   updateAppSettings(id: number, payload: RequestAppSettingsDto): Observable<void> {
@@ -78,6 +79,6 @@ export class ConfigurationService {
   // --- DELETE ---
   deleteConfiguration(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiAdminUrl}/${id}`,
-      { headers: { 'Authorization': `Bearer ${this.authService.token}` } });
+      {headers: {'Authorization': `Bearer ${this.authService.token}`}});
   }
 }

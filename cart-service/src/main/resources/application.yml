@@ -1,6 +1,6 @@
 spring:
   application:
-    name: cart-service
+    name: CART-SERVICE
   config:
     activate:
       on-profile: default

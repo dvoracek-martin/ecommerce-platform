@@ -1,42 +1,58 @@
-<div class="auth-popup-overlay">
-  <div class="auth-popup-container">
-    <button (click)="closePopup.emit()" class="close-btn">×</button>
+<div class="auth-popup-overlay" (click)="closePopup.emit()">
+  <div class="auth-popup-container" (click)="$event.stopPropagation()">
+    <!-- Close Button -->
+    <button (click)="closePopup.emit()" class="close-btn" mat-icon-button>
+      <mat-icon>close</mat-icon>
+    </button>
 
+    <!-- Forgot Password View -->
     <ng-container *ngIf="showForgotPassword; else authTemplate">
-      <h2>{{ 'LOGIN.FORGOT_PASSWORD_TITLE' | translate }}</h2>
-      <app-forgot-password (close)="closeForgotPassword()">
+      <div class="auth-header">
+        <h2>{{ 'LOGIN.FORGOT_PASSWORD_TITLE' | translate }}</h2>
+      </div>
+      <!-- ADD (cancel) EVENT BINDING HERE -->
+      <app-forgot-password
+        (close)="closeForgotPassword()"
+        (cancel)="switchToLogin()"> <!-- This was missing! -->
       </app-forgot-password>
     </ng-container>
 
     <!-- Login/Register View -->
     <ng-template #authTemplate>
       <ng-container *ngIf="!isRegisterMode; else registerTemplate">
-        <h2>{{ 'LOGIN.TITLE' | translate }}</h2>
+        <!-- Login View -->
+        <div class="auth-header">
+          <h2>{{ 'LOGIN.TITLE' | translate }}</h2>
+          <p class="auth-subtitle">{{ 'LOGIN.SUBTITLE' | translate }}</p>
+        </div>
+
         <app-user-login (loginSuccess)="onSuccess()"></app-user-login>
-        <p class="switch-mode">
-          <button (click)="openForgotPassword()" color="primary" mat-button>
+
+        <div class="auth-links">
+          <button (click)="openForgotPassword()" class="auth-link" mat-button>
             {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
           </button>
-        </p>
-        <p class="switch-mode">
-          {{ 'LOGIN.NO_ACCOUNT' | translate }}
-          <button (click)="switchToRegister($event)" color="primary" mat-button>
+          <div class="auth-divider"></div>
+          <button (click)="switchToRegister($event)" class="auth-link primary" mat-button>
             {{ 'AUTH.REGISTER' | translate }}
           </button>
-        </p>
+        </div>
       </ng-container>
 
       <ng-template #registerTemplate>
-        <ng-container *ngIf="isRegisterMode; else authTemplate">
+        <!-- Register View -->
+        <div class="auth-header">
           <h2>{{ 'USER_REGISTRATION.TITLE' | translate }}</h2>
-          <app-user-registration (registerSuccess)="onSuccess()"></app-user-registration>
-          <p class="switch-mode">
-            {{ 'LOGIN.HAVE_ACCOUNT' | translate }}
-            <button (click)="switchToLogin($event)" color="primary" mat-button>
-              {{ 'AUTH.LOGIN' | translate }}
-            </button>
-          </p>
-        </ng-container>
+          <p class="auth-subtitle">{{ 'USER_REGISTRATION.SUBTITLE' | translate }}</p>
+        </div>
+
+        <app-user-registration (registerSuccess)="onSuccess()"></app-user-registration>
+
+        <div class="auth-links">
+          <button (click)="switchToLogin($event)" class="auth-link primary" mat-button>
+            {{ 'AUTH.LOGIN' | translate }}
+          </button>
+        </div>
       </ng-template>
     </ng-template>
   </div>

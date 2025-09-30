@@ -40,7 +40,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   }
 
   initializeCarousels(): void {
-    this.activeSlideIndices = []; // Reset
+    this.activeSlideIndices = [];
     this.categories.forEach((category, idx) => {
       this.activeSlideIndices[idx] = 0;
       const mediaCount = category.media?.length || 0;
@@ -48,9 +48,9 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     });
   }
 
-// In startCarousel()
   startCarousel(catIndex: number, mediaCount: number): void {
-    if (mediaCount <= 1) return; // No carousel needed
+    if (mediaCount <= 1) return;
+    if (this.intervals[catIndex]) clearInterval(this.intervals[catIndex]);
     this.intervals[catIndex] = setInterval(() => {
       this.nextSlide(catIndex, mediaCount);
     }, 5000);

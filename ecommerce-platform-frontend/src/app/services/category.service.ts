@@ -4,6 +4,8 @@ import {Observable} from 'rxjs';
 import {CreateCategoryDTO} from '../dto/category/create-category-dto';
 import {ResponseCategoryDTO} from '../dto/category/response-category-dto';
 import {UpdateCategoryDTO} from '../dto/category/update-category-dto';
+import {TranslateService} from '@ngx-translate/core';
+import {LocaleMapperService} from './locale-mapper.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,9 @@ export class CategoryService {
   private apiUrl = 'http://localhost:8080/api/catalog/v1';
   private apiAdminUrl = 'http://localhost:8080/api/catalog/v1/admin';
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private localeMapperService: LocaleMapperService,
+              ) {
   }
 
   // Public endpoints
@@ -33,17 +37,17 @@ export class CategoryService {
     return this.http.get<ResponseCategoryDTO>(`${this.apiAdminUrl}/categories/${id}`);
   }
 
-  createCategories(categories: CreateCategoryDTO[]): Observable<ResponseCategoryDTO[]> {
-    return this.http.post<ResponseCategoryDTO[]>(
+  createCategory(createCategoryDTO: CreateCategoryDTO): Observable<ResponseCategoryDTO> {
+    return this.http.post<ResponseCategoryDTO>(
       `${this.apiAdminUrl}/categories`,
-      categories
+      createCategoryDTO
     );
   }
 
-  updateCategory(category: UpdateCategoryDTO): Observable<ResponseCategoryDTO> {
+  updateCategory(updateCategoryDTO: UpdateCategoryDTO): Observable<ResponseCategoryDTO> {
     return this.http.put<ResponseCategoryDTO>(
-      `${this.apiAdminUrl}/categories/${category.id}`,
-      category
+      `${this.apiAdminUrl}/categories/${updateCategoryDTO.id}`,
+      updateCategoryDTO
     );
   }
 
@@ -51,11 +55,22 @@ export class CategoryService {
     return this.http.delete<void>(`${this.apiAdminUrl}/categories/${id}`);
   }
 
-  // Add if you need partial updates
-  patchCategory(id: number, updates: Partial<UpdateCategoryDTO>): Observable<ResponseCategoryDTO> {
-    return this.http.patch<ResponseCategoryDTO>(
-      `${this.apiAdminUrl}/categories/${id}`,
-      updates
-    );
+  getLocalizedName(responseCategoryDTO: ResponseCategoryDTO): string {
+    const locale = this.localeMapperService.getCurrentLocale();
+    const field = responseCategoryDTO.localizedFields?.[locale];
+    return field?.name || '';
+  }
+
+
+  getLocalizedDescription(responseCategoryDTO: ResponseCategoryDTO): string {
+    const locale = this.localeMapperService.getCurrentLocale();
+    const field = responseCategoryDTO.localizedFields?.[locale];
+    return field?.description || '';
+  }
+
+  getLocalizedUrl(responseCategoryDTO: ResponseCategoryDTO) {
+    const locale = this.localeMapperService.getCurrentLocale();
+    const field = responseCategoryDTO.localizedFields?.[locale];
+    return field?.url || '';
   }
 }

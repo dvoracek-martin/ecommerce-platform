@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <form (ngSubmit)="onSave()" [formGroup]="tagForm" class="form-and-media-wrapper" id="tagForm">
+    <form  *ngIf="tagForm" (ngSubmit)="onSave()" [formGroup]="tagForm" class="form-and-media-wrapper" id="tagForm">
       <div class="form-content">
         <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
 
@@ -24,42 +24,56 @@
             {{ 'TAGS.ADMIN.BASIC_INFO' | translate }}
           </h3>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'TAGS.ADMIN.NAME' | translate }}</mat-label>
-              <input formControlName="name" matInput
-                     placeholder="{{ 'TAGS.ADMIN.NAME_PLACEHOLDER' | translate }}" required>
-              <mat-error *ngIf="tagForm.get('name')?.hasError('required')">
-                {{ 'TAGS.ADMIN.NAME_REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
-          </div>
+          <!-- TABS CONTAINER -->
+          <mat-tab-group *ngIf="usedLocales.length > 0">
+            <mat-tab *ngFor="let locale of usedLocales" label="{{ locale.translatedName }}">
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field full-width">
-              <mat-label>{{ 'TAGS.ADMIN.DESCRIPTION' | translate }}</mat-label>
-              <textarea formControlName="description" matInput
-                        placeholder="{{ 'TAGS.ADMIN.DESCRIPTION_PLACEHOLDER' | translate }}"></textarea>
-            </mat-form-field>
-          </div>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'PRODUCTS.URL' | translate }}</mat-label>
-              <input formControlName="url" matInput required>
-              <mat-error *ngIf="tagForm.get('url')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
-          </div>
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label>{{ 'TAGS.ADMIN.NAME' | translate }}</mat-label>
+                  <input matInput
+                         [formControlName]="'name_' + locale.languageCode + '_' + locale.regionCode"
+                         placeholder="Enter name">
+                  <mat-error
+                    *ngIf="tagForm?.get('name_' + locale.languageCode + '_' + locale.regionCode)?.hasError('required')">
+                    {{ 'VALIDATION.REQUIRED' | translate }}
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label>{{ 'TAGS.ADMIN.DESCRIPTION' | translate }}</mat-label>
+                  <textarea matInput
+                            [formControlName]="'description_' + locale.languageCode + '_' + locale.regionCode"
+                            placeholder="Enter description"></textarea>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label>{{ 'TAGS.URL' | translate }}</mat-label>
+                  <input matInput
+                         [formControlName]="'url_' + locale.languageCode + '_' + locale.regionCode"
+                         placeholder="Enter URL">
+                  <mat-error
+                    *ngIf="tagForm?.get('url_' + locale.languageCode + '_' + locale.regionCode)?.hasError('required')">
+                    {{ 'VALIDATION.REQUIRED' | translate }}
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+            </mat-tab>
+          </mat-tab-group>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.PRIORITY' | translate }}</mat-label>
               <input formControlName="priority" matInput required type="number">
-              <mat-error *ngIf="tagForm.get('priority')?.hasError('required')">
+              <mat-error *ngIf="tagForm?.get('priority')?.hasError('required')">
                 {{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
-              <mat-error *ngIf="tagForm.get('priority')?.hasError('min')">
+              <mat-error *ngIf="tagForm?.get('priority')?.hasError('min')">
                 {{ 'VALIDATION.MIN' | translate }}: 0
               </mat-error>
             </mat-form-field>
@@ -84,7 +98,7 @@
               <mat-label>{{ 'TAGS.ADMIN.CATEGORIES' | translate }}</mat-label>
               <mat-select formControlName="categoryIds" multiple>
                 <mat-option *ngFor="let cat of allCategories" [value]="cat.id">
-                  {{ cat.name }}
+                  {{ cat.translatedName }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
@@ -95,7 +109,7 @@
               <mat-label>{{ 'TAGS.ADMIN.PRODUCTS' | translate }}</mat-label>
               <mat-select formControlName="productIds" multiple>
                 <mat-option *ngFor="let prod of allProducts" [value]="prod.id">
-                  {{ prod.name }}
+                  {{ prod.translatedName }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
@@ -106,7 +120,7 @@
               <mat-label>{{ 'TAGS.ADMIN.MIXTURES' | translate }}</mat-label>
               <mat-select formControlName="mixtureIds" multiple>
                 <mat-option *ngFor="let mix of allMixtures" [value]="mix.id">
-                  {{ mix.name }}
+                  {{ mix.translatedName }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
@@ -122,7 +136,7 @@
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
-        <button [disabled]="tagForm.invalid || saving || !tagForm.dirty" color="primary" form="tagForm" mat-flat-button type="submit">
+        <button [disabled]="tagForm?.invalid || saving || !tagForm?.dirty" color="primary" form="tagForm" mat-flat-button type="submit">
           <mat-icon>save</mat-icon>
           {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
         </button>

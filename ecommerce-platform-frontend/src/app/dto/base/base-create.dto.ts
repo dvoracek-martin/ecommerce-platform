@@ -1,10 +1,9 @@
 import {MediaDTO} from '../media/media-dto';
+import {LocalizedFieldDTO} from './localized-field-dto';
 
 export interface BaseCreateDTO {
-  name: string;
-  description?: string;
+  localizedFields: Record<string, LocalizedFieldDTO>;
   priority?: number;
   active?: boolean;
   media?: MediaDTO[];
-  url: string;
 }

@@ -12,23 +12,36 @@ import com.dvoracekmartin.common.dto.media.MediaDTO;
 import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
+import com.dvoracekmartin.common.event.translation.LocalizedField;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper(componentModel = "spring")
 public interface CatalogMapper {
 
     ResponseCategoryDTO mapCategoryToResponseCategoryDTO(Category category);
 
+    default ResponseCategoryDTO mapCategoryToResponseCategoryDTO(Category category, List<MediaDTO> media, Map<String, LocalizedField> localizedFieldMap) {
+        return new ResponseCategoryDTO(
+                category.getId(),
+                localizedFieldMap,
+                category.getPriority(),
+                category.isActive(),
+                media,
+                category.getTags().stream().map(this::mapTagToResponseTagDTO).toList(),
+                category.isMixable()
+        );
+    }
+
     ResponseProductDTO mapProductToResponseProductDTO(Product product);
 
-    default ResponseProductDTO mapProductToResponseProductDTO(Product product, List<MediaDTO> media) {
+    default ResponseProductDTO mapProductToResponseProductDTO(Product product, List<MediaDTO> media, Map<String, LocalizedField> localizedFieldMap) {
         return new ResponseProductDTO(
                 product.getId(),
-                product.getName(),
-                product.getDescription(),
+                localizedFieldMap,
                 product.getPriority(),
                 product.isActive(),
                 media,
@@ -37,12 +50,28 @@ public interface CatalogMapper {
                 product.getPrice(),
                 product.getWeightGrams(),
                 product.isMixable(),
-                product.isDisplayInProducts(),
-                product.getUrl()
+                product.isDisplayInProducts()
         );
     }
 
     ResponseMixtureDTO mapMixtureToResponseMixtureDTO(Mixture mixture);
+
+    default ResponseMixtureDTO mapMixtureToResponseMixtureDTO(Mixture mixture, List<MediaDTO> media, Map<String, LocalizedField> localizedFieldMap) {
+        return new ResponseMixtureDTO(
+                mixture.getId(),
+                mixture.getName(),
+                localizedFieldMap,
+                mixture.getPriority(),
+                mixture.isActive(),
+                media,
+                mixture.getCategory().getId(),
+                mixture.getProducts().stream().map(this::mapProductToResponseProductDTO).toList(),
+                mixture.getTags().stream().map(Tag::getId).toList(),
+                mixture.getPrice(),
+                mixture.getWeightGrams(),
+                mixture.isDisplayInProducts()
+        );
+    }
 
     Mixture mapCreateMixtureDTOToMixture(CreateMixtureDTO createMixtureDTO);
 
@@ -60,11 +89,14 @@ public interface CatalogMapper {
     @Mapping(target = "mixtures", ignore = true)
     default Tag mapCreateTagDTOToTag(CreateTagDTO createTagDTO) {
         return new Tag(
-                createTagDTO.getName(),
-                createTagDTO.getDescription(),
+                // TODO
+                //createTagDTO.getLocalizedBasicProperties()
+                //               .stream().map()
+                null,
+                null,
                 createTagDTO.getPriority(),
                 createTagDTO.isActive(),
-                createTagDTO.getUrl()
+                null
         );
     }
 
@@ -73,4 +105,17 @@ public interface CatalogMapper {
     @Mapping(target = "categories", ignore = true)
     @Mapping(target = "mixtures", ignore = true)
     ResponseTagDTO mapTagToResponseTagDTO(Tag tag);
+
+    default ResponseTagDTO mapTagToResponseTagDTO(Tag finalTag, Map<String, LocalizedField> translationMap) {
+        return new ResponseTagDTO(
+                finalTag.getId(),
+                translationMap,
+                finalTag.getPriority(),
+                finalTag.isActive(),
+                null,
+                finalTag.getCategories().stream().map(this::mapCategoryToResponseCategoryDTO).toList(),
+                finalTag.getProducts().stream().map(this::mapProductToResponseProductDTO).toList(),
+                finalTag.getMixtures().stream().map(this::mapMixtureToResponseMixtureDTO).toList()
+        );
+    }
 }

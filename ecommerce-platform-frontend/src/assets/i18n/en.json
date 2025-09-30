@@ -275,7 +275,14 @@
     "PASSWORD": "Password",
     "PASSWORD_REQUIRED": "Password is required",
     "REGISTER": "Register",
-    "SUCCESS": "Account successfully created"
+    "SUCCESS": "Account successfully created",
+    "TITLE": "Create Account",
+    "SUBTITLE": "Join our community today",
+    "ALREADY_HAVE_ACCOUNT": "Already have an account?",
+    "SIGN_IN": "Sign In",
+    "PASSWORD_WEAK": "Weak password",
+    "PASSWORD_MEDIUM": "Medium strength",
+    "PASSWORD_STRONG": "Strong password"
   },
   "VALIDATION": {
     "EMAIL": "Invalid email format",

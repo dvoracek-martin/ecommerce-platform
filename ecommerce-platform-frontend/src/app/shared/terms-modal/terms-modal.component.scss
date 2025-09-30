@@ -1,103 +1,206 @@
-.light-terms-modal {
-  background: white;
-  border-radius: 16px;
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  max-width: 600px;
+// Use the same overlay and container styles as auth-popup
+.auth-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.auth-popup-container {
+  background: var(--background-card);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-xl);
   width: 100%;
+  max-width: 600px; // Wider for terms content
+  position: relative;
+  box-shadow: 0 20px 60px var(--shadow-large);
+  border: 1px solid var(--border-color);
+  animation: slideIn 0.5s ease-out;
   display: flex;
   flex-direction: column;
-  max-height: 80vh;
+  max-height: 80vh; // Limit height for scrolling
 
-  .modal-header {
-    padding: 24px 24px 16px;
-    border-bottom: 1px solid #e2e8f0;
-    text-align: center;
+  @media (max-width: 768px) {
+    margin: var(--spacing-md);
+    padding: var(--spacing-lg);
+    max-width: none;
+  }
 
-    .modal-title {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 600;
-      color: #1e293b;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+  @media (max-width: 480px) {
+    margin: var(--spacing-sm);
+    padding: var(--spacing-md);
+  }
+}
+
+.close-btn {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--background-hover);
+    transform: scale(1.1);
+  }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+
+  h2 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+
+    .title-icon {
+      color: var(--primary-color);
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.modal-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-sm) 0;
+  margin-bottom: var(--spacing-lg);
+
+  .terms-content {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: var(--font-size-base);
+
+    p {
+      margin-bottom: var(--spacing-md);
+      text-align: justify;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--background-hover);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--text-light);
+    }
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+
+  .close-action-btn {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border-radius: var(--radius-md) !important;
+    padding: var(--spacing-md) var(--spacing-xl) !important;
+    font-weight: 600 !important;
+    font-size: var(--font-size-base) !important;
+    height: 48px !important;
+    transition: all var(--transition-normal) !important;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+    min-width: 120px;
+
+    &:hover:not(:disabled) {
+      background: var(--primary-hover) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4) !important;
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+  .auth-header {
+    margin-bottom: var(--spacing-md);
+
+    h2 {
+      font-size: var(--font-size-lg);
+      flex-direction: column;
+      gap: var(--spacing-xs);
 
       .title-icon {
-        color: #3b82f6;
-        font-size: 24px;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
       }
     }
   }
 
   .modal-content {
-    padding: 20px 24px;
-    color: #64748b;
-    line-height: 1.6;
-    overflow-y: auto;
-    flex-grow: 1;
+    margin-bottom: var(--spacing-md);
 
     .terms-content {
-      p {
-        margin-bottom: 16px;
+      font-size: var(--font-size-sm);
 
-        &:last-child {
-          margin-bottom: 0;
-        }
+      p {
+        margin-bottom: var(--spacing-sm);
       }
     }
   }
 
   .modal-actions {
-    padding: 16px 24px 24px;
-    display: flex;
-    justify-content: center;
-    border-top: 1px solid #e2e8f0;
-
-    .close-btn {
-      background-color: #f97316;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 14px;
-      min-width: 100px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
-
-      &:hover {
-        background-color: #ea580c;
-        transform: translateY(-2px);
-      }
-
-      // Remove focus outline and replace with custom style
-      &:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
-      }
+    .close-action-btn {
+      padding: var(--spacing-sm) var(--spacing-lg) !important;
+      height: 44px !important;
+      font-size: var(--font-size-sm) !important;
     }
   }
-}
-
-// Global styles for light theme modal
-.light-theme-modal {
-  .mat-mdc-dialog-container {
-    --mdc-dialog-container-color: transparent;
-    padding: 0;
-  }
-
-  .mdc-dialog__surface {
-    border-radius: 16px;
-    box-shadow: none;
-    background: transparent;
-  }
-}
-
-// Light backdrop
-.light-theme-modal-backdrop {
-  background: rgba(255, 255, 255, 0.8);
 }

@@ -15,12 +15,12 @@
     >
       <ng-container *ngIf="category.media?.length; else noMedia">
         <div class="category-image-container">
-          <img
-            *ngIf="category.media[activeSlideIndices[catIndex]]?.contentType?.startsWith('image/')"
-            [alt]="category.name"
-            [src]="'data:' + category.media[activeSlideIndices[catIndex]].contentType + ';base64,' + category.media[activeSlideIndices[catIndex]].base64Data"
-            class="category-image"
-          />
+<!--          <img-->
+<!--            *ngIf="category.media[activeSlideIndices[catIndex]]?.contentType?.startsWith('image/')"-->
+<!--            [alt]="category.name"-->
+<!--            [src]="'data:' + category.media[activeSlideIndices[catIndex]].contentType + ';base64,' + category.media[activeSlideIndices[catIndex]].base64Data"-->
+<!--            class="category-image"-->
+<!--          />-->
           <video
             *ngIf="category.media[activeSlideIndices[catIndex]]?.contentType?.startsWith('video/')"
             [attr.muted]="true"
@@ -52,13 +52,13 @@
           {{ 'CATEGORIES.NO_MEDIA' | translate }}
         </div>
       </ng-template>
-
-      <div class="category-details">
-        <h2 class="category-name">{{ category.name }}</h2>
-        <p class="category-description">
-          {{ category.description }}
-        </p>
-      </div>
+<!--//TODO-->
+<!--      <div class="category-details">-->
+<!--        <h2 class="category-name">{{ category.name }}</h2>-->
+<!--        <p class="category-description">-->
+<!--          {{ category.description }}-->
+<!--        </p>-->
+<!--      </div>-->
     </div>
   </div>
 </div>

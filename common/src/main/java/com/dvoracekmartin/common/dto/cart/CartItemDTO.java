@@ -2,7 +2,9 @@ package com.dvoracekmartin.common.dto.cart;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode()
 @Data
 @AllArgsConstructor
 public class CartItemDTO {

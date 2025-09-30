@@ -59,7 +59,6 @@ public class SecurityConfig {
                         .pathMatchers(customerBasePath + apiVersion + "/admin/**").hasRole("user_admin")
                         .pathMatchers(cartBasePath + apiVersion + "/admin/**").hasRole("user_admin")
                         .pathMatchers(orderBasePath + apiVersion + "/admin/**").hasRole("user_admin")
-                        .pathMatchers(translationBasePath + apiVersion + "/admin/**").hasRole("user_admin")
                         .pathMatchers(configurationBasePath + apiVersion + "/admin/**").hasRole("user_admin")
 
                         // 3. Permit all GET requests to non-admin paths after admin rules are applied
@@ -68,14 +67,18 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, customerBasePath + apiVersion + "/**").permitAll()
                         .pathMatchers(HttpMethod.GET, cartBasePath + apiVersion + "/**").permitAll()
                         .pathMatchers(HttpMethod.GET, orderBasePath + apiVersion + "/**").permitAll()
-                        .pathMatchers(HttpMethod.GET, translationBasePath + apiVersion + "/**").permitAll()
                         .pathMatchers(HttpMethod.GET, configurationBasePath + apiVersion + "/**").permitAll()
 
                         // 4. Permit POST requests to non-admin paths in specific cases
                         .pathMatchers(HttpMethod.POST, catalogBasePath + apiVersion + "/mixtures").permitAll()
                         .pathMatchers(HttpMethod.POST, userBasePath + apiVersion + "/create").permitAll()
+                        .pathMatchers(HttpMethod.POST, userBasePath + apiVersion + "/forgot-password").permitAll()
+                        .pathMatchers(HttpMethod.POST, userBasePath + apiVersion + "/reset-password").permitAll()
 
-                        // 5. Any other exchange requires authentication
+                        // 5. Permit all requests for translation endpoints - requests allowed only when coming form catalog-service
+                        .pathMatchers(translationBasePath + apiVersion + "/**").permitAll()
+
+                        // 6. Any other exchange requires authentication
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter)));

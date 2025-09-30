@@ -13,13 +13,13 @@
                (click)="jumpToCategoryAndScroll(i)">
             <ng-container *ngIf="category.media?.[0]?.contentType?.startsWith('image/'); else categoryPlaceholder">
               <img [src]="'data:' + category.media[0].contentType + ';base64,' + category.media[0].base64Data"
-                   alt="{{ category.name }}"
+                   alt="{{ category.translatedName }}"
                    class="category-image"/>
             </ng-container>
             <ng-template #categoryPlaceholder>
-              <div class="category-placeholder">{{ category.name }}</div>
+              <div class="category-placeholder">{{ category.translatedName }}</div>
             </ng-template>
-            <div class="category-name">{{ category.name }}</div>
+            <div class="category-name">{{ category.translatedName }}</div>
           </div>
         </div>
         <button class="carousel-btn right" (click)="nextCategory()"
@@ -49,7 +49,7 @@
         <div class="products-carousel-container">
           <div class="products-carousel-inner" [style.transform]="'translateX(-' + activeCategoryIndex * 100 + '%)'">
             <div *ngFor="let category of categories" class="category-section">
-              <h2 class="category-title">{{ category.name }}</h2>
+              <h2 class="category-title">{{ category.translatedName }}</h2>
               <div class="products-row">
                 <div *ngFor="let product of productsByCategory[category.id]; trackBy: trackById"
                      class="product-card"
@@ -70,8 +70,8 @@
                     <div class="no-media">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
                   </ng-template>
 
-                  <div class="product-name">{{ product.name }}</div>
-                  <div class="product-description">{{ product.description }}</div>
+                  <div class="product-name">{{ product.translatedName }}</div>
+                  <div class="product-description">{{ product.translatedDescription }}</div>
                   <div class="product-bottom">
                     <div class="product-info-btn" (click)="showProductInfo(product)">
                       <mat-icon>info</mat-icon>
@@ -134,8 +134,8 @@
             <img *ngIf="p.media?.[0]?.contentType?.startsWith('image/')"
                  [src]="'data:' + p.media[0].contentType + ';base64,' + p.media[0].base64Data"
                  class="mixed-product-image"
-                 alt="{{ p.name }}"/>
-            <div class="mixed-product-name">{{ p.name }}</div>
+                 alt="{{ p.translatedName }}"/>
+            <div class="mixed-product-name">{{ p.translatedName }}</div>
             <button class="btn-remove" (click)="removeProductFromMixture(index)">x</button>
           </ng-container>
           <div *ngIf="!product" class="empty-grid-cell">
@@ -156,7 +156,7 @@
         <ul>
           <li *ngFor="let summary of item.value; trackBy: trackBySummaryProductId">
             <span class="product-count">{{ summary.count }}x</span>
-            {{ summary.product.name }}
+            {{ summary.product.translatedName }}
             <span class="product-price-summary">{{ summary.totalPrice | currency }}</span>
           </li>
         </ul>
@@ -207,18 +207,18 @@
 
         <div class="popup-scroll-content">
           <div class="popup-details">
-            <h2 class="popup-product-name">{{ selectedProduct.name }}</h2>
+            <h2 class="popup-product-name">{{ selectedProduct.translatedName }}</h2>
             <div class="popup-price">{{ selectedProduct.price | currency }}</div>
 
             <div class="popup-info-grid">
-              <div *ngIf="selectedProduct.description" class="info-item">
+              <div *ngIf="selectedProduct.translatedDescription" class="info-item">
                 <span class="info-label">Description:</span>
-                <p>{{ selectedProduct.description }}</p>
+                <p>{{ selectedProduct.translatedDescription }}</p>
               </div>
               <div *ngIf="selectedProduct.responseTagDTOS?.length" class="info-item">
                 <span class="info-label">Tags:</span>
                 <div class="tags-container">
-                  <span *ngFor="let tag of selectedProduct.responseTagDTOS" class="tag">{{ tag.name }}</span>
+                  <span *ngFor="let tag of selectedProduct.responseTagDTOS" class="tag">{{ tag.translatedName }}</span>
                 </div>
               </div>
             </div>

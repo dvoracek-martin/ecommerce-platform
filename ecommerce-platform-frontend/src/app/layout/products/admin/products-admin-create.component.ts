@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
@@ -12,6 +12,11 @@ import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 import {Subject, takeUntil} from 'rxjs';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
 import {TagService} from '../../../services/tag.service';
+import {ResponseLocaleDto} from '../../../dto/configuration/response-locale-dto';
+import {ConfigurationService} from '../../../services/configuration.service';
+import {LocaleMapperService} from '../../../services/locale-mapper.service';
+import {LocalizedFieldDTO} from '../../../dto/base/localized-field-dto';
+import {MediaDTO} from '../../../dto/media/media-dto';
 
 @Component({
   selector: 'app-products-admin-create',
@@ -25,6 +30,7 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
   categories: ResponseCategoryDTO[] = [];
   allTags: ResponseTagDTO[] = [];
   private readonly destroy$ = new Subject<void>();
+  usedLocales: ResponseLocaleDto[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -33,36 +39,18 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
     private tagService: TagService,
     private router: Router,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
-  ) {
-  }
+    private snackBar: MatSnackBar,
+    private configService: ConfigurationService,
+    private localeMapperService: LocaleMapperService,
+  ) {}
 
   get mediaControls(): FormArray {
-    return this.productForm.get('media') as FormArray;
+    return this.productForm?.get('media') as FormArray;
   }
-
-  get allergensControls(): FormArray {
-    return this.productForm.get('allergens') as FormArray;
-  }
-
-  get allergenFormControls(): FormControl[] {
-    return this.allergensControls.controls as FormControl[];
-  }
-
-  get tagsControls(): FormArray {
-    return this.productForm.get('tagDTOS') as FormArray;
-  }
-
-  get tagIdsControl(): FormControl {
-    return this.productForm.get('tagIds') as FormControl;
-  }
-
-  // --- Media Handling ---
 
   ngOnInit() {
-    this.initForm();
+    this.initTabs();
     this.loadCategories();
-    this.loadTags();
   }
 
   ngOnDestroy(): void {
@@ -70,34 +58,73 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  initForm(): void {
-    this.productForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
-      price: [0, [Validators.required, Validators.min(0)]],
-      priority: [0, [Validators.required, Validators.min(0)]],
-      categoryId: [null, Validators.required],
-      active: [false],
-      weightGrams: [0],
-      tagIds: [[]],
-      media: this.fb.array([]),
-      url:['', [Validators.required, Validators.minLength(3)]],
-      mixable: false,
-      displayInProducts: false,
-    });
+  private initTabs() {
+    this.configService.getLastAppSettings()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (settings) => {
+          this.usedLocales = settings.usedLocales.map(locale => ({
+            ...locale,
+            translatedName: this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode)
+          }));
+          this.initForm();
+          this.loadTags();
+        },
+        error: () => {
+          this.usedLocales = [{languageCode: 'en', regionCode: 'US', translatedName: 'English'}];
+          this.initForm();
+          this.loadTags();
+        }
+      });
   }
 
-  loadCategories(): void {
+  private initForm(): void {
+    const formConfig: any = {
+      price: [0, [Validators.required, Validators.min(0)]],
+      priority: ['0', [Validators.required, Validators.min(0)]],
+      categoryId: [null, Validators.required],
+      active: [false],
+      weightGrams: [0, [Validators.min(0.01)]],
+      tagIds: [[]],
+      media: this.fb.array([]),
+      mixable: [false],
+      displayInProducts: [false],
+    };
+
+    this.usedLocales.forEach(locale => {
+      const suffix = `_${locale.languageCode}_${locale.regionCode}`;
+      formConfig[`name${suffix}`] = ['', [Validators.required, Validators.minLength(3)]];
+      formConfig[`description${suffix}`] = [''];
+      formConfig[`url${suffix}`] = ['', [Validators.required, Validators.minLength(3)]];
+    });
+
+    this.productForm = this.fb.group(formConfig);
+  }
+
+  private loadCategories(): void {
     this.categoryService.getAllCategoriesAdmin()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (categories) => {
           this.categories = categories;
+          this.translateCategories();
         },
         error: (error) => {
           console.error('Error loading categories:', error);
           this.snackBar.open('Error loading categories', 'Close', {duration: 3000, panelClass: ['error-snackbar']});
         }
+      });
+  }
+
+  private loadTags() {
+    this.tagService.getAllTags()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: tags => {
+          this.allTags = tags;
+          this.translateTags();
+        },
+        error: _ => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
       });
   }
 
@@ -108,6 +135,16 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
       reader.onload = () => this.handleFileUpload(reader, file);
       reader.readAsDataURL(file);
     });
+  }
+
+  private handleFileUpload(reader: FileReader, file: File): void {
+    const base64 = (reader.result as string).split(',')[1];
+    this.mediaControls.push(this.fb.group({
+      base64Data: [base64],
+      objectKey: [`${Date.now()}_${file.name}`],
+      contentType: [file.type],
+      preview: [reader.result]
+    }));
   }
 
   openMediaDeleteDialog(index: number): void {
@@ -124,8 +161,6 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
     });
   }
 
-  // --- Allergens Handling ---
-
   removeMedia(index: number): void {
     this.mediaControls.removeAt(index);
   }
@@ -134,71 +169,46 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
     moveItemInArray(this.mediaControls.controls, event.previousIndex, event.currentIndex);
   }
 
-  addAllergen(): void {
-    this.allergensControls.push(this.fb.control('', Validators.required));
-  }
-
-  removeAllergen(index: number): void {
-    this.allergensControls.removeAt(index);
-  }
-
-  // --- Tags Handling ---
-
   onSave(): void {
-    if (this.productForm.invalid) {
-      // Mark all form controls as touched to display validation errors
-      this.productForm.markAllAsTouched();
-      this.snackBar.open('Please correct the highlighted fields.', 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+    if (!this.productForm || this.productForm.invalid) {
+      this.productForm?.markAllAsTouched();
+      this.snackBar.open('Please correct the highlighted fields.', 'Close', {duration: 5000});
       return;
     }
 
     this.saving = true;
-    const payload: CreateProductDTO = this.productForm.value;
 
-    this.productService.createProduct([payload])
+    // Build localizedFields map according to backend
+    const localizedFields: Record<string, LocalizedFieldDTO> = {};
+    this.usedLocales.forEach(locale => {
+      const suffix = `_${locale.languageCode}_${locale.regionCode}`;
+      localizedFields[`${locale.languageCode}_${locale.regionCode}`] = {
+        name: this.productForm.get(`name${suffix}`)?.value,
+        description: this.productForm.get(`description${suffix}`)?.value,
+        url: this.productForm.get(`url${suffix}`)?.value
+      };
+    });
+
+    // Build main payload
+    const product: CreateProductDTO = {
+      localizedFields: localizedFields,
+      priority: this.productForm.get('priority')?.value,
+      active: this.productForm.get('active')?.value,
+      media: this.productForm.get('media')?.value as MediaDTO[],
+      tagIds: this.productForm.get('tagIds')?.value,
+      mixable: this.productForm.get('mixable')?.value,
+      displayInProducts: this.productForm.get('displayInProducts')?.value,
+      price: this.productForm.get('price')?.value,
+      weightGrams: this.productForm.get('weightGrams')?.value,
+      categoryId: this.productForm.get('categoryId')?.value,
+    };
+
+    this.productService.createProduct(product)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => this.handleSaveSuccess(),
         error: (err) => this.handleSaveError(err)
       });
-  }
-
-  openCancelDialog(): void {
-    if (this.productForm.dirty) {
-      this.dialog.open(ConfirmationDialogComponent, {
-        data: {title: 'Cancel Update', message: 'Discard changes?', warn: true}
-      }).afterClosed().subscribe(ok => {
-        if (ok) {
-          this.router.navigate(['/admin/categories']);
-        }
-      });
-    } else {
-      this.router.navigate(['/admin/products']);
-    }
-  }
-
-  // --- Form Submission ---
-
-  private loadTags() {
-    this.tagService.getAllTags()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: tags => this.allTags = tags,
-        error: _ => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
-      });
-  }
-
-  private handleFileUpload(reader: FileReader, file: File): void {
-    const base64 = (reader.result as string).split(',')[1];
-    this.mediaControls.push(this.fb.group({
-      base64Data: [base64],
-      objectKey: [`${Date.now()}_${file.name}`],
-      contentType: [file.type],
-      preview: [reader.result]
-    }));
   }
 
   private handleSaveSuccess(): void {
@@ -210,6 +220,36 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
   private handleSaveError(err: any): void {
     this.saving = false;
     console.error('Creation failed:', err);
-    this.snackBar.open('Failed to create product', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
+    this.snackBar.open('Failed to create product', 'Close', {duration: 5000});
+  }
+
+  openCancelDialog(): void {
+    if (this.productForm?.dirty) {
+      this.dialog.open(ConfirmationDialogComponent, {
+        data: {title: 'Cancel Creation', message: 'Discard changes?', warn: true}
+      }).afterClosed().subscribe(ok => {
+        if (ok) {
+          this.router.navigate(['/admin/products']);
+        }
+      });
+    } else {
+      this.router.navigate(['/admin/products']);
+    }
+  }
+
+  private translateCategories() {
+    this.categories.forEach(category => {
+      category.translatedName = this.categoryService.getLocalizedName(category);
+      category.translatedDescription = this.categoryService.getLocalizedDescription(category);
+      category.translatedUrl = this.categoryService.getLocalizedUrl(category);
+    });
+  }
+
+  private translateTags() {
+    this.allTags.forEach(tag => {
+      tag.translatedName = this.tagService.getLocalizedName(tag);
+      tag.translatedDescription = this.tagService.getLocalizedDescription(tag);
+      tag.translatedUrl = this.tagService.getLocalizedUrl(tag);
+    });
   }
 }

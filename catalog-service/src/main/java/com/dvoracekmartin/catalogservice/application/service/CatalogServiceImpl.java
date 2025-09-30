@@ -30,28 +30,32 @@ import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
 import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 import com.dvoracekmartin.common.event.ResponseProductStockEvent;
+import com.dvoracekmartin.common.event.translation.LocalizedField;
+import com.dvoracekmartin.common.event.translation.TranslationGetOrDeleteEvent;
+import com.dvoracekmartin.common.event.translation.TranslationObjectsEnum;
+import com.dvoracekmartin.common.event.translation.TranslationSaveEvent;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toList;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class CatalogServiceImpl implements CatalogService {
+
 
     private final CatalogEventPublisher catalogEventPublisher;
     private final ProductRepository productRepository;
@@ -63,6 +67,8 @@ public class CatalogServiceImpl implements CatalogService {
     private final MediaUploader mediaUploader;
     private final MediaRetriever mediaRetriever;
     private final ElasticsearchService elasticsearchService;
+    private final WebClient translationWebClient;
+
 
     // Helper methods
     private List<MediaDTO> retrieveMediaForEntity(String entityId, BucketName bucketName) {
@@ -110,6 +116,52 @@ public class CatalogServiceImpl implements CatalogService {
         if (key.endsWith(".svg")) return "image/svg+xml";
         return "application/octet-stream";
     }
+
+    private static TranslationSaveEvent createRequestForTranslationSave(Long elementId, TranslationObjectsEnum elementType, Map<String, LocalizedField> localizedFieldMap) {
+        return new TranslationSaveEvent(
+                UUID.randomUUID().toString(),
+                elementType,
+                elementId,
+                localizedFieldMap
+        );
+    }
+
+    private static TranslationGetOrDeleteEvent createRequestForTranslationGetOrDelete(Long elementId, TranslationObjectsEnum elementType) {
+        return new TranslationGetOrDeleteEvent(
+                elementType,
+                elementId
+        );
+    }
+
+    private void saveOrUpdateTranslation(TranslationSaveEvent translationSaveEvent) {
+        translationWebClient.post()
+                .uri("/save")
+                .bodyValue(translationSaveEvent)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+    }
+
+    private Map<String, LocalizedField> getTranslationMap(TranslationGetOrDeleteEvent translationGetOrDeleteEvent) {
+        return translationWebClient.post()
+                .uri("/get")
+                .bodyValue(translationGetOrDeleteEvent)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, LocalizedField>>() {
+                })
+                .block();
+    }
+
+    private Map<String, LocalizedField> deleteTranslationMap(TranslationGetOrDeleteEvent translationGetOrDeleteEvent) {
+        return translationWebClient.post()
+                .uri("/delete")
+                .bodyValue(translationGetOrDeleteEvent)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, LocalizedField>>() {
+                })
+                .block();
+    }
+
 
     // Product methods
     @Override
@@ -176,44 +228,23 @@ public class CatalogServiceImpl implements CatalogService {
     public List<ResponseCategoryDTO> getActiveCategoriesForMixing() {
         mediaUploader.createBucketIfNotExists(BucketName.CATEGORIES.getName());
         return categoryRepository.findByActiveTrueAndMixableTrue().stream()
-                .map(this::mapCategoryToResponseDTO)
+                .map(responseCategoryDTO -> mapCategoryToResponseDTO(responseCategoryDTO))
                 .sorted(Comparator.comparingInt(ResponseCategoryDTO::getPriority)
                         .thenComparingLong(ResponseCategoryDTO::getId))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ResponseProductDTO> createProduct(@Valid List<CreateProductDTO> createProductDTOList) {
-        List<CreateProductDTO> validDTOs = createProductDTOList.stream()
-                .filter(dto -> !productRepository.existsByName(dto.getName()))
-                .collect(Collectors.toList());
-
-        if (validDTOs.isEmpty()) {
-            throw new IllegalArgumentException("All products already exist!");
-        }
-
-        return validDTOs.stream()
-                .map(this::createSingleProduct)
-                .sorted(Comparator.comparingInt(ResponseProductDTO::getPriority)
-                        .thenComparingLong(ResponseProductDTO::getId))
-                .collect(toList());
-    }
-
-    private ResponseProductDTO createSingleProduct(CreateProductDTO createProductDTO) {
+    public ResponseProductDTO createProduct(@Valid CreateProductDTO createProductDTO) {
         Product product = new Product();
-        product.setName(createProductDTO.getName());
-        product.setPrice(createProductDTO.getPrice());
-        product.setDescription(createProductDTO.getDescription());
         product.setActive(createProductDTO.isActive());
+        product.setPrice(createProductDTO.getPrice());
         product.setPriority(createProductDTO.getPriority());
         product.setWeightGrams(createProductDTO.getWeightGrams());
         product.setCategory(categoryRepository.findById(createProductDTO.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + createProductDTO.getCategoryId())));
         product.setMixable(createProductDTO.isMixable());
         product.setDisplayInProducts(createProductDTO.isDisplayInProducts());
-        product.setUrl(createProductDTO.getUrl());
-
-        // Fix: Use mutable ArrayList
         if (createProductDTO.getTagIds() != null) {
             List<Tag> tags = createProductDTO.getTagIds().stream()
                     .map(tagRepository::findById)
@@ -225,57 +256,61 @@ public class CatalogServiceImpl implements CatalogService {
             product.setTags(new ArrayList<>());
         }
 
+        // Save product to get ID
         Product savedProduct = productRepository.save(product);
+
         MediaUploadResult uploadResult = uploadMedia(createProductDTO.getMedia(),
                 savedProduct.getId().toString(), BucketName.PRODUCTS);
-
         savedProduct.setImageUrl(uploadResult.imageUrls());
         Product finalProduct = productRepository.save(savedProduct);
 
-        elasticsearchService.indexProduct(catalogMapper.mapProductToResponseProductDTO(finalProduct));
-        return catalogMapper.mapProductToResponseProductDTO(finalProduct, uploadResult.mediaDTOs());
+        // save translated strings
+        saveOrUpdateTranslation(createRequestForTranslationSave(product.getId(), TranslationObjectsEnum.PRODUCT, createProductDTO.getLocalizedFields()));
+
+        // Index in Elasticsearch
+        // elasticsearchService.indexProduct(catalogMapper.mapProductToResponseProductDTO(finalProduct));
+
+        Map<String, LocalizedField> translationMap = getTranslationMap(createRequestForTranslationGetOrDelete(finalProduct.getId(), TranslationObjectsEnum.PRODUCT));
+
+        return catalogMapper.mapProductToResponseProductDTO(finalProduct, uploadResult.mediaDTOs(), translationMap);
     }
 
     @Override
     public ResponseProductDTO updateProduct(Long id, UpdateProductDTO updateProductDTO) {
-        Product existing = productRepository.findById(id)
+        Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
-        if (!updateProductDTO.getName().equals(existing.getName()) &&
-                productRepository.existsByName(updateProductDTO.getName())) {
-            throw new IllegalArgumentException("Product name already exists: " + updateProductDTO.getName());
-        }
-
-        existing.setName(updateProductDTO.getName());
-        existing.setDescription(updateProductDTO.getDescription());
-        existing.setPrice(updateProductDTO.getPrice());
-        existing.setWeightGrams(updateProductDTO.getWeightGrams());
-        existing.setActive(updateProductDTO.isActive());
-        existing.setPriority(updateProductDTO.getPriority());
-        existing.setCategory(categoryRepository.findById(updateProductDTO.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + updateProductDTO.getCategoryId())));
-        existing.setMixable(updateProductDTO.isMixable());
-        existing.setDisplayInProducts(updateProductDTO.isDisplayInProducts());
-        existing.setUrl(updateProductDTO.getUrl());
-
-        // Fix: Use mutable ArrayList
+        existingProduct.setWeightGrams(updateProductDTO.getWeightGrams());
+        existingProduct.setCategory(categoryRepository.findById(updateProductDTO.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + updateProductDTO.getCategoryId())));
+        existingProduct.setActive(updateProductDTO.isActive());
+        existingProduct.setMixable(updateProductDTO.isMixable());
+        existingProduct.setDisplayInProducts(updateProductDTO.isDisplayInProducts());
+        existingProduct.setPriority(updateProductDTO.getPriority());
+        existingProduct.setPrice(updateProductDTO.getPrice());
         if (updateProductDTO.getTagIds() != null) {
             List<Tag> tags = tagRepository.findAllById(updateProductDTO.getTagIds());
-            existing.getTags().clear();
-            existing.getTags().addAll(tags);
+            existingProduct.getTags().clear();
+            existingProduct.getTags().addAll(tags);
         } else {
-            existing.getTags().clear();
+            existingProduct.getTags().clear();
         }
 
-        deleteMediaForEntity(existing.getImageUrl());
+        deleteMediaForEntity(existingProduct.getImageUrl());
         MediaUploadResult uploadResult = uploadMedia(updateProductDTO.getMedia(),
                 id.toString(), BucketName.PRODUCTS);
 
-        existing.getImageUrl().clear();
-        existing.getImageUrl().addAll(uploadResult.imageUrls());
-        Product savedProduct = productRepository.save(existing);
+        existingProduct.getImageUrl().clear();
+        existingProduct.getImageUrl().addAll(uploadResult.imageUrls());
+
+        TranslationSaveEvent request = createRequestForTranslationSave(existingProduct.getId(), TranslationObjectsEnum.PRODUCT, updateProductDTO.getLocalizedFields());
+        saveOrUpdateTranslation(request);
+
+        Product savedProduct = productRepository.save(existingProduct);
 
         elasticsearchService.indexProduct(catalogMapper.mapProductToResponseProductDTO(savedProduct));
-        return catalogMapper.mapProductToResponseProductDTO(savedProduct, uploadResult.mediaDTOs());
+
+        Map<String, LocalizedField> translationMap = getTranslationMap(createRequestForTranslationGetOrDelete(savedProduct.getId(), TranslationObjectsEnum.PRODUCT));
+        return catalogMapper.mapProductToResponseProductDTO(savedProduct, uploadResult.mediaDTOs(), translationMap);
     }
 
     @Override
@@ -291,6 +326,10 @@ public class CatalogServiceImpl implements CatalogService {
             deleteMediaForEntity(product.getImageUrl());
             elasticsearchService.deleteProduct(catalogMapper.mapProductToResponseProductDTO(product));
         });
+
+        TranslationGetOrDeleteEvent request = createRequestForTranslationGetOrDelete(id, TranslationObjectsEnum.PRODUCT);
+        deleteTranslationMap(request);
+
         productRepository.deleteById(id);
     }
 
@@ -298,8 +337,7 @@ public class CatalogServiceImpl implements CatalogService {
         List<MediaDTO> mediaDTOs = retrieveMediaForEntity(product.getId().toString(), BucketName.PRODUCTS);
         return new ResponseProductDTO(
                 product.getId(),
-                product.getName(),
-                product.getDescription(),
+                getTranslationMap(createRequestForTranslationGetOrDelete(product.getId(), TranslationObjectsEnum.PRODUCT)),
                 product.getPriority(),
                 product.isActive(),
                 mediaDTOs,
@@ -308,8 +346,7 @@ public class CatalogServiceImpl implements CatalogService {
                 product.getPrice(),
                 product.getWeightGrams(),
                 product.isMixable(),
-                product.isDisplayInProducts(),
-                product.getUrl()
+                product.isDisplayInProducts()
         );
     }
 
@@ -325,25 +362,14 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     @Override
-    public List<ResponseMixtureDTO> createMixture(@Valid List<CreateMixtureDTO> createMixtureDTOList) {
-        return createMixtureDTOList.stream()
-                .map(this::createSingleMixture)
-                .sorted(Comparator.comparingInt(ResponseMixtureDTO::getPriority)
-                        .thenComparingLong(ResponseMixtureDTO::getId))
-                .collect(toList());
-    }
-
-    private ResponseMixtureDTO createSingleMixture(CreateMixtureDTO createMixtureDTO) {
+    public ResponseMixtureDTO createMixture(@Valid CreateMixtureDTO createMixtureDTO) {
         Mixture mixture = new Mixture();
-        mixture.setName(createMixtureDTO.getName());
-        mixture.setDescription(createMixtureDTO.getDescription());
         mixture.setPriority(createMixtureDTO.getPriority());
+        mixture.setName(createMixtureDTO.getName());
         mixture.setActive(createMixtureDTO.isActive());
         mixture.setPrice(createMixtureDTO.getPrice());
         mixture.setWeightGrams(createMixtureDTO.getWeightGrams());
         mixture.setDisplayInProducts(createMixtureDTO.isDisplayInProducts());
-
-        // Fix: Use mutable ArrayLists
         mixture.setProducts(createMixtureDTO.getProductIds().stream()
                 .map(productRepository::findById)
                 .filter(Optional::isPresent)
@@ -356,68 +382,75 @@ public class CatalogServiceImpl implements CatalogService {
                 .map(Optional::get)
                 .collect(Collectors.toCollection(ArrayList::new)));
 
-        // Fix: Use mutable ArrayList for categories
         Category category = categoryRepository.findById(createMixtureDTO.getCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + createMixtureDTO.getCategoryId()));
-        mixture.setCategories(new ArrayList<>(List.of(category)));
+        mixture.setCategory(category);
 
         Mixture savedMixture = mixtureRepository.save(mixture);
         MediaUploadResult uploadResult = uploadMedia(createMixtureDTO.getMedia(),
                 savedMixture.getId().toString(), BucketName.MIXTURES);
 
         savedMixture.setImageUrl(uploadResult.imageUrls());
+
+        // if the mixture doesn't have localized fields, it's because it's customer-made and there is nothing to be translated
+        if (createMixtureDTO.getLocalizedFields() != null) {
+            TranslationSaveEvent request = createRequestForTranslationSave(savedMixture.getId(), TranslationObjectsEnum.MIXTURE, createMixtureDTO.getLocalizedFields());
+            saveOrUpdateTranslation(request);
+        }
+
         Mixture finalMixture = mixtureRepository.save(savedMixture);
 
-        elasticsearchService.indexMixture(catalogMapper.mapMixtureToResponseMixtureDTO(finalMixture));
-        return mapMixtureToResponseDTO(finalMixture, uploadResult.mediaDTOs());
+        // elasticsearchService.indexMixture(catalogMapper.mapMixtureToResponseMixtureDTO(finalMixture));
+
+        Map<String, LocalizedField> translationMap = getTranslationMap(createRequestForTranslationGetOrDelete(finalMixture.getId(), TranslationObjectsEnum.MIXTURE));
+        return catalogMapper.mapMixtureToResponseMixtureDTO(finalMixture, uploadResult.mediaDTOs(), translationMap);
     }
 
     @Override
     public ResponseMixtureDTO updateMixture(Long id, UpdateMixtureDTO updateMixtureDTO) {
-        Mixture existing = mixtureRepository.findById(id)
+        Mixture existingMixture = mixtureRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Mixture not found with id: " + id));
 
-        if (!updateMixtureDTO.getName().equals(existing.getName()) &&
-                mixtureRepository.existsByName(updateMixtureDTO.getName())) {
-            throw new IllegalArgumentException("Mixture name already exists: " + updateMixtureDTO.getName());
-        }
+        existingMixture.setName(updateMixtureDTO.getName());
+        existingMixture.setActive(updateMixtureDTO.isActive());
+        existingMixture.setPrice(updateMixtureDTO.getPrice());
+        existingMixture.setWeightGrams(updateMixtureDTO.getWeightGrams());
+        existingMixture.setDisplayInProducts(updateMixtureDTO.isDisplayInProducts());
 
-        existing.setName(updateMixtureDTO.getName());
-        existing.setDescription(updateMixtureDTO.getDescription());
-        existing.setPriority(updateMixtureDTO.getPriority());
-        existing.setActive(updateMixtureDTO.isActive());
-        existing.setPrice(updateMixtureDTO.getPrice());
-        existing.setWeightGrams(updateMixtureDTO.getWeightGrams());
-        existing.setUrl(updateMixtureDTO.getUrl());
-        existing.setDisplayInProducts(updateMixtureDTO.isDisplayInProducts());
-
-        // Fix: Use mutable ArrayLists
-        existing.setProducts(updateMixtureDTO.getProductIds().stream()
+        existingMixture.setProducts(updateMixtureDTO.getProductIds().stream()
                 .map(productRepository::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toCollection(ArrayList::new)));
 
-        existing.setTags(updateMixtureDTO.getTagIds().stream()
+        existingMixture.setTags(updateMixtureDTO.getTagIds().stream()
                 .map(tagRepository::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toCollection(ArrayList::new)));
 
-        // Fix: Use mutable ArrayList for categories
         Category category = categoryRepository.findById(updateMixtureDTO.getCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + updateMixtureDTO.getCategoryId()));
-        existing.setCategories(new ArrayList<>(List.of(category)));
+        existingMixture.setCategory(category);
 
-        deleteMediaForEntity(existing.getImageUrl());
+        deleteMediaForEntity(existingMixture.getImageUrl());
         MediaUploadResult uploadResult = uploadMedia(updateMixtureDTO.getMedia(),
                 id.toString(), BucketName.MIXTURES);
 
-        existing.setImageUrl(uploadResult.imageUrls());
-        Mixture savedMixture = mixtureRepository.save(existing);
+        existingMixture.setImageUrl(uploadResult.imageUrls());
 
-        elasticsearchService.indexMixture(catalogMapper.mapMixtureToResponseMixtureDTO(savedMixture));
-        return mapMixtureToResponseDTO(savedMixture, uploadResult.mediaDTOs());
+        // if the mixture doesn't have localized fields, it's because it's customer-made and there is nothing to be translated
+        if (updateMixtureDTO.getLocalizedFields() != null) {
+            TranslationSaveEvent request = createRequestForTranslationSave(existingMixture.getId(), TranslationObjectsEnum.MIXTURE, updateMixtureDTO.getLocalizedFields());
+            saveOrUpdateTranslation(request);
+        }
+
+        Mixture savedMixture = mixtureRepository.save(existingMixture);
+
+        // elasticsearchService.indexMixture(catalogMapper.mapMixtureToResponseMixtureDTO(savedMixture));
+        
+        Map<String, LocalizedField> translationMap = getTranslationMap(createRequestForTranslationGetOrDelete(savedMixture.getId(), TranslationObjectsEnum.MIXTURE));
+        return catalogMapper.mapMixtureToResponseMixtureDTO(savedMixture, uploadResult.mediaDTOs(), translationMap);
     }
 
     @Override
@@ -433,29 +466,27 @@ public class CatalogServiceImpl implements CatalogService {
             deleteMediaForEntity(mixture.getImageUrl());
             elasticsearchService.deleteMixture(catalogMapper.mapMixtureToResponseMixtureDTO(mixture));
         });
+
+        TranslationGetOrDeleteEvent request = createRequestForTranslationGetOrDelete(id, TranslationObjectsEnum.MIXTURE);
+        deleteTranslationMap(request);
+
         mixtureRepository.deleteById(id);
     }
 
     private ResponseMixtureDTO mapMixtureToResponseDTO(Mixture mixture) {
-        List<MediaDTO> mediaDTOs = retrieveMediaForEntity(mixture.getId().toString(), BucketName.MIXTURES);
-        return mapMixtureToResponseDTO(mixture, mediaDTOs);
-    }
-
-    private ResponseMixtureDTO mapMixtureToResponseDTO(Mixture mixture, List<MediaDTO> mediaDTOs) {
         return new ResponseMixtureDTO(
                 mixture.getId(),
                 mixture.getName(),
-                mixture.getDescription(),
+                getTranslationMap(createRequestForTranslationGetOrDelete(mixture.getId(), TranslationObjectsEnum.MIXTURE)),
                 mixture.getPriority(),
                 mixture.isActive(),
-                mediaDTOs,
-                mixture.getCategories().get(0).getId(),
+                retrieveMediaForEntity(mixture.getId().toString(), BucketName.MIXTURES),
+                mixture.getCategory().getId(),
                 mixture.getProducts().stream().map(catalogMapper::mapProductToResponseProductDTO).toList(),
                 mixture.getTags().stream().map(Tag::getId).toList(),
                 mixture.getPrice(),
                 mixture.getWeightGrams(),
-                mixture.isDisplayInProducts(),
-                mixture.getUrl()
+                mixture.isDisplayInProducts()
         );
     }
 
@@ -464,7 +495,7 @@ public class CatalogServiceImpl implements CatalogService {
     public List<ResponseCategoryDTO> getAllCategories() {
         mediaUploader.createBucketIfNotExists(BucketName.CATEGORIES.getName());
         return categoryRepository.findAll().stream()
-                .map(this::mapCategoryToResponseDTO)
+                .map(responseCategoryDTO -> mapCategoryToResponseDTO(responseCategoryDTO))
                 .sorted(Comparator.comparingInt(ResponseCategoryDTO::getPriority)
                         .thenComparingLong(ResponseCategoryDTO::getId))
                 .collect(Collectors.toList());
@@ -473,40 +504,23 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<ResponseCategoryDTO> getActiveCategories() {
         mediaUploader.createBucketIfNotExists(BucketName.CATEGORIES.getName());
+
         return categoryRepository.findByActiveTrue().stream()
-                .map(this::mapCategoryToResponseDTO)
+                .map(responseCategoryDTO -> mapCategoryToResponseDTO(responseCategoryDTO))
                 .sorted(Comparator.comparingInt(ResponseCategoryDTO::getPriority)
                         .thenComparingLong(ResponseCategoryDTO::getId))
                 .collect(Collectors.toList());
     }
 
+
+    // can be void in the future, now returning DTO just for debugging
     @Override
-    public List<ResponseCategoryDTO> createCategory(@Valid List<CreateCategoryDTO> createCategoryDTOList) {
-        List<CreateCategoryDTO> validDTOs = createCategoryDTOList.stream()
-                .filter(dto -> !categoryRepository.existsByName(dto.getName()))
-                .collect(Collectors.toList());
-
-        if (validDTOs.isEmpty()) {
-            throw new IllegalArgumentException("All categories already exist!");
-        }
-
-        return validDTOs.stream()
-                .map(this::createSingleCategory)
-                .sorted(Comparator.comparingInt(ResponseCategoryDTO::getPriority)
-                        .thenComparingLong(ResponseCategoryDTO::getId))
-                .collect(toList());
-    }
-
-    private ResponseCategoryDTO createSingleCategory(CreateCategoryDTO createCategoryDTO) {
+    public ResponseCategoryDTO createCategory(@Valid CreateCategoryDTO createCategoryDTO) {
         Category category = new Category();
-        category.setName(createCategoryDTO.getName());
-        category.setDescription(createCategoryDTO.getDescription());
         category.setPriority(createCategoryDTO.getPriority());
         category.setActive(createCategoryDTO.isActive());
         category.setMixable(createCategoryDTO.isMixable());
-        category.setUrl(createCategoryDTO.getUrl());
 
-        // Fix: Use mutable ArrayList
         if (createCategoryDTO.getTagIds() != null) {
             List<Tag> tags = createCategoryDTO.getTagIds().stream()
                     .map(tagRepository::findById)
@@ -518,74 +532,61 @@ public class CatalogServiceImpl implements CatalogService {
             category.setTags(new ArrayList<>());
         }
 
+        // Save the category first to get an ID
         Category savedCategory = categoryRepository.save(category);
+
+        // Upload media
         MediaUploadResult uploadResult = uploadMedia(createCategoryDTO.getMedia(),
                 savedCategory.getId().toString(), BucketName.CATEGORIES);
-
         savedCategory.setImageUrl(uploadResult.imageUrls());
         Category finalCategory = categoryRepository.save(savedCategory);
 
-        elasticsearchService.indexCategory(catalogMapper.mapCategoryToResponseCategoryDTO(finalCategory));
-        return new ResponseCategoryDTO(
-                finalCategory.getId(),
-                finalCategory.getName(),
-                finalCategory.getDescription(),
-                finalCategory.getPriority(),
-                finalCategory.isActive(),
-                uploadResult.mediaDTOs(),
-                finalCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList(),
-                finalCategory.getUrl()
-        );
+        // save translated strings
+        saveOrUpdateTranslation(createRequestForTranslationSave(category.getId(), TranslationObjectsEnum.CATEGORY, createCategoryDTO.getLocalizedFields()));
+
+        // Index in Elasticsearch
+        // elasticsearchService.indexCategory(catalogMapper.mapCategoryToResponseCategoryDTO(finalCategory));
+
+        Map<String, LocalizedField> translationMap = getTranslationMap(createRequestForTranslationGetOrDelete(finalCategory.getId(), TranslationObjectsEnum.CATEGORY));
+
+        return catalogMapper.mapCategoryToResponseCategoryDTO(finalCategory, uploadResult.mediaDTOs, translationMap);
     }
 
     @Override
     public ResponseCategoryDTO updateCategory(Long id, UpdateCategoryDTO updateCategoryDTO) {
-        Category existing = categoryRepository.findById(id)
+        Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
 
-        categoryRepository.findByName(updateCategoryDTO.getName()).ifPresent(category -> {
-            if (!category.getId().equals(id)) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Category name already exists: " + updateCategoryDTO.getName());
-            }
-        });
-
-        deleteMediaForEntity(existing.getImageUrl());
+        deleteMediaForEntity(existingCategory.getImageUrl());
         MediaUploadResult uploadResult = uploadMedia(updateCategoryDTO.getMedia(),
                 id.toString(), BucketName.CATEGORIES);
 
-        existing.setName(updateCategoryDTO.getName());
-        existing.setDescription(updateCategoryDTO.getDescription());
-        existing.setPriority(updateCategoryDTO.getPriority());
-        existing.setActive(updateCategoryDTO.isActive());
-        existing.setMixable(updateCategoryDTO.isMixable());
-        existing.setUrl(updateCategoryDTO.getUrl());
-        existing.getImageUrl().addAll(uploadResult.imageUrls());
+        TranslationSaveEvent request = createRequestForTranslationSave(existingCategory.getId(), TranslationObjectsEnum.CATEGORY, updateCategoryDTO.getLocalizedFields());
+        saveOrUpdateTranslation(request);
 
-        // Fix: Use mutable ArrayList
+        existingCategory.setPriority(updateCategoryDTO.getPriority());
+        existingCategory.setActive(updateCategoryDTO.isActive());
+        existingCategory.setMixable(updateCategoryDTO.isMixable());
+        existingCategory.getImageUrl().addAll(uploadResult.imageUrls());
+
         if (updateCategoryDTO.getTagIds() != null) {
             List<Tag> tags = updateCategoryDTO.getTagIds().stream()
                     .map(tagRepository::findById)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .collect(Collectors.toCollection(ArrayList::new));
-            existing.setTags(tags);
+            existingCategory.setTags(tags);
         } else {
-            existing.setTags(new ArrayList<>());
+            existingCategory.setTags(new ArrayList<>());
         }
 
-        Category savedCategory = categoryRepository.save(existing);
-        elasticsearchService.indexCategory(catalogMapper.mapCategoryToResponseCategoryDTO(savedCategory));
+        Category savedCategory = categoryRepository.save(existingCategory);
 
-        return new ResponseCategoryDTO(
-                savedCategory.getId(),
-                savedCategory.getName(),
-                savedCategory.getDescription(),
-                savedCategory.getPriority(),
-                savedCategory.isActive(),
-                uploadResult.mediaDTOs(),
-                savedCategory.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList(),
-                savedCategory.getUrl()
-        );
+        // elasticsearchService.indexCategory(catalogMapper.mapCategoryToResponseCategoryDTO(savedCategory));
+
+        Map<String, LocalizedField> translationMap = getTranslationMap(createRequestForTranslationGetOrDelete(savedCategory.getId(), TranslationObjectsEnum.CATEGORY));
+
+        return catalogMapper.mapCategoryToResponseCategoryDTO(savedCategory, uploadResult.mediaDTOs, translationMap);
     }
 
     @Override
@@ -601,6 +602,10 @@ public class CatalogServiceImpl implements CatalogService {
             deleteMediaForEntity(category.getImageUrl());
             elasticsearchService.deleteCategory(catalogMapper.mapCategoryToResponseCategoryDTO(category));
         });
+
+        TranslationGetOrDeleteEvent request = createRequestForTranslationGetOrDelete(id, TranslationObjectsEnum.CATEGORY);
+        deleteTranslationMap(request);
+
         categoryRepository.deleteById(id);
     }
 
@@ -608,68 +613,39 @@ public class CatalogServiceImpl implements CatalogService {
         List<MediaDTO> mediaDTOs = retrieveMediaForEntity(category.getId().toString(), BucketName.CATEGORIES);
         return new ResponseCategoryDTO(
                 category.getId(),
-                category.getName(),
-                category.getDescription(),
+                getTranslationMap(createRequestForTranslationGetOrDelete(category.getId(), TranslationObjectsEnum.CATEGORY)),
                 category.getPriority(),
                 category.isActive(),
                 mediaDTOs,
-                category.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList(),
-                category.getUrl()
+                category.getTags().stream().map(this::mapTagToResponseDTO).toList(),
+                category.isMixable()
         );
     }
 
     // Tag methods
     @Override
-    public List<ResponseTagDTO> createTags(@Valid List<CreateTagDTO> createTagDTOList) {
-        List<CreateTagDTO> validDTOs = createTagDTOList.stream()
-                .filter(dto -> !tagRepository.existsByName(dto.getName()))
-                .collect(Collectors.toList());
-
-        if (validDTOs.isEmpty()) {
-            throw new IllegalArgumentException("All tags already exist!");
-        }
-
-        return validDTOs.stream()
-                .map(this::createSingleTag)
-                .sorted(Comparator.comparingInt(ResponseTagDTO::getPriority)
-                        .thenComparingLong(ResponseTagDTO::getId))
-                .collect(toList());
-    }
-
-    private ResponseTagDTO createSingleTag(CreateTagDTO createTagDTO) {
+    public ResponseTagDTO createTag(@Valid CreateTagDTO createTagDTO) {
         Tag tag = new Tag();
-        tag.setName(createTagDTO.getName());
-        tag.setDescription(createTagDTO.getDescription());
         tag.setPriority(createTagDTO.getPriority());
         tag.setActive(createTagDTO.isActive());
-        tag.setUrl(createTagDTO.getUrl());
 
-        Tag savedTag = tagRepository.save(tag);
-        MediaUploadResult uploadResult = uploadMedia(createTagDTO.getMedia(),
-                savedTag.getId().toString(), BucketName.TAGS);
+        Tag finalTag = tagRepository.save(tag);
 
-        savedTag.setImageUrl(uploadResult.imageUrls());
-        Tag finalTag = tagRepository.save(savedTag);
+        saveOrUpdateTranslation(createRequestForTranslationSave(tag.getId(), TranslationObjectsEnum.TAG, createTagDTO.getLocalizedFields()));
 
-        elasticsearchService.indexTag(catalogMapper.mapTagToResponseTagDTO(finalTag));
-        return new ResponseTagDTO(
-                finalTag.getId(),
-                finalTag.getName(),
-                finalTag.getDescription(),
-                finalTag.getPriority(),
-                finalTag.isActive(),
-                uploadResult.mediaDTOs(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                finalTag.getUrl()
-        );
+        // Index in Elasticsearch
+        // elasticsearchService.indexTag(catalogMapper.mapTagToResponseTagDTO(finalTag));
+
+        Map<String, LocalizedField> translationMap = getTranslationMap(createRequestForTranslationGetOrDelete(finalTag.getId(), TranslationObjectsEnum.TAG));
+        finalTag.setCategories(new ArrayList<>());
+        finalTag.setProducts(new ArrayList<>());
+        finalTag.setMixtures(new ArrayList<>());
+        return catalogMapper.mapTagToResponseTagDTO(finalTag, translationMap);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ResponseTagDTO> getAllTags() {
-        mediaUploader.createBucketIfNotExists(BucketName.TAGS.getName());
         return tagRepository.findAll().stream()
                 .map(this::mapTagToResponseDTO)
                 .sorted(Comparator.comparingInt(ResponseTagDTO::getPriority)
@@ -679,20 +655,11 @@ public class CatalogServiceImpl implements CatalogService {
 
     @Override
     public ResponseTagDTO updateTag(Long id, UpdateTagDTO updateTagDTO) {
-        Tag existing = tagRepository.findById(id)
+        Tag existingTag = tagRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tag not found with id: " + id));
 
-        tagRepository.findByName(updateTagDTO.getName()).ifPresent(tag -> {
-            if (!tag.getId().equals(id)) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Tag name already exists: " + updateTagDTO.getName());
-            }
-        });
-
-        existing.setName(updateTagDTO.getName());
-        existing.setDescription(updateTagDTO.getDescription());
-        existing.setPriority(updateTagDTO.getPriority());
-        existing.setActive(updateTagDTO.isActive());
-        existing.setUrl(updateTagDTO.getUrl());
+        existingTag.setPriority(updateTagDTO.getPriority());
+        existingTag.setActive(updateTagDTO.isActive());
 
         List<Category> newCategories = updateTagDTO.getCategoryIds() != null
                 ? updateTagDTO.getCategoryIds().stream()
@@ -701,16 +668,16 @@ public class CatalogServiceImpl implements CatalogService {
                 .map(Optional::get)
                 .collect(Collectors.toCollection(ArrayList::new))
                 : new ArrayList<>();
-        List<Category> oldCategories = new ArrayList<>(existing.getCategories());
-        existing.setCategories(newCategories);
+        List<Category> oldCategories = new ArrayList<>(existingTag.getCategories());
+        existingTag.setCategories(newCategories);
         for (Category oldCat : oldCategories) {
             if (!newCategories.contains(oldCat)) {
-                oldCat.getTags().remove(existing);
+                oldCat.getTags().remove(existingTag);
             }
         }
         for (Category category : newCategories) {
-            if (!category.getTags().contains(existing)) {
-                category.getTags().add(existing);
+            if (!category.getTags().contains(existingTag)) {
+                category.getTags().add(existingTag);
             }
         }
 
@@ -721,16 +688,16 @@ public class CatalogServiceImpl implements CatalogService {
                 .map(Optional::get)
                 .collect(Collectors.toCollection(ArrayList::new))
                 : new ArrayList<>();
-        List<Product> oldProducts = new ArrayList<>(existing.getProducts());
-        existing.setProducts(newProducts);
+        List<Product> oldProducts = new ArrayList<>(existingTag.getProducts());
+        existingTag.setProducts(newProducts);
         for (Product oldProd : oldProducts) {
             if (!newProducts.contains(oldProd)) {
-                oldProd.getTags().remove(existing);
+                oldProd.getTags().remove(existingTag);
             }
         }
         for (Product product : newProducts) {
-            if (!product.getTags().contains(existing)) {
-                product.getTags().add(existing);
+            if (!product.getTags().contains(existingTag)) {
+                product.getTags().add(existingTag);
             }
         }
 
@@ -741,34 +708,29 @@ public class CatalogServiceImpl implements CatalogService {
                 .map(Optional::get)
                 .collect(Collectors.toCollection(ArrayList::new))
                 : new ArrayList<>();
-        List<Mixture> oldMixtures = new ArrayList<>(existing.getMixtures());
-        existing.setMixtures(newMixtures);
+        List<Mixture> oldMixtures = new ArrayList<>(existingTag.getMixtures());
+        existingTag.setMixtures(newMixtures);
         for (Mixture oldMix : oldMixtures) {
             if (!newMixtures.contains(oldMix)) {
-                oldMix.getTags().remove(existing);
+                oldMix.getTags().remove(existingTag);
             }
         }
         for (Mixture mixture : newMixtures) {
-            if (!mixture.getTags().contains(existing)) {
-                mixture.getTags().add(existing);
+            if (!mixture.getTags().contains(existingTag)) {
+                mixture.getTags().add(existingTag);
             }
         }
 
-        Tag savedTag = tagRepository.save(existing);
-        elasticsearchService.indexTag(catalogMapper.mapTagToResponseTagDTO(savedTag));
 
-        return new ResponseTagDTO(
-                savedTag.getId(),
-                savedTag.getName(),
-                savedTag.getDescription(),
-                savedTag.getPriority(),
-                savedTag.isActive(),
-                null,
-                savedTag.getCategories().stream().map(catalogMapper::mapCategoryToResponseCategoryDTO).toList(),
-                savedTag.getProducts().stream().map(catalogMapper::mapProductToResponseProductDTO).toList(),
-                savedTag.getMixtures().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList(),
-                savedTag.getUrl()
-        );
+        saveOrUpdateTranslation(createRequestForTranslationSave(existingTag.getId(), TranslationObjectsEnum.TAG, updateTagDTO.getLocalizedFields()));
+
+        Tag finalTag = tagRepository.save(existingTag);
+
+        //elasticsearchService.indexTag(catalogMapper.mapTagToResponseTagDTO(savedTag));
+
+        Map<String, LocalizedField> translationMap = getTranslationMap(createRequestForTranslationGetOrDelete(finalTag.getId(), TranslationObjectsEnum.TAG));
+
+        return catalogMapper.mapTagToResponseTagDTO(finalTag, translationMap);
     }
 
     @Override
@@ -784,22 +746,23 @@ public class CatalogServiceImpl implements CatalogService {
             deleteMediaForEntity(tag.getImageUrl());
             elasticsearchService.deleteTag(catalogMapper.mapTagToResponseTagDTO(tag));
         });
+
+        TranslationGetOrDeleteEvent request = createRequestForTranslationGetOrDelete(id, TranslationObjectsEnum.TAG);
+        deleteTranslationMap(request);
+
         tagRepository.deleteById(id);
     }
 
     private ResponseTagDTO mapTagToResponseDTO(Tag tag) {
-        List<MediaDTO> mediaDTOs = retrieveMediaForEntity(tag.getId().toString(), BucketName.TAGS);
         return new ResponseTagDTO(
                 tag.getId(),
-                tag.getName(),
-                tag.getDescription(),
+                getTranslationMap(createRequestForTranslationGetOrDelete(tag.getId(), TranslationObjectsEnum.TAG)),
                 tag.getPriority(),
                 tag.isActive(),
-                mediaDTOs,
+                null,
                 tag.getCategories().stream().map(catalogMapper::mapCategoryToResponseCategoryDTO).toList(),
                 tag.getProducts().stream().map(catalogMapper::mapProductToResponseProductDTO).toList(),
-                tag.getMixtures().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList(),
-                tag.getUrl()
+                tag.getMixtures().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList()
         );
     }
 

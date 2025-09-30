@@ -5,11 +5,13 @@ import com.dvoracek.cartservice.domain.model.discount.Discount;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode()
 @Entity
 @Data
 @NoArgsConstructor

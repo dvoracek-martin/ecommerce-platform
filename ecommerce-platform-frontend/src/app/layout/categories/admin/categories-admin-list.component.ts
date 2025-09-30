@@ -1,3 +1,4 @@
+// src/app/components/categories-admin-list/categories-admin-list.component.ts
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
@@ -7,6 +8,7 @@ import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/c
 import {FormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {TagService} from '../../../services/tag.service';
 
 @Component({
   selector: 'app-categories-admin-list',
@@ -21,14 +23,15 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
   error: string | null = null;
   activeSlideIndices: number[] = [];
   searchControl = new FormControl('');
-  activeSeControl = new FormControl(true);
+  activeSeControl = new FormControl(false);
   private intervals: any[] = [];
 
   constructor(
     private categoryService: CategoryService,
     private router: Router,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private tagService: TagService
   ) {
   }
 
@@ -53,7 +56,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
     const onlyActive = this.activeSeControl.value;
 
     this.filteredCategories = this.categories.filter(category => {
-      const matchesSearch = category.name.toLowerCase().includes(searchValue);
+      const matchesSearch = (category.translatedName || '').toLowerCase().includes(searchValue);
       const matchesActive = onlyActive ? category.active === true : true;
       return matchesSearch && matchesActive;
     });
@@ -70,6 +73,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
     this.categoryService.getAllCategoriesAdmin().subscribe({
       next: data => {
         this.categories = data;
+        this.translateCategories();
         this.filteredCategories = [...this.categories];
         this.initializeCarousels();
         this.isLoading = false;
@@ -77,7 +81,8 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
       error: err => {
         this.error = err.message || 'Failed to load categories';
         this.isLoading = false;
-      }
+      },
+
     });
   }
 
@@ -92,6 +97,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
 
   startCarousel(catIndex: number, mediaCount: number): void {
     if (mediaCount <= 1) return;
+    if (this.intervals[catIndex]) clearInterval(this.intervals[catIndex]);
     this.intervals[catIndex] = setInterval(() => {
       this.nextSlide(catIndex, mediaCount);
     }, 5000);
@@ -148,6 +154,19 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
         this.snackBar.open('Category deleted successfully.', 'Close', {duration: 3000});
       },
       error: err => console.error('Delete failed:', err)
+    });
+  }
+
+  private translateCategories() {
+    this.categories.forEach(category => {
+      category.translatedName = this.categoryService.getLocalizedName(category);
+      category.translatedDescription = this.categoryService.getLocalizedDescription(category);
+      category.translatedUrl = this.categoryService.getLocalizedUrl(category);
+      category.responseTagDTOS.forEach(tag => {
+        this.tagService.getTagById(tag.id).subscribe(responseTagDTO => {
+          tag.translatedName = this.tagService.getLocalizedName(responseTagDTO);
+        });
+      });
     });
   }
 }

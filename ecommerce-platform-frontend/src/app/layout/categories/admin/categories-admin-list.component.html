@@ -60,7 +60,7 @@
           <div class="category-image-container">
             <img
               *ngIf="category.media[activeSlideIndices[catIndex]]?.contentType?.startsWith('image/')"
-              [alt]="category.name"
+              [alt]="category.translatedName"
               [src]="'data:' + category.media[activeSlideIndices[catIndex]].contentType + ';base64,' + category.media[activeSlideIndices[catIndex]].base64Data"
               class="category-image"
             />
@@ -100,13 +100,13 @@
 
         <!-- Category details -->
         <div class="category-details">
-          <h2 class="category-name">{{ category.name }}</h2>
-          <p class="category-description">{{ category.description }}</p>
+          <h2 class="category-name">{{ category.translatedName }}</h2>
+          <p class="category-description">{{ category.translatedDescription }}</p>
 
-          <div *ngIf="category.responseTagDTOS?.length" class="card-tags">
+          <div *ngIf="category.responseTagDTOS?.length" class="card-details">
             <div class="tags-container">
               <span *ngFor="let tag of category.responseTagDTOS" class="tag">
-                {{ tag.name }}
+                {{ tag.translatedName }}
               </span>
             </div>
           </div>

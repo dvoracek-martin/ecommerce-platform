@@ -23,7 +23,7 @@
       <ng-container *ngIf="product.media?.length; else noMedia">
         <div class="product-image-container">
           <img *ngIf="product.media[activeSlideIndices[productIndex]]?.contentType?.startsWith('image/')"
-               [alt]="product.name"
+               [alt]="product.translatedName"
                [src]="'data:' + product.media[activeSlideIndices[productIndex]].contentType + ';base64,' + product.media[activeSlideIndices[productIndex]].base64Data"
                class="product-image"/>
           <video *ngIf="product.media[activeSlideIndices[productIndex]]?.contentType?.startsWith('video/')"
@@ -53,13 +53,13 @@
       </ng-template>
 
       <div class="product-details">
-        <h2 class="product-name">{{ product.name }}</h2>
-        <p class="product-description">{{ product.description }}</p>
+        <h2 class="product-name">{{ product.translatedName }}</h2>
+        <p class="product-description">{{ product.translatedDescription }}</p>
 
         <div *ngIf="product.responseTagDTOS?.length" class="card-tags">
           <div class="tags-container">
             <span *ngFor="let tag of product.responseTagDTOS" class="tag">
-              {{ tag.name }}
+              {{ tag.translatedName }}
             </span>
           </div>
         </div>

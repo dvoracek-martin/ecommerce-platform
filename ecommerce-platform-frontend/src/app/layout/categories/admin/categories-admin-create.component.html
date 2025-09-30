@@ -10,7 +10,6 @@
     </div>
 
     <form (ngSubmit)="onSave()" [formGroup]="categoryForm" class="form-and-media-wrapper" id="categoryForm">
-
       <div class="form-content">
         <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
 
@@ -19,38 +18,44 @@
             <mat-icon>label</mat-icon>
             {{ 'CATEGORIES.ADMIN.BASIC_INFO' | translate }}
           </h3>
+          <!-- TABS CONTAINER -->
+          <mat-tab-group *ngIf="usedLocales.length > 0">
+            <mat-tab *ngFor="let locale of usedLocales" label="{{ locale.translatedName }}">
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'CATEGORIES.ADMIN.NAME' | translate }}</mat-label>
-              <input formControlName="name" matInput
-                     placeholder="{{ 'CATEGORIES.ADMIN.NAME_PLACEHOLDER' | translate }}">
-              <mat-error *ngIf="categoryForm.get('name')?.hasError('required')">
-                {{ 'CATEGORIES.ADMIN.NAME_REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
-          </div>
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label>{{ 'CATEGORIES.ADMIN.NAME' | translate }}</mat-label>
+                  <input matInput
+                         [formControlName]="'name_' + locale.languageCode + '_' + locale.regionCode"
+                         placeholder="Enter name">
+                </mat-form-field>
+              </div>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field full-width">
-              <mat-label>{{ 'CATEGORIES.ADMIN.DESCRIPTION' | translate }}</mat-label>
-              <textarea formControlName="description" matInput
-                        placeholder="{{ 'CATEGORIES.ADMIN.DESCRIPTION_PLACEHOLDER' | translate }}"></textarea>
-            </mat-form-field>
-          </div>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'PRODUCTS.URL' | translate }}</mat-label>
-              <input formControlName="url" matInput required>
-              <mat-error *ngIf="categoryForm.get('url')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
-          </div>
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label>{{ 'CATEGORIES.ADMIN.DESCRIPTION' | translate }}</mat-label>
+                  <textarea matInput
+                            [formControlName]="'description_' + locale.languageCode + '_' + locale.regionCode"
+                            placeholder="Enter description"></textarea>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label>{{ 'PRODUCTS.URL' | translate }}</mat-label>
+                  <input matInput
+                         [formControlName]="'url_' + locale.languageCode + '_' + locale.regionCode"
+                         placeholder="Enter URL">
+                </mat-form-field>
+              </div>
+
+            </mat-tab>
+          </mat-tab-group>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'CATEGORIES.PRIORITY' | translate }}</mat-label>
-              <input formControlName="priority" matInput required type="number">
+              <input formControlName="priority" matInput required type="number" [value]="categoryForm.get('priority')?.value">
               <mat-error
                 *ngIf="categoryForm.get('priority')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
@@ -67,7 +72,7 @@
 
             <div class="form-field half-width centered">
               <mat-checkbox class="admin-mixable-checkbox-wrapper" formControlName="mixable">
-                {{ 'PRODUCTS.MIXABLE' | translate }}
+                {{ 'CATEGORIES.MIXABLE' | translate }}
               </mat-checkbox>
             </div>
           </div>
@@ -87,7 +92,7 @@
               <mat-label>{{ 'CATEGORIES.ADMIN.SELECT_TAGS' | translate }}</mat-label>
               <mat-select formControlName="tagIds" multiple>
                 <mat-option *ngFor="let t of allTags" [value]="t.id">
-                  {{ t.name }}
+                  {{ t.translatedName }}
                 </mat-option>
               </mat-select>
             </mat-form-field>

@@ -38,6 +38,8 @@ public class SecurityConfig {
                                 "/api/catalog/v1/all-mixtures",
                                 "/api/catalog/v1/all-products-by-category-id/{categoryId}",
                                 "/api/catalog/v1/active-products-by-category-id/{categoryId}",
+                                "/api/catalog/v1/active-products-for-display-in-products",
+                                "/api/catalog/v1/active-categories-for-mixing",
                                 "/api/catalog/v1/search",
                                 "/api/catalog/v1/active-categories",
                                 "/api/catalog/v1/all-mixtures/{id}",

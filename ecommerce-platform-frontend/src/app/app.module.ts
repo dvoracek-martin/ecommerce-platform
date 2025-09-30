@@ -54,6 +54,7 @@ import {
 } from './layout/configuration/admin/configuration-admin/configuration-admin.component';
 import {MatDatepicker, MatDatepickerInput, MatDatepickerToggle} from "@angular/material/datepicker";
 import {MatNativeDateModule} from '@angular/material/core';
+import {MatTab, MatTabGroup} from '@angular/material/tabs';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -123,6 +124,8 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     MatDatepicker,
     MatDatepickerInput,
     MatNativeDateModule,
+    MatTab,
+    MatTabGroup,
   ],
   providers: [
     {

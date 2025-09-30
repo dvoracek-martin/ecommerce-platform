@@ -28,6 +28,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/users/v1/forgot-password").permitAll()
+                        .requestMatchers("/api/users/v1/reset-password").permitAll()
                         .requestMatchers("/api/users/v1/create").permitAll()
                         .requestMatchers("/api/users/v1/login").permitAll()
                         .requestMatchers("/actuator/health").permitAll()

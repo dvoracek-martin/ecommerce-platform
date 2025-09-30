@@ -1,4 +1,5 @@
 <mat-toolbar class="main-toolbar">
+  <!-- Navigation Menu -->
   <button mat-icon-button class="menu-button" [matMenuTriggerFor]="menu">
     <mat-icon>menu</mat-icon>
   </button>
@@ -26,6 +27,7 @@
     </button>
   </mat-menu>
 
+  <!-- App Title -->
   <div class="centered-title">
     <button mat-button class="app-title-btn" (click)="navigateToRoot()">
       <h1 class="app-title">{{ title }}</h1>
@@ -34,32 +36,49 @@
 
   <span class="spacer"></span>
 
+  <!-- Toolbar Actions -->
   <div class="toolbar-actions">
-      <div class="language-menu-container" *ngIf="languages.length > 0">
-        <button
-          class="language-button"
-          mat-icon-button
-          [matMenuTriggerFor]="langMenu"
-          #menuTrigger="matMenuTrigger"
-          *ngIf="selectedLanguage"
-          (menuOpened)="onLanguageMenuOpened()">
-          <img [src]="'assets/flags/' + selectedLanguage.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
-        </button>
+    <!-- Language Selector -->
+    <div class="language-menu-container" *ngIf="languages.length > 0">
+      <button
+        class="language-button"
+        mat-icon-button
+        [matMenuTriggerFor]="langMenu"
+        #menuTrigger="matMenuTrigger"
+        (menuOpened)="onLanguageMenuOpened()">
+        <img
+          [src]="'assets/flags/' + selectedLanguage.regionCode.toLowerCase() + '.svg'"
+          class="locale-flag"
+          alt="flag">
+      </button>
 
-        <mat-menu #langMenu="matMenu" class="language-menu">
-          <button mat-menu-item *ngFor="let lang of languages" (click)="changeLanguage(lang.languageCode)">
-            <img [src]="'assets/flags/' + lang.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
-            {{ lang.translatedName }}
-          </button>
-        </mat-menu>
+      <mat-menu #langMenu="matMenu" class="language-menu">
+        <button
+          mat-menu-item
+          *ngFor="let lang of languages"
+          (click)="changeLanguage(lang.languageCode)">
+          <img
+            [src]="'assets/flags/' + lang.regionCode.toLowerCase() + '.svg'"
+            class="locale-flag"
+            alt="flag">
+          {{ lang.translatedName }}
+        </button>
+      </mat-menu>
     </div>
 
+    <!-- Shopping Cart -->
     <div class="cart-container">
-      <button #cartButton mat-icon-button class="cart-button"
-              (click)="goToCart()"
-              (mouseenter)="onCartButtonMouseEnter()"
-              (mouseleave)="onCartButtonMouseLeave()">
-        <div class="cart-badge" [class.has-items]="(totalCartItemCount$ | async) > 0">
+      <button
+        #cartButton
+        mat-icon-button
+        class="cart-button"
+        (click)="goToCart()"
+        (mouseenter)="onCartButtonMouseEnter()"
+        (mouseleave)="onCartButtonMouseLeave()">
+        <div
+          class="cart-badge"
+          [class.has-items]="(totalCartItemCount$ | async) > 0"
+          [attr.data-count]="totalCartItemCount$ | async">
           <mat-icon [class.has-items]="(totalCartItemCount$ | async) > 0">shopping_cart</mat-icon>
           <span class="total-price" *ngIf="(totalCartItemCount$ | async) > 0">
             {{ (cartService.cart$ | async)?.totalPrice | currency:'USD':'symbol':'1.2-2' }}
@@ -67,58 +86,75 @@
         </div>
       </button>
 
-      <!-- Updated cart preview panel HTML -->
-      <div class="cart-preview-panel"
-           *ngIf="isCartPreviewOpen"
-           (mouseenter)="onCartPreviewMouseEnter()"
-           (mouseleave)="onCartPreviewMouseLeave()">
+      <!-- Cart Preview Panel -->
+      <div
+        class="cart-preview-panel"
+        *ngIf="isCartPreviewOpen"
+        (mouseenter)="onCartPreviewMouseEnter()"
+        (mouseleave)="onCartPreviewMouseLeave()">
 
+        <!-- Loading States -->
         <div *ngIf="isLoadingCart" class="loading-section">
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         </div>
 
+        <div *ngIf="isTranslatingCart && !isLoadingCart" class="translating-section">
+          <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+          <div class="translating-text">{{ 'CART.TRANSLATING' | translate }}</div>
+        </div>
+
+        <!-- Cart Content -->
         <ng-container *ngIf="!isLoadingCart && (cartService.cart$ | async) as cart">
           <ng-container *ngIf="cart.items?.length > 0; else emptyCart">
-            <div class="cart-preview">
+            <div class="cart-preview" [class.translating]="isTranslatingCart">
               <h4>{{ 'CART.SUMMARY' | translate }}</h4>
 
+              <!-- Cart Items -->
               <div class="cart-item" *ngFor="let item of cart.items">
+
+                <!-- Product Items -->
                 <ng-container *ngIf="item.cartItemType === 'PRODUCT' && item.product">
-                  <img *ngIf="item.product.media?.[0]"
-                       [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
-                       [alt]="item.product.name"
-                       class="item-image"
-                       (click)="goToProductFromCart(item.product); $event.stopPropagation()"/>
+                  <img
+                    *ngIf="item.product.media?.[0]"
+                    [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
+                    [alt]="getTranslatedItemName(item)"
+                    class="item-image"
+                    (click)="goToProductFromCart(item.product); $event.stopPropagation()"/>
 
                   <div class="item-info">
                     <div class="item-header">
-                    <span class="item-name"
-                          (click)="goToProductFromCart(item.product); $event.stopPropagation()">
-  {{ item.product.name }}
-</span>
-                      <span class="item-price">{{ item.product.price | currency:'USD':'symbol':'1.2-2' }}</span>
+                      <span
+                        class="item-name"
+                        (click)="goToProductFromCart(item.product)">
+                        {{ getTranslatedItemName(item) }}
+                      </span>
+                      <span class="item-price">
+                        {{ item.product.price | currency:'USD':'symbol':'1.2-2' }}
+                      </span>
                     </div>
 
-                    <!-- Inside the cart preview panel, update the quantity controls -->
                     <div class="item-controls">
                       <div class="item-quantity">
                         <div class="quantity-controls-container">
                           <div class="quantity-selector" [class.loading]="isItemLoading(item)">
-                            <button class="quantity-btn decrease"
-                                    [disabled]="isItemLoading(item)"
-                                    (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
+                            <button
+                              class="quantity-btn decrease"
+                              [disabled]="isItemLoading(item) || isTranslatingCart"
+                              (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
                               <mat-icon>remove</mat-icon>
                             </button>
-                            <input type="number"
-                                   [value]="item.quantity"
-                                   min="0"
-                                   (change)="onQuantityChange($event, item)"
-                                   (keydown)="$event.stopPropagation()"
-                                   class="quantity-input"
-                                   [disabled]="isItemLoading(item)">
-                            <button class="quantity-btn increase"
-                                    [disabled]="isItemLoading(item)"
-                                    (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
+                            <input
+                              type="number"
+                              [value]="item.quantity"
+                              min="0"
+                              (change)="onQuantityChange($event, item)"
+                              (keydown)="$event.stopPropagation()"
+                              class="quantity-input"
+                              [disabled]="isItemLoading(item) || isTranslatingCart">
+                            <button
+                              class="quantity-btn increase"
+                              [disabled]="isItemLoading(item) || isTranslatingCart"
+                              (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
                               <mat-icon>add</mat-icon>
                             </button>
                           </div>
@@ -135,31 +171,45 @@
                   </div>
                 </ng-container>
 
+                <!-- Mixture Items -->
                 <ng-container *ngIf="item.cartItemType === 'MIXTURE' && item.mixture">
                   <mat-icon class="item-image mixture-icon">science</mat-icon>
                   <div class="item-info">
                     <div class="item-header">
-                      <span class="item-name">{{ item.mixture.name }}</span>
-                      <span class="item-price">{{ item.mixture.price | currency:'USD':'symbol':'1.2-2' }}</span>
+                      <span class="item-name">{{ getTranslatedItemName(item) }}</span>
+                      <span class="item-price">
+                        {{ item.mixture.price | currency:'USD':'symbol':'1.2-2' }}
+                      </span>
                     </div>
 
                     <div class="item-controls">
                       <div class="item-quantity">
-                        <div class="quantity-selector">
-                          <button class="quantity-btn decrease"
-                                  (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
-                            <mat-icon>remove</mat-icon>
-                          </button>
-                          <input type="number"
-                                 [value]="item.quantity"
-                                 min="0"
-                                 (change)="onQuantityChange($event, item)"
-                                 (keydown)="$event.stopPropagation()"
-                                 class="quantity-input">
-                          <button class="quantity-btn increase"
-                                  (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
-                            <mat-icon>add</mat-icon>
-                          </button>
+                        <div class="quantity-controls-container">
+                          <div class="quantity-selector" [class.loading]="isItemLoading(item)">
+                            <button
+                              class="quantity-btn decrease"
+                              [disabled]="isItemLoading(item) || isTranslatingCart"
+                              (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
+                              <mat-icon>remove</mat-icon>
+                            </button>
+                            <input
+                              type="number"
+                              [value]="item.quantity"
+                              min="0"
+                              (change)="onQuantityChange($event, item)"
+                              (keydown)="$event.stopPropagation()"
+                              class="quantity-input"
+                              [disabled]="isItemLoading(item) || isTranslatingCart">
+                            <button
+                              class="quantity-btn increase"
+                              [disabled]="isItemLoading(item) || isTranslatingCart"
+                              (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
+                              <mat-icon>add</mat-icon>
+                            </button>
+                          </div>
+                          <div class="quantity-loading" *ngIf="isItemLoading(item)">
+                            <div class="spinner"></div>
+                          </div>
                         </div>
                       </div>
 
@@ -170,19 +220,30 @@
                   </div>
                 </ng-container>
 
+                <!-- Item Actions -->
                 <div class="item-actions">
-                  <button mat-icon-button class="btn-remove"
-                          (click)="removeItem(item.itemId); $event.stopPropagation()"
-                          [title]="'CART.REMOVE' | translate">
+                  <button
+                    mat-icon-button
+                    class="btn-remove"
+                    (click)="removeItem(item.itemId); $event.stopPropagation()"
+                    [title]="'CART.REMOVE' | translate"
+                    [disabled]="isTranslatingCart">
                     <mat-icon>delete_outline</mat-icon>
                   </button>
                 </div>
               </div>
 
+              <!-- Cart Footer -->
               <div class="cart-footer">
-                <div class="cart-total">{{ cart.totalPrice | currency:'USD':'symbol':'1.2-2' }}</div>
-                <button mat-flat-button color="primary"
-                        (click)="goToCart(); $event.stopPropagation()">{{ 'CART.VIEW_CART' | translate }}
+                <div class="cart-total">
+                  {{ cart.totalPrice | currency:'USD':'symbol':'1.2-2' }}
+                </div>
+                <button
+                  mat-flat-button
+                  color="primary"
+                  (click)="goToCart(); $event.stopPropagation()"
+                  [disabled]="isTranslatingCart">
+                  {{ 'CART.VIEW_CART' | translate }}
                 </button>
               </div>
             </div>
@@ -197,77 +258,123 @@
       </div>
     </div>
 
+    <!-- User Menu -->
     <div class="modern-user-menu-container">
-      <mat-menu #modernUserMenu="matMenu" panelClass="modern-user-menu-panel" class="modern-user-menu">
-        <div class="modern-menu-header" *ngIf="authService.isAuthenticated$ | async">
-          <div class="user-avatar">
-            <mat-icon>person</mat-icon>
-          </div>
-          <div class="user-info">
-            <h4>{{ (authService.currentUser$ | async)?.username || 'User' }}</h4>
-            <p>{{ (authService.currentUser$ | async)?.email || '' }}</p>
-          </div>
-        </div>
+      <mat-menu
+        #modernUserMenu="matMenu"
+        panelClass="modern-user-menu-panel"
+        class="modern-user-menu">
 
-        <div class="modern-menu-section"
-             *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_admin')">
+        <!-- Admin Section -->
+        <div
+          class="modern-menu-section admin-section"
+          *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_admin')">
           <h4 class="modern-section-title">{{ 'MENU.ADMIN.TITLE' | translate }}</h4>
-          <button mat-menu-item (click)="navigateToAdminCategories()" class="modern-menu-item">
+
+          <button
+            mat-menu-item
+            (click)="navigateToAdminCategories()"
+            class="modern-menu-item">
             <mat-icon>category</mat-icon>
             <span>{{ 'MENU.ADMIN.CATEGORIES' | translate }}</span>
           </button>
-          <button mat-menu-item (click)="navigateToAdminProducts()" class="modern-menu-item">
+
+          <button
+            mat-menu-item
+            (click)="navigateToAdminProducts()"
+            class="modern-menu-item">
             <mat-icon>inventory</mat-icon>
             <span>{{ 'MENU.ADMIN.PRODUCTS' | translate }}</span>
           </button>
-          <button mat-menu-item (click)="navigateToAdminMixtures()" class="modern-menu-item">
+
+          <button
+            mat-menu-item
+            (click)="navigateToAdminMixtures()"
+            class="modern-menu-item">
             <mat-icon>science</mat-icon>
             <span>{{ 'MENU.ADMIN.MIXTURES' | translate }}</span>
           </button>
-          <button mat-menu-item (click)="navigateToAdminTags()" class="modern-menu-item">
+
+          <button
+            mat-menu-item
+            (click)="navigateToAdminTags()"
+            class="modern-menu-item">
             <mat-icon>label</mat-icon>
             <span>{{ 'MENU.ADMIN.TAGS' | translate }}</span>
           </button>
-          <button mat-menu-item (click)="navigateToAdminCustomers()" class="modern-menu-item">
+
+          <button
+            mat-menu-item
+            (click)="navigateToAdminCustomers()"
+            class="modern-menu-item">
             <mat-icon>people</mat-icon>
             <span>{{ 'MENU.ADMIN.CUSTOMERS' | translate }}</span>
           </button>
-          <button mat-menu-item (click)="navigateToAdminOrders()" class="modern-menu-item">
+
+          <button
+            mat-menu-item
+            (click)="navigateToAdminOrders()"
+            class="modern-menu-item">
             <mat-icon>list_alt</mat-icon>
             <span>{{ 'MENU.ADMIN.ORDERS' | translate }}</span>
           </button>
-          <button mat-menu-item (click)="navigateToAdminConfiguration()" class="modern-menu-item">
-            <mat-icon>list_alt</mat-icon>
+
+          <button
+            mat-menu-item
+            (click)="navigateToAdminConfiguration()"
+            class="modern-menu-item">
+            <mat-icon>settings</mat-icon>
             <span>{{ 'MENU.ADMIN.CONFIGURATION' | translate }}</span>
           </button>
         </div>
 
-        <div class="modern-menu-section"
-             *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_client')">
+        <!-- Client Section -->
+        <div
+          class="modern-menu-section client-section"
+          *ngIf="(authService.isAuthenticated$ | async) && authService.hasRole('user_client')">
           <h4 class="modern-section-title">{{ 'MENU.CLIENT.TITLE' | translate }}</h4>
-          <button mat-menu-item (click)="navigateToProfile()" class="modern-menu-item">
+
+          <button
+            mat-menu-item
+            (click)="navigateToProfile()"
+            class="modern-menu-item">
             <mat-icon>account_circle</mat-icon>
             <span>{{ 'MENU.CLIENT.PROFILE' | translate }}</span>
           </button>
-          <button mat-menu-item (click)="navigateToOrders()" class="modern-menu-item">
-            <mat-icon>list_alt</mat-icon>
-            <span>{{ 'MENU.ADMIN.ORDERS' | translate }}</span>
+
+          <button
+            mat-menu-item
+            (click)="navigateToOrders()"
+            class="modern-menu-item">
+            <mat-icon>receipt_long</mat-icon>
+            <span>{{ 'MENU.CLIENT.ORDERS' | translate }}</span>
           </button>
-          <button mat-menu-item (click)="logout()" class="modern-menu-item logout-item">
+
+          <button
+            mat-menu-item
+            (click)="logout()"
+            class="modern-menu-item logout-item">
             <mat-icon>logout</mat-icon>
             <span>{{ 'MENU.LOGOUT' | translate }}</span>
           </button>
         </div>
       </mat-menu>
 
-      <button *ngIf="authService.isAuthenticated$ | async; else modernLoginBtn"
-              [matMenuTriggerFor]="modernUserMenu"
-              mat-icon-button
-              class="modern-user-button">
+      <!-- User Button - Logged In -->
+      <button
+        *ngIf="authService.isAuthenticated$ | async; else modernLoginBtn"
+        [matMenuTriggerFor]="modernUserMenu"
+        mat-icon-button
+        class="modern-user-button logged-in">
         <mat-icon>person</mat-icon>
       </button>
+
+      <!-- User Button - Anonymous -->
       <ng-template #modernLoginBtn>
-        <button (click)="onUserIconClick()" mat-icon-button class="modern-user-button">
+        <button
+          (click)="onUserIconClick()"
+          mat-icon-button
+          class="modern-user-button anonymous">
           <mat-icon>person</mat-icon>
         </button>
       </ng-template>
@@ -275,5 +382,10 @@
   </div>
 </mat-toolbar>
 
+<!-- Popups and Overlays -->
 <app-auth-popup (closePopup)="closeAuthPopup()" *ngIf="isPopupOpen"></app-auth-popup>
-<div class="search-backdrop" *ngIf="isSearchFocused" (click)="onSearchBackdropClick()"></div>
+<div
+  class="search-backdrop"
+  *ngIf="isSearchFocused"
+  (click)="onSearchBackdropClick()">
+</div>

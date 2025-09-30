@@ -1,16 +1,16 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewChild} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {NavigationStart, Router} from '@angular/router';
 import {Observable, Subject, Subscription} from 'rxjs';
-import {debounceTime} from 'rxjs/operators';
+import {debounceTime, map} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {HttpClient} from '@angular/common/http';
 import {SearchResultDTO} from '../../dto/search/search-result-dto';
 import {CartItem, CartService} from '../../services/cart.service';
-import {AuthService} from '../../auth/auth.service';
+import {AuthService} from '../../services/auth.service';
 import {SearchService} from '../../services/search.service';
 import {ResponseCategoryDTO} from '../../dto/category/response-category-dto';
 import {ResponseProductDTO} from '../../dto/product/response-product-dto';
@@ -22,6 +22,10 @@ import {CustomerService} from '../../services/customer.service';
 import {ResponseLocaleDto} from '../../dto/configuration/response-locale-dto';
 import {ConfigurationService} from '../../services/configuration.service';
 import {LocaleMapperService} from '../../services/locale-mapper.service';
+import {isPlatformBrowser} from '@angular/common';
+import {ProductService} from '../../services/product.service';
+import {CartItemType} from '../../dto/cart/cart-item-type';
+import {MixtureService} from '../../services/mixture.service';
 
 @Component({
   selector: 'app-header',
@@ -48,6 +52,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isLoadingCart = true;
   private cartSubscription!: Subscription;
   private routerSubscription!: Subscription;
+  isTranslatingCart = false;
 
   @ViewChild('cartButton', {read: ElementRef}) cartButtonRef!: ElementRef<HTMLElement>;
 
@@ -65,7 +70,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private configurationService: ConfigurationService,
     private localeMapperService: LocaleMapperService,
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private productService: ProductService,
+    private mixtureService: MixtureService,
   ) {
+    // Initialize the cart item count observable
+    this.totalCartItemCount$ = this.cartService.cart$.pipe(
+      map(cart => {
+        if (!cart || !cart.items) return 0;
+        return cart.items.reduce((total, item) => total + item.quantity, 0);
+      })
+    );
   }
 
   ngOnInit(): void {
@@ -100,6 +115,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           const selected = this.languages.find(l => l.languageCode === lang);
           if (selected) {
             this.selectedLanguage = selected;
+            this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
           }
         });
       }
@@ -120,6 +136,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.languages = settings.usedLocales && settings.usedLocales.length > 0
           ? settings.usedLocales
           : [settings.defaultLocale];
+        if (isPlatformBrowser(this.platformId)) {
+          const cachedLangCode = localStorage.getItem('preferredLanguage');
+          if (cachedLangCode) {
+            const cachedLang = this.languages.find(l => l.languageCode === cachedLangCode);
+            if (cachedLang) {
+              this.selectedLanguage = cachedLang;
+              this.translate.use(cachedLang.languageCode);
+              this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
+              return; // ✅ stop here, no need to go further
+            }
+          }
+        }
 
         const userId = this.authService.getUserId();
         const token = this.authService.token;
@@ -127,9 +155,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (userId && token) {
           this.setPreferredLanguageForUser(this.languages);
         } else {
-
           this.selectedLanguage = settings.defaultLocale;
           this.translate.use(settings.defaultLocale.languageCode);
+          this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
         }
       },
       error: (err) => console.error('Failed to load app settings:', err)
@@ -143,21 +171,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (!userId || !token) return;
 
     this.http.get<Customer>(`http://localhost:8080/api/customers/v1/${userId}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: {'Authorization': `Bearer ${token}`}
     }).subscribe({
       next: (customer: Customer) => {
         const lang = locales.find(l => l.id === customer.preferredLanguageId)
           || locales[0];
         this.selectedLanguage = lang;
         this.translate.use(lang.languageCode);
+        this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
+
+        // 🔹 NEW CODE: Save into local cache
+        localStorage.setItem('preferredLanguage', lang.languageCode);
       },
       error: () => {
         this.selectedLanguage = locales[0];
         this.translate.use(locales[0].languageCode);
+        this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
+
+        // 🔹 NEW CODE: Save fallback into cache
+        localStorage.setItem('preferredLanguage', locales[0].languageCode);
       }
     });
   }
-
 
   changeLanguage(code: string): void {
     const lang = this.languages.find(l => l.languageCode === code);
@@ -165,12 +200,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.selectedLanguage = lang;
     this.translate.use(lang.languageCode);
+    this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
+
+    // 🔹 NEW CODE: Save chosen language into local cache
+    localStorage.setItem('preferredLanguage', lang.languageCode);
 
     if (this.authService.isTokenValid()) {
       this.persistUserLanguage(lang.languageCode);
     }
+    window.location.reload();
   }
-
 
   private persistUserLanguage(languageCode: string): void {
     const userId = this.authService.getUserId();
@@ -192,11 +231,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
-
   private setLanguage(code: string) {
     const lang = this.languages.find(l => l.languageCode === code) || this.languages[0];
     this.selectedLanguage = lang;
     this.translate.use(lang.languageCode);
+    this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
   }
 
   onSearchChange(): void {
@@ -239,13 +278,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isSearchFocused = false;
     this.router.navigate([`/tags/${tag.id}`]);
   }
-
-  // private setDefaultBrowserLanguage(usedLocales: ResponseLocaleDto[]) {
-  //   const browserLang = (navigator.language || 'de').split('-')[0];
-  //   const lang = usedLocales.find(l => l.languageCode === browserLang) || usedLocales[0];
-  //   if (lang) this.selectedLanguage = lang;
-  //   if (lang) this.translate.use(lang.languageCode);
-  // }
 
   navigateToRoot(): void {
     this.router.navigate(['/']);
@@ -299,6 +331,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   onCartButtonMouseEnter(): void {
     this.cancelCloseCartPreview();
     this.isCartPreviewOpen = true;
+    this.translateCartItems();
   }
 
   onCartButtonMouseLeave(): void {
@@ -307,6 +340,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   onCartPreviewMouseEnter(): void {
     this.cancelCloseCartPreview();
+    this.translateCartItems();
   }
 
   onCartPreviewMouseLeave(): void {
@@ -427,12 +461,55 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   goToProductFromCart(product: ResponseProductDTO): void {
-    this.router.navigate([`/products/${product.id}`]);
+    const slug = this.productService.slugify(product.translatedName);
+    this.router.navigate([`/products/${product.id}/${slug}`]);
   }
 
   onLanguageMenuOpened() {
     this.languages.forEach(lang => {
       lang.translatedName = this.localeMapperService.mapLocale(lang.languageCode, lang.regionCode);
     });
+  }
+
+  private translateCartItems(): void {
+    if (this.isTranslatingCart) return;
+
+    this.isTranslatingCart = true;
+    const currentCart = this.cartService.getCurrentCartValue();
+
+    if (!currentCart?.items) {
+      this.isTranslatingCart = false;
+      return;
+    }
+
+    // Use setTimeout to allow the UI to update
+    setTimeout(() => {
+      currentCart.items.forEach(item => {
+        if (item.cartItemType === CartItemType.PRODUCT && item.product) {
+          item.product.translatedName = this.productService.getLocalizedName(item.product);
+        } else if (item.cartItemType === CartItemType.MIXTURE && item.mixture) {
+          if (Object.keys(item.mixture.localizedFields || {}).length === 0) {
+            item.mixture.translatedName = item.mixture.name;
+          } else {
+            item.mixture.translatedName = this.mixtureService.getLocalizedName(item.mixture);
+          }
+        }
+      });
+      this.isTranslatingCart = false;
+    }, 0);
+  }
+
+  get cartItemsWithDetails(): CartItem[] {
+    const currentCart = this.cartService.getCurrentCartValue();
+    return currentCart?.items || [];
+  }
+
+  getTranslatedItemName(item: CartItem): string {
+    if (item.cartItemType === CartItemType.PRODUCT && item.product) {
+      return item.product.translatedName || 'Unknown Product';
+    } else if (item.cartItemType === CartItemType.MIXTURE && item.mixture) {
+      return item.mixture.translatedName || item.mixture.name || 'Unknown Mixture';
+    }
+    return 'Unknown Item';
   }
 }

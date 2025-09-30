@@ -8,6 +8,7 @@ import {ProductService} from '../../../services/product.service';
 import {FormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {TagService} from '../../../services/tag.service';
 
 @Component({
   selector: 'app-products-admin-list',
@@ -22,14 +23,15 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
   error: string | null = null;
   activeSlideIndices: number[] = [];
   searchControl = new FormControl('');
-  activeSeControl = new FormControl(true);
+  activeSeControl = new FormControl(false);
   private intervals: any[] = [];
 
   constructor(
     private productService: ProductService,
     private router: Router,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private tagService: TagService
   ) {
   }
 
@@ -54,7 +56,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
     const onlyActive = this.activeSeControl.value;
 
     this.filteredProducts = this.products.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchValue);
+      const matchesSearch = product.translatedName.toLowerCase().includes(searchValue);
       const matchesActive = onlyActive ? product.active === true : true;
       return matchesSearch && matchesActive;
     });
@@ -73,6 +75,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
         this.products = data;
         this.filteredProducts = [...this.products];
         this.initializeCarousels();
+        this.translateProducts()
         this.isLoading = false;
         this.error = null;
       },
@@ -86,6 +89,8 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
   initializeCarousels(): void {
     this.activeSlideIndices = [];
     this.filteredProducts.forEach((product, idx) => {
+      if (!product.media || product.media.length < 1)
+        return;
       this.activeSlideIndices[idx] = 0;
       const mediaCount = product.media?.length || 0;
       this.startCarousel(idx, mediaCount);
@@ -94,6 +99,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
 
   startCarousel(productIndex: number, mediaCount: number): void {
     if (mediaCount <= 1) return;
+    if (this.intervals[productIndex]) clearInterval(this.intervals[productIndex]);
     this.intervals[productIndex] = setInterval(() => {
       this.nextSlide(productIndex, mediaCount);
     }, 5000);
@@ -107,7 +113,9 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
   setActiveSlide(productIndex: number, slideIndex: number): void {
     this.activeSlideIndices[productIndex] = slideIndex;
     clearInterval(this.intervals[productIndex]);
-    this.startCarousel(productIndex, this.filteredProducts[productIndex].media.length);
+
+    const mediaCount = this.filteredProducts[productIndex].media?.length || 0;
+    this.startCarousel(productIndex, mediaCount);
   }
 
   trackById(_idx: number, item: ResponseProductDTO): number {
@@ -151,6 +159,19 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
         this.snackBar.open('Product deleted successfully.', 'Close', {duration: 3000});
       },
       error: err => console.error('Delete failed:', err)
+    });
+  }
+
+  private translateProducts() {
+    this.products.forEach(product => {
+      product.translatedName = this.productService.getLocalizedName(product);
+      product.translatedDescription = this.productService.getLocalizedDescription(product);
+      product.translatedUrl = this.productService.getLocalizedUrl(product);
+      product.responseTagDTOS.forEach(tag => {
+        this.tagService.getTagById(tag.id).subscribe(responseTagDTO => {
+          tag.translatedName = this.tagService.getLocalizedName(responseTagDTO);
+        });
+      });
     });
   }
 }

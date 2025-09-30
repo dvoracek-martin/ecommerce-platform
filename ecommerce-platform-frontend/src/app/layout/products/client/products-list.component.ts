@@ -4,6 +4,7 @@ import {ProductService} from '../../../services/product.service';
 import {Router} from '@angular/router';
 import {CartService} from '../../../services/cart.service';
 import {CartItemType} from '../../../dto/cart/cart-item-type';
+import {TagService} from '../../../services/tag.service';
 
 @Component({
   selector: 'app-products-list',
@@ -21,7 +22,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private cartService: CartService,
-    private router: Router
+    private router: Router,
+    private tagService: TagService
   ) {}
 
   ngOnInit(): void {
@@ -36,6 +38,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.products = data;
         this.initializeCarousels();
+        this.translateProducts()
         this.isLoading = false;
       },
       error: (err) => {
@@ -54,10 +57,11 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     });
   }
 
-  startCarousel(index: number, mediaCount: number): void {
+  startCarousel(productIndex: number, mediaCount: number): void {
     if (mediaCount <= 1) return;
-    this.intervals[index] = setInterval(() => {
-      this.nextSlide(index, mediaCount);
+    if (this.intervals[productIndex]) clearInterval(this.intervals[productIndex]);
+    this.intervals[productIndex] = setInterval(() => {
+      this.nextSlide(productIndex, mediaCount);
     }, 5000);
   }
 
@@ -95,20 +99,24 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   }
 
   goToProduct(product: ResponseProductDTO) {
-    const slug = this.slugify(product.name);
+    const slug = this.productService.slugify(product.translatedName);
     this.router.navigate([`/products/${product.id}/${slug}`]);
-  }
-
-  private slugify(text: string): string {
-    return text
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/--+/g, '-');
   }
 
   navigateHome() {
     this.router.navigate(['/']);
+  }
+
+  private translateProducts() {
+    this.products.forEach(product => {
+      product.translatedName = this.productService.getLocalizedName(product);
+      product.translatedDescription = this.productService.getLocalizedDescription(product);
+      product.translatedUrl = this.productService.getLocalizedUrl(product);
+      product.responseTagDTOS.forEach(tag => {
+        this.tagService.getTagById(tag.id).subscribe(responseTagDTO => {
+          tag.translatedName = this.tagService.getLocalizedName(responseTagDTO);
+        });
+      });
+    });
   }
 }

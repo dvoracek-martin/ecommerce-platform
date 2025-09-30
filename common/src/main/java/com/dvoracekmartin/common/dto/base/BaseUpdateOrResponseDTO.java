@@ -1,28 +1,29 @@
 package com.dvoracekmartin.common.dto.base;
 
 import com.dvoracekmartin.common.dto.media.MediaDTO;
-import jakarta.validation.constraints.NotBlank;
+import com.dvoracekmartin.common.event.translation.LocalizedField;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.Map;
 
+@EqualsAndHashCode()
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
 public abstract class BaseUpdateOrResponseDTO {
 
+
     @NotNull
     private Long id;
 
-    @NotBlank
-    private String name;
-
-    private String description;
+    Map<String, LocalizedField> localizedFields;
 
     private int priority;
 
@@ -30,6 +31,4 @@ public abstract class BaseUpdateOrResponseDTO {
 
     private List<MediaDTO> media;
 
-    @NotBlank
-    private String url;
 }

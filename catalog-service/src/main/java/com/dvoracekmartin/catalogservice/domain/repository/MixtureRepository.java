@@ -11,7 +11,7 @@ import java.util.Collection;
 @Repository
 public interface MixtureRepository extends JpaRepository<Mixture, Long> {
 
-    boolean existsByName(@NotBlank @Size(min = 3) String name);
+//    boolean existsByName(@NotBlank @Size(min = 3) String name);
 
     Collection<Mixture> findAllByActiveTrueAndDisplayInProductsTrue();
 }

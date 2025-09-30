@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from './auth.service';
 import { ResponseOrderDTO } from '../dto/order/response-order-dto';
 import { UpdateOrderDTO } from '../dto/order/update-order-dto';
 

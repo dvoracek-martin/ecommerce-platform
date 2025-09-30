@@ -6,7 +6,7 @@
       <div class="admin-header-section" *ngIf="product">
         <div class="admin-header-content">
           <div class="admin-title-section">
-            <h1>{{ product.name | translate }}</h1>
+            <h1>{{ product.translatedName }}</h1>
             <p class="admin-subtitle">{{ 'PRODUCTS.ADMIN_SUBTITLE.CREATE' | translate }}</p>
           </div>
         </div>
@@ -39,7 +39,7 @@
               <div class="carousel-slides" [style.transform]="'translateX(' + (-activeSlideIndex * 100) + '%)'">
                 <div *ngFor="let media of product.media; let i = index" class="slide">
                   <img *ngIf="media.contentType?.startsWith('image/')"
-                       [alt]="product.name"
+                       [alt]="product.translatedName"
                        [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
                        class="product-image"/>
                   <video *ngIf="media.contentType?.startsWith('video/')"
@@ -76,12 +76,12 @@
           <!-- Text content wrapping around image -->
           <div class="text-content">
             <!-- Description -->
-            <div *ngIf="product.description">
+            <div *ngIf="product.translatedDescription">
               <h3>
                 <mat-icon>description</mat-icon>
                 Description
               </h3>
-              <p>{{ product.description }}</p>
+              <p>{{ product.translatedDescription }}</p>
             </div>
 
             <mat-divider></mat-divider>
@@ -109,7 +109,7 @@
               <div *ngIf="product.responseTagDTOS?.length">
                 <div class="tags-container">
                   <span *ngFor="let tag of product.responseTagDTOS" class="tag">
-                    {{ tag.name }}
+                    {{ tag.translatedName }}
                   </span>
                 </div>
               </div>
@@ -119,6 +119,7 @@
           </div>
         </div>
       </div>
+
 
       <!-- Back button at bottom -->
       <div *ngIf="product" class="actions-section">
@@ -152,7 +153,7 @@
     <div class="gallery-main-image">
       <img *ngIf="product?.media[activeSlideIndex]?.contentType?.startsWith('image/')"
            [src]="'data:' + product.media[activeSlideIndex].contentType + ';base64,' + product.media[activeSlideIndex].base64Data"
-           [alt]="product.name"
+           [alt]="product.translatedName"
            class="gallery-image"/>
       <video *ngIf="product?.media[activeSlideIndex]?.contentType?.startsWith('video/')"
              [muted]="true"

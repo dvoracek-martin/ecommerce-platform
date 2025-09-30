@@ -4,7 +4,6 @@ import {RouterModule, Routes} from '@angular/router';
 import {AuthGuard} from './auth/auth.guard';
 import {WelcomeComponent} from './layout/welcome/welcome.component';
 import {UserRegistrationComponent} from './auth/user-registration/user-registration.component';
-import {ResetPasswordComponent} from './auth/reset-password/reset-password.component';
 import {CustomersComponent} from './layout/customers/client/customers.component';
 import {ProductsListComponent} from './layout/products/client/products-list.component';
 import {MixingComponent} from './layout/mixing/client/mixing.component';
@@ -36,6 +35,7 @@ import {CustomersAdminDetailComponent} from './layout/customers/admin/customers-
 import {
   ConfigurationAdminComponent
 } from './layout/configuration/admin/configuration-admin/configuration-admin.component';
+import {ResetPasswordComponent} from './auth/reset-password/reset-password.component';
 
 const routes: Routes = [
   {path: '', component: WelcomeComponent},

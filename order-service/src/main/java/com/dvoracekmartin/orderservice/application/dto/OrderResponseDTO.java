@@ -3,10 +3,12 @@ package com.dvoracekmartin.orderservice.application.dto;
 import com.dvoracekmartin.common.dto.cart.CartItemDTO;
 import com.dvoracekmartin.orderservice.application.utils.OrderStatus;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@EqualsAndHashCode()
 @Data
 public class OrderResponseDTO {
     private Long id;

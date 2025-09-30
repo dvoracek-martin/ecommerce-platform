@@ -1,11 +1,12 @@
-import { Component, OnDestroy, OnInit, HostListener } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ProductService } from '../../../services/product.service';
-import { CartService } from '../../../services/cart.service';
-import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
-import { CartItemType } from '../../../dto/cart/cart-item-type';
-import { switchMap } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
+import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ProductService} from '../../../services/product.service';
+import {CartService} from '../../../services/cart.service';
+import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
+import {CartItemType} from '../../../dto/cart/cart-item-type';
+import {switchMap} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
+import {TagService} from '../../../services/tag.service';
 
 @Component({
   selector: 'app-products-detail',
@@ -26,8 +27,10 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
-    private cartService: CartService
-  ) { }
+    private cartService: CartService,
+    private tagService: TagService
+  ) {
+  }
 
   ngOnInit(): void {
     this.routeSub = this.route.paramMap.pipe(
@@ -45,10 +48,11 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.product = data;
         this.loading = false;
-
+        this.translateProduct();
+        this.translateTags();
         // Slug for SEO
         const slugParam = this.route.snapshot.paramMap.get('slug');
-        const correctSlug = this.product ? this.slugify(this.product.name) : '';
+        const correctSlug = this.product ? this.slugify(this.product.translatedName) : '';
         if (slugParam !== correctSlug) {
           this.router.navigate([`/products/${this.product?.id}/${correctSlug}`], { replaceUrl: true });
         }
@@ -74,7 +78,8 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   }
 
   startCarousel() {
-    if (!this.product?.media || this.product.media.length <= 1) return;
+    if (!this.product?.media || this.product.media.length < 1) return;
+    if (this.interval) clearInterval(this.interval);
     this.interval = setInterval(() => this.nextSlide(), 5000);
   }
 
@@ -134,5 +139,24 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.interval) clearInterval(this.interval);
     if (this.routeSub) this.routeSub.unsubscribe();
+  }
+
+  private translateProduct() {
+    this.product.translatedName = this.productService.getLocalizedName(this.product);
+    this.product.translatedDescription = this.productService.getLocalizedDescription(this.product);
+    this.product.translatedUrl = this.productService.getLocalizedUrl(this.product);
+    this.product.responseTagDTOS.forEach(tag => {
+      this.tagService.getTagById(tag.id).subscribe(responseTagDTO => {
+        tag.translatedName = this.tagService.getLocalizedName(responseTagDTO);
+      });
+    });
+  }
+
+  private translateTags() {
+    this.product.responseTagDTOS.forEach(tags => {
+      tags.translatedName = this.tagService.getLocalizedName(tags);
+      tags.translatedDescription = this.tagService.getLocalizedDescription(tags);
+      tags.translatedUrl = this.tagService.getLocalizedUrl(tags);
+    });
   }
 }

@@ -7,4 +7,6 @@ export interface CreateMixtureDTO extends BaseCreateDTO {
   productIds?: number[];
   tagIds?: number[];
   displayInProducts: boolean;
+  // for user defined mixtures
+  name: string;
 }

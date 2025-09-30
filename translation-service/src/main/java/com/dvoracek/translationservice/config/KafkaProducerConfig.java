@@ -14,14 +14,15 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @Configuration
 public class KafkaProducerConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${global.kafka.topics.translations.configuration-request}")
-    private String configurationRequestTopic;
+    @Value("${global.kafka.topics.translations.translation-response}")
+    private String translationReplyTopic;
 
     @Bean
     public Map<String, Object> producerConfigs() {
@@ -43,7 +44,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public NewTopic userCreatedTopic() {
-        return new NewTopic(configurationRequestTopic, 3, (short) 1);
+    public NewTopic inventoryResponseTopic() {
+        return new NewTopic(translationReplyTopic, 3, (short) 1);
     }
 }

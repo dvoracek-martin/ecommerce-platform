@@ -1,26 +1,28 @@
-
 package com.dvoracekmartin.common.dto.product;
 
 import com.dvoracekmartin.common.dto.base.BaseUpdateOrResponseDTO;
 import com.dvoracekmartin.common.dto.media.MediaDTO;
 import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
+import com.dvoracekmartin.common.event.translation.LocalizedField;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Map;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ResponseProductDTO extends BaseUpdateOrResponseDTO {
 
+    boolean mixable;
     private Double price;
     private Double weightGrams;
     private List<ResponseTagDTO> responseTagDTOS;
     private Long categoryId;
-    boolean mixable;
     private boolean displayInProducts;
 
     public ResponseProductDTO(Long id,
-                              String name,
-                              String description,
+                              Map<String, LocalizedField> localizedFields,
                               int priority,
                               boolean active,
                               List<MediaDTO> media,
@@ -29,10 +31,9 @@ public class ResponseProductDTO extends BaseUpdateOrResponseDTO {
                               Double price,
                               Double weightGrams,
                               boolean mixable,
-                              boolean displayInProducts,
-                              String url
+                              boolean displayInProducts
     ) {
-        super(id, name, description, priority, active, media, url);
+        super(id, localizedFields, priority, active, media);
         this.responseTagDTOS = responseTagDTOS;
         this.categoryId = categoryId;
         this.price = price;

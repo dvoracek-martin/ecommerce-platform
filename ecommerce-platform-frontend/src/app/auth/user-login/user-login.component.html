@@ -1,10 +1,14 @@
 <div class="login-container">
-  <form (ngSubmit)="onSubmit()" [formGroup]="loginForm" class="form-grid">
+  <form (ngSubmit)="onSubmit()" [formGroup]="loginForm" class="login-form">
     <!-- Email Field -->
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" class="form-field-minimal">
       <mat-label>{{ 'USER_REGISTRATION.EMAIL' | translate }}</mat-label>
-      <input [placeholder]="'LOGIN.ENTER_EMAIL' | translate" formControlName="email" matInput
-             type="email">
+      <input
+        [placeholder]="'LOGIN.ENTER_EMAIL' | translate"
+        formControlName="email"
+        matInput
+        type="email">
+      <mat-icon matSuffix>email</mat-icon>
       <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
         {{ 'USER_REGISTRATION.EMAIL_REQUIRED' | translate }}
       </mat-error>
@@ -14,20 +18,44 @@
     </mat-form-field>
 
     <!-- Password Field -->
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" class="form-field-minimal">
       <mat-label>{{ 'USER_REGISTRATION.PASSWORD' | translate }}</mat-label>
-      <input [placeholder]="'LOGIN.ENTER_PASSWORD' | translate" formControlName="password" matInput
-             type="password">
+      <input
+        [placeholder]="'LOGIN.ENTER_PASSWORD' | translate"
+        formControlName="password"
+        matInput
+        [type]="hidePassword ? 'password' : 'text'">
+      <button
+        mat-icon-button
+        matSuffix
+        (click)="hidePassword = !hidePassword"
+        type="button">
+        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
       <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
         {{ 'USER_REGISTRATION.PASSWORD_REQUIRED' | translate }}
       </mat-error>
     </mat-form-field>
 
     <!-- Submit Button -->
-    <button [disabled]="loading || loginForm.invalid" class="full-width" color="primary" mat-raised-button
-            type="submit">
-      {{ loading ? ('LOGIN.LOGGING_IN' | translate) : ('LOGIN.LOGIN' | translate) }}
+    <button
+      [disabled]="loading || loginForm.invalid"
+      class="login-submit-btn"
+      mat-raised-button
+      type="submit">
+      <div class="btn-content">
+        <div class="spinner-small" *ngIf="loading"></div>
+        <span class="btn-text">
+          {{ loading ? ('LOGIN.LOGGING_IN' | translate) : ('LOGIN.LOGIN' | translate) }}
+        </span>
+      </div>
     </button>
-    <mat-progress-bar *ngIf="loading" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
+
+    <!-- Progress Bar -->
+    <mat-progress-bar
+      *ngIf="loading"
+      class="login-progress"
+      mode="indeterminate">
+    </mat-progress-bar>
   </form>
 </div>

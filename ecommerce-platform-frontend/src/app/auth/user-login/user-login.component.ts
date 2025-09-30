@@ -1,9 +1,12 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
+import { Subject } from 'rxjs';
+import { CustomerService } from '../../services/customer.service';
+import { HeaderComponent } from '../../layout/header/header.component';
 
 @Component({
   selector: 'app-user-login',
@@ -11,25 +14,32 @@ import { CartService } from '../../services/cart.service';
   standalone: false,
   styleUrls: ['./user-login.component.scss']
 })
-export class UserLoginComponent {
+export class UserLoginComponent implements OnDestroy {
   @Output() loginSuccess = new EventEmitter<void>();
   loginForm: FormGroup;
   loading = false;
+  hidePassword = true;
 
-  private readonly keycloakTokenUrl = 'http://localhost:9090/realms/ecommerce-platform/protocol/openid-connect/token';
-  private readonly clientId = 'ecommerce-platform-client';
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
     private snackBar: MatSnackBar,
     private authService: AuthService,
-    private cartService: CartService
+    private cartService: CartService,
+    private headerComponent: HeaderComponent,
+    private customerService: CustomerService
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onSubmit(): void {
@@ -42,22 +52,25 @@ export class UserLoginComponent {
     const { email, password } = this.loginForm.value;
 
     this.authService.login(email, password).subscribe({
-      next: () => {
-        this.loginSuccess.emit();
+      next: () => this.handleLoginSuccess(),
+      error: (err) => this.handleLoginError(err)
+    });
+  }
 
-        // Merge cart after successful login
-        this.cartService.mergeGuestCart().subscribe({
-          next: () => {
-            this.snackBar.open('Guest cart merged successfully.', 'Close', { duration: 5000 });
-          },
-          error: () => {
-            this.snackBar.open('Login successful, but failed to merge guest cart.', 'Close', { duration: 5000 });
-          }
-        });
-      },
-      error: () => {
-        // Error handling is already done in the AuthService
-      }
-    }).add(() => this.loading = false);
+  private handleLoginSuccess(): void {
+    this.loginSuccess.emit();
+
+    this.cartService.mergeGuestCart().subscribe({
+      next: () => console.log('Cart merged'),
+      error: () => console.log('Cart merge failed')
+    });
+
+    this.headerComponent.ngOnInit();
+    this.loading = false;
+  }
+
+  private handleLoginError(err: any): void {
+    this.snackBar.open('Login failed. Please check your credentials.', 'Close', { duration: 5000 });
+    this.loading = false;
   }
 }

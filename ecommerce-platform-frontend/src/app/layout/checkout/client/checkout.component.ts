@@ -1,7 +1,7 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {AuthService} from '../../../auth/auth.service';
+import {AuthService} from '../../../services/auth.service';
 import {CartItem, CartService} from '../../../services/cart.service';
 import {OrderService} from '../../../services/order.service';
 import {HttpClient} from '@angular/common/http';
@@ -373,6 +373,7 @@ export class CheckoutComponent implements OnInit {
     ).subscribe((itemsWithDetails: any[]) => {
       if (!this.isCartEmpty) {
         this.cartItems = itemsWithDetails as CartItemWithDetails[];
+        this.translateCartItems()
         // Recalculate total after loading details
         this.cartTotal = this.calculateCartTotal(this.cartItems);
         this.shippingCost = this.cartTotal > 50 ? 0 : 9.99;
@@ -416,8 +417,10 @@ export class CheckoutComponent implements OnInit {
     const item = this.cartItems[index];
     const newQuantity = item.quantity + change;
 
-    if (newQuantity >= 1) {
+    if (newQuantity > 0) {
       this.updateItemQuantity(item, newQuantity);
+    } else {
+      this.removeItem(item.itemId, item.cartItemType);
     }
   }
 
@@ -700,5 +703,26 @@ export class CheckoutComponent implements OnInit {
       this.translate.instant('COMMON.CLOSE'),
       {duration: 5000}
     );
+  }
+
+  private translateCartItems() {
+    this.cartItems.forEach(cartItem => {
+      if (cartItem.cartItemType === CartItemType.PRODUCT && cartItem.product) {
+        cartItem.product.translatedName = this.productService.getLocalizedName(cartItem.product);
+      } else if (cartItem.cartItemType === CartItemType.MIXTURE && cartItem.mixture) {
+        console.log(cartItem.mixture);
+        if (Object.keys(cartItem.mixture.localizedFields).length === 0) {
+          // customer-created mixtures don't have localized fields
+          cartItem.mixture.translatedName = cartItem.mixture.name;
+        } else {
+          cartItem.mixture.translatedName = this.mixtureService.getLocalizedName(cartItem.mixture);
+        }
+        cartItem.mixture.products.forEach(product => {
+          this.productService.getProductById(product.id).subscribe( responseProductDTO=>{
+            product.translatedName = this.productService.getLocalizedName(responseProductDTO);
+          })
+        });
+      }
+    });
   }
 }

@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AbstractControl, FormBuilder, FormGroup, FormGroupDirective, ValidatorFn, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
-import {AuthService} from '../../../auth/auth.service';
+import {AuthService} from '../../../services/auth.service';
 import {Router} from '@angular/router';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
@@ -247,13 +247,13 @@ export class CustomersComponent implements OnInit, OnDestroy {
     const userId = this.authService.getUserId();
     const token = this.authService.token;
 
-    if (userId && token) {
-      this.http.get<Customer>(`http://localhost:8080/api/customers/v1/${userId}`, {
-        headers: {'Authorization': `Bearer ${token}`}
-      }).pipe(takeUntil(this.destroy$)).subscribe({
-        next: customer => this.handleCustomerDataSuccess(customer),
-        error: err => this.handleError(err)
-      });
+    if (userId) {
+      this.customerService.getById(userId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: customer => this.handleCustomerDataSuccess(customer),
+          error: err => this.handleError(err)
+        });
     }
   }
 

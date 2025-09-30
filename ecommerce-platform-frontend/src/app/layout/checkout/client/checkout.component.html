@@ -192,7 +192,9 @@
                   </mat-checkbox>
                 </div>
 
-                <div *ngIf="showBillingAddress" class="billing-address-section">
+                <div *ngIf="showBillingAddress"
+                     @slideDown
+                     class="billing-address-section">
                   <h3 class="section-subtitle">
                     <mat-icon>business</mat-icon>
                     {{ 'CHECKOUT.BILLING_ADDRESS' | translate }}
@@ -385,22 +387,23 @@
                     <div class="item-media">
                       <img *ngIf="item.product?.media?.[0]"
                            [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
-                           [alt]="item.product.name">
+                           [alt]="item.product.translatedName">
                       <div *ngIf="!item.product?.media?.[0]" class="no-image">
                         <span class="material-icons">inventory_2</span>
                       </div>
                     </div>
                     <div class="item-info">
                       <div class="item-header">
-                        <div class="item-name">{{ item.product?.name || item.mixture?.name }}</div>
+                        <div class="item-name">{{ item.product?.translatedName || item.mixture?.translatedName }}</div>
                       </div>
 
                       <div class="item-controls">
                         <div class="item-quantity">
                           <label>{{ 'CART.QUANTITY' | translate }}:</label>
                           <div class="quantity-controls-container">
+
                             <div class="quantity-selector">
-                              <button class="quantity-btn decrease" (click)="changeQuantity(i, -1)" [disabled]="item.quantity === 1">
+                              <button class="quantity-btn decrease" (click)="changeQuantity(i, -1)" [disabled]="item.quantity < 0 || item.updating">
                                 <span class="material-icons">remove</span>
                               </button>
                               <input type="number" [value]="item.quantity" min="1" (change)="onQuantityInputChange($event, i)" class="quantity-input">
@@ -466,10 +469,13 @@
               </div>
 
               <div class="terms-section">
-                <mat-checkbox formControlName="agreeToTerms" class="terms-checkbox">
-                </mat-checkbox>
-                {{ 'CHECKOUT.AGREE_TO_TERMS' | translate }}
-                <span class="terms-link" (click)="openTermsModal()">{{ 'CHECKOUT.TERMS_AND_CONDITIONS' | translate }}</span>
+                <mat-checkbox formControlName="agreeToTerms" class="terms-checkbox"></mat-checkbox>
+                <div class="terms-text">
+                  {{ 'CHECKOUT.AGREE_TO_TERMS' | translate }}
+                  <span class="terms-link" (click)="openTermsModal()">
+      {{ 'CHECKOUT.TERMS_AND_CONDITIONS' | translate }}
+    </span>
+                </div>
                 <mat-error *ngIf="customerForm.get('agreeToTerms')?.invalid && customerForm.get('agreeToTerms')?.dirty">
                   {{ 'CHECKOUT.TERMS_REQUIRED' | translate }}
                 </mat-error>

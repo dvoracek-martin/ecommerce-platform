@@ -2,13 +2,16 @@ package com.dvoracekmartin.catalogservice.application.dto.product;
 
 import com.dvoracekmartin.common.dto.base.BaseUpdateOrResponseDTO;
 import com.dvoracekmartin.common.dto.media.MediaDTO;
+import com.dvoracekmartin.common.event.translation.LocalizedField;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Map;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class UpdateProductDTO extends BaseUpdateOrResponseDTO {
-
 
     private Long categoryId;
     private List<Long> tagIds;
@@ -18,8 +21,7 @@ public class UpdateProductDTO extends BaseUpdateOrResponseDTO {
     private boolean displayInProducts;
 
     public UpdateProductDTO(Long id,
-                            String name,
-                            String description,
+                            Map<String, LocalizedField> localizedFields,
                             int priority,
                             boolean active,
                             List<MediaDTO> media,
@@ -28,10 +30,9 @@ public class UpdateProductDTO extends BaseUpdateOrResponseDTO {
                             Double price,
                             Double weightGrams,
                             boolean mixable,
-                            boolean displayInProducts,
-                            String url
+                            boolean displayInProducts
     ) {
-        super(id, name, description, priority, active, media, url);
+        super(id, localizedFields, priority, active, media);
         this.tagIds = tagIds;
         this.categoryId = categoryId;
         this.price = price;

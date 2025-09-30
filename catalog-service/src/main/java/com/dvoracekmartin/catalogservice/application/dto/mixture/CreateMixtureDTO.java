@@ -2,11 +2,15 @@ package com.dvoracekmartin.catalogservice.application.dto.mixture;
 
 import com.dvoracekmartin.common.dto.base.BaseCreateDTO;
 import com.dvoracekmartin.common.dto.media.MediaDTO;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class CreateMixtureDTO extends BaseCreateDTO {
 
@@ -17,9 +21,15 @@ public class CreateMixtureDTO extends BaseCreateDTO {
     private List<Long> tagIds;
     private boolean mixable;
     private boolean displayInProducts;
+    private int priority;
+
+    // for user created mixtures
+    @NotBlank
+    @Size(min = 3)
+    private String name;
+
 
     public CreateMixtureDTO(String name,
-                            String description,
                             int priority,
                             boolean active,
                             List<MediaDTO> media,
@@ -29,10 +39,11 @@ public class CreateMixtureDTO extends BaseCreateDTO {
                             Double price,
                             Double weightGrams,
                             boolean mixable,
-                            boolean displayInProducts,
-                            String url
+                            boolean displayInProducts
     ) {
-        super(name, description, priority, active, media, url);
+        super(null, priority, active, media);
+        this.name = name;
+        this.priority = priority;
         this.categoryId = categoryId;
         this.productIds = productIds;
         this.tagIds = tagIds;

@@ -14,7 +14,12 @@ import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/c
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
-import {HttpErrorResponse} from '@angular/common/http';
+import {ResponseLocaleDto} from '../../../dto/configuration/response-locale-dto';
+import {ConfigurationService} from '../../../services/configuration.service';
+import {LocaleMapperService} from '../../../services/locale-mapper.service';
+import {LocalizedFieldDTO} from '../../../dto/base/localized-field-dto';
+import {CreateProductDTO} from '../../../dto/product/create-product-dto';
+import {MediaDTO} from '../../../dto/media/media-dto';
 import {UpdateProductDTO} from '../../../dto/product/update-product-dto';
 
 @Component({
@@ -29,10 +34,12 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
 
   categories: ResponseCategoryDTO[] = [];
   allTags: ResponseTagDTO[] = [];
-
+  usedLocales: ResponseLocaleDto[] = [];
   private productId!: number;
   private initialMediaKeys: string[] = [];
   private readonly destroy$ = new Subject<void>();
+  formInitialized = false;
+  private product: ResponseProductDTO;
 
   constructor(
     private fb: FormBuilder,
@@ -42,25 +49,24 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private configService: ConfigurationService,
+    private localeMapperService: LocaleMapperService,
   ) {
   }
 
   get mediaControls(): FormArray {
-    return this.productForm.get('media') as FormArray;
+    return this.productForm?.get('media') as FormArray;
   }
 
   get tagIdsControl(): FormControl {
-    return this.productForm.get('tagIds') as FormControl;
+    return this.productForm?.get('tagIds') as FormControl;
   }
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.productId = +params['id'];
-      this.initForm();
-      this.loadCategories();
-      this.loadTags();
-      this.loadProduct();
+      this.initTabs();
     });
   }
 
@@ -69,7 +75,33 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  private initTabs() {
+    this.configService.getLastAppSettings()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (settings) => {
+          this.usedLocales = settings.usedLocales.map(locale => ({
+            ...locale,
+            translatedName: this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode)
+          }));
+          this.initForm();
+          this.loadTags();
+          this.loadCategories();
+          this.loadProduct();
+        },
+        error: () => {
+          this.usedLocales = [{languageCode: 'en', regionCode: 'US', translatedName: 'English'}];
+          this.initForm();
+          this.loadTags();
+          this.loadCategories();
+          this.loadProduct();
+        }
+      });
+  }
+
   onFileSelected(event: Event): void {
+    if (!this.productForm) return;
+
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files || []);
     if (!files.length) return;
@@ -98,6 +130,8 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   }
 
   dropMedia(e: CdkDragDrop<any[]>) {
+    if (!this.productForm) return;
+
     moveItemInArray(this.mediaControls.controls, e.previousIndex, e.currentIndex);
     this.productForm.markAsDirty();
   }
@@ -110,47 +144,69 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   }
 
   openDeleteDialog(): void {
-    const ref = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Delete Product',
-        message: 'This will permanently delete the product and all its contents.',
-        warn: true
-      }
+    this.dialog.open(ConfirmationDialogComponent, {
+      data: {title: 'Delete Category', message: 'Permanently delete?', warn: true}
+    }).afterClosed().subscribe(ok => {
+      if (ok) this.productService.deleteProduct(this.productId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.snackBar.open('Category deleted successfully.', 'Close', {duration: 3000});
+          this.router.navigate(['/admin/categories']);
+        });
     });
-    ref.afterClosed().subscribe(ok => ok && this.deleteProduct());
   }
 
   onSave(): void {
-    if (this.productForm.invalid) return;
+    if (!this.productForm || this.productForm.invalid) {
+      this.productForm?.markAllAsTouched();
+      this.snackBar.open('Please correct the highlighted fields.', 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
     this.saving = true;
 
-    const currentKeys = this.mediaControls.controls.map(c => c.value.objectKey).filter(k => !!k);
-    const mediaToDelete = this.initialMediaKeys.filter(k => !currentKeys.includes(k));
+    // Build localizedFields map according to backend
+    const localizedFields: Record<string, LocalizedFieldDTO> = {};
+    this.usedLocales.forEach(locale => {
+      const suffix = `_${locale.languageCode}_${locale.regionCode}`;
+      localizedFields[`${locale.languageCode}_${locale.regionCode}`] = {
+        name: this.productForm.get(`name${suffix}`)?.value,
+        description: this.productForm.get(`description${suffix}`)?.value,
+        url: this.productForm.get(`url${suffix}`)?.value
+      };
+    });
 
-    const payload: UpdateProductDTO = {
+    // Build main payload
+    const updateProductDTO: UpdateProductDTO = {
+      localizedFields: localizedFields,
       id: this.productId,
-      ...this.productForm.value,
-      mediaToDelete: mediaToDelete
+      priority: this.productForm.get('priority')?.value,
+      active: this.productForm.get('active')?.value,
+      media: this.productForm.get('media')?.value as MediaDTO[],
+      tagIds: this.productForm.get('tagIds')?.value,
+      mixable: this.productForm.get('mixable')?.value,
+      displayInProducts: this.productForm.get('displayInProducts')?.value,
+      price: this.productForm.get('price')?.value,
+      weightGrams: this.productForm.get('weightGrams')?.value,
+      categoryId: this.productForm.get('categoryId')?.value,
+      translatedName: null,
+      translatedDescription: null,
+      translatedUrl: null
     };
 
-    this.productService.updateProduct(this.productId, payload)
+    this.productService.updateProduct(updateProductDTO)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
-          this.saving = false;
-          this.snackBar.open('Product updated!', 'Close', {duration: 3000});
-          this.router.navigate(['/admin/products']);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.saving = false;
-          const msg = err.error?.message || err.message || 'An error occurred';
-          this.snackBar.open(`Update failed: ${msg}`, 'Close', {duration: 5000, panelClass: ['error-snackbar']});
-        }
+        next: () => this.handleSaveSuccess(),
+        error: (err) => this.handleSaveError(err)
       });
   }
 
   cancel(): void {
-    if (this.productForm.dirty) {
+    if (this.productForm?.dirty) {
       this.dialog.open(ConfirmationDialogComponent, {
         data: {title: 'Cancel Update', message: 'Discard changes?', warn: true}
       }).afterClosed().subscribe(ok => {
@@ -163,7 +219,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
 
   // Renamed to match the category component
   openCancelDialog(): void {
-    if (this.productForm.dirty) {
+    if (this.productForm?.dirty) {
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
         data: {
           title: 'COMMON.CANCEL_CONFIRM_TITLE',
@@ -180,39 +236,59 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   }
 
   private initForm(): void {
-    this.productForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
+    const formConfig: any = {
       price: [0, [Validators.required, Validators.min(0)]],
-      priority: [0, [Validators.required, Validators.min(0)]],
+      priority: ['0', [Validators.required, Validators.min(0)]],
       categoryId: [null, Validators.required],
       active: [false],
-      weightGrams: [0],
+      weightGrams: [0, [Validators.min(0.01)]],
       tagIds: [[]],
       media: this.fb.array([]),
-      url:['', [Validators.required, Validators.minLength(3)]],
-      mixable: false,
-      displayInProducts: false,
+      mixable: [false],
+      displayInProducts: [false],
+    };
+
+    this.usedLocales.forEach(locale => {
+      const suffix = `_${locale.languageCode}_${locale.regionCode}`;
+      formConfig[`name${suffix}`] = ['', [Validators.required, Validators.minLength(3)]];
+      formConfig[`description${suffix}`] = [''];
+      formConfig[`url${suffix}`] = ['', [Validators.required, Validators.minLength(3)]];
     });
+
+    this.productForm = this.fb.group(formConfig);
   }
 
   private loadCategories(): void {
     this.categoryService.getAllCategoriesAdmin()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: cats => this.categories = cats,
-        error: () => this.snackBar.open('Error loading categories', 'Close', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        })
+        next: (categories) => {
+          this.categories = categories;
+          this.translateCategories();
+        },
+        error: (error) => {
+          console.error('Error loading categories:', error);
+          this.snackBar.open('Error loading categories', 'Close', {duration: 3000, panelClass: ['error-snackbar']});
+        }
       });
+  }
+
+  private translateCategories() {
+    this.categories.forEach(category => {
+      category.translatedName = this.categoryService.getLocalizedName(category);
+      category.translatedDescription = this.categoryService.getLocalizedDescription(category);
+      category. translatedUrl = this.categoryService.getLocalizedUrl(category);
+    });
   }
 
   private loadTags(): void {
     this.tagService.getAllTags()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: tags => this.allTags = tags,
+        next: tags => {
+          this.allTags = tags;
+          this.translateTags();
+        },
         error: () => this.snackBar.open('Error loading tags', 'Close', {
           duration: 3000,
           panelClass: ['error-snackbar']
@@ -235,42 +311,70 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       });
   }
 
-  private patchForm(p: ResponseProductDTO): void {
+  private patchForm(responseProductDTO: ResponseProductDTO): void {
+    if (!this.productForm) return;
 
+    // Set non-localized fields
     this.productForm.patchValue({
-      name: p.name,
-      description: p.description,
-      price: p.price,
-      weightGrams: p.weightGrams,
-      categoryId: p.categoryId,
-      priority: p.priority,
-      active: p.active,
-      url: p.url,
-      mixable: p.mixable,
-      displayInProducts: p.displayInProducts
+      price: responseProductDTO.price,
+      weightGrams: responseProductDTO.weightGrams,
+      categoryId: responseProductDTO.categoryId,
+      priority: responseProductDTO.priority,
+      active: responseProductDTO.active,
+      mixable: responseProductDTO.mixable,
+      displayInProducts: responseProductDTO.displayInProducts
     });
 
-    // Media
-    p.media.forEach(m => {
-      this.mediaControls.push(this.fb.group({
-        base64Data: [m.base64Data],
-        objectKey: [m.objectKey],
-        contentType: [m.contentType],
-        preview: [`data:${m.contentType};base64,${m.base64Data}`]
-      }));
-      this.initialMediaKeys.push(m.objectKey);
+    // Set localized fields
+    this.usedLocales.forEach(locale => {
+      const localeKey = `${locale.languageCode}_${locale.regionCode}`;
+      const suffix = `_${locale.languageCode}_${locale.regionCode}`;
+
+      const localizedData = responseProductDTO.localizedFields?.[localeKey] || {};
+
+      this.productForm.patchValue({
+        [`name${suffix}`]: localizedData['name'] || '',
+        [`description${suffix}`]: localizedData['description'] || '',
+        [`url${suffix}`]: localizedData['url'] || '',
+      });
     });
 
     // Tags
-    const existingTagIds = p.responseTagDTOS.map(t => t.id);
+    const existingTagIds = responseProductDTO.responseTagDTOS.map(t => t.id);
     this.tagIdsControl.setValue(existingTagIds);
+
+    // Media
+    responseProductDTO.media.forEach(media => {
+      this.mediaControls.push(this.fb.group({
+        base64Data: [media.base64Data],
+        objectKey: [media.objectKey],
+        contentType: [media.contentType],
+        preview: [`data:${media.contentType};base64,${media.base64Data}`]
+      }));
+      this.initialMediaKeys.push(media.objectKey);
+    });
+
+    this.productForm.markAsPristine();
+    this.productForm.markAsUntouched();
   }
 
-  private deleteProduct() {
-    this.productService.deleteProduct(this.productId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.router.navigate(['/admin/products']),
-        err => console.error('Delete failed', err));
+  private handleSaveSuccess(): void {
+    this.saving = false;
+    this.snackBar.open('Product updated successfully!', 'Close', {duration: 3000});
+    this.router.navigate(['/admin/products']);
   }
 
+  private handleSaveError(err: any): void {
+    this.saving = false;
+    console.error('Creation failed:', err);
+    this.snackBar.open('Failed to update product', 'Close', {duration: 5000});
+  }
+
+  private translateTags() {
+    this.allTags.forEach(tag => {
+      tag.translatedName = this.tagService.getLocalizedName(tag);
+      tag.translatedDescription = this.tagService.getLocalizedDescription(tag);
+      tag.translatedUrl = this.tagService.getLocalizedUrl(tag);
+    });
+  }
 }

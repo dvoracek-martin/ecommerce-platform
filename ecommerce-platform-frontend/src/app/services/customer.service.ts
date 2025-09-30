@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {AuthService} from '../auth/auth.service';
+import {AuthService} from './auth.service';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {Customer} from '../dto/customer/customer-dto';
 

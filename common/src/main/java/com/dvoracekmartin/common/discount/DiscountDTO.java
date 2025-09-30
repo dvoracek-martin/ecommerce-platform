@@ -1,10 +1,12 @@
 package com.dvoracekmartin.common.discount;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
 
+@EqualsAndHashCode()
 @Data
 public class DiscountDTO {
     private Long id;

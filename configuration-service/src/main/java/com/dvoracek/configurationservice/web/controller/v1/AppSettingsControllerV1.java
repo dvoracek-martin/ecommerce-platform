@@ -37,7 +37,7 @@ public class AppSettingsControllerV1 {
     }
 
 
-    @GetMapping()
+    @GetMapping("/last")
     public ResponseEntity<ResponseAppSettingsDTO> getLastAppSettings() {
         log.info("Fetching last AppSettings");
         return ResponseEntity.ok(appSettingsService.getLastAppSettings());

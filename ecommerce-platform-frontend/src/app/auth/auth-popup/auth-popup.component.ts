@@ -37,4 +37,9 @@ export class AuthPopupComponent {
     this.showForgotPassword = false;
     this.closePopup.emit();
   }
+
+  onCancelForgotPassword(): void {
+    this.showForgotPassword = false;
+    this.isRegisterMode = false;
+  }
 }
