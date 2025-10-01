@@ -34,9 +34,13 @@ public class OrderAdminControllerV1 {
     }
 
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<OrderResponseDTO>> getOrdersByCustomer(@AuthenticationPrincipal Jwt jwt,
-                                                                      @PathVariable String customerId) {
+    public ResponseEntity<List<OrderResponseDTO>> getOrdersByCustomer(@AuthenticationPrincipal Jwt jwt, @PathVariable String customerId) {
         List<OrderResponseDTO> orders = orderService.getOrdersByCustomerIdAdmin(customerId);
         return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/{orderId}/{selectedLocale}")
+    public ResponseEntity<byte[]> generateInvoiceInLocale(@AuthenticationPrincipal Jwt jwt, @PathVariable String orderId, @PathVariable String selectedLocale) {
+        return ResponseEntity.ok(orderService.generateInvoice(orderId, selectedLocale));
     }
 }

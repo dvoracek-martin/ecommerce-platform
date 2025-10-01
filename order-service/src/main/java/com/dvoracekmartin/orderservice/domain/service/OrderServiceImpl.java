@@ -62,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderYearOrderCounter(orderCounterService.getNextOrderNumberCounter());
 
         Order savedOrder = orderRepository.save(order);
-        byte[] invoicePdf = pdfGenerationService.generateInvoice(savedOrder);
+        byte[] invoicePdf = pdfGenerationService.generateInvoice(savedOrder, orderRequestDTO.getSelectedLocale());
         String base64Invoice = Base64.getEncoder().encodeToString(invoicePdf);
 
         // Create the correct path structure
@@ -118,5 +118,17 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDTO updateOrder(UpdateOrderDTO updateOrderDTO) {
         Order order = orderMapper.mapUpdateOrderToOrder(updateOrderDTO);
         return orderMapper.mapOrderToOrderResponseDTO(orderRepository.save(order));
+    }
+
+    @Override
+    public byte[] generateInvoice(String orderId, String selectedLocale) {
+        long id;
+        try {
+            id = Long.parseLong(orderId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid order ID format");
+        }
+        Order order = orderRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        return pdfGenerationService.generateInvoice(order, selectedLocale);
     }
 }

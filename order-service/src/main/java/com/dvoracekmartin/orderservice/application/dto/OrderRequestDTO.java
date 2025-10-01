@@ -16,4 +16,5 @@ public class OrderRequestDTO {
     private Double finalTotal;
     private String shippingMethod;
     private String paymentMethod;
+    private String selectedLocale;
 }

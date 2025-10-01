@@ -4,5 +4,5 @@ import com.dvoracekmartin.orderservice.domain.model.Order;
 
 public interface PdfGenerationService {
 
-    byte[] generateInvoice(Order order);
+    byte[] generateInvoice(Order order, String selectedLocale);
 }

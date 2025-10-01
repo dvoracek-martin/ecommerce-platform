@@ -23,4 +23,6 @@ public interface OrderService {
     List<OrderResponseDTO> findAll();
 
     OrderResponseDTO updateOrder(UpdateOrderDTO updateOrderDTO);
+
+    byte[] generateInvoice(String orderId, String selectedLocale);
 }
