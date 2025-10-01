@@ -45,7 +45,7 @@ import {OrdersAdminListComponent} from './layout/orders/admin/orders-admin-list.
 import {OrdersAdminDetailComponent} from './layout/orders/admin/orders-admin-detail.component';
 import {ProductsAdminListComponent} from './layout/products/admin/products-admin-list.component';
 import {ProductsDetailComponent} from './layout/products/client/products-detail.component';
-import {MatChip, MatChipSet} from '@angular/material/chips';
+import {MatChip, MatChipListbox, MatChipSet} from '@angular/material/chips';
 import {HeaderComponent} from './layout/header/header.component';
 import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 import {CustomersAdminDetailComponent} from './layout/customers/admin/customers-admin-detail.component';
@@ -55,6 +55,7 @@ import {
 import {MatDatepicker, MatDatepickerInput, MatDatepickerToggle} from "@angular/material/datepicker";
 import {MatNativeDateModule} from '@angular/material/core';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
+import {SwissCurrencyPipe} from './shared/currency-pipe/swiss-currency.pipe';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -126,6 +127,8 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     MatNativeDateModule,
     MatTab,
     MatTabGroup,
+    SwissCurrencyPipe,
+    MatChipListbox,
   ],
   providers: [
     {

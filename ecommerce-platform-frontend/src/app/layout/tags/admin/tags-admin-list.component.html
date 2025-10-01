@@ -1,95 +1,169 @@
-<div class="tags-container">
-  <div class="admin-header-section">
-    <div class="admin-header-content">
-      <div class="admin-title-section">
-        <h1>{{ 'TAGS.TITLE' | translate }}</h1>
-        <p class="admin-subtitle">{{ 'TAGS.ADMIN_SUBTITLE' | translate }}</p>
-      </div>
-      <div class="admin-actions">
-        <div class="admin-search-section">
-          <div class="admin-search-container">
-            <div class="admin-search-input-wrapper">
-              <mat-icon class="search-icon">search</mat-icon>
-              <input
-                [formControl]="searchControl"
-                class="admin-search-input"
-                matInput
-                placeholder="Search by name">
-              <button
-                (click)="clearSearch()"
-                *ngIf="searchControl.value"
-                class="admin-clear-button"
-                mat-icon-button>
-                <mat-icon>close</mat-icon>
-              </button>
+<div class="admin-container">
+  <mat-card class="admin-card">
+    <!-- Header Section -->
+    <div class="admin-header-section">
+      <div class="admin-header-content">
+        <div class="admin-title-section">
+          <h1>{{ 'TAGS.TITLE' | translate }}</h1>
+          <p class="admin-subtitle">{{ 'TAGS.ADMIN_SUBTITLE' | translate }}</p>
+        </div>
+        <div class="admin-actions">
+          <!-- Search Section -->
+          <div class="admin-search-section">
+            <div class="admin-search-container">
+              <div class="admin-search-input-wrapper">
+                <mat-icon class="search-icon">search</mat-icon>
+                <input
+                  [formControl]="searchControl"
+                  class="admin-search-input"
+                  matInput
+                  [placeholder]="'TAGS.SEARCH_PLACEHOLDER' | translate">
+                <button
+                  (click)="clearSearch()"
+                  *ngIf="searchControl.value"
+                  class="admin-clear-button"
+                  mat-icon-button>
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
             </div>
           </div>
+
+          <!-- Filters -->
+          <div class="admin-filters">
+            <div class="admin-filter-checkbox-wrapper">
+              <mat-checkbox (change)="applyFilters()" [formControl]="activeSeControl">
+                {{ 'TAGS.SHOW_ONLY_ACTIVE' | translate }}
+              </mat-checkbox>
+            </div>
+          </div>
+
+          <!-- Create Button -->
+          <button (click)="navigateToCreate()" class="admin-create-btn" mat-flat-button>
+            <mat-icon>add</mat-icon>
+            {{ 'TAGS.ADMIN.NEW_TITLE' | translate }}
+          </button>
         </div>
-        <div class="search-container">
-          <div class="admin-search-checkbox-wrapper">
-            <mat-checkbox (change)="applyFilters()" [formControl]="activeSeControl">
-              Show only active
-            </mat-checkbox>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="admin-loading-section">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <div class="admin-loading-text">{{ 'TAGS.LOADING' | translate }}</div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="admin-error-section">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <div class="error-content">
+        <h3>{{ 'TAGS.ERROR_LOADING' | translate }}</h3>
+        <p>{{ error }}</p>
+      </div>
+    </div>
+
+    <!-- Tags Grid -->
+    <div *ngIf="!isLoading && !error" class="admin-grid-container">
+      <div class="admin-grid">
+        <div
+          *ngFor="let tag of filteredTags; trackBy: trackById"
+          class="admin-card-item">
+
+          <!-- Card Content -->
+          <div class="card-content" (click)="navigateToUpdate(tag.id)">
+            <!-- Tag Header -->
+            <div class="card-header">
+              <h3 class="item-name">{{ tag.translatedName }}</h3>
+              <div class="item-status">
+                <span class="status-badge" [class.active]="tag.active" [class.inactive]="!tag.active">
+                  {{ tag.active ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Tag Description -->
+            <div class="item-description">
+              {{ tag.translatedDescription || ('TAGS.NO_DESCRIPTION' | translate) }}
+            </div>
+
+            <!-- Relations Information -->
+            <div class="item-relations">
+              <!-- Categories -->
+              <div *ngIf="tag.categories?.length" class="relation-group">
+                <label class="relation-label">{{ 'TAGS.RELATIONS.CATEGORIES' | translate }}:</label>
+                <div class="relation-chips">
+                  <span *ngFor="let category of tag.categories" class="relation-chip">
+                    {{ category.translatedName }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Products -->
+              <div *ngIf="tag.products?.length" class="relation-group">
+                <label class="relation-label">{{ 'TAGS.RELATIONS.PRODUCTS' | translate }}:</label>
+                <div class="relation-chips">
+                  <span *ngFor="let product of tag.products" class="relation-chip">
+                    {{ product.translatedName }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Mixtures -->
+              <div *ngIf="tag.mixtures?.length" class="relation-group">
+                <label class="relation-label">{{ 'TAGS.RELATIONS.MIXTURES' | translate }}:</label>
+                <div class="relation-chips">
+                  <span *ngFor="let mixture of tag.mixtures" class="relation-chip">
+                    {{ mixture.translatedName }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div *ngIf="!tag.categories?.length && !tag.products?.length && !tag.mixtures?.length"
+                   class="no-relations">
+                {{ 'TAGS.NO_RELATIONS' | translate }}
+              </div>
+            </div>
+
+            <!-- Priority -->
+            <div class="item-meta">
+              <span class="meta-item">
+                <mat-icon class="meta-icon">priority_high</mat-icon>
+                {{ 'TAGS.PRIORITY' | translate }}: {{ tag.priority }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="card-actions">
+            <button
+              (click)="navigateToUpdate(tag.id)"
+              class="action-btn edit-btn"
+              mat-icon-button
+              [matTooltip]="'COMMON.EDIT' | translate">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              (click)="openDeleteDialog(tag.id)"
+              class="action-btn delete-btn"
+              mat-icon-button
+              [matTooltip]="'COMMON.DELETE' | translate">
+              <mat-icon>delete</mat-icon>
+            </button>
           </div>
         </div>
-        <button (click)="navigateToCreate()" class="admin-new-btn">
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredTags.length === 0" class="admin-empty-state">
+        <mat-icon class="empty-icon">label_off</mat-icon>
+        <h3>{{ 'TAGS.EMPTY_TITLE' | translate }}</h3>
+        <p>{{ 'TAGS.EMPTY_SUBTITLE' | translate }}</p>
+        <button (click)="navigateToCreate()" class="admin-create-btn" mat-flat-button>
           <mat-icon>add</mat-icon>
           {{ 'TAGS.ADMIN.NEW_TITLE' | translate }}
         </button>
       </div>
     </div>
-  </div>
-  <div *ngIf="isLoading" class="loading-section">
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    <div class="loading-text">{{ 'TAGS.LOADING' | translate }}</div>
-  </div>
-  <div *ngIf="error" class="error">
-    {{ 'TAGS.ERROR_LOADING' | translate:{error: error} }}
-  </div>
-  <div *ngIf="!isLoading && !error" class="tags-grid">
-    <div
-      *ngFor="let tag of filteredTags; let tagIndex = index; trackBy: trackById"
-      class="tag-card">
-      <div (click)="navigateToUpdate(tag.id)" class="card-link">
-        <div class="tag-details">
-          <h2 class="tag-name">{{ tag.translatedName }}</h2>
-          <p class="tag-description">{{ tag.translatedDescription }}</p>
-          <div class="related-info">
-            <!-- Categories -->
-            <div *ngIf="tag.categories?.length" class="card-details group-block">
-              <strong>Categories:</strong>
-              <div class="tags-container">
-                        <span *ngFor="let category of tag.categories" class="tag">
-                        {{ category.translatedName }}
-                        </span>
-              </div>
-            </div>
-            <!-- Products -->
-            <div *ngIf="tag.products?.length" class="card-details group-block">
-              <strong>Products:</strong>
-              <div class="tags-container">
-                        <span *ngFor="let product of tag.products" class="tag">
-                        {{ product.translatedName }}
-                        </span>
-              </div>
-            </div>
-            <!-- Mixtures -->
-            <div *ngIf="tag.mixtures?.length" class="card-details group-block">
-              <strong>Mixtures:</strong>
-              <div class="tags-container">
-                        <span *ngFor="let mixture of tag.mixtures" class="tag">
-                        {{ mixture.translatedName }}
-                        </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="tag-actions">
-        <button (click)="openDeleteDialog(tag.id)" class="btn-delete" mat-icon-button>
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-    </div>
-  </div>
+  </mat-card>
 </div>

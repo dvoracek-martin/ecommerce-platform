@@ -45,9 +45,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
   private searchSubscription!: Subscription;
   totalCartItemCount$: Observable<number>;
+
+  // Cart Preview (keep original)
   isCartPreviewOpen = false;
   private closeCartPreviewTimeout: any = null;
   private cartPreviewCloseDelay = 300;
+
+  // Navigation Menu (same as cart preview)
+  isMenuOpen = false;
+  private closeMenuTimeout: any = null;
+  private menuCloseDelay = 300;
+
   loadingItems = new Map<string, boolean>();
   isLoadingCart = true;
   private cartSubscription!: Subscription;
@@ -105,7 +113,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.routerSubscription = this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         this.isCartPreviewOpen = false;
+        this.isMenuOpen = false;
         this.cancelCloseCartPreview();
+        this.cancelCloseMenu();
       }
     });
 
@@ -127,9 +137,77 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.cartSubscription) this.cartSubscription.unsubscribe();
     if (this.routerSubscription) this.routerSubscription.unsubscribe();
     this.cancelCloseCartPreview();
+    this.cancelCloseMenu();
     this.searchSubject.complete();
   }
 
+  // ===== NAVIGATION MENU (same as cart preview) =====
+  onMenuButtonMouseEnter(): void {
+    this.cancelCloseMenu();
+    this.isMenuOpen = true;
+  }
+
+  onMenuButtonMouseLeave(): void {
+    this.scheduleCloseMenu();
+  }
+
+  onMenuMouseEnter(): void {
+    this.cancelCloseMenu();
+  }
+
+  onMenuMouseLeave(): void {
+    this.scheduleCloseMenu();
+  }
+
+  private scheduleCloseMenu(): void {
+    this.cancelCloseMenu();
+    this.closeMenuTimeout = setTimeout(() => {
+      this.isMenuOpen = false;
+    }, this.menuCloseDelay);
+  }
+
+  private cancelCloseMenu(): void {
+    if (this.closeMenuTimeout) {
+      clearTimeout(this.closeMenuTimeout);
+      this.closeMenuTimeout = null;
+    }
+  }
+
+  // ===== CART PREVIEW (keep original) =====
+  onCartButtonMouseEnter(): void {
+    this.cancelCloseCartPreview();
+    this.isCartPreviewOpen = true;
+    this.translateCartItems();
+  }
+
+  onCartButtonMouseLeave(): void {
+    this.scheduleCloseCartPreview();
+  }
+
+  onCartPreviewMouseEnter(): void {
+    this.cancelCloseCartPreview();
+    this.translateCartItems();
+  }
+
+  onCartPreviewMouseLeave(): void {
+    this.scheduleCloseCartPreview();
+  }
+
+  private scheduleCloseCartPreview(): void {
+    this.cancelCloseCartPreview();
+    this.closeCartPreviewTimeout = setTimeout(() => {
+      this.isCartPreviewOpen = false;
+    }, this.cartPreviewCloseDelay);
+  }
+
+  private cancelCloseCartPreview(): void {
+    if (this.closeCartPreviewTimeout) {
+      clearTimeout(this.closeCartPreviewTimeout);
+      this.closeCartPreviewTimeout = null;
+    }
+  }
+
+  // ===== EXISTING METHODS (keep all your original methods below) =====
   private loadAppSettings(): void {
     this.configurationService.getLastAppSettingsWithCache().subscribe({
       next: (settings) => {
@@ -180,7 +258,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.translate.use(lang.languageCode);
         this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
 
-        // 🔹 NEW CODE: Save into local cache
         localStorage.setItem('preferredLanguage', lang.languageCode);
       },
       error: () => {
@@ -188,7 +265,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.translate.use(locales[0].languageCode);
         this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
 
-        // 🔹 NEW CODE: Save fallback into cache
         localStorage.setItem('preferredLanguage', locales[0].languageCode);
       }
     });
@@ -202,7 +278,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.translate.use(lang.languageCode);
     this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
 
-    // 🔹 NEW CODE: Save chosen language into local cache
     localStorage.setItem('preferredLanguage', lang.languageCode);
 
     if (this.authService.isTokenValid()) {
@@ -229,13 +304,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Failed to fetch user data for language persistence', err)
     });
-  }
-
-  private setLanguage(code: string) {
-    const lang = this.languages.find(l => l.languageCode === code) || this.languages[0];
-    this.selectedLanguage = lang;
-    this.translate.use(lang.languageCode);
-    this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
   }
 
   onSearchChange(): void {
@@ -281,6 +349,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   navigateToRoot(): void {
     this.router.navigate(['/']);
+    this.isMenuOpen = false;
   }
 
   navigateToProfile(): void {
@@ -326,39 +395,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   closeAuthPopup(): void {
     this.isPopupOpen = false;
-  }
-
-  onCartButtonMouseEnter(): void {
-    this.cancelCloseCartPreview();
-    this.isCartPreviewOpen = true;
-    this.translateCartItems();
-  }
-
-  onCartButtonMouseLeave(): void {
-    this.scheduleCloseCartPreview();
-  }
-
-  onCartPreviewMouseEnter(): void {
-    this.cancelCloseCartPreview();
-    this.translateCartItems();
-  }
-
-  onCartPreviewMouseLeave(): void {
-    this.scheduleCloseCartPreview();
-  }
-
-  private scheduleCloseCartPreview(): void {
-    this.cancelCloseCartPreview();
-    this.closeCartPreviewTimeout = setTimeout(() => {
-      this.isCartPreviewOpen = false;
-    }, this.cartPreviewCloseDelay);
-  }
-
-  private cancelCloseCartPreview(): void {
-    if (this.closeCartPreviewTimeout) {
-      clearTimeout(this.closeCartPreviewTimeout);
-      this.closeCartPreviewTimeout = null;
-    }
   }
 
   updateItemQuantity(item: CartItem, action: 'increase' | 'decrease'): void {
@@ -482,7 +518,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Use setTimeout to allow the UI to update
     setTimeout(() => {
       currentCart.items.forEach(item => {
         if (item.cartItemType === CartItemType.PRODUCT && item.product) {
@@ -511,5 +546,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return item.mixture.translatedName || item.mixture.name || 'Unknown Mixture';
     }
     return 'Unknown Item';
+  }
+
+  isLanguageMenuOpen(): boolean {
+    return false; // This is now handled by Angular Material
   }
 }

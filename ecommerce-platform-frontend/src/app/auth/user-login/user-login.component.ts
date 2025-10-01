@@ -7,6 +7,7 @@ import { CartService } from '../../services/cart.service';
 import { Subject } from 'rxjs';
 import { CustomerService } from '../../services/customer.service';
 import { HeaderComponent } from '../../layout/header/header.component';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-user-login',
@@ -29,7 +30,8 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private cartService: CartService,
     private headerComponent: HeaderComponent,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    private router: Router
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -94,5 +96,11 @@ export class UserLoginComponent implements OnInit, OnDestroy {
         rememberMe: true
       });
     }
+  }
+
+  onClose(): void {
+    // Handle close logic - this could navigate back, close a modal, etc.
+    this.router.navigate(['/']); // Example: navigate to home
+    // or this.dialogRef.close(); if it's in a dialog
   }
 }

@@ -1,7 +1,6 @@
 <div class="product-detail-wrapper">
-  <!-- Main content container -->
   <div class="product-detail-container">
-    <mat-card class="product-card">
+    <div class="product-card">
       <!-- Header -->
       <div class="admin-header-section" *ngIf="product">
         <div class="admin-header-content">
@@ -12,12 +11,10 @@
         </div>
       </div>
 
-      <mat-divider></mat-divider>
-
       <!-- Loading state -->
       <div *ngIf="loading" class="loading-section">
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-        <div class="loading-text">Loading product details...</div>
+        <div class="loading-text">{{ 'PRODUCTS.LOADING' | translate }}</div>
       </div>
 
       <!-- Error state -->
@@ -26,87 +23,46 @@
         <div class="error-text">{{ error }}</div>
         <button (click)="backToList()" color="warn" mat-stroked-button>
           <mat-icon>arrow_back</mat-icon>
-          Back to Products
+          {{ 'COMMON.BACK_TO_PRODUCTS' | translate }}
         </button>
       </div>
 
-      <!-- Product details with floating carousel -->
-      <div *ngIf="product" class="form-one-column-wrapper">
-        <div class="row">
-          <!-- Floated carousel -->
-          <div class="float-image right" *ngIf="product.media?.length">
-            <div class="product-image-container" (click)="openGallery()">
-              <div class="carousel-slides" [style.transform]="'translateX(' + (-activeSlideIndex * 100) + '%)'">
-                <div *ngFor="let media of product.media; let i = index" class="slide">
-                  <img *ngIf="media.contentType?.startsWith('image/')"
-                       [alt]="product.translatedName"
-                       [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                       class="product-image"/>
-                  <video *ngIf="media.contentType?.startsWith('video/')"
-                         [muted]="true"
-                         autoplay
-                         loop
-                         playsinline
-                         preload="metadata"
-                         class="product-image">
-                    <source
-                      [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                      [type]="media.contentType"/>
-                  </video>
+      <!-- Product Content -->
+      <div *ngIf="product" class="product-content">
+        <div class="content-layout">
+          <!-- Main Content -->
+          <div class="main-content">
+            <!-- Product Info -->
+            <div class="info-section">
+              <!-- Description -->
+              <div class="info-card" *ngIf="product.translatedDescription">
+                <h3>
+                  <mat-icon>description</mat-icon>
+                  {{ 'PRODUCTS.DESCRIPTION' | translate }}
+                </h3>
+                <p>{{ product.translatedDescription }}</p>
+              </div>
+
+              <!-- Product Details -->
+              <div class="info-card" *ngIf="product.weightGrams">
+                <h3>
+                  <mat-icon>info</mat-icon>
+                  {{ 'PRODUCTS.DETAILS' | translate }}
+                </h3>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">{{ 'PRODUCTS.WEIGHT' | translate }}:</span>
+                    <span class="detail-value">{{ product.weightGrams }} g</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- Navigation arrows -->
-              <div *ngIf="product.media.length > 1" class="carousel-nav">
-                <button class="nav-btn prev" (click)="$event.stopPropagation(); prevSlide()">
-                  <mat-icon>chevron_left</mat-icon>
-                </button>
-                <button class="nav-btn next" (click)="$event.stopPropagation(); nextSlide()">
-                  <mat-icon>chevron_right</mat-icon>
-                </button>
-              </div>
-
-              <!-- Gallery icon overlay -->
-              <div class="gallery-overlay" (click)="openGallery(); $event.stopPropagation()">
-                <mat-icon>zoom_out_map</mat-icon>
-              </div>
-            </div>
-          </div>
-
-          <!-- Text content wrapping around image -->
-          <div class="text-content">
-            <!-- Description -->
-            <div *ngIf="product.translatedDescription">
-              <h3>
-                <mat-icon>description</mat-icon>
-                Description
-              </h3>
-              <p>{{ product.translatedDescription }}</p>
-            </div>
-
-            <mat-divider></mat-divider>
-
-            <!-- Product Details -->
-            <div *ngIf="product.weightGrams" class="card-details">
-              <h3>
-                <mat-icon>info</mat-icon>
-                Product Details
-              </h3>
-              <div class="detail-row">
-                <span class="detail-label">Weight:</span>
-                <span class="detail-value">{{ product.weightGrams }} g</span>
-              </div>
-            </div>
-
-            <mat-divider></mat-divider>
-
-            <!-- Tags Section -->
-            <div *ngIf="product.responseTagDTOS?.length" class="card-details">
-              <h3>
-                <mat-icon>label</mat-icon>
-                Tags
-              </h3>
-              <div *ngIf="product.responseTagDTOS?.length">
+              <!-- Tags -->
+              <div class="info-card" *ngIf="product.responseTagDTOS?.length">
+                <h3>
+                  <mat-icon>label</mat-icon>
+                  {{ 'PRODUCTS.TAGS' | translate }}
+                </h3>
                 <div class="tags-container">
                   <span *ngFor="let tag of product.responseTagDTOS" class="tag">
                     {{ tag.translatedName }}
@@ -114,31 +70,96 @@
                 </div>
               </div>
             </div>
+          </div>
 
-            <mat-divider></mat-divider>
+          <!-- Sidebar with Purchase and Gallery -->
+          <div class="sidebar">
+            <!-- Purchase Box -->
+            <div class="purchase-card">
+              <div class="price-section">
+                <span class="price">{{ product.price | swissCurrency }}</span>
+              </div>
+              <button (click)="addToCart()" class="add-to-cart-btn">
+                <mat-icon>add_shopping_cart</mat-icon>
+                {{ 'PRODUCTS.ADD_TO_CART' | translate }}
+              </button>
+            </div>
+
+            <!-- Gallery Box -->
+            <div class="gallery-card" *ngIf="product.media?.length">
+              <h3 class="gallery-title">
+                <mat-icon>photo_library</mat-icon>
+                {{ 'PRODUCTS.GALLERY' | translate }}
+              </h3>
+
+              <div class="compact-gallery">
+                <!-- Main Image -->
+                <div class="compact-main-image" (click)="openGallery()">
+                  <div class="carousel-slides" [style.transform]="'translateX(' + (-activeSlideIndex * 100) + '%)'">
+                    <div *ngFor="let media of product.media; let i = index" class="slide">
+                      <img *ngIf="media.contentType?.startsWith('image/')"
+                           [alt]="product.translatedName"
+                           [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                           class="product-image"/>
+                      <video *ngIf="media.contentType?.startsWith('video/')"
+                             [muted]="true"
+                             autoplay
+                             loop
+                             playsinline
+                             preload="metadata"
+                             class="product-image">
+                        <source [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                                [type]="media.contentType"/>
+                      </video>
+                    </div>
+                  </div>
+
+                  <!-- Navigation -->
+                  <div *ngIf="product.media.length > 1" class="compact-nav">
+                    <button class="nav-btn prev" (click)="$event.stopPropagation(); prevSlide()">
+                      <mat-icon>chevron_left</mat-icon>
+                    </button>
+                    <button class="nav-btn next" (click)="$event.stopPropagation(); nextSlide()">
+                      <mat-icon>chevron_right</mat-icon>
+                    </button>
+                  </div>
+
+                  <!-- Gallery Overlay -->
+                  <div class="gallery-overlay" (click)="openGallery(); $event.stopPropagation()">
+                    <mat-icon>zoom_out_map</mat-icon>
+                  </div>
+
+                  <!-- Slide Counter -->
+                  <div class="slide-counter" *ngIf="product.media.length > 1">
+                    {{ activeSlideIndex + 1 }} / {{ product.media.length }}
+                  </div>
+                </div>
+
+                <!-- Thumbnails -->
+                <div class="compact-thumbnails" *ngIf="product.media.length > 1">
+                  <div *ngFor="let media of product.media; let i = index"
+                       class="thumbnail"
+                       [class.active]="i === activeSlideIndex"
+                       (click)="goToSlide(i)">
+                    <img *ngIf="media.contentType?.startsWith('image/')"
+                         [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                         [alt]="'Thumbnail ' + (i + 1)"/>
+                    <div *ngIf="media.contentType?.startsWith('video/')" class="video-thumbnail">
+                      <mat-icon>play_circle_outline</mat-icon>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Back Button -->
+            <button (click)="backToList()" mat-stroked-button class="back-btn">
+              <mat-icon>arrow_back</mat-icon>
+              {{ 'COMMON.BACK_TO_PRODUCTS' | translate }}
+            </button>
           </div>
         </div>
       </div>
-
-
-      <!-- Back button at bottom -->
-      <div *ngIf="product" class="actions-section">
-        <button (click)="backToList()" mat-stroked-button class="navigate-back-btn">
-          <mat-icon>arrow_back</mat-icon>
-          Back to Products
-        </button>
-      </div>
-    </mat-card>
-  </div>
-
-  <!-- Floating Purchase Box (right) -->
-  <div class="floating-purchase-box" *ngIf="product">
-    <button (click)="addToCart()" color="primary" class="add-to-cart-btn">
-      <mat-icon>add_shopping_cart</mat-icon>
-      Add to Cart
-    </button>
-    <div class="price" *ngIf="product.price">
-      {{ product.price | currency }}
     </div>
   </div>
 </div>

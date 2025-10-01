@@ -1,39 +1,67 @@
 <div class="customer-container">
-  <div class="customer-header">
-    <div class="admin-title-section">
-      <h1>{{ 'CUSTOMER.TITLE' | translate }}</h1>
-      <div class="customer-id">
-        {{ 'CUSTOMER.ID' | translate }}: {{ (customer?.id) }}
+  <!-- Header Section -->
+  <div class="admin-header-section">
+    <div class="admin-header-content">
+      <div class="admin-title-section">
+        <h1>{{ 'CUSTOMER.TITLE' | translate }}</h1>
+        <div class="customer-id">
+          {{ 'CUSTOMER.ID' | translate }}: {{ customer?.id }}
+        </div>
       </div>
-    </div>
 
-    <div class="admin-status-section">
-
+      <div class="admin-status-section">
+        <mat-chip-listbox>
+          <mat-chip [color]="customer?.active ? 'primary' : 'warn'" selected>
+            {{ customer?.active ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+          </mat-chip>
+        </mat-chip-listbox>
+      </div>
     </div>
   </div>
 
-  <div class="customer-layout-wrapper">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-section">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <div class="loading-text">{{ 'CUSTOMER.LOADING' | translate }}</div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!loading && !customer" class="error-section">
+    <mat-icon color="warn" class="error-icon">error_outline</mat-icon>
+    <div class="error-text">{{ 'CUSTOMER.NOT_FOUND' | translate }}</div>
+    <button mat-stroked-button color="warn" (click)="navigateBackToList()">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'COMMON.BACK_TO_CUSTOMERS' | translate }}
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && customer" class="customer-layout-wrapper">
     <div class="customer-main-content-wrapper">
       <div class="customer-content">
         <!-- Customer Form -->
         <div class="customer-items-section">
-          <form id="customerForm" (ngSubmit)="onSave()" [formGroup]="customerForm" class="form-one-column-wrapper" id="customerForm">
+          <form id="customerForm" (ngSubmit)="onSave()" [formGroup]="customerForm" class="form-one-column-wrapper">
             <div class="form-content">
-              <mat-progress-bar *ngIf="saving || savingPassword" class="admin-save-progress"
-                                mode="indeterminate"></mat-progress-bar>
+              <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
 
-              <!-- Basic Info -->
+              <!-- Basic Info Section -->
               <div class="form-section">
                 <h3 class="section-subtitle">
                   <mat-icon>badge</mat-icon>
                   {{ 'CUSTOMER.BASIC_INFO' | translate }}
                 </h3>
+
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.EMAIL' | translate }}</mat-label>
-                    <input formControlName="email" matInput required>
+                    <input formControlName="email" matInput type="email" required>
+                    <mat-icon matSuffix>email</mat-icon>
                     <mat-error *ngIf="customerForm.get('email')?.hasError('required')">
                       {{ 'USER_REGISTRATION.EMAIL_REQUIRED' | translate }}
+                    </mat-error>
+                    <mat-error *ngIf="customerForm.get('email')?.hasError('email')">
+                      {{ 'USER_REGISTRATION.EMAIL_INVALID' | translate }}
                     </mat-error>
                   </mat-form-field>
                 </div>
@@ -42,6 +70,7 @@
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.FIRST_NAME' | translate }}</mat-label>
                     <input formControlName="firstName" matInput required>
+                    <mat-icon matSuffix>person</mat-icon>
                     <mat-error *ngIf="customerForm.get('firstName')?.hasError('required')">
                       {{ 'USER_REGISTRATION.FIRST_NAME_REQUIRED' | translate }}
                     </mat-error>
@@ -50,6 +79,7 @@
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.LAST_NAME' | translate }}</mat-label>
                     <input formControlName="lastName" matInput required>
+                    <mat-icon matSuffix>person</mat-icon>
                     <mat-error *ngIf="customerForm.get('lastName')?.hasError('required')">
                       {{ 'USER_REGISTRATION.LAST_NAME_REQUIRED' | translate }}
                     </mat-error>
@@ -59,33 +89,31 @@
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field" *ngIf="locales.length > 0">
                     <mat-label>{{ 'CUSTOMER.PREFERRED_LANGUAGE' | translate }}</mat-label>
-                    <mat-select
-                      formControlName="preferredLanguageId"
-                      (selectionChange)="onLanguageChange($event.value)">
-
-                      <!-- Show selected language with flag -->
+                    <mat-select formControlName="preferredLanguageId" (selectionChange)="onLanguageChange($event.value)">
+                      <!-- Selected Language Display -->
                       <mat-select-trigger>
                         <ng-container *ngIf="selectedLanguage">
-                          <img
-                            [src]="'assets/flags/' + selectedLanguage.regionCode.toLowerCase() + '.svg'"
-                            class="locale-flag"
-                            alt="flag">
+                          <img [src]="'assets/flags/' + selectedLanguage.regionCode.toLowerCase() + '.svg'"
+                               class="locale-flag" alt="flag">
                           {{ translateLocale(selectedLanguage) }}
                         </ng-container>
                       </mat-select-trigger>
 
-                      <!-- Options -->
+                      <!-- Language Options -->
                       <mat-option *ngFor="let locale of locales" [value]="locale.id">
-                        <img [src]="'assets/flags/' + locale.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
-                        {{ translateLocale(locale) }}
+                        <div class="locale-option">
+                          <img [src]="'assets/flags/' + locale.regionCode.toLowerCase() + '.svg'"
+                               class="locale-flag" alt="flag">
+                          <span>{{ translateLocale(locale) }}</span>
+                        </div>
                       </mat-option>
-
                     </mat-select>
+                    <mat-icon matSuffix>language</mat-icon>
                   </mat-form-field>
                 </div>
               </div>
 
-              <!-- Shipping Address -->
+              <!-- Shipping Address Section -->
               <div class="form-section" formGroupName="address">
                 <h3 class="section-subtitle">
                   <mat-icon>location_on</mat-icon>
@@ -96,6 +124,7 @@
                   <mat-form-field appearance="outline" class="form-field full-width">
                     <mat-label>{{ 'CUSTOMER.PHONE' | translate }}</mat-label>
                     <input formControlName="phone" matInput>
+                    <mat-icon matSuffix>phone</mat-icon>
                     <mat-error *ngIf="customerForm.get(['address', 'phone'])?.hasError('pattern')">
                       {{ 'CUSTOMER.PHONE_INVALID' | translate }}
                     </mat-error>
@@ -106,6 +135,7 @@
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.STREET' | translate }}</mat-label>
                     <input formControlName="street" matInput required>
+                    <mat-icon matSuffix>home</mat-icon>
                     <mat-error *ngIf="customerForm.get(['address', 'street'])?.hasError('required')">
                       {{ 'CUSTOMER.STREET_REQUIRED' | translate }}
                     </mat-error>
@@ -114,6 +144,7 @@
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.HOUSE_NUMBER' | translate }}</mat-label>
                     <input formControlName="houseNumber" matInput required>
+                    <mat-icon matSuffix>home_work</mat-icon>
                     <mat-error *ngIf="customerForm.get(['address', 'houseNumber'])?.hasError('required')">
                       {{ 'CUSTOMER.HOUSE_NUMBER_REQUIRED' | translate }}
                     </mat-error>
@@ -124,6 +155,7 @@
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.CITY' | translate }}</mat-label>
                     <input formControlName="city" matInput required>
+                    <mat-icon matSuffix>location_city</mat-icon>
                     <mat-error *ngIf="customerForm.get(['address', 'city'])?.hasError('required')">
                       {{ 'CUSTOMER.CITY_REQUIRED' | translate }}
                     </mat-error>
@@ -132,6 +164,7 @@
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.ZIP_CODE' | translate }}</mat-label>
                     <input formControlName="zipCode" matInput required>
+                    <mat-icon matSuffix>markunread_mailbox</mat-icon>
                     <mat-error *ngIf="customerForm.get(['address', 'zipCode'])?.hasError('required')">
                       {{ 'CUSTOMER.ZIP_CODE_REQUIRED' | translate }}
                     </mat-error>
@@ -144,7 +177,12 @@
                     <mat-label>{{ 'CUSTOMER.COUNTRY' | translate }}</mat-label>
                     <mat-select formControlName="country" required>
                       <mat-option value="Switzerland">Switzerland</mat-option>
+                      <mat-option value="Germany">Germany</mat-option>
+                      <mat-option value="France">France</mat-option>
+                      <mat-option value="Italy">Italy</mat-option>
+                      <mat-option value="Austria">Austria</mat-option>
                     </mat-select>
+                    <mat-icon matSuffix>public</mat-icon>
                     <mat-error *ngIf="customerForm.get(['address', 'country'])?.hasError('required')">
                       {{ 'CUSTOMER.COUNTRY_REQUIRED' | translate }}
                     </mat-error>
@@ -152,20 +190,22 @@
                 </div>
               </div>
 
-              <!-- Active & Billing -->
-              <div class="form-field form-section">
-                <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
-                  {{ 'PRODUCTS.ACTIVE' | translate }}
-                </mat-checkbox>
-              </div>
-
+              <!-- Account Settings -->
               <div class="form-section">
-                <mat-checkbox formControlName="sameBillingAddress">
-                  {{ 'CUSTOMER.SAME_BILLING_ADDRESS' | translate }}
-                </mat-checkbox>
+                <div class="form-row">
+                  <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
+                    {{ 'CUSTOMER.ACTIVE_ACCOUNT' | translate }}
+                  </mat-checkbox>
+                </div>
+
+                <div class="form-row">
+                  <mat-checkbox formControlName="sameBillingAddress">
+                    {{ 'CUSTOMER.SAME_BILLING_ADDRESS' | translate }}
+                  </mat-checkbox>
+                </div>
               </div>
 
-              <!-- Billing Address -->
+              <!-- Billing Address Section -->
               <div *ngIf="showBillingAddress" @slideDown class="form-section" formGroupName="billingAddress">
                 <h3 class="section-subtitle">
                   <mat-icon>business</mat-icon>
@@ -175,7 +215,8 @@
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.FIRST_NAME' | translate }}</mat-label>
-                    <input formControlName="firstName" matInput required>
+                    <input formControlName="firstName" matInput [required]="showBillingAddress">
+                    <mat-icon matSuffix>person</mat-icon>
                     <mat-error *ngIf="customerForm.get(['billingAddress', 'firstName'])?.hasError('required')">
                       {{ 'USER_REGISTRATION.FIRST_NAME_REQUIRED' | translate }}
                     </mat-error>
@@ -183,7 +224,8 @@
 
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.LAST_NAME' | translate }}</mat-label>
-                    <input formControlName="lastName" matInput required>
+                    <input formControlName="lastName" matInput [required]="showBillingAddress">
+                    <mat-icon matSuffix>person</mat-icon>
                     <mat-error *ngIf="customerForm.get(['billingAddress', 'lastName'])?.hasError('required')">
                       {{ 'USER_REGISTRATION.LAST_NAME_REQUIRED' | translate }}
                     </mat-error>
@@ -194,6 +236,7 @@
                   <mat-form-field appearance="outline" class="form-field full-width">
                     <mat-label>{{ 'CUSTOMER.PHONE' | translate }}</mat-label>
                     <input formControlName="phone" matInput>
+                    <mat-icon matSuffix>phone</mat-icon>
                     <mat-error *ngIf="customerForm.get(['billingAddress', 'phone'])?.hasError('pattern')">
                       {{ 'CUSTOMER.PHONE_INVALID' | translate }}
                     </mat-error>
@@ -203,7 +246,8 @@
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.STREET' | translate }}</mat-label>
-                    <input formControlName="street" matInput required>
+                    <input formControlName="street" matInput [required]="showBillingAddress">
+                    <mat-icon matSuffix>home</mat-icon>
                     <mat-error *ngIf="customerForm.get(['billingAddress', 'street'])?.hasError('required')">
                       {{ 'CUSTOMER.STREET_REQUIRED' | translate }}
                     </mat-error>
@@ -211,7 +255,8 @@
 
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.HOUSE_NUMBER' | translate }}</mat-label>
-                    <input formControlName="houseNumber" matInput required>
+                    <input formControlName="houseNumber" matInput [required]="showBillingAddress">
+                    <mat-icon matSuffix>home_work</mat-icon>
                     <mat-error *ngIf="customerForm.get(['billingAddress', 'houseNumber'])?.hasError('required')">
                       {{ 'CUSTOMER.HOUSE_NUMBER_REQUIRED' | translate }}
                     </mat-error>
@@ -221,7 +266,8 @@
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.CITY' | translate }}</mat-label>
-                    <input formControlName="city" matInput required>
+                    <input formControlName="city" matInput [required]="showBillingAddress">
+                    <mat-icon matSuffix>location_city</mat-icon>
                     <mat-error *ngIf="customerForm.get(['billingAddress', 'city'])?.hasError('required')">
                       {{ 'CUSTOMER.CITY_REQUIRED' | translate }}
                     </mat-error>
@@ -229,7 +275,8 @@
 
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.ZIP_CODE' | translate }}</mat-label>
-                    <input formControlName="zipCode" matInput required>
+                    <input formControlName="zipCode" matInput [required]="showBillingAddress">
+                    <mat-icon matSuffix>markunread_mailbox</mat-icon>
                     <mat-error *ngIf="customerForm.get(['billingAddress', 'zipCode'])?.hasError('required')">
                       {{ 'CUSTOMER.ZIP_CODE_REQUIRED' | translate }}
                     </mat-error>
@@ -240,16 +287,20 @@
 
                   <mat-form-field appearance="outline" class="form-field">
                     <mat-label>{{ 'CUSTOMER.COUNTRY' | translate }}</mat-label>
-                    <mat-select formControlName="country" required>
+                    <mat-select formControlName="country" [required]="showBillingAddress">
                       <mat-option value="Switzerland">Switzerland</mat-option>
+                      <mat-option value="Germany">Germany</mat-option>
+                      <mat-option value="France">France</mat-option>
+                      <mat-option value="Italy">Italy</mat-option>
+                      <mat-option value="Austria">Austria</mat-option>
                     </mat-select>
+                    <mat-icon matSuffix>public</mat-icon>
                     <mat-error *ngIf="customerForm.get(['billingAddress', 'country'])?.hasError('required')">
                       {{ 'CUSTOMER.COUNTRY_REQUIRED' | translate }}
                     </mat-error>
                   </mat-form-field>
                 </div>
               </div>
-
             </div>
           </form>
 
@@ -257,6 +308,8 @@
           <form #passwordFormDirective="ngForm" (ngSubmit)="onChangePassword(passwordFormDirective)"
                 [formGroup]="passwordForm" class="form-one-column-wrapper">
             <div class="form-content">
+              <mat-progress-bar *ngIf="savingPassword" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
+
               <div class="form-section">
                 <h3 class="section-subtitle">
                   <mat-icon>lock</mat-icon>
@@ -266,7 +319,8 @@
                   <div class="form-row">
                     <mat-form-field appearance="outline" class="form-field">
                       <mat-label>{{ 'CUSTOMER.NEW_PASSWORD' | translate }}</mat-label>
-                      <input formControlName="newPassword" matInput type="password">
+                      <input formControlName="newPassword" matInput type="password" required>
+                      <mat-icon matSuffix>vpn_key</mat-icon>
                       <mat-error *ngIf="passwordForm.get(['passwordChange', 'newPassword'])?.hasError('required')">
                         {{ 'USER_REGISTRATION.PASSWORD_REQUIRED' | translate }}
                       </mat-error>
@@ -280,15 +334,13 @@
 
                     <mat-form-field appearance="outline" class="form-field">
                       <mat-label>{{ 'CUSTOMER.CONFIRM_NEW_PASSWORD' | translate }}</mat-label>
-                      <input formControlName="confirmNewPassword" matInput type="password">
-                      <mat-error
-                        *ngIf="passwordForm.get(['passwordChange', 'confirmNewPassword'])?.hasError('required')">
+                      <input formControlName="confirmNewPassword" matInput type="password" required>
+                      <mat-icon matSuffix>vpn_key</mat-icon>
+                      <mat-error *ngIf="passwordForm.get(['passwordChange', 'confirmNewPassword'])?.hasError('required')">
                         {{ 'USER_REGISTRATION.PASSWORD_REQUIRED' | translate }}
                       </mat-error>
-                      <mat-error
-                        *ngIf="passwordForm.get('passwordChange')?.hasError('mismatch') &&
-                               (passwordForm.get(['passwordChange', 'confirmNewPassword'])?.dirty ||
-                                passwordForm.get(['passwordChange', 'confirmNewPassword'])?.touched)">
+                      <mat-error *ngIf="passwordForm.get('passwordChange')?.hasError('mismatch') &&
+                                         (passwordForm.get(['passwordChange', 'confirmNewPassword'])?.dirty)">
                         {{ 'USER_REGISTRATION.PASSWORDS_MISMATCH' | translate }}
                       </mat-error>
                     </mat-form-field>
@@ -297,135 +349,224 @@
               </div>
             </div>
           </form>
-
         </div>
-        <!-- Order Info Section -->
-        <div class="order-info-section">
-          <h2>{{ 'ORDERS.TITLE' | translate }}</h2>
-          <p class="admin-subtitle">{{ 'ORDERS.CLIENT_SUBTITLE' | translate }}</p>
 
+        <!-- Order History Section -->
+        <div class="order-info-section">
+          <div class="section-header">
+            <h2>{{ 'ORDERS.TITLE' | translate }}</h2>
+            <p class="admin-subtitle">{{ 'ORDERS.CLIENT_SUBTITLE' | translate }}</p>
+          </div>
+
+          <!-- Orders Loading State -->
           <div *ngIf="isOrdersLoading" class="loading-section">
             <mat-progress-bar mode="indeterminate"></mat-progress-bar>
             <div class="loading-text">{{ 'ORDERS.LOADING' | translate }}</div>
           </div>
 
+          <!-- Orders Error State -->
           <div *ngIf="ordersError" class="error-section">
             <mat-icon color="warn" class="error-icon">error_outline</mat-icon>
             <div class="error-text">{{ ordersError }}</div>
           </div>
 
+          <!-- No Orders State -->
           <div *ngIf="!isOrdersLoading && !ordersError && ordersDataSource.data.length === 0" class="no-orders-section">
             <mat-icon class="no-orders-icon">history</mat-icon>
             <p class="no-orders-message">{{ 'ORDERS.NO_ORDERS' | translate }}</p>
           </div>
 
-          <!-- Table -->
+          <!-- Orders Table -->
           <div class="table-section" *ngIf="!isOrdersLoading && !ordersError && ordersDataSource.data.length > 0">
-            <div class="mat-elevation-z8 table-container">
-              <table mat-table [dataSource]="ordersDataSource" matSort class="wide-table">
+            <div class="table-header">
+              <div class="results-count">
+                {{ 'ORDERS.SHOWING' | translate }} {{ ordersDataSource.filteredData.length }} {{ 'ORDERS.OF' | translate }} {{ ordersDataSource.data.length }} {{ 'ORDERS.ORDERS' | translate }}
+              </div>
+            </div>
 
-                <!-- Invoice ID -->
-                <ng-container matColumnDef="invoiceId">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'ORDERS.INVOICE_ID' | translate }}</th>
-                  <td mat-cell *matCellDef="let order"> {{ order.invoiceId }}</td>
-                </ng-container>
+            <div class="table-wrapper">
+              <div class="mat-elevation-z8 table-container">
+                <table mat-table [dataSource]="ordersDataSource" matSort class="orders-table">
+                  <!-- Invoice ID Column -->
+                  <ng-container matColumnDef="invoiceId">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                      {{ 'ORDERS.INVOICE_ID' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let order" class="invoice-cell">
+                      <span class="invoice-id">{{ order.invoiceId }}</span>
+                    </td>
+                  </ng-container>
 
-                <!-- Order Date -->
-                <ng-container matColumnDef="orderDate">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'ORDERS.DATE' | translate }}</th>
-                  <td mat-cell *matCellDef="let order"> {{ order.orderDate | date:'medium' }}</td>
-                </ng-container>
+                  <!-- Order Date Column -->
+                  <ng-container matColumnDef="orderDate">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                      {{ 'ORDERS.DATE' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let order" class="date-cell">
+                      {{ order.orderDate | date:'medium' }}
+                    </td>
+                  </ng-container>
 
-                <!-- Shipping Method -->
-                <ng-container matColumnDef="shippingMethod">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'ORDERS.SHIPPING_METHOD' | translate }}</th>
-                  <td mat-cell *matCellDef="let order"> {{ order.shippingMethod }}</td>
-                </ng-container>
+                  <!-- Shipping Method Column -->
+                  <ng-container matColumnDef="shippingMethod">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                      {{ 'ORDERS.SHIPPING_METHOD' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let order" class="shipping-cell">
+                      {{ order.shippingMethod }}
+                    </td>
+                  </ng-container>
 
-                <!-- Payment Method -->
-                <ng-container matColumnDef="paymentMethod">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'ORDERS.PAYMENT_METHOD' | translate }}</th>
-                  <td mat-cell *matCellDef="let order"> {{ order.paymentMethod }}</td>
-                </ng-container>
+                  <!-- Payment Method Column -->
+                  <ng-container matColumnDef="paymentMethod">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                      {{ 'ORDERS.PAYMENT_METHOD' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let order" class="payment-cell">
+                      {{ order.paymentMethod }}
+                    </td>
+                  </ng-container>
 
-                <!-- Final Total -->
-                <ng-container matColumnDef="finalTotal">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'ORDERS.TOTAL' | translate }}</th>
-                  <td mat-cell *matCellDef="let order"> {{ order.finalTotal | currency }}</td>
-                </ng-container>
+                  <!-- Total Column -->
+                  <ng-container matColumnDef="finalTotal">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                      {{ 'ORDERS.TOTAL' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let order" class="total-cell">
+                      <span class="total-amount">{{ order.finalTotal | swissCurrency }}</span>
+                    </td>
+                  </ng-container>
 
-                <!-- Status -->
-                <ng-container matColumnDef="status">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'ORDERS.STATUS' | translate }}</th>
-                  <td mat-cell *matCellDef="let order">
-                    <span class="status-badge" [ngClass]="getOrderStatusClass(order.status)">
-                      {{ getOrderStatusText(order.status) }}
-                    </span>
-                  </td>
-                </ng-container>
+                  <!-- Status Column -->
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                      {{ 'ORDERS.STATUS' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let order" class="status-cell">
+                      <span class="status-badge" [ngClass]="getOrderStatusClass(order.status)">
+                        {{ getOrderStatusText(order.status) }}
+                      </span>
+                    </td>
+                  </ng-container>
 
-                <!-- Actions -->
-                <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef class="actions-header"> {{ 'ORDERS.ACTIONS' | translate }}</th>
-                  <td mat-cell *matCellDef="let order" class="actions-cell">
-                    <div class="admin-action-buttons">
-                      <button mat-icon-button (click)="viewOrderDetails(order.id)" matTooltip="View Details"
-                              class="action-btn view-btn">
-                        <mat-icon>visibility</mat-icon>
-                      </button>
-                      <button mat-icon-button (click)="downloadOrderInvoice(order)" matTooltip="Download Invoice"
-                              class="action-btn download-btn">
-                        <mat-icon>download</mat-icon>
-                      </button>
-                    </div>
-                  </td>
-                </ng-container>
+                  <!-- Actions Column -->
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef class="actions-header">
+                      {{ 'ORDERS.ACTIONS' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let order" class="actions-cell">
+                      <div class="action-buttons">
+                        <button mat-icon-button (click)="viewOrderDetails(order.id)"
+                                [matTooltip]="'ORDERS.VIEW_DETAILS' | translate"
+                                class="action-btn view-btn">
+                          <mat-icon>visibility</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="downloadOrderInvoice(order)"
+                                [matTooltip]="'ORDERS.DOWNLOAD_INVOICE' | translate"
+                                class="action-btn download-btn">
+                          <mat-icon>download</mat-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="ordersDisplayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: ordersDisplayedColumns;"></tr>
-              </table>
+                  <tr mat-header-row *matHeaderRowDef="ordersDisplayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: ordersDisplayedColumns;"></tr>
+                </table>
 
-              <mat-paginator
-                [pageSizeOptions]="[5, 10, 20]"
-                showFirstLastButtons
-                pageSize="5"
-                [length]="ordersDataSource.filteredData.length">
-              </mat-paginator>
+                <!-- Orders Paginator -->
+                <mat-paginator
+                  [pageSizeOptions]="[5, 10, 20]"
+                  showFirstLastButtons
+                  pageSize="5"
+                  [length]="ordersDataSource.data.length">
+                </mat-paginator>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-
+    <!-- Sidebar Actions -->
     <div class="order-summary">
       <div class="summary-card">
-        <h3>{{ 'ORDER_DETAIL.ORDER_SUMMARY' | translate }}</h3>
+        <h3>{{ 'CUSTOMER.ACTIONS' | translate }}</h3>
+
+        <!-- Save Changes Button -->
+        <div class="action-button-group">
+          <button
+            [disabled]="(customerForm.invalid || (!customerForm.dirty && !languageChanged) || saving)"
+            color="primary"
+            form="customerForm"
+            mat-flat-button
+            type="submit"
+            class="save-button">
+            <mat-icon>save</mat-icon>
+            {{ saving ? ('COMMON.SAVING' | translate) : ('ORDER_DETAIL.SAVE_CHANGES' | translate) }}
+          </button>
+        </div>
+
+        <!-- Change Password Button -->
+        <div class="action-button-group">
+          <button
+            (click)="onChangePassword(passwordFormDirective)"
+            [disabled]="passwordForm.get('passwordChange')?.invalid || !passwordForm.get('passwordChange')?.dirty || savingPassword"
+            color="accent"
+            mat-stroked-button
+            type="button"
+            class="password-button">
+            <mat-icon>lock_open</mat-icon>
+            {{ savingPassword ? ('COMMON.SAVING' | translate) : ('COMMON.CHANGE_PASSWORD' | translate) }}
+          </button>
+        </div>
+
+        <!-- Back Button -->
+        <div class="back-button-container">
+          <button (click)="navigateBackToList()" mat-stroked-button class="back-button">
+            <mat-icon>arrow_back</mat-icon>
+            {{ 'COMMON.BACK_TO_CUSTOMERS' | translate }}
+          </button>
+        </div>
       </div>
 
-      <div class="admin-action-buttons">
-        <button [disabled]="(customerForm.invalid || !customerForm.dirty || saving) && !languageChanged" color="primary" form="customerForm"
-                mat-flat-button type="submit">
-          <mat-icon>save</mat-icon>
-          {{ 'ORDER_DETAIL.SAVE_CHANGES' | translate }}
-        </button>
-      </div>
-      <div class="form-row action-row">
-        <button
-          (click)="onChangePassword(passwordFormDirective)"
-          [disabled]="passwordForm.get('passwordChange')?.invalid || !passwordForm.get('passwordChange')?.dirty || savingPassword"
-          color="primary" mat-flat-button type="button">
-          <mat-icon>lock_open</mat-icon>
-          {{ savingPassword ? ('COMMON.SAVING' | translate) : ('COMMON.CHANGE_PASSWORD' | translate) }}
-        </button>
-      </div>
-
-      <!-- Back to Orders Button -->
-      <div class="back-button-container">
-        <button (click)="navigateBackToList()" class="navigate-back-btn" mat-stroked-button>
-          <mat-icon>arrow_back</mat-icon>
-          Back to Customers
-        </button>
+      <!-- Customer Summary Card -->
+      <div class="summary-card customer-summary">
+        <h3>{{ 'CUSTOMER.SUMMARY' | translate }}</h3>
+        <div class="summary-content">
+          <div class="summary-item">
+            <mat-icon>person</mat-icon>
+            <div class="summary-text">
+              <span class="summary-label">{{ 'CUSTOMER.NAME' | translate }}</span>
+              <span class="summary-value">{{ customer?.firstName }} {{ customer?.lastName }}</span>
+            </div>
+          </div>
+          <div class="summary-item">
+            <mat-icon>email</mat-icon>
+            <div class="summary-text">
+              <span class="summary-label">{{ 'CUSTOMER.EMAIL' | translate }}</span>
+              <span class="summary-value">{{ customer?.email }}</span>
+            </div>
+          </div>
+          <div class="summary-item">
+            <mat-icon>language</mat-icon>
+            <div class="summary-text">
+              <span class="summary-label">{{ 'CUSTOMER.LANGUAGE' | translate }}</span>
+              <span class="summary-value" *ngIf="selectedLanguage">
+                <img [src]="'assets/flags/' + selectedLanguage.regionCode.toLowerCase() + '.svg'"
+                     class="locale-flag-small" alt="flag">
+                {{ translateLocale(selectedLanguage) }}
+              </span>
+            </div>
+          </div>
+          <div class="summary-item">
+            <mat-icon>shopping_cart</mat-icon>
+            <div class="summary-text">
+              <span class="summary-label">{{ 'ORDERS.TOTAL_ORDERS' | translate }}</span>
+              <span class="summary-value">{{ ordersDataSource.data.length }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

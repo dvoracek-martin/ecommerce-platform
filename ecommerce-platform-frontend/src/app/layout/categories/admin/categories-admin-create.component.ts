@@ -207,4 +207,8 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
       tags.translatedUrl = this.tagService.getLocalizedUrl(tags);
     });
   }
+
+  dropMedia(event: CdkDragDrop<any[]>): void {
+    moveItemInArray(this.mediaControls.controls, event.previousIndex, event.currentIndex);
+  }
 }

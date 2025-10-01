@@ -54,7 +54,8 @@
     "SENDING": "Sending...",
     "YES": "Yes",
     "LOADING": "Loading...",
-    "BACK": "Back"
+    "BACK": "Back",
+    "BACK_TO_HOME": "Back to Home"
   },
   "CUSTOMER": {
     "ADDRESS": "Address",
@@ -155,6 +156,14 @@
     "LOGGING_IN": "Logging in..."
   },
   "MENU": {
+    "NAVIGATION": {
+      "TITLE": "Navigation",
+      "HOME": "Home",
+      "PRODUCTS": "Products",
+      "MIXTURES": "Mixtures",
+      "SALES": "Sales",
+      "ABOUT_US": "About Us"
+    },
     "ADMIN": {
       "CATEGORIES": "Categories",
       "CUSTOMERS": "Customers",
@@ -174,6 +183,10 @@
     "LOGOUT": "Logout"
   },
   "PRODUCTS": {
+    "DETAILS": "Product Details",
+    "WEIGHT": "Weight",
+    "TAGS": "Tags",
+    "TITLE": "Products",
     "ADMIN": {
       "ADD_ALLERGEN": "Add Allergen",
       "ADD_TAG": "Add Tag",
@@ -182,6 +195,7 @@
       "DETAILS": "Product Details",
       "MEDIA": "Product Media",
       "NEW_TITLE": "Create New Product",
+      "EDIT": "Edit Product",
       "NO_MEDIA_UPLOADED": "No media has been uploaded for this product.",
       "TAGS": "Product Tags",
       "TITLE": "Products",

@@ -1,31 +1,64 @@
 <mat-toolbar class="main-toolbar">
   <!-- Navigation Menu -->
-  <button mat-icon-button class="menu-button" [matMenuTriggerFor]="menu">
-    <mat-icon>menu</mat-icon>
-  </button>
+  <div class="navigation-menu-container">
+    <!-- Menu Button -->
+    <button
+      mat-icon-button
+      class="menu-button"
+      (mouseenter)="onMenuButtonMouseEnter()"
+      (mouseleave)="onMenuButtonMouseLeave()">
+      <mat-icon>menu</mat-icon>
+    </button>
 
-  <mat-menu #menu="matMenu" class="navigation-menu">
-    <button mat-menu-item (click)="navigateToRoot()">
-      <mat-icon>home</mat-icon>
-      <span>Home</span>
-    </button>
-    <button mat-menu-item>
-      <mat-icon>shopping_bag</mat-icon>
-      <span>Products</span>
-    </button>
-    <button mat-menu-item>
-      <mat-icon>blender</mat-icon>
-      <span>Mixtures</span>
-    </button>
-    <button mat-menu-item>
-      <mat-icon>local_offer</mat-icon>
-      <span>Sales</span>
-    </button>
-    <button mat-menu-item>
-      <mat-icon>info</mat-icon>
-      <span>About Us</span>
-    </button>
-  </mat-menu>
+    <!-- Menu Panel (similar to cart preview) -->
+    <div
+      class="navigation-menu-panel"
+      *ngIf="isMenuOpen"
+      (mouseenter)="onMenuMouseEnter()"
+      (mouseleave)="onMenuMouseLeave()">
+
+      <!-- Main Navigation Section -->
+      <div class="modern-menu-section navigation-section">
+        <h4 class="modern-section-title">{{ 'MENU.NAVIGATION.TITLE' | translate }}</h4>
+
+        <button
+          mat-menu-item
+          (click)="navigateToRoot()"
+          class="modern-menu-item">
+          <mat-icon>home</mat-icon>
+          <span>{{ 'MENU.NAVIGATION.HOME' | translate }}</span>
+        </button>
+
+        <button
+          mat-menu-item
+          class="modern-menu-item">
+          <mat-icon>shopping_bag</mat-icon>
+          <span>{{ 'MENU.NAVIGATION.PRODUCTS' | translate }}</span>
+        </button>
+
+        <button
+          mat-menu-item
+          class="modern-menu-item">
+          <mat-icon>blender</mat-icon>
+          <span>{{ 'MENU.NAVIGATION.MIXTURES' | translate }}</span>
+        </button>
+
+        <button
+          mat-menu-item
+          class="modern-menu-item">
+          <mat-icon>local_offer</mat-icon>
+          <span>{{ 'MENU.NAVIGATION.SALES' | translate }}</span>
+        </button>
+
+        <button
+          mat-menu-item
+          class="modern-menu-item">
+          <mat-icon>info</mat-icon>
+          <span>{{ 'MENU.NAVIGATION.ABOUT_US' | translate }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- App Title -->
   <div class="centered-title">
@@ -44,7 +77,8 @@
         class="language-button"
         mat-icon-button
         [matMenuTriggerFor]="langMenu"
-        #menuTrigger="matMenuTrigger"
+        #langMenuTrigger="matMenuTrigger"
+        [class.mat-menu-trigger-opened]="isLanguageMenuOpen()"
         (menuOpened)="onLanguageMenuOpened()">
         <img
           [src]="'assets/flags/' + selectedLanguage.regionCode.toLowerCase() + '.svg'"
@@ -56,6 +90,7 @@
         <button
           mat-menu-item
           *ngFor="let lang of languages"
+          [class.active-language]="lang.languageCode === selectedLanguage.languageCode"
           (click)="changeLanguage(lang.languageCode)">
           <img
             [src]="'assets/flags/' + lang.regionCode.toLowerCase() + '.svg'"
@@ -81,7 +116,7 @@
           [attr.data-count]="totalCartItemCount$ | async">
           <mat-icon [class.has-items]="(totalCartItemCount$ | async) > 0">shopping_cart</mat-icon>
           <span class="total-price" *ngIf="(totalCartItemCount$ | async) > 0">
-            {{ (cartService.cart$ | async)?.totalPrice | currency:'USD':'symbol':'1.2-2' }}
+            {{ (cartService.cart$ | async)?.totalPrice | swissCurrency}}
           </span>
         </div>
       </button>
@@ -129,7 +164,7 @@
                         {{ getTranslatedItemName(item) }}
                       </span>
                       <span class="item-price">
-                        {{ item.product.price | currency:'USD':'symbol':'1.2-2' }}
+                        {{ item.product.price | swissCurrency}}
                       </span>
                     </div>
 
@@ -165,7 +200,7 @@
                       </div>
 
                       <div class="item-total">
-                        {{ (item.product?.price || item.mixture?.price || 0) * item.quantity | currency:'USD':'symbol':'1.2-2' }}
+                        {{ (item.product?.price || item.mixture?.price || 0) * item.quantity | swissCurrency}}
                       </div>
                     </div>
                   </div>
@@ -178,7 +213,7 @@
                     <div class="item-header">
                       <span class="item-name">{{ getTranslatedItemName(item) }}</span>
                       <span class="item-price">
-                        {{ item.mixture.price | currency:'USD':'symbol':'1.2-2' }}
+                        {{ item.mixture.price | swissCurrency }}
                       </span>
                     </div>
 
@@ -214,7 +249,7 @@
                       </div>
 
                       <div class="item-total">
-                        {{ item.mixture.price * item.quantity | currency:'USD':'symbol':'1.2-2' }}
+                        {{ item.mixture.price * item.quantity | swissCurrency }}
                       </div>
                     </div>
                   </div>
@@ -236,7 +271,7 @@
               <!-- Cart Footer -->
               <div class="cart-footer">
                 <div class="cart-total">
-                  {{ cart.totalPrice | currency:'USD':'symbol':'1.2-2' }}
+                  {{ cart.totalPrice | swissCurrency }}
                 </div>
                 <button
                   mat-flat-button

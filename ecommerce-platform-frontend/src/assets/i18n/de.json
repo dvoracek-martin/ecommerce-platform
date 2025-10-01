@@ -43,7 +43,8 @@
     "SAVE": "Änderungen speichern",
     "SAVING": "Speichern...",
     "SENDING": "Senden...",
-    "YES": "Ja"
+    "YES": "Ja",
+    "BACK_TO_HOME": "Back to Home"
   },
   "CUSTOMER": {
     "ADDRESS": "Adresse",
@@ -112,6 +113,14 @@
     "TITLE": "Anmelden"
   },
   "MENU": {
+    "NAVIGATION": {
+      "TITLE": "Navigation",
+      "HOME": "Home",
+      "PRODUCTS": "Products",
+      "MIXTURES": "Mixtures",
+      "SALES": "Sales",
+      "ABOUT_US": "About Us"
+    },
     "ADMIN": {
       "CATEGORIES": "Kategorien",
       "CUSTOMERS": "Kunden",

@@ -1,11 +1,12 @@
 <div class="app-container">
   <div class="mixing-container" #mixingContainer>
-
     <!-- Sticky Header with Categories -->
     <div class="sticky-header-mixing">
       <h1>{{ 'MIXING.TITLE' | translate }}</h1>
       <div class="category-nav-wrapper">
-        <button class="carousel-btn left" (click)="prevCategory()" [disabled]="activeCategoryIndex === 0">‹</button>
+        <button class="carousel-btn left" (click)="prevCategory()" [disabled]="activeCategoryIndex === 0">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
         <div class="category-nav-row">
           <div *ngFor="let category of categories; let i = index"
                class="category-nav-item"
@@ -23,25 +24,27 @@
           </div>
         </div>
         <button class="carousel-btn right" (click)="nextCategory()"
-                [disabled]="activeCategoryIndex === categories.length - 1">›
+                [disabled]="activeCategoryIndex === categories.length - 1">
+          <mat-icon>chevron_right</mat-icon>
         </button>
       </div>
     </div>
 
+    <!-- Loading State -->
     <div *ngIf="isLoading" class="loading-section">
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-      <div class="loading-text">Loading products...</div>
+      <div class="loading-text">{{ 'COMMON.LOADING' | translate }}</div>
     </div>
 
+    <!-- Error State -->
     <div *ngIf="error" class="error-section">
       <mat-icon color="warn" class="error-icon">error_outline</mat-icon>
       <div class="error-text">{{ error }}</div>
       <button mat-stroked-button color="warn" (click)="navigateHome()">
         <mat-icon>arrow_back</mat-icon>
-        Back to the main page
+        {{ 'COMMON.BACK_TO_HOME' | translate }}
       </button>
     </div>
-
 
     <!-- Products Carousel -->
     <div class="main-content-wrapper" *ngIf="!isLoading && !error">
@@ -73,24 +76,22 @@
                   <div class="product-name">{{ product.translatedName }}</div>
                   <div class="product-description">{{ product.translatedDescription }}</div>
                   <div class="product-bottom">
-                    <div class="product-info-btn" (click)="showProductInfo(product)">
+                    <button class="product-info-btn" (click)="showProductInfo(product)">
                       <mat-icon>info</mat-icon>
-                    </div>
-                    <div class="product-price">{{ product.price | currency }}</div>
+                    </button>
+                    <div class="product-price">{{ product.price | swissCurrency}}</div>
                     <button class="add-mixture-btn"
                             [disabled]="isAddButtonDisabled(product) || addingProductId === product.id"
                             [title]="getAddButtonTooltip(product)"
                             (click)="addProductToMixture(product)">
                       <ng-container *ngIf="addingProductId === product.id; else defaultAdd">
                         <div class="adding-animation">
-                          <span class="icon-pulse">✔</span>
+                          <span class="icon-pulse">✓</span>
                         </div>
                       </ng-container>
                       <ng-template #defaultAdd>
-                        <ng-container *ngIf="!isAddButtonDisabled(product)">{{ 'PRODUCTS.ADD' | translate }}
-                        </ng-container>
-                        <ng-container *ngIf="isAddButtonDisabled(product)">{{ 'PRODUCTS.GRID_FULL' | translate }}
-                        </ng-container>
+                        <ng-container *ngIf="!isAddButtonDisabled(product)">{{ 'PRODUCTS.ADD' | translate }}</ng-container>
+                        <ng-container *ngIf="isAddButtonDisabled(product)">{{ 'PRODUCTS.GRID_FULL' | translate }}</ng-container>
                       </ng-template>
                     </button>
                   </div>
@@ -122,7 +123,7 @@
 
     <!-- Warning message for default name -->
     <div *ngIf="isDefaultName()" class="name-warning">
-      <span>Please name your mixture</span>
+      <span>{{ 'MIXTURE.NAME_REQUIRED' | translate }}</span>
     </div>
 
     <div class="mixture-grid">
@@ -136,12 +137,12 @@
                  class="mixed-product-image"
                  alt="{{ p.translatedName }}"/>
             <div class="mixed-product-name">{{ p.translatedName }}</div>
-            <button class="btn-remove" (click)="removeProductFromMixture(index)">x</button>
+            <button class="btn-remove" (click)="removeProductFromMixture(index)">×</button>
           </ng-container>
           <div *ngIf="!product" class="empty-grid-cell">
             <div class="empty-cell-text">
               <span class="icon-plus">+</span>
-              Add Product
+              {{ 'MIXTURE.ADD_PRODUCT' | translate }}
             </div>
           </div>
         </div>
@@ -150,28 +151,29 @@
 
     <!-- Mixture Summary -->
     <div class="mixture-summary">
-      <h3>Summary</h3>
+      <h3>{{ 'MIXTURE.SUMMARY' | translate }}</h3>
       <ng-container *ngFor="let item of getProductsByCategoryInMixture() | keyvalue">
         <h4 class="category-heading">{{ item.key }}</h4>
         <ul>
           <li *ngFor="let summary of item.value; trackBy: trackBySummaryProductId">
-            <span class="product-count">{{ summary.count }}x</span>
+            <span class="product-count">{{ summary.count }}×</span>
             {{ summary.product.translatedName }}
-            <span class="product-price-summary">{{ summary.totalPrice | currency }}</span>
+            <span class="product-price-summary">{{ summary.totalPrice | swissCurrency}}</span>
           </li>
         </ul>
       </ng-container>
       <div class="final-price">
-        Total: {{ calculateTotalPrice() | currency }}
+        {{ 'MIXTURE.TOTAL' | translate }}: {{ calculateTotalPrice() | swissCurrency}}
       </div>
       <div class="mixture-actions">
         <span
           matTooltip="{{ isDefaultName() ? ('MIXTURE.NAME_REQUIRED' | translate) : '' }}"
           [matTooltipDisabled]="!isDefaultName()" matTooltipShowDelay="200"
           class="tooltip-wrapper">
-          <button class="btn add-to-cart-btn"
+          <button class="add-to-cart-btn"
                   [disabled]="isDefaultName() || getNonNullMixedProductsCount() === 0"
                   (click)="addMixtureToCart()">
+            <mat-icon>shopping_cart</mat-icon>
             {{ 'MIXTURE.ADD_TO_CART' | translate }}
           </button>
         </span>
@@ -208,15 +210,15 @@
         <div class="popup-scroll-content">
           <div class="popup-details">
             <h2 class="popup-product-name">{{ selectedProduct.translatedName }}</h2>
-            <div class="popup-price">{{ selectedProduct.price | currency }}</div>
+            <div class="popup-price">{{ selectedProduct.price | swissCurrency}}</div>
 
             <div class="popup-info-grid">
               <div *ngIf="selectedProduct.translatedDescription" class="info-item">
-                <span class="info-label">Description:</span>
+                <span class="info-label">{{ 'PRODUCTS.DESCRIPTION' | translate }}:</span>
                 <p>{{ selectedProduct.translatedDescription }}</p>
               </div>
               <div *ngIf="selectedProduct.responseTagDTOS?.length" class="info-item">
-                <span class="info-label">Tags:</span>
+                <span class="info-label">{{ 'PRODUCTS.TAGS' | translate }}:</span>
                 <div class="tags-container">
                   <span *ngFor="let tag of selectedProduct.responseTagDTOS" class="tag">{{ tag.translatedName }}</span>
                 </div>
@@ -227,6 +229,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Loading Overlay -->
   <div *ngIf="isAddingToCart" class="mixture-loading-overlay">
     <div class="mixture-loading-content">
       <div class="spinner-container">

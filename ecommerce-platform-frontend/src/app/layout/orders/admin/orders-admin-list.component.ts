@@ -30,7 +30,18 @@ interface OrderWithCustomer extends ResponseOrderDTO {
 })
 export class OrdersAdminListComponent implements OnInit {
   dataSource = new MatTableDataSource<OrderWithCustomer>();
-  displayedColumns: string[] = ['invoiceId', 'orderDate', 'userEmail', 'userLastName', 'userFirstName', 'shippingMethod', 'paymentMethod', 'finalTotal', 'status', 'actions'];
+
+  // Updated displayed columns to match the new structure
+  displayedColumns: string[] = [
+    'invoiceId',
+    'orderDate',
+    'customer',  // Combined customer column
+    'shippingMethod',
+    'paymentMethod',
+    'finalTotal',
+    'status',
+    'actions'
+  ];
 
   searchControl = new FormControl('');
   invoiceIdSearchControl = new FormControl('');
@@ -97,10 +108,10 @@ export class OrdersAdminListComponent implements OnInit {
 
   applyInvoiceIdFilter(filterValue: string): void {
     this.dataSource.filterPredicate = (data: OrderWithCustomer, filter: string) => {
-      return data.invoiceId?.includes(filter) || false;
+      return data.invoiceId?.toLowerCase().includes(filter.toLowerCase()) || false;
     };
 
-    this.dataSource.filter = filterValue.trim();
+    this.dataSource.filter = filterValue.trim().toLowerCase();
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
@@ -152,12 +163,9 @@ export class OrdersAdminListComponent implements OnInit {
           switch (property) {
             case 'invoiceId':
               return item.invoiceId || '';
-            case 'userEmail':
-              return item.userEmail || '';
-            case 'userLastName':
-              return item.userLastName || '';
-            case 'userFirstName':
-              return item.userFirstName || '';
+            case 'customer':
+              // Sort by customer name (last name + first name)
+              return `${item.userLastName || ''} ${item.userFirstName || ''}`.trim().toLowerCase();
             case 'shippingMethod':
               return item.shippingMethod;
             case 'paymentMethod':
@@ -166,6 +174,8 @@ export class OrdersAdminListComponent implements OnInit {
               return item.finalTotal || 0;
             case 'status':
               return item.status || '';
+            case 'orderDate':
+              return new Date(item.orderDate).getTime();
             default:
               return item[property as keyof OrderWithCustomer] as string;
           }
@@ -174,11 +184,12 @@ export class OrdersAdminListComponent implements OnInit {
         // Set up custom filtering for the data source
         this.dataSource.filterPredicate = (data: OrderWithCustomer, filter: string): boolean => {
           const searchStr = filter.toLowerCase();
+          const customerName = `${data.userFirstName || ''} ${data.userLastName || ''}`.toLowerCase();
+
           return (
             (data.invoiceId || '').toLowerCase().includes(searchStr) ||
             (data.userEmail || '').toLowerCase().includes(searchStr) ||
-            (data.userFirstName || '').toLowerCase().includes(searchStr) ||
-            (data.userLastName || '').toLowerCase().includes(searchStr) ||
+            customerName.includes(searchStr) ||
             data.shippingMethod.toLowerCase().includes(searchStr) ||
             data.paymentMethod.toLowerCase().includes(searchStr) ||
             (data.finalTotal || 0).toString().includes(searchStr) ||
@@ -305,11 +316,12 @@ export class OrdersAdminListComponent implements OnInit {
     // Reset to default filter predicate
     this.dataSource.filterPredicate = (data: OrderWithCustomer, filter: string): boolean => {
       const searchStr = filter.toLowerCase();
+      const customerName = `${data.userFirstName || ''} ${data.userLastName || ''}`.toLowerCase();
+
       return (
         (data.invoiceId || '').toLowerCase().includes(searchStr) ||
         (data.userEmail || '').toLowerCase().includes(searchStr) ||
-        (data.userFirstName || '').toLowerCase().includes(searchStr) ||
-        (data.userLastName || '').toLowerCase().includes(searchStr) ||
+        customerName.includes(searchStr) ||
         data.shippingMethod.toLowerCase().includes(searchStr) ||
         data.paymentMethod.toLowerCase().includes(searchStr) ||
         (data.finalTotal || 0).toString().includes(searchStr) ||
@@ -318,5 +330,18 @@ export class OrdersAdminListComponent implements OnInit {
       );
     };
     this.dataSource.filter = '';
+  }
+
+  // Helper method to get full customer name for display
+  getCustomerDisplayName(order: OrderWithCustomer): string {
+    if (order.userFirstName && order.userLastName) {
+      return `${order.userFirstName} ${order.userLastName}`;
+    } else if (order.userFirstName) {
+      return order.userFirstName;
+    } else if (order.userLastName) {
+      return order.userLastName;
+    } else {
+      return 'Unknown Customer';
+    }
   }
 }

@@ -10,12 +10,12 @@
         <div class="admin-search-section">
           <div class="admin-search-container">
             <div class="admin-search-input-wrapper">
-              <mat-icon class="search-icon">search</mat-icon>
+              <mat-icon class="admin-search-icon">search</mat-icon>
               <input
                 [formControl]="searchControl"
                 class="admin-search-input"
                 matInput
-                placeholder="Search by name">
+                [placeholder]="'PRODUCTS.SEARCH_PLACEHOLDER' | translate">
               <button
                 (click)="clearSearch()"
                 *ngIf="searchControl.value"
@@ -25,11 +25,10 @@
               </button>
             </div>
           </div>
-        </div>
-        <div class="search-container">
+
           <div class="admin-search-checkbox-wrapper">
-            <mat-checkbox (change)="applyFilters()" [formControl]="activeSeControl">
-              Show only active
+            <mat-checkbox (change)="applyFilters()" [formControl]="activeSeControl" class="admin-active-checkbox">
+              {{ 'PRODUCTS.SHOW_ACTIVE' | translate }}
             </mat-checkbox>
           </div>
         </div>
@@ -42,69 +41,78 @@
     </div>
   </div>
 
-
   <div *ngIf="isLoading" class="loading-section">
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     <div class="loading-text">{{ 'PRODUCTS.LOADING' | translate }}</div>
   </div>
+
   <div *ngIf="error" class="error-section">
     <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
     <div class="error-text">{{ error }}</div>
     <button (click)="navigateHome()" color="warn" mat-stroked-button>
       <mat-icon>arrow_back</mat-icon>
-      Back to the main page
+      {{ 'COMMON.BACK_TO_HOME' | translate }}
     </button>
   </div>
 
-  <div *ngIf="!isLoading && !error" class="products-grid">
-    <div *ngFor="let product of filteredProducts; let prodIndex = index; trackBy: trackById" class="product-card">
+  <div *ngIf="!isLoading && !error && filteredProducts.length === 0" class="no-products-section">
+    <mat-icon class="no-products-icon">inventory_2</mat-icon>
+    <div class="no-products-text">{{ 'PRODUCTS.NO_PRODUCTS' | translate }}</div>
+    <button (click)="navigateToCreate()" class="admin-new-btn" color="primary" mat-raised-button>
+      <mat-icon>add</mat-icon>
+      {{ 'PRODUCTS.CREATE_FIRST_PRODUCT' | translate }}
+    </button>
+  </div>
+
+  <div *ngIf="!isLoading && !error && filteredProducts.length > 0" class="products-grid">
+    <div
+      *ngFor="let product of filteredProducts; let prodIndex = index; trackBy: trackById"
+      class="product-card"
+    >
       <div (click)="navigateToUpdate(product.id)" class="card-link">
         <ng-container *ngIf="product.media?.length; else noMedia">
           <div class="product-image-container">
-            <img
-              *ngIf="product.media[activeSlideIndices[prodIndex]]?.contentType?.startsWith('image/')"
-              [alt]="product.translatedName"
-              [src]="'data:' + product.media[activeSlideIndices[prodIndex]].contentType + ';base64,' + product.media[activeSlideIndices[prodIndex]].base64Data"
-              class="product-image"
-            />
-            <video
-              *ngIf="product.media[activeSlideIndices[prodIndex]]?.contentType?.startsWith('video/')"
-              [attr.muted]="true"
-              [muted]="true"
-              autoplay
-              class="product-image"
-              loop
-              playsinline
-              preload="metadata"
-            >
-              <source
-                [src]="'data:' + product.media[activeSlideIndices[prodIndex]].contentType + ';base64,' + product.media[activeSlideIndices[prodIndex]].base64Data"
-                [type]="product.media[activeSlideIndices[prodIndex]].contentType"
-              />
-            </video>
-            <div *ngIf="product.media?.length > 1" class="carousel-dots">
-              <button
-                (click)="$event.stopPropagation(); setActiveSlide(prodIndex, i)"
-                *ngFor="let media of product.media; let i = index; trackBy: trackByObjectKey"
-                [class.active]="activeSlideIndices[prodIndex] === i"
-                class="dot"
-              ></button>
+            <!-- Carousel Slides -->
+            <div class="carousel-slides"
+                 [style.transform]="'translateX(' + (-activeSlideIndices[prodIndex] * 100) + '%)'">
+              <div *ngFor="let media of product.media; let i = index" class="slide">
+                <img *ngIf="media.contentType?.startsWith('image/')"
+                     [alt]="product.translatedName"
+                     [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                     class="product-image"/>
+                <video *ngIf="media.contentType?.startsWith('video/')"
+                       [attr.muted]="true"
+                       [muted]="true"
+                       autoplay
+                       class="product-image"
+                       loop
+                       playsinline
+                       preload="metadata">
+                  <source
+                    [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                    [type]="media.contentType"/>
+                </video>
+              </div>
             </div>
           </div>
         </ng-container>
 
         <ng-template #noMedia>
-          <div class="no-media">
-            {{ 'PRODUCTS.NO_MEDIA' | translate }}
-          </div>
+          <div class="no-media">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
         </ng-template>
 
         <div class="product-details">
-          <h2 class="product-name">{{ product.translatedName }}</h2>
-          <p class="product-description-truncated">
-            {{ product.translatedDescription }}
-          </p>
-          <div *ngIf="product.responseTagDTOS?.length" class="card-details">
+          <div class="product-header">
+            <h2 class="product-name">{{ product.translatedName }}</h2>
+            <div class="product-status" [class.active]="product.active" [class.inactive]="!product.active">
+              <mat-icon>{{ product.active ? 'check_circle' : 'cancel' }}</mat-icon>
+              {{ product.active ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+            </div>
+          </div>
+
+          <p class="product-description">{{ product.translatedDescription }}</p>
+
+          <div *ngIf="product.responseTagDTOS?.length" class="card-tags">
             <div class="tags-container">
               <span *ngFor="let tag of product.responseTagDTOS" class="tag">
                 {{ tag.translatedName }}
@@ -115,8 +123,16 @@
       </div>
 
       <div class="product-actions">
-        <span class="price">{{ product.price | currency:'USD' }}</span>
-        <button (click)="$event.stopPropagation(); openDeleteDialog(product.id)" class="btn-delete" mat-icon-button>
+        <div class="price-section">
+          <span class="price-label">{{ 'PRODUCTS.PRICE' | translate }}:</span>
+          <span class="price">{{ product.price | swissCurrency }}</span>
+        </div>
+        <button
+          (click)="$event.stopPropagation(); openDeleteDialog(product.id)"
+          class="btn-delete"
+          mat-icon-button
+          [matTooltip]="'COMMON.DELETE' | translate"
+        >
           <mat-icon>delete</mat-icon>
         </button>
       </div>

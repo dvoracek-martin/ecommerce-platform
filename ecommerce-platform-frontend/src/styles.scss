@@ -3,11 +3,36 @@
 
 /* GLOBAL UTILITIES & LAYOUT */
 .container {
+  width: 100%;
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--spacing-lg);
+  box-sizing: border-box;
 }
 
+/* For very small screens, reduce padding */
+@media (max-width: 480px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+* {
+  box-sizing: border-box; /* Apply border-box to all elements */
+}
+
+.app-root, app-root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
 .text-center {
   text-align: center;
 }

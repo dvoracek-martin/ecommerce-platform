@@ -105,9 +105,9 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
     }, 5000);
   }
 
-  nextSlide(productIndex: number, mediaCount: number): void {
-    this.activeSlideIndices[productIndex] =
-      (this.activeSlideIndices[productIndex] + 1) % mediaCount;
+
+  nextSlide(index: number, mediaCount: number): void {
+    this.activeSlideIndices[index] = (this.activeSlideIndices[index] + 1) % mediaCount;
   }
 
   setActiveSlide(productIndex: number, slideIndex: number): void {

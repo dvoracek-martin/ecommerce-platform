@@ -1,33 +1,385 @@
+/* Tags Edit Component - Consistent with Product Create Design System */
+.admin-container {
+  padding: var(--spacing-xl);
+  background-color: var(--background-light);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+.admin-card {
+  width: 100%;
+  max-width: 1400px;
+  background: var(--background-card);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 15px var(--shadow-light);
+  border: 1px solid var(--border-color);
+  position: relative;
+  padding-bottom: 100px;
+  overflow: hidden;
+}
+
+/* Header Section - Matching Product Create */
+.admin-header-section {
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--background-card) 0%, var(--background-light) 100%);
+  border-bottom: 1px solid var(--border-color);
+
+  .admin-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+  }
+
+  h1 {
+    font-size: var(--font-size-xxl);
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 var(--spacing-xs) 0;
+  }
+
+  .admin-subtitle {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+    margin: 0;
+  }
+
+  .admin-delete-btn {
+    background: var(--error-color);
+    color: white;
+    transition: all var(--transition-normal);
+
+    &:hover {
+      background: var(--error-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+    }
+
+    mat-icon {
+      margin-right: var(--spacing-xs);
+    }
+  }
+}
+
+/* Form Layout - Full width since no media sidebar */
 .form-and-media-wrapper {
-  display: block;
-  gap: 2rem;
-  padding: 24px;
+  padding: var(--spacing-xl);
+}
+
+.full-width-content {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* Progress Bar */
+.admin-save-progress {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-radius: var(--radius-sm);
+}
+
+/* Form Sections */
+.form-section {
+  background: var(--background-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-normal);
+
+  &:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 15px var(--shadow-light);
+  }
 }
 
 .section-subtitle {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1.1rem;
-  color: #424242;
-  margin-bottom: 1.5rem;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+  font-weight: 600;
 
   mat-icon {
-    color: #757575;
+    color: var(--primary-color);
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
   }
 }
 
+/* Form Rows & Fields */
 .form-row {
   display: flex;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .form-field {
   flex: 1;
 
-  textarea {
-    min-height: 100px;
+  &.full-width {
+    width: 100%;
+  }
+
+  /* Material Form Field Overrides */
+  ::ng-deep .mat-mdc-form-field {
+    width: 100%;
+  }
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    background: var(--background-light);
+    border-radius: var(--radius-md);
+  }
+
+  ::ng-deep .mat-mdc-form-field-outline {
+    color: var(--border-color);
+  }
+
+  ::ng-deep .mat-mdc-form-field-flex:hover .mat-mdc-form-field-outline {
+    color: var(--primary-color);
+  }
+
+  ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-form-field-outline {
+    color: var(--primary-color);
+  }
+
+  ::ng-deep .mat-mdc-input-element {
+    color: var(--text-primary);
+    font-family: var(--font-primary);
+  }
+
+  ::ng-deep .mat-mdc-form-field-label {
+    color: var(--text-muted);
+  }
+
+  ::ng-deep .mat-mdc-select-value {
+    color: var(--text-primary);
+  }
+
+  /* Material Select Overrides */
+  ::ng-deep .mat-mdc-select {
+    .mat-mdc-select-trigger {
+      color: var(--text-primary);
+    }
   }
 }
 
+/* Checkbox Group */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  min-height: 56px; /* Match form field height */
+  padding: var(--spacing-xs) 0;
+
+  .admin-active-checkbox-wrapper {
+    margin: 0;
+
+    ::ng-deep .mat-mdc-checkbox {
+      .mdc-form-field {
+        color: var(--text-primary);
+      }
+
+      .mdc-checkbox__background {
+        border-color: var(--border-color);
+      }
+
+      &.mat-mdc-checkbox-checked .mdc-checkbox__background {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+      }
+    }
+  }
+}
+
+/* Tab Styling */
+.locale-tabs {
+  ::ng-deep .mat-mdc-tab-header {
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  ::ng-deep .mat-mdc-tab-labels {
+    background: var(--background-light);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-xs);
+  }
+
+  ::ng-deep .mat-mdc-tab {
+    min-width: 120px;
+    border-radius: var(--radius-sm);
+    margin: 0 var(--spacing-xs);
+
+    &.mdc-tab--active {
+      background: var(--primary-color);
+
+      ::ng-deep .mdc-tab__text-label {
+        color: white !important;
+      }
+    }
+  }
+
+  ::ng-deep .mat-mdc-tab-body-wrapper {
+    padding: var(--spacing-md) 0;
+  }
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Floating Action Bar */
+.admin-actions-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--background-card);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+  z-index: 100;
+  box-shadow: 0 -2px 10px var(--shadow-light);
+  backdrop-filter: blur(10px);
+}
+
+.admin-action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 600px;
+  gap: var(--spacing-lg);
+
+  .cancel-btn {
+    flex: 0 0 auto;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-color: var(--error-color);
+    color: var(--error-color);
+
+    &:hover {
+      background: rgba(231, 76, 60, 0.1);
+    }
+  }
+
+  .save-btn {
+    flex: 1;
+    height: 50px;
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+    color: white;
+    transition: all var(--transition-normal);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px var(--shadow-medium);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .full-width-content {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-container {
+    padding: var(--spacing-md);
+  }
+
+  .admin-card {
+    padding-bottom: 120px;
+  }
+
+  .admin-header-section {
+    padding: var(--spacing-lg);
+
+    .admin-header-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+    }
+
+    h1 {
+      font-size: var(--font-size-xl);
+    }
+
+    .admin-delete-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .form-one-column-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 2rem; /* Keep as is */
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .checkbox-group {
+    min-height: auto;
+    padding: var(--spacing-sm) 0;
+    justify-content: flex-start;
+  }
+
+  .admin-actions-bar {
+    padding: var(--spacing-md);
+  }
+
+  .admin-action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+
+    .cancel-btn, .save-btn {
+      width: 100%;
+      margin: 0 !important;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .form-section {
+    padding: var(--spacing-md);
+  }
+
+  .locale-tabs {
+    ::ng-deep .mat-mdc-tab {
+      min-width: 80px;
+    }
+  }
+}

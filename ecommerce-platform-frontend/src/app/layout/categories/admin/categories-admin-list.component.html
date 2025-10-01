@@ -10,12 +10,12 @@
         <div class="admin-search-section">
           <div class="admin-search-container">
             <div class="admin-search-input-wrapper">
-              <mat-icon class="search-icon">search</mat-icon>
+              <mat-icon class="admin-search-icon">search</mat-icon>
               <input
                 [formControl]="searchControl"
                 class="admin-search-input"
                 matInput
-                placeholder="Search by name">
+                [placeholder]="'CATEGORIES.SEARCH_PLACEHOLDER' | translate">
               <button
                 (click)="clearSearch()"
                 *ngIf="searchControl.value"
@@ -25,11 +25,10 @@
               </button>
             </div>
           </div>
-        </div>
-        <div class="search-container">
+
           <div class="admin-search-checkbox-wrapper">
-            <mat-checkbox (change)="applyFilters()" [formControl]="activeSeControl">
-              Show only active
+            <mat-checkbox (change)="applyFilters()" [formControl]="activeSeControl" class="admin-active-checkbox">
+              {{ 'CATEGORIES.SHOW_ACTIVE' | translate }}
             </mat-checkbox>
           </div>
         </div>
@@ -42,68 +41,104 @@
     </div>
   </div>
 
-
   <div *ngIf="isLoading" class="loading-section">
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     <div class="loading-text">{{ 'CATEGORIES.LOADING' | translate }}</div>
   </div>
 
-  <!-- Categories grid -->
-  <div *ngIf="!isLoading && !error" class="categories-grid">
+  <div *ngIf="error" class="error-section">
+    <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
+    <div class="error-text">{{ error }}</div>
+    <button (click)="navigateHome()" color="warn" mat-stroked-button>
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'COMMON.BACK_TO_HOME' | translate }}
+    </button>
+  </div>
+
+  <div *ngIf="!isLoading && !error && filteredCategories.length === 0" class="no-categories-section">
+    <mat-icon class="no-categories-icon">category</mat-icon>
+    <div class="no-categories-text">{{ 'CATEGORIES.NO_CATEGORIES' | translate }}</div>
+    <button (click)="navigateToCreate()" class="admin-new-btn" color="primary" mat-raised-button>
+      <mat-icon>add</mat-icon>
+      {{ 'CATEGORIES.CREATE_FIRST_CATEGORY' | translate }}
+    </button>
+  </div>
+
+  <div *ngIf="!isLoading && !error && filteredCategories.length > 0" class="categories-grid">
     <div
       *ngFor="let category of filteredCategories; let catIndex = index; trackBy: trackById"
       class="category-card"
     >
       <div (click)="navigateToUpdate(category.id)" class="card-link">
-        <!-- Image / Video -->
         <ng-container *ngIf="category.media?.length; else noMedia">
           <div class="category-image-container">
-            <img
-              *ngIf="category.media[activeSlideIndices[catIndex]]?.contentType?.startsWith('image/')"
-              [alt]="category.translatedName"
-              [src]="'data:' + category.media[activeSlideIndices[catIndex]].contentType + ';base64,' + category.media[activeSlideIndices[catIndex]].base64Data"
-              class="category-image"
-            />
-            <video
-              *ngIf="category.media[activeSlideIndices[catIndex]]?.contentType?.startsWith('video/')"
-              [attr.muted]="true"
-              [muted]="true"
-              autoplay
-              class="category-image"
-              loop
-              playsinline
-              preload="metadata"
-            >
-              <source
-                [src]="'data:' + category.media[activeSlideIndices[catIndex]].contentType + ';base64,' + category.media[activeSlideIndices[catIndex]].base64Data"
-                [type]="category.media[activeSlideIndices[catIndex]].contentType"
-              />
-            </video>
+            <!-- Carousel Slides -->
+            <div class="carousel-slides"
+                 [style.transform]="'translateX(' + (-activeSlideIndices[catIndex] * 100) + '%)'">
+              <div *ngFor="let media of category.media; let i = index" class="slide">
+                <img *ngIf="media.contentType?.startsWith('image/')"
+                     [alt]="category.translatedName"
+                     [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                     class="category-image"/>
+                <video *ngIf="media.contentType?.startsWith('video/')"
+                       [attr.muted]="true"
+                       [muted]="true"
+                       autoplay
+                       class="category-image"
+                       loop
+                       playsinline
+                       preload="metadata">
+                  <source
+                    [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                    [type]="media.contentType"/>
+                </video>
+              </div>
+            </div>
 
-            <!-- Dots for carousel -->
-            <div *ngIf="category.media?.length > 1" class="carousel-dots">
+            <!-- Carousel Controls -->
+            <div *ngIf="category.media?.length > 1" class="carousel-controls">
+              <button
+                (click)="$event.stopPropagation(); setActiveSlide(catIndex, (activeSlideIndices[catIndex] - 1 + category.media.length) % category.media.length)"
+                class="carousel-btn"
+                mat-icon-button>
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <button
+                (click)="$event.stopPropagation(); setActiveSlide(catIndex, (activeSlideIndices[catIndex] + 1) % category.media.length)"
+                class="carousel-btn"
+                mat-icon-button>
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+
+            <!-- Carousel Indicators -->
+            <div *ngIf="category.media?.length > 1" class="carousel-indicators">
               <button
                 (click)="$event.stopPropagation(); setActiveSlide(catIndex, i)"
                 *ngFor="let media of category.media; let i = index; trackBy: trackByObjectKey"
                 [class.active]="activeSlideIndices[catIndex] === i"
-                class="dot"
+                class="indicator"
               ></button>
             </div>
           </div>
         </ng-container>
 
         <ng-template #noMedia>
-          <div class="no-media">
-            {{ 'CATEGORIES.NO_MEDIA' | translate }}
-          </div>
+          <div class="no-media">{{ 'CATEGORIES.NO_MEDIA' | translate }}</div>
         </ng-template>
 
-        <!-- Category details -->
         <div class="category-details">
-          <h2 class="category-name">{{ category.translatedName }}</h2>
+          <div class="category-header">
+            <h2 class="category-name">{{ category.translatedName }}</h2>
+            <div class="category-status" [class.active]="category.active" [class.inactive]="!category.active">
+              <mat-icon>{{ category.active ? 'check_circle' : 'cancel' }}</mat-icon>
+              {{ category.active ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+            </div>
+          </div>
+
           <p class="category-description">{{ category.translatedDescription }}</p>
 
-          <div *ngIf="category.responseTagDTOS?.length" class="card-details">
+          <div *ngIf="category.responseTagDTOS?.length" class="card-tags">
             <div class="tags-container">
               <span *ngFor="let tag of category.responseTagDTOS" class="tag">
                 {{ tag.translatedName }}
@@ -113,17 +148,16 @@
         </div>
       </div>
 
-      <!-- Bottom bar -->
       <div class="category-actions">
         <button
           (click)="$event.stopPropagation(); openDeleteDialog(category.id)"
           class="btn-delete"
           mat-icon-button
+          [matTooltip]="'COMMON.DELETE' | translate"
         >
           <mat-icon>delete</mat-icon>
         </button>
       </div>
     </div>
   </div>
-  <div *ngIf="error" class="error">{{ error }}</div>
 </div>

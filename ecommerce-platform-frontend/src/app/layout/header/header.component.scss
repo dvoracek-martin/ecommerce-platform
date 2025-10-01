@@ -15,6 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-sizing: border-box;
 
   @media (max-width: 768px) {
     padding: 0 16px;
@@ -71,29 +72,167 @@
   gap: 16px;
 }
 
-// ===== NAVIGATION MENU =====
-.navigation-menu {
-  border-radius: 12px;
+// ===== NAVIGATION MENU CONTAINER =====
+.navigation-menu-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+// ===== MENU BUTTON =====
+.menu-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  margin-right: 8px;
+  position: relative;
   overflow: hidden;
-  margin-top: 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 
-  .mat-menu-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    height: 48px;
-    padding: 0 16px;
-    color: #2c3e50;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  mat-icon {
+    color: white;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+  }
 
-    &:hover {
-      background-color: #f8f9fa;
-      transform: translateX(4px);
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+
+    &::before {
+      left: 100%;
     }
 
     mat-icon {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+// ===== NAVIGATION MENU PANEL =====
+.navigation-menu-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1001;
+  width: 280px;
+  margin-top: 15px;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+
+  .modern-menu-section.navigation-section {
+    padding: 8px 0;
+
+    .modern-section-title {
+      margin: 0;
+      padding: 12px 20px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #f1f3f5;
+      text-align: center;
       color: #3498db;
+    }
+
+    .modern-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      height: 48px;
+      padding: 0 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      color: #2c3e50;
+      transition: all 0.3s ease;
+      position: relative;
+      text-decoration: none;
+      font-family: inherit;
+
+      // Permanent highlight with accent bar
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 20px;
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        border-radius: 0 2px 2px 0;
+        opacity: 0.8;
+        transition: all 0.3s ease;
+      }
+
+      // Permanent subtle background
+      background: linear-gradient(90deg, rgba(52, 152, 219, 0.06) 0%, rgba(52, 152, 219, 0.02) 100%);
+
+      // Icon styling
+      mat-icon {
+        color: #3498db;
+        transition: all 0.3s ease;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      // Text styling
+      span {
+        color: #2c3e50;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        flex: 1;
+        text-align: left;
+      }
+
+      // Hover effects
+      &:hover {
+        background: linear-gradient(90deg, rgba(52, 152, 219, 0.12) 0%, rgba(52, 152, 219, 0.06) 100%);
+        transform: translateX(4px);
+
+        &::before {
+          width: 4px;
+          opacity: 1;
+          background: linear-gradient(45deg, #2980b9, #2471a3);
+        }
+
+        mat-icon {
+          color: #2980b9;
+          transform: scale(1.1);
+        }
+
+        span {
+          color: #2980b9;
+          font-weight: 600;
+        }
+      }
     }
   }
 }
@@ -104,14 +243,17 @@
   align-items: center;
 
   .language-button {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     overflow: hidden;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: transparent;
+    border: none;
 
     img.locale-flag {
       width: 32px;
@@ -119,32 +261,88 @@
       object-fit: cover;
       display: block;
       border-radius: 50%;
+      transition: transform 0.3s ease;
+    }
+
+    // Hover effects - just scale
+    &:hover {
+      transform: scale(1.15);
+
+      img.locale-flag {
+        transform: scale(1.1);
+      }
+    }
+
+    // Active state when menu is open
+    &.mat-menu-trigger-opened {
+      transform: scale(1.1);
+    }
+
+    // Focus state
+    &:focus {
+      outline: none;
     }
   }
 
   .language-menu {
-    border-radius: 12px;
-    overflow: visible;
+    border-radius: 16px;
+    overflow: hidden;
     margin-top: 8px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
     max-height: none;
+    min-width: 160px;
+
+    .mat-menu-content {
+      padding: 8px 0;
+    }
 
     button.mat-menu-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      height: 36px;
-      padding: 0 12px;
+      gap: 12px;
+      height: 40px;
+      padding: 0 16px;
+      transition: all 0.3s ease;
+      margin: 0 4px;
+      border-radius: 8px;
 
       img.locale-flag {
         width: 24px;
         height: 24px;
         object-fit: cover;
         border-radius: 50%;
+        transition: transform 0.3s ease;
       }
 
       span {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #2c3e50;
+      }
+
+      // Hover effect for menu items - just scale and background
+      &:hover {
+        background: rgba(52, 152, 219, 0.1);
+        transform: translateX(4px);
+
+        img.locale-flag {
+          transform: scale(1.1);
+        }
+
+        span {
+          color: #3498db;
+          font-weight: 600;
+        }
+      }
+
+      // Active language item
+      &.active-language {
+        background: rgba(52, 152, 219, 0.15);
+
+        span {
+          color: #3498db;
+          font-weight: 600;
+        }
       }
     }
   }
@@ -527,7 +725,7 @@
 
       &:hover {
         background-color: #f1f3f5;
-        transform: scale(1.05);
+        transform: scale(1.15);
 
         mat-icon {
           color: #3498db;
@@ -551,7 +749,7 @@
 
       &:hover {
         background: linear-gradient(45deg, #2980b9, #2471a3);
-        transform: scale(1.05);
+        transform: scale(1.15);
         box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
       }
 
@@ -583,7 +781,7 @@
 
   .mat-menu-content {
     padding: 0 !important;
-    overflow-x: hidden !important; // ADD THIS to prevent horizontal scroll
+    overflow-x: hidden !important;
   }
 }
 
@@ -604,6 +802,7 @@
     align-items: center;
     justify-content: center;
   }
+
   .modern-menu-item {
     margin: 0 -4px;
 
@@ -693,5 +892,25 @@
 @media (max-width: 768px) {
   .modern-user-menu-container {
     display: none;
+  }
+
+  .navigation-menu-panel {
+    width: 250px;
+  }
+
+  .cart-preview-panel {
+    width: 350px;
+    right: -50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navigation-menu-panel {
+    width: 220px;
+  }
+
+  .cart-preview-panel {
+    width: 300px;
+    right: -80px;
   }
 }

@@ -1,22 +1,20 @@
 <div class="order-container">
-  <div class="order-header">
-    <div class="admin-title-section">
-      <h1>{{ 'ORDER_DETAIL.TITLE' | translate:{id: order?.id} }}</h1>
-      <div class="order-date" *ngIf="order?.orderDate">
-        {{ 'ORDER_DETAIL.ORDER_DATE' | translate }}: {{ formatOrderDate(order.orderDate) }}
+  <div class="admin-header-section">
+    <div class="admin-header-content">
+      <div class="admin-title-section">
+        <h1>{{ 'ORDER_DETAIL.TITLE' | translate:{id: order?.id} }}</h1>
+        <p class="admin-subtitle">{{ 'ORDER_DETAIL.ORDER_DATE' | translate }}: {{ formatOrderDate(order?.orderDate) }}</p>
       </div>
-    </div>
 
-    <div class="admin-status-section">
-      <div class="status-badge-container">
+      <div class="admin-status-section">
         <div class="status-badge" [ngClass]="getStatusClass(order?.status)">
-          <span class="status-icon material-icons">{{ getStatusIcon(order?.status) }}</span>
+          <mat-icon class="status-icon">{{ getStatusIcon(order?.status) }}</mat-icon>
           {{ getStatusText(order?.status) }}
         </div>
-      </div>
-      <div class="order-totals">
-        <div class="total-label">{{ 'ORDER_DETAIL.TOTAL' | translate }}</div>
-        <div class="price">{{ order?.finalTotal | currency }}</div>
+        <div class="admin-totals">
+          <div class="total-label">{{ 'ORDER_DETAIL.TOTAL' | translate }}</div>
+          <div class="total-amount">{{ order?.finalTotal | swissCurrency }}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -28,18 +26,19 @@
         <div class="loading-text">{{ 'ORDER_DETAIL.LOADING' | translate }}</div>
       </div>
 
-      <div *ngIf="isOrderLoaded && !order" class="order-not-found">
-        <div class="not-found-icon">
-          <span class="material-icons">search_off</span>
-        </div>
+      <div *ngIf="isOrderLoaded && !order" class="no-orders-section">
+        <mat-icon class="no-orders-icon">search_off</mat-icon>
         <h3>{{ 'ORDER_DETAIL.NOT_FOUND_TITLE' | translate }}</h3>
         <p>{{ 'ORDER_DETAIL.NOT_FOUND_DESCRIPTION' | translate }}</p>
       </div>
 
       <div *ngIf="isOrderLoaded && order" class="order-content">
         <!-- Order Items Section -->
-        <div class="order-items-section">
-          <h2>{{ 'ORDER_DETAIL.ITEMS' | translate }}</h2>
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>shopping_cart</mat-icon>
+            {{ 'ORDER_DETAIL.ITEMS' | translate }}
+          </h3>
           <div class="order-items">
             <div *ngFor="let item of orderItemsWithDetails; trackBy: trackByItemId"
                  class="order-item"
@@ -49,9 +48,9 @@
                    *ngIf="item.cartItemType === CartItemType.PRODUCT && item.product">
                 <img *ngIf="item.product?.media?.[0]"
                      [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
-                     alt="{{ item.translatedName }}"/>
+                     [alt]="item.translatedName"/>
                 <div *ngIf="!item.product?.media?.[0]" class="no-image">
-                  <span class="material-icons">inventory_2</span>
+                  <mat-icon>inventory_2</mat-icon>
                 </div>
               </div>
 
@@ -60,12 +59,12 @@
                   <img *ngIf="(item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0])"
                        [src]="item.product?.media?.[0] ? 'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data :
                              (item.mixture?.products?.[0]?.media?.[0] ? 'data:' + item.mixture.products[0].media[0].contentType + ';base64,' + item.mixture.products[0].media[0].base64Data : '')"
-                       alt="{{ item.translatedName }}"/>
+                       [alt]="item.translatedName"/>
                 </ng-container>
                 <div *ngIf="!((item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0]))"
                      class="no-image">
-                  <span class="material-icons" *ngIf="item.cartItemType === CartItemType.PRODUCT">inventory_2</span>
-                  <span class="material-icons" *ngIf="item.cartItemType === CartItemType.MIXTURE">blender</span>
+                  <mat-icon *ngIf="item.cartItemType === CartItemType.PRODUCT">inventory_2</mat-icon>
+                  <mat-icon *ngIf="item.cartItemType === CartItemType.MIXTURE">blender</mat-icon>
                 </div>
               </div>
 
@@ -80,7 +79,7 @@
                   <h3 class="item-name" *ngIf="item.cartItemType !== CartItemType.PRODUCT || !item.product">
                     {{ item.translatedName }}
                   </h3>
-                  <div class="item-price">{{ item.itemPrice | currency }}</div>
+                  <div class="item-price">{{ item.itemPrice | swissCurrency }}</div>
                 </div>
                 <div class="item-description truncate-text" *ngIf="item.product?.translatedDescription"
                      [title]="item.product.translatedDescription">
@@ -93,7 +92,7 @@
                     <div *ngFor="let product of item.mixture.products" class="mixture-product-item">
                       <div class="mixture-product-info">
                         <div class="mixture-product-name">{{ product.translatedName }}</div>
-                        <div class="mixture-product-price">{{ product.price | currency }}</div>
+                        <div class="mixture-product-price">{{ product.price | swissCurrency }}</div>
                       </div>
                     </div>
                   </div>
@@ -104,7 +103,7 @@
                     <label>{{ 'ORDER_DETAIL.QUANTITY' | translate }}:</label>
                     <div class="quantity-readonly">{{ item.quantity }}</div>
                   </div>
-                  <div class="item-total">{{ getItemTotal(item) | currency }}</div>
+                  <div class="item-total">{{ getItemTotal(item) | swissCurrency }}</div>
                 </div>
               </div>
             </div>
@@ -112,8 +111,11 @@
         </div>
 
         <!-- Order Info Section -->
-        <div class="order-info-section">
-          <h2>{{ 'ORDER_DETAIL.ORDER_INFO' | translate }}</h2>
+        <div class="form-section">
+          <h3 class="section-subtitle">
+            <mat-icon>info</mat-icon>
+            {{ 'ORDER_DETAIL.ORDER_INFO' | translate }}
+          </h3>
           <div class="info-grid">
             <div class="info-row">
               <div class="info-label">{{ 'ORDER_DETAIL.ORDER_DATE' | translate }}:</div>
@@ -123,7 +125,7 @@
               <div class="info-label">{{ 'ORDER_DETAIL.STATUS' | translate }}:</div>
               <div class="info-value">
                 <div class="status-badge" [ngClass]="getStatusClass(order?.status)">
-                  <span class="status-icon material-icons">{{ getStatusIcon(order?.status) }}</span>
+                  <mat-icon class="status-icon">{{ getStatusIcon(order?.status) }}</mat-icon>
                   {{ getStatusText(order?.status) }}
                 </div>
               </div>
@@ -146,28 +148,37 @@
     </div>
 
     <!-- Order Summary Section -->
-    <div class="order-summary" *ngIf="isOrderLoaded && order">
-      <div class="summary-card">
-        <h3>{{ 'ORDER_DETAIL.ORDER_SUMMARY' | translate }}</h3>
-        <div class="summary-row">
-          <span>{{ 'ORDER_DETAIL.SUBTOTAL' | translate }}:</span>
-          <span>{{ getOrderSubtotal() | currency }}</span>
-        </div>
-        <div class="summary-row">
-          <span>{{ 'ORDER_DETAIL.SHIPPING' | translate }}:</span>
-          <span>{{ order?.shippingCost | currency }}</span>
-        </div>
-        <div class="summary-row total">
-          <span>{{ 'ORDER_DETAIL.TOTAL' | translate }}:</span>
-          <span>{{ order?.finalTotal | currency }}</span>
+    <div class="order-sidebar" *ngIf="isOrderLoaded && order">
+      <!-- Order Summary -->
+      <div class="form-section">
+        <h3 class="section-subtitle">
+          <mat-icon>receipt</mat-icon>
+          {{ 'ORDER_DETAIL.ORDER_SUMMARY' | translate }}
+        </h3>
+        <div class="summary-card">
+          <div class="summary-row">
+            <span>{{ 'ORDER_DETAIL.SUBTOTAL' | translate }}:</span>
+            <span>{{ getOrderSubtotal() | swissCurrency }}</span>
+          </div>
+          <div class="summary-row">
+            <span>{{ 'ORDER_DETAIL.SHIPPING' | translate }}:</span>
+            <span>{{ order?.shippingCost | swissCurrency }}</span>
+          </div>
+          <div class="summary-row total">
+            <span>{{ 'ORDER_DETAIL.TOTAL' | translate }}:</span>
+            <span>{{ order?.finalTotal | swissCurrency }}</span>
+          </div>
         </div>
       </div>
 
       <!-- Status & Tracking Update Section -->
-      <div class="order-status-update">
-        <h4>{{ 'ORDER_DETAIL.UPDATE_STATUS' | translate }}</h4>
+      <div class="form-section">
+        <h3 class="section-subtitle">
+          <mat-icon>update</mat-icon>
+          {{ 'ORDER_DETAIL.UPDATE_STATUS' | translate }}
+        </h3>
 
-        <mat-form-field appearance="outline" class="status-dropdown">
+        <mat-form-field appearance="outline" class="form-field full-width">
           <mat-label>{{ 'ORDER_DETAIL.STATUS' | translate }}</mat-label>
           <mat-select [(value)]="selectedStatus">
             <mat-option *ngFor="let status of orderStatuses" [value]="status">
@@ -179,28 +190,29 @@
           </mat-select>
         </mat-form-field>
 
-        <h4>{{ 'ORDER_DETAIL.UPDATE_TRACKING' | translate }}</h4>
-
-        <mat-form-field appearance="outline" class="tracking-input">
+        <mat-form-field appearance="outline" class="form-field full-width">
           <mat-label>{{ 'ORDER_DETAIL.TRACKING_NUMBER' | translate }}</mat-label>
           <input matInput [(ngModel)]="trackingNumber" [placeholder]="'ORDER_DETAIL.TRACKING_PLACEHOLDER' | translate">
         </mat-form-field>
 
-        <div class="admin-action-buttons">
-          <!-- Enhanced Save Button -->
-          <button (click)="saveOrderChanges()" color="primary" mat-flat-button
-                  type="submit">
-            <mat-icon>save</mat-icon>
-            {{ 'ORDER_DETAIL.SAVE_CHANGES' | translate }}
-          </button>
-        </div>
+        <button (click)="saveOrderChanges()"
+                color="primary"
+                mat-flat-button
+                class="save-btn"
+                [disabled]="!selectedStatus">
+          <mat-icon>save</mat-icon>
+          {{ 'ORDER_DETAIL.SAVE_CHANGES' | translate }}
+        </button>
       </div>
 
       <!-- Invoice Generation Section -->
-      <div class="invoice-section">
-        <h4>{{ 'ORDER_DETAIL.GENERATE_INVOICE' | translate }}</h4>
+      <div class="form-section">
+        <h3 class="section-subtitle">
+          <mat-icon>description</mat-icon>
+          {{ 'ORDER_DETAIL.GENERATE_INVOICE' | translate }}
+        </h3>
 
-        <mat-form-field appearance="outline" class="locale-dropdown">
+        <mat-form-field appearance="outline" class="form-field full-width">
           <mat-label>{{ 'ORDER_DETAIL.SELECT_LANGUAGE' | translate }}</mat-label>
           <mat-select [(value)]="selectedLocale">
             <mat-option *ngFor="let locale of usedLocales" [value]="locale.languageCode + '_' + locale.regionCode">
@@ -209,18 +221,20 @@
           </mat-select>
         </mat-form-field>
 
-        <div class="invoice-buttons">
-          <button mat-flat-button color="primary"
+        <div class="action-buttons">
+          <button mat-flat-button
+                  color="primary"
                   (click)="generateInvoiceInLocale()"
                   [disabled]="!selectedLocale"
-                  class="btn-generate-invoice">
+                  class="action-btn download-btn">
             <mat-icon>receipt</mat-icon>
             {{ 'ORDER_DETAIL.GENERATE_INVOICE' | translate }}
           </button>
 
-          <button mat-stroked-button color="primary"
+          <button mat-stroked-button
+                  color="primary"
                   (click)="downloadInvoice(order.id)"
-                  class="btn-download-invoice">
+                  class="action-btn view-btn">
             <mat-icon>download</mat-icon>
             {{ 'ORDER_DETAIL.DOWNLOAD_INVOICE' | translate }}
           </button>
@@ -228,10 +242,12 @@
       </div>
 
       <!-- Back to Orders Button -->
-      <div class="back-button-container">
-        <button (click)="navigateBackToList()" class="navigate-back-btn" mat-stroked-button>
+      <div class="form-section">
+        <button (click)="navigateBackToList()"
+                mat-stroked-button
+                class="back-btn">
           <mat-icon>arrow_back</mat-icon>
-          Back to Orders
+          {{ 'COMMON.BACK_TO_ORDERS' | translate }}
         </button>
       </div>
     </div>

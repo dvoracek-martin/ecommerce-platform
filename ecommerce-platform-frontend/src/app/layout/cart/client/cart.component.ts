@@ -325,6 +325,10 @@ export class CartComponent implements OnInit, OnDestroy {
     this.router.navigate(['/']);
   }
 
+  trackByItemId(index: number, item: CartItemWithDetails): number {
+    return item.id;
+  }
+
   private translateCartItems() {
     this.cartItemsWithDetails.forEach(cartItem => {
       if (cartItem.cartItemType === CartItemType.PRODUCT && cartItem.product) {

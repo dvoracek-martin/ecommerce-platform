@@ -333,7 +333,7 @@
                     <div class="method-details">
                       <h4>{{ method.name | translate }}</h4>
                       <p>{{ method.deliveryTime | translate }}</p>
-                      <div class="method-price">{{ method.price | currency }}</div>
+                      <div class="method-price">{{ method.price | swissCurrency }}</div>
                     </div>
                     <div class="method-select">
                       <mat-radio-button [value]="method.id"></mat-radio-button>
@@ -418,7 +418,7 @@
                         </div>
 
                         <div class="item-total">
-                          {{ (item.product?.price || item.mixture?.price || 0) * item.quantity | currency }}
+                          {{ (item.product?.price || item.mixture?.price || 0) * item.quantity | swissCurrency }}
                         </div>
                       </div>
                     </div>
@@ -434,15 +434,15 @@
                 <div class="summary-total-section">
                   <div class="summary-row">
                     <span>{{ 'CHECKOUT.SUBTOTAL' | translate }}</span>
-                    <span>{{ cartTotal | currency }}</span>
+                    <span>{{ cartTotal | swissCurrency }}</span>
                   </div>
                   <div class="summary-row">
                     <span>{{ 'CHECKOUT.SHIPPING' | translate }}</span>
-                    <span>{{ shippingCost | currency }}</span>
+                    <span>{{ shippingCost | swissCurrency }}</span>
                   </div>
                   <div class="summary-row total">
                     <span>{{ 'CHECKOUT.TOTAL' | translate }}</span>
-                    <span>{{ finalTotal | currency }}</span>
+                    <span>{{ finalTotal | swissCurrency }}</span>
                   </div>
                 </div>
               </div>

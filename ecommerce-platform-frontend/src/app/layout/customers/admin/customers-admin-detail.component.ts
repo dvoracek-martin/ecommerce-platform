@@ -1,18 +1,14 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractControl, FormBuilder, FormGroup, FormGroupDirective, ValidatorFn, Validators} from '@angular/forms';
-import {HttpClient, HttpResponse} from '@angular/common/http';
 import {AuthService} from '../../../services/auth.service';
 import {Router} from '@angular/router';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
-import {MatIconRegistry} from '@angular/material/icon';
-import {DomSanitizer} from '@angular/platform-browser';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {CustomerService} from '../../../services/customer.service';
 import {CustomerAddress} from '../../../dto/customer/customer-address-dto';
 import {CustomerBillingAddress} from '../../../dto/customer/custommer-billing-address-dto';
 import {Customer} from '../../../dto/customer/customer-dto';
-import {MatDialog} from '@angular/material/dialog';
 import {Subject, takeUntil} from 'rxjs';
 import {CustomerStateService} from '../../../services/customer-state.service';
 import {MatTableDataSource} from '@angular/material/table';
@@ -57,28 +53,23 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
   ordersDisplayedColumns: string[] = ['invoiceId', 'orderDate', 'shippingMethod', 'paymentMethod', 'finalTotal', 'status', 'actions'];
   isOrdersLoading = true;
   ordersError: string | null = null;
-  customerId: string;
+  customerId: string | null = null;
   languageChanged = false;
 
   locales: ResponseLocaleDto[] = [];
+  selectedLanguage: ResponseLocaleDto | null = null;
 
   @ViewChild(MatSort) ordersSort!: MatSort;
   @ViewChild(MatPaginator) ordersPaginator!: MatPaginator;
 
-  inUseLocales = [];
-  selectedLanguage = this.inUseLocales[0];
-  protected customer: Customer;
+  customer: Customer | null = null;
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
     private authService: AuthService,
     private router: Router,
     private snackBar: MatSnackBar,
-    private matIconRegistry: MatIconRegistry,
-    private domSanitizer: DomSanitizer,
     private customerService: CustomerService,
-    private dialog: MatDialog,
     private customerState: CustomerStateService,
     private orderService: OrderService,
     private orderState: OrderStateService,
@@ -86,117 +77,138 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     private localeMapperService: LocaleMapperService,
     public translateService: TranslateService,
   ) {
-    this.initializeForms();
+    this.customerForm = this.createCustomerForm();
+    this.passwordForm = this.createPasswordForm();
   }
 
   ngOnInit(): void {
-    // Load last app settings to get locales and default locale
+    this.customerId = this.customerState.getSelectedCustomer();
+
+    if (!this.customerId) {
+      this.showSnackbar('CUSTOMER.NOT_FOUND', 'error-snackbar');
+      this.router.navigate(['/admin/customers']);
+      return;
+    }
+
+    this.loadConfigurationAndCustomer();
+    this.setupBillingAddressValidation();
+  }
+
+  ngAfterViewInit(): void {
+    this.ordersDataSource.sort = this.ordersSort;
+    this.ordersDataSource.paginator = this.ordersPaginator;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadConfigurationAndCustomer(): void {
+    this.loading = true;
+
     this.configurationService.getLastAppSettings()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (settings) => {
           this.locales = settings.usedLocales || [];
-          const defaultLocale = settings.defaultLocale;
-
-          const preferredLangId = this.customerForm.value.preferredLanguageId;
-          if (preferredLangId) {
-            // match saved preferred language with available locales
-            this.selectedLanguage = this.locales.find(l => l.id === preferredLangId) || defaultLocale;
-          } else {
-            // fallback to defaultLocale if user has no preferred language
-            this.selectedLanguage = defaultLocale;
-            this.customerForm.patchValue({ preferredLanguageId: this.selectedLanguage?.id });
-          }
-
-          if (this.selectedLanguage) {
-            this.translateService.use(this.selectedLanguage.languageCode.toLowerCase());
-          }
-
-          // align inUseLocales with usedLocales from settings
-          this.inUseLocales = this.locales;
-          const activeLang = this.translateService.currentLang || this.selectedLanguage.languageCode.toLowerCase();
-          this.selectedLanguage = this.inUseLocales.find(
-            l => l.languageCode.toLowerCase() === activeLang
-          ) || this.inUseLocales[0];
+          this.loadCustomerData();
         },
-        error: err => console.error('Error loading app settings:', err)
+        error: (err) => {
+          console.error('Error loading configuration:', err);
+          this.loadCustomerData(); // Load customer even if config fails
+        }
       });
-
-    this.customerId = this.customerState.getSelectedCustomer();
-    this.loadCustomerData(this.customerId);
-    this.loadOrders();
   }
 
-  ngOnDestroy(): void {
-    this.customerState.clearSelectedCustomer();
-    this.destroy$.next();
-    this.destroy$.complete();
+  private loadCustomerData(): void {
+    if (!this.customerId) return;
+
+    this.customerService.getCustomerById(this.customerId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (customer) => {
+          this.handleCustomerDataSuccess(customer);
+          this.loadOrders();
+        },
+        error: (err) => {
+          this.handleError(err);
+        }
+      });
   }
 
-  onLanguageChange(langId: number): void {
-    const lang = this.locales.find(l => l.id === langId);
-    if (!lang) return;
+  private handleCustomerDataSuccess(customer: Customer): void {
+    this.customer = customer;
+    this.initialBillingAddress = customer.billingAddress || null;
+    this.initialAddress = customer.address || null;
 
-    this.translateService.use(lang.languageCode.toLowerCase()).subscribe({
-      next: () => {
-        this.selectedLanguage = lang;
-        this.customerForm.patchValue({preferredLanguageId: lang.id});
-        this.customerService.setUserLanguage(lang.languageCode.toLowerCase());
-        this.languageChanged = true;
+    this.patchFormValues(customer);
+
+    // Set selected language
+    if (customer.preferredLanguageId && this.locales.length > 0) {
+      this.selectedLanguage = this.locales.find(l => l.id === customer.preferredLanguageId) || null;
+    }
+
+    this.loading = false;
+  }
+
+  private patchFormValues(customer: Customer): void {
+    const sameBillingAddress = this.isBillingAddressSameAsShipping(customer);
+
+    this.customerForm.patchValue({
+      email: customer.email || '',
+      firstName: customer.firstName || '',
+      lastName: customer.lastName || '',
+      preferredLanguageId: customer.preferredLanguageId || '',
+      address: {
+        phone: customer.address?.phone || '',
+        street: customer.address?.street || '',
+        houseNumber: customer.address?.houseNumber || '',
+        city: customer.address?.city || '',
+        zipCode: customer.address?.zipCode || '',
+        country: customer.address?.country || this.DEFAULT_COUNTRY
       },
-      error: err => console.error('Error loading translations:', err)
+      sameBillingAddress: sameBillingAddress,
+      billingAddress: customer.billingAddress || {
+        firstName: '',
+        lastName: '',
+        companyName: '',
+        taxId: '',
+        street: '',
+        houseNumber: '',
+        city: '',
+        zipCode: '',
+        country: this.DEFAULT_COUNTRY,
+        phone: ''
+      },
+      active: customer.active !== undefined ? customer.active : true
     });
+
+    this.showBillingAddress = !sameBillingAddress;
+    this.customerForm.markAsPristine();
   }
 
+  private isBillingAddressSameAsShipping(customer: Customer): boolean {
+    if (!customer.billingAddress) return true;
+    if (!customer.address) return false;
 
-  onSave(): void {
-    if (!this.customerForm.dirty || this.customerForm.invalid) {
-      this.showSnackbar('ERRORS.FIX_FORM', 'error-snackbar');
-      return;
-    }
-    this.saving = true;
-    const token = this.authService.token;
+    const billing = customer.billingAddress;
+    const shipping = customer.address;
 
-    if (this.customerId && token) {
-      const payload = this.createCustomerPayload();
-      this.http.put(`http://localhost:8080/api/customers/v1/admin/${this.customerId}`, payload, {
-        headers: {'Authorization': `Bearer ${token}`}
-      }).pipe(takeUntil(this.destroy$)).subscribe({
-        next: () => this.handleSaveSuccess(),
-        error: err => this.handleSaveError(err)
-      });
-    } else {
-      this.saving = false;
-    }
+    return (
+      billing.firstName === customer.firstName &&
+      billing.lastName === customer.lastName &&
+      billing.street === shipping.street &&
+      billing.houseNumber === shipping.houseNumber &&
+      billing.city === shipping.city &&
+      billing.zipCode === shipping.zipCode &&
+      billing.country === shipping.country
+    );
   }
 
-  onChangePassword(formDirective: FormGroupDirective): void {
-    const passwordGroup = this.passwordForm.get('passwordChange');
-    if (!passwordGroup || !passwordGroup.dirty || passwordGroup.invalid) {
-      this.showSnackbar('ERRORS.FIX_FORM', 'error-snackbar');
-      passwordGroup.markAllAsTouched();
-      return;
-    }
-    this.savingPassword = true;
-    const userId = this.authService.getUserId();
-    const token = this.authService.token;
-
-    if (userId && token) {
-      const {newPassword} = passwordGroup.value;
-      this.http.put(
-        `http://localhost:8080/api/users/v1/admin/${userId}/password`,
-        {newPassword},
-        {headers: {'Authorization': `Bearer ${token}`}}
-      ).pipe(takeUntil(this.destroy$)).subscribe({
-        next: () => this.handlePasswordChangeSuccess(formDirective),
-        error: err => this.handlePasswordChangeError(err, userId)
-      }).add(() => (this.savingPassword = false));
-    }
-  }
-
-  private initializeForms(): void {
-    this.customerForm = this.fb.group({
-      email: ['', Validators.required],
+  private createCustomerForm(): FormGroup {
+    return this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       preferredLanguageId: [''],
@@ -223,120 +235,117 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
         phone: ['', [Validators.pattern(/^\+?[0-9\s-]+$/)]]
       })
     });
+  }
 
-    this.passwordForm = this.fb.group({
+  private createPasswordForm(): FormGroup {
+    return this.fb.group({
       passwordChange: this.fb.group({
         newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^\S+$/)]],
         confirmNewPassword: ['', Validators.required]
-      }, {validators: this.passwordMatchValidator()})
+      }, { validators: this.passwordMatchValidator() })
     });
-
-    this.setupBillingAddressValidation();
   }
 
   private setupBillingAddressValidation(): void {
-    this.customerForm.get('sameBillingAddress')?.valueChanges.subscribe(checked => {
-      this.showBillingAddress = !checked;
-      const billingAddress = this.customerForm.get('billingAddress') as FormGroup;
+    this.customerForm.get('sameBillingAddress')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(checked => {
+        this.showBillingAddress = !checked;
+        const billingAddress = this.customerForm.get('billingAddress') as FormGroup;
 
-      if (checked) {
-        Object.keys(billingAddress.controls).forEach(controlName => {
-          billingAddress.get(controlName)?.clearValidators();
-          billingAddress.get(controlName)?.reset();
-        });
-      } else {
-        if (this.initialBillingAddress) billingAddress.patchValue(this.initialBillingAddress);
-        billingAddress.get('firstName')?.setValidators(Validators.required);
-        billingAddress.get('lastName')?.setValidators(Validators.required);
-        billingAddress.get('street')?.setValidators(Validators.required);
-        billingAddress.get('houseNumber')?.setValidators(Validators.required);
-        billingAddress.get('city')?.setValidators(Validators.required);
-        billingAddress.get('zipCode')?.setValidators([Validators.required, Validators.pattern('^[0-9]+$')]);
-        billingAddress.get('country')?.setValidators(Validators.required);
-        billingAddress.updateValueAndValidity();
-      }
-    });
-  }
+        if (checked) {
+          // Clear validators when using shipping address
+          Object.keys(billingAddress.controls).forEach(controlName => {
+            billingAddress.get(controlName)?.clearValidators();
+            billingAddress.get(controlName)?.updateValueAndValidity();
+          });
 
-  private loadCustomerData(customerId: string): void {
-    const token = this.authService.token;
+          // Reset billing address to empty values
+          billingAddress.patchValue({
+            firstName: '',
+            lastName: '',
+            companyName: '',
+            taxId: '',
+            street: '',
+            houseNumber: '',
+            city: '',
+            zipCode: '',
+            country: this.DEFAULT_COUNTRY,
+            phone: ''
+          });
+        } else {
+          // Set validators for billing address
+          billingAddress.get('firstName')?.setValidators(Validators.required);
+          billingAddress.get('lastName')?.setValidators(Validators.required);
+          billingAddress.get('street')?.setValidators(Validators.required);
+          billingAddress.get('houseNumber')?.setValidators(Validators.required);
+          billingAddress.get('city')?.setValidators(Validators.required);
+          billingAddress.get('zipCode')?.setValidators([Validators.required, Validators.pattern('^[0-9]+$')]);
+          billingAddress.get('country')?.setValidators(Validators.required);
+          billingAddress.updateValueAndValidity();
 
-    this.http.get<Customer>(`http://localhost:8080/api/customers/v1/admin/${customerId}`, {
-      headers: {'Authorization': `Bearer ${token}`}
-    }).pipe(takeUntil(this.destroy$)).subscribe({
-      next: customer => this.handleCustomerDataSuccess(customer),
-      error: err => this.handleError(err)
-    });
-  }
-
-
-  private handleCustomerDataSuccess(customer: Customer): void {
-    this.customer = customer;
-    this.initialBillingAddress = customer.billingAddress;
-    this.initialAddress = customer.address;
-    this.patchFormValues(customer);
-    if (customer.preferredLanguageId && this.locales.length > 0) {
-      this.selectedLanguage = this.locales.find(l => l.id === customer.preferredLanguageId) || this.selectedLanguage;
-      if (this.selectedLanguage) {
-        this.translateService.use(this.selectedLanguage.languageCode.toLowerCase());
-      }
-    }
-    this.loading = false;
-  }
-
-  private patchFormValues(customer: Customer): void {
-    const sameBillingAddress = this.isBillingAddressSameAsShipping(customer, this.customerForm.value);
-    this.customerForm.patchValue({
-      email: customer.email || '',
-      firstName: customer.firstName || '',
-      lastName: customer.lastName || '',
-      preferredLanguageId: customer.preferredLanguageId || this.selectedLanguage.code,
-      address: {...customer.address},
-      sameBillingAddress: sameBillingAddress,
-      billingAddress: customer.billingAddress || {},
-      active: customer.active
-    });
-    this.showBillingAddress = !sameBillingAddress;
-  }
-
-  private isBillingAddressSameAsShipping(customer: Customer, formValue: any): boolean {
-    if (!customer.billingAddress && formValue.sameBillingAddress) return true;
-    if (!customer.billingAddress || !customer.address) return false;
-    const billingAddress = {
-      firstName: customer.billingAddress.firstName,
-      lastName: customer.billingAddress.lastName,
-      phone: customer.billingAddress.phone,
-      street: customer.billingAddress.street,
-      houseNumber: customer.billingAddress.houseNumber,
-      city: customer.billingAddress.city,
-      zipCode: customer.billingAddress.zipCode,
-      country: customer.billingAddress.country
-    };
-    const shippingAddress = {
-      firstName: customer.firstName,
-      lastName: customer.lastName,
-      phone: customer.address.phone,
-      street: customer.address.street,
-      houseNumber: customer.address.houseNumber,
-      city: customer.address.city,
-      zipCode: customer.address.zipCode,
-      country: customer.address.country
-    };
-
-    return JSON.stringify(billingAddress) === JSON.stringify(shippingAddress);
+          // Restore initial billing address if available
+          if (this.initialBillingAddress) {
+            billingAddress.patchValue(this.initialBillingAddress);
+          }
+        }
+      });
   }
 
   private passwordMatchValidator(): ValidatorFn {
     return (group: AbstractControl) => {
       const newPassword = group.get('newPassword')?.value;
       const confirmNewPassword = group.get('confirmNewPassword')?.value;
-      return newPassword && confirmNewPassword && newPassword !== confirmNewPassword ? {mismatch: true} : null;
+      return newPassword && confirmNewPassword && newPassword !== confirmNewPassword ?
+        { mismatch: true } : null;
     };
   }
 
-  private createCustomerPayload() {
+  onLanguageChange(langId: number): void {
+    const lang = this.locales.find(l => l.id === langId);
+    if (!lang) return;
+
+    this.selectedLanguage = lang;
+    this.customerForm.patchValue({ preferredLanguageId: lang.id });
+    this.languageChanged = true;
+
+    // Change application language
+    this.translateService.use(lang.languageCode.toLowerCase()).subscribe({
+      next: () => {
+        console.log('Language changed to:', lang.languageCode.toLowerCase());
+      },
+      error: (err) => {
+        console.error('Error changing language:', err);
+      }
+    });
+  }
+
+  onSave(): void {
+    if (this.customerForm.invalid || (!this.customerForm.dirty && !this.languageChanged)) {
+      this.showSnackbar('ERRORS.FIX_FORM', 'error-snackbar');
+      return;
+    }
+
+    this.saving = true;
+    const payload = this.createCustomerPayload();
+
+    if (!this.customerId) {
+      this.saving = false;
+      return;
+    }
+
+    this.customerService.updateCustomer(this.customerId, payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.handleSaveSuccess(),
+        error: (err) => this.handleSaveError(err)
+      });
+  }
+
+  private createCustomerPayload(): any {
     const formValue = this.customerForm.value;
     const useShippingAddress = formValue.sameBillingAddress;
+
     return {
       email: formValue.email,
       firstName: formValue.firstName,
@@ -344,115 +353,141 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       phone: formValue.address.phone,
       active: formValue.active,
       preferredLanguageId: formValue.preferredLanguageId,
-      address: {...formValue.address},
-      billingAddress: useShippingAddress ? {
-        firstName: formValue.firstName,
-        lastName: formValue.lastName,
-        phone: formValue.address.phone,
-        companyName: null,
-        taxId: null,
-        ...formValue.address
-      } : {...formValue.billingAddress}
+      address: { ...formValue.address },
+      billingAddress: useShippingAddress ?
+        this.createBillingAddressFromShipping(formValue) :
+        { ...formValue.billingAddress }
+    };
+  }
+
+  private createBillingAddressFromShipping(formValue: any): any {
+    return {
+      firstName: formValue.firstName,
+      lastName: formValue.lastName,
+      phone: formValue.address.phone,
+      companyName: null,
+      taxId: null,
+      street: formValue.address.street,
+      houseNumber: formValue.address.houseNumber,
+      city: formValue.address.city,
+      zipCode: formValue.address.zipCode,
+      country: formValue.address.country
     };
   }
 
   private handleSaveSuccess(): void {
     this.showSnackbar('CUSTOMER.SAVE_SUCCESS');
     this.customerForm.markAsPristine();
+    this.languageChanged = false;
     this.saving = false;
-    this.router.navigate(['/admin/customers']);
+
+    // Reload customer data to get updated information
+    this.loadCustomerData();
   }
 
   private handleSaveError(err: any): void {
     this.showSnackbar('CUSTOMER.SAVE_ERROR', 'error-snackbar');
     this.saving = false;
-    console.error('Error saving customer details:', err);
+    console.error('Error saving customer:', err);
+  }
+
+  onChangePassword(formDirective: FormGroupDirective): void {
+    const passwordGroup = this.passwordForm.get('passwordChange');
+    if (!passwordGroup || passwordGroup.invalid || !passwordGroup.dirty) {
+      this.showSnackbar('ERRORS.FIX_FORM', 'error-snackbar');
+      passwordGroup?.markAllAsTouched();
+      return;
+    }
+
+    this.savingPassword = true;
+    const { newPassword } = passwordGroup.value;
+
+    if (!this.customerId) {
+      this.savingPassword = false;
+      return;
+    }
+
+    // Use the customer service method for password change
+    this.customerService.changeCustomerPassword(this.customerId, newPassword)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.handlePasswordChangeSuccess(formDirective),
+        error: (err) => this.handlePasswordChangeError(err)
+      });
   }
 
   private handlePasswordChangeSuccess(formDirective: FormGroupDirective): void {
     this.showSnackbar('CUSTOMER.PASSWORD_CHANGE_SUCCESS');
     formDirective.resetForm();
-    this.router.navigate(['/admin/customers']);
+    this.passwordForm.reset();
+    this.savingPassword = false;
   }
 
-  private handlePasswordChangeError(err: any, userId: string): void {
+  private handlePasswordChangeError(err: any): void {
     const errorKey = err.status === 401 ? 'CUSTOMER.INCORRECT_PASSWORD' : 'CUSTOMER.PASSWORD_CHANGE_ERROR';
     this.showSnackbar(errorKey, 'error-snackbar');
-    console.error(`Password change failed for ${userId}:`, err);
-  }
-
-  private showSnackbar(translationKey: string, panelClass: string = ''): void {
-    this.snackBar.open(
-      this.translateService.instant(translationKey),
-      this.translateService.instant('COMMON.CLOSE'),
-      {duration: 5000, panelClass: panelClass ? [panelClass] : []}
-    );
-  }
-
-  private handleUnauthorized(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
-    this.loading = false;
-  }
-
-  private handleError(err: any): void {
-    if (err.status === 401) {
-      this.handleUnauthorized();
-    } else {
-      console.error('Failed to fetch customer data:', err);
-      this.loading = false;
-    }
+    this.savingPassword = false;
+    console.error('Password change error:', err);
   }
 
   private loadOrders(): void {
-    this.isOrdersLoading = true;
-    this.ordersError = null;
-    this.customerId = this.customerState.getSelectedCustomer();
     if (!this.customerId) {
       this.isOrdersLoading = false;
       return;
     }
-    this.orderService.getByCustomerId(this.customerId).subscribe({
-      next: (orders) => {
-        if (!orders || orders.length === 0) {
-          this.ordersDataSource.data = [];
-          this.isOrdersLoading = false;
-          return;
+
+    this.isOrdersLoading = true;
+    this.ordersError = null;
+
+    this.orderService.getByCustomerId(this.customerId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (orders) => {
+          this.handleOrdersSuccess(orders);
+        },
+        error: (err) => {
+          this.handleOrdersError(err);
         }
-        this.ordersDataSource.sortingDataAccessor = (item, property) => {
-          switch (property) {
-            case 'invoiceId':
-              return item.invoiceId || '';
-            case 'shippingMethod':
-              return item.shippingMethod;
-            case 'paymentMethod':
-              return item.paymentMethod;
-            case 'finalTotal':
-              return item.finalTotal || 0;
-            case 'status':
-              return item.status || '';
-            default:
-              return item[property as keyof ClientOrder] as string;
-          }
-        };
+      });
+  }
 
-        const ordersWithInvoice: ClientOrder[] = orders.map(order => {
-          const orderDate = new Date(order.orderDate);
-          const year = orderDate.getFullYear();
-          const invoiceId = `${year}${order.orderYearOrderCounter.toString().padStart(5, '0')}`;
-          return {...order, invoiceId};
-        });
-
-        this.ordersDataSource.data = ordersWithInvoice;
-        this.ordersDataSource.sort = this.ordersSort;
-        this.ordersDataSource.paginator = this.ordersPaginator;
-        this.isOrdersLoading = false;
-      },
-      error: (err) => {
-        this.ordersError = err.message || 'Failed to load orders.';
-        this.isOrdersLoading = false;
-      }
+  private handleOrdersSuccess(orders: ResponseOrderDTO[]): void {
+    const ordersWithInvoice: ClientOrder[] = orders.map(order => {
+      const orderDate = new Date(order.orderDate);
+      const year = orderDate.getFullYear();
+      const invoiceId = `${year}${order.orderYearOrderCounter?.toString().padStart(5, '0') || '00000'}`;
+      return { ...order, invoiceId };
     });
+
+    this.ordersDataSource.data = ordersWithInvoice;
+
+    // Setup sorting
+    this.ordersDataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'invoiceId':
+          return item.invoiceId || '';
+        case 'orderDate':
+          return new Date(item.orderDate).getTime();
+        case 'shippingMethod':
+          return item.shippingMethod || '';
+        case 'paymentMethod':
+          return item.paymentMethod || '';
+        case 'finalTotal':
+          return item.finalTotal || 0;
+        case 'status':
+          return item.status || '';
+        default:
+          return (item as any)[property] || '';
+      }
+    };
+
+    this.isOrdersLoading = false;
+  }
+
+  private handleOrdersError(err: any): void {
+    this.ordersError = err.message || 'Failed to load orders.';
+    this.isOrdersLoading = false;
+    console.error('Error loading orders:', err);
   }
 
   viewOrderDetails(orderId: number): void {
@@ -461,71 +496,83 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
   }
 
   downloadOrderInvoice(order: ClientOrder): void {
-    if (!this.customer?.id) return;
+    if (!this.customerId) return;
 
-    this.orderService.downloadInvoice(this.customer.id.toString(), order.id).subscribe({
-      next: (response: HttpResponse<ArrayBuffer>) => {
-        const contentDisposition = response.headers.get('Content-Disposition');
-        let filename = `invoice_${order.invoiceId}.pdf`;
+    this.orderService.downloadInvoice(this.customerId, order.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          // Handle file download
+          const blob = new Blob([response], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `invoice_${order.invoiceId}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
 
-        if (contentDisposition) {
-          const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
-          if (filenameMatch != null && filenameMatch[1]) {
-            filename = filenameMatch[1];
-          }
+          this.showSnackbar('CUSTOMER.INVOICE_DOWNLOAD_SUCCESS');
+        },
+        error: (err) => {
+          console.error('Error downloading invoice:', err);
+          this.showSnackbar('CUSTOMER.INVOICE_DOWNLOAD_ERROR', 'error-snackbar');
         }
-
-        const blob = new Blob([response.body!], {type: 'application/pdf'});
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      },
-      error: (err) => {
-        console.error('Error downloading invoice:', err);
-      }
-    });
+      });
   }
 
   getOrderStatusClass(status?: string): string {
-    switch (status) {
-      case 'CREATED':
-        return 'status-created';
-      case 'PENDING':
-        return 'status-pending';
-      case 'CONFIRMED':
-        return 'status-confirmed';
-      case 'PROCESSING':
-        return 'status-processing';
-      case 'SHIPPED':
-        return 'status-shipped';
-      case 'DELIVERED':
-        return 'status-delivered';
-      case 'FINISHED':
-        return 'status-finished';
-      case 'REJECTED':
-        return 'status-rejected';
-      case 'CANCELLED':
-        return 'status-cancelled';
-      default:
-        return '';
+    if (!status) return 'status-unknown';
+
+    switch (status.toUpperCase()) {
+      case 'CREATED': return 'status-created';
+      case 'PENDING': return 'status-pending';
+      case 'CONFIRMED': return 'status-confirmed';
+      case 'PROCESSING': return 'status-processing';
+      case 'SHIPPED': return 'status-shipped';
+      case 'DELIVERED': return 'status-delivered';
+      case 'FINISHED': return 'status-finished';
+      case 'REJECTED': return 'status-rejected';
+      case 'CANCELLED': return 'status-cancelled';
+      default: return 'status-unknown';
     }
   }
 
   getOrderStatusText(status?: string): string {
-    return status?.toUpperCase() || '';
+    if (!status) return 'UNKNOWN';
+    return this.translateService.instant(`ORDER_STATUS.${status.toUpperCase()}`);
   }
 
-  navigateBackToList() {
+  navigateBackToList(): void {
     this.router.navigate(['/admin/customers']);
   }
 
-
-  translateLocale(locale: ResponseLocaleDto) {
+  translateLocale(locale: ResponseLocaleDto): string {
     return this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode);
+  }
+
+  private showSnackbar(translationKey: string, panelClass: string = ''): void {
+    const message = this.translateService.instant(translationKey);
+    const closeText = this.translateService.instant('COMMON.CLOSE');
+
+    this.snackBar.open(message, closeText, {
+      duration: 5000,
+      panelClass: panelClass ? [panelClass] : []
+    });
+  }
+
+  private handleError(err: any): void {
+    this.loading = false;
+    if (err.status === 401) {
+      this.authService.logout();
+      this.router.navigate(['/login']);
+    } else if (err.status === 404) {
+      this.showSnackbar('CUSTOMER.NOT_FOUND', 'error-snackbar');
+      this.router.navigate(['/admin/customers']);
+    } else {
+      this.showSnackbar('CUSTOMER.LOAD_ERROR', 'error-snackbar');
+      console.error('Error loading customer:', err);
+    }
   }
 }

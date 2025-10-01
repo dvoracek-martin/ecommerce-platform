@@ -11,7 +11,7 @@
     <div class="error-text">{{ error }}</div>
     <button (click)="navigateHome()" color="warn" mat-stroked-button>
       <mat-icon>arrow_back</mat-icon>
-      Back to the main page
+      {{ 'COMMON.BACK_TO_HOME' | translate }}
     </button>
   </div>
 
@@ -22,28 +22,27 @@
 
       <ng-container *ngIf="product.media?.length; else noMedia">
         <div class="product-image-container">
-          <img *ngIf="product.media[activeSlideIndices[productIndex]]?.contentType?.startsWith('image/')"
-               [alt]="product.translatedName"
-               [src]="'data:' + product.media[activeSlideIndices[productIndex]].contentType + ';base64,' + product.media[activeSlideIndices[productIndex]].base64Data"
-               class="product-image"/>
-          <video *ngIf="product.media[activeSlideIndices[productIndex]]?.contentType?.startsWith('video/')"
-                 [attr.muted]="true"
-                 [muted]="true"
-                 autoplay
-                 class="product-image"
-                 loop
-                 playsinline
-                 preload="metadata">
-            <source
-              [src]="'data:' + product.media[activeSlideIndices[productIndex]].contentType + ';base64,' + product.media[activeSlideIndices[productIndex]].base64Data"
-              [type]="product.media[activeSlideIndices[productIndex]].contentType"/>
-          </video>
-          <div *ngIf="product.media?.length > 1" class="carousel-dots">
-            <button (click)="$event.stopPropagation(); setActiveSlide(productIndex, i)"
-                    *ngFor="let media of product.media; let i = index; trackBy: trackByObjectKey"
-                    [class.active]="activeSlideIndices[productIndex] === i"
-                    class="dot">
-            </button>
+          <!-- Carousel Slides -->
+          <div class="carousel-slides"
+               [style.transform]="'translateX(' + (-activeSlideIndices[productIndex] * 100) + '%)'">
+            <div *ngFor="let media of product.media; let i = index" class="slide">
+              <img *ngIf="media.contentType?.startsWith('image/')"
+                   [alt]="product.translatedName"
+                   [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                   class="product-image"/>
+              <video *ngIf="media.contentType?.startsWith('video/')"
+                     [attr.muted]="true"
+                     [muted]="true"
+                     autoplay
+                     class="product-image"
+                     loop
+                     playsinline
+                     preload="metadata">
+                <source
+                  [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                  [type]="media.contentType"/>
+              </video>
+            </div>
           </div>
         </div>
       </ng-container>
@@ -66,11 +65,12 @@
       </div>
 
       <div class="product-bottom-box">
-        <button (click)="$event.stopPropagation(); addToCart(product)" class="add-to-cart-btn btn-primary">
+        <button (click)="$event.stopPropagation(); addToCart(product)"
+                class="add-to-cart-btn">
           <mat-icon>add_shopping_cart</mat-icon>
-          Add to Cart
+          {{ 'PRODUCTS.ADD_TO_CART' | translate }}
         </button>
-        <div class="price">{{ product.price | currency:'USD' }}</div>
+        <div class="price">{{ product.price | swissCurrency }}</div>
       </div>
     </div>
   </div>

@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
 import {MatTableDataSource} from '@angular/material/table';
 import {MatPaginator} from '@angular/material/paginator';
@@ -6,11 +6,11 @@ import {MatSort} from '@angular/material/sort';
 import {CustomerService} from '../../../services/customer.service';
 import {Customer} from '../../../dto/customer/customer-dto';
 import {FormControl} from '@angular/forms';
-import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, switchMap, map} from 'rxjs/operators';
 import {CustomerStateService} from '../../../services/customer-state.service';
 import {LocaleMapperService} from '../../../services/locale-mapper.service';
 import {ConfigurationService} from '../../../services/configuration.service';
-import {Subject, takeUntil} from 'rxjs';
+import {Subject, of, forkJoin} from 'rxjs';
 import {ResponseLocaleDto} from '../../../dto/configuration/response-locale-dto';
 import {TranslateService} from '@ngx-translate/core';
 
@@ -20,26 +20,20 @@ import {TranslateService} from '@ngx-translate/core';
   styleUrls: ['./customers-admin-list.component.scss'],
   standalone: false,
 })
-export class CustomersAdminListComponent implements OnInit {
+export class CustomersAdminListComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource<Customer>();
-  displayedColumns: string[] = ['id', 'firstName', 'lastName', 'email', 'preferredLanguage', 'actions'];
+  displayedColumns: string[] = ['customer', 'email', 'preferredLanguage', 'actions']; // Fixed to match template
 
   private readonly destroy$ = new Subject<void>();
   searchControl = new FormControl('');
   emailSearchControl = new FormControl('');
 
-
   inUseLocales: ResponseLocaleDto[] = [];
   isLoading = true;
   error: string | null = null;
 
-  @ViewChild(MatPaginator) set matPaginator(paginator: MatPaginator) {
-    if (paginator) this.dataSource.paginator = paginator;
-  }
-
-  @ViewChild(MatSort) set matSort(sort: MatSort) {
-    if (sort) this.dataSource.sort = sort;
-  }
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
     private customerService: CustomerService,
@@ -48,79 +42,120 @@ export class CustomersAdminListComponent implements OnInit {
     private localeMapperService: LocaleMapperService,
     private configurationService: ConfigurationService,
     public translateService: TranslateService,
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
-    this.configurationService.getLastAppSettings()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (settings) => {
-          this.inUseLocales = settings.usedLocales || [];
-        },
-        error: err => console.error('Error loading app settings:', err)
-      });
-    this.loadCustomers();
+    this.loadConfigurationAndCustomers();
     this.setupSearchFilter();
   }
 
-  setupSearchFilter(): void {
-    this.searchControl.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe(value => this.applyFilter(value || ''));
-
-    this.emailSearchControl.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe(value => this.applyEmailFilter(value || ''));
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
-  applyFilter(filterValue: string): void {
-    this.dataSource.filterPredicate = (data: Customer, filter: string): boolean => {
-      const searchStr = filter.toLowerCase();
-      return (
-        (data.id || '').toLowerCase().includes(searchStr) ||
-        (data.firstName || '').toLowerCase().includes(searchStr) ||
-        (data.lastName || '').toLowerCase().includes(searchStr) ||
-        (data.email || '').toLowerCase().includes(searchStr) ||
-        ( this.localeMapperService.mapLocaleByLocaleSync(this.inUseLocales.find(l => l.id === data.preferredLanguageId)) || '').toLowerCase().includes(searchStr)
-      );
-    };
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
-  }
-
-  applyEmailFilter(filterValue: string): void {
-    this.dataSource.filterPredicate = (data: Customer, filter: string): boolean => {
-      return data.email?.toLowerCase().includes(filter.toLowerCase()) || false;
-    };
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
-  }
-
-  loadCustomers(): void {
+  loadConfigurationAndCustomers(): void {
     this.isLoading = true;
     this.error = null;
 
-    this.customerService.getAll().subscribe({
-      next: (customers) => {
-        // Map preferredLanguage to translated label
-        this.dataSource.data = customers.map(customer => ({
-          ...customer,
-          preferredLanguage: this.localeMapperService.mapLocaleByLocaleAsync(this.inUseLocales.find(l => l.id === customer.preferredLanguageId))
-        }));
+    forkJoin({
+      settings: this.configurationService.getLastAppSettings(),
+      customers: this.customerService.getAll()
+    }).subscribe({
+      next: ({ settings, customers }) => {
+        this.inUseLocales = settings.usedLocales || [];
+
+        // Process customers with language mapping
+        this.processCustomers(customers);
         this.isLoading = false;
       },
       error: (err) => {
-        this.error = err.message || 'Failed to load customers.';
-        this.isLoading = false;
-        console.error('Error fetching customers:', err);
+        this.handleError(err);
       }
     });
   }
 
+  private processCustomers(customers: Customer[]): void {
+    const processedCustomers = customers.map(customer => {
+      const locale = this.inUseLocales.find(l => l.id === customer.preferredLanguageId);
+      const languageLabel = locale ?
+        this.localeMapperService.mapLocaleByLocaleSync(locale) :
+        customer.preferredLanguageId || 'Unknown';
+
+      return {
+        ...customer,
+        preferredLanguage: languageLabel
+      };
+    });
+
+    this.dataSource.data = processedCustomers;
+
+    // Set initial filter predicate
+    this.setupInitialFilterPredicate();
+  }
+
+  private setupInitialFilterPredicate(): void {
+    this.dataSource.filterPredicate = this.createGeneralFilterPredicate();
+  }
+
+  private createGeneralFilterPredicate(): (data: Customer, filter: string) => boolean {
+    return (data: Customer, filter: string): boolean => {
+      if (!filter) return true;
+
+      const searchStr = filter.toLowerCase();
+      const fullName = `${data.firstName || ''} ${data.lastName || ''}`.toLowerCase().trim();
+      const language = data.preferredLanguageId;
+
+      return (
+        (data.id || '').toLowerCase().includes(searchStr) ||
+        fullName.includes(searchStr) ||
+        (data.email || '').toLowerCase().includes(searchStr)
+        // ||
+        // language.includes(searchStr)
+      );
+    };
+  }
+
+  private createEmailFilterPredicate(): (data: Customer, filter: string) => boolean {
+    return (data: Customer, filter: string): boolean => {
+      if (!filter) return true;
+      return (data.email || '').toLowerCase().includes(filter.toLowerCase());
+    };
+  }
+
+  setupSearchFilter(): void {
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(value => {
+        this.dataSource.filterPredicate = this.createGeneralFilterPredicate();
+        this.dataSource.filter = (value || '').trim().toLowerCase();
+        if (this.dataSource.paginator) {
+          this.dataSource.paginator.firstPage();
+        }
+      });
+
+    this.emailSearchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(value => {
+        this.dataSource.filterPredicate = this.createEmailFilterPredicate();
+        this.dataSource.filter = (value || '').trim().toLowerCase();
+        if (this.dataSource.paginator) {
+          this.dataSource.paginator.firstPage();
+        }
+      });
+  }
+
   viewCustomerDetails(customerId?: string): void {
-    this.customerState.setSelectedCustomer(customerId);
-    this.router.navigate(['/admin/customers/detail']);
+    if (customerId) {
+      this.customerState.setSelectedCustomer(customerId);
+      this.router.navigate(['/admin/customers/detail']);
+    }
   }
 
   navigateHome(): void {
@@ -129,11 +164,25 @@ export class CustomersAdminListComponent implements OnInit {
 
   clearSearch(): void {
     this.searchControl.setValue('');
-    this.applyFilter('');
+    this.dataSource.filter = '';
   }
 
   clearEmailSearch(): void {
     this.emailSearchControl.setValue('');
-    this.applyFilter('');
+    this.dataSource.filter = '';
+  }
+
+  private handleError(error: any): void {
+    this.error = error.message || 'Failed to load customers.';
+    this.isLoading = false;
+    console.error('Error in customers component:', error);
+
+    // Ensure dataSource is in a valid state even on error
+    this.dataSource.data = [];
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
