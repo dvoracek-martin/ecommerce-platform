@@ -19,6 +19,12 @@ import {ConfigurationService} from '../../../services/configuration.service';
 import {ResponseLocaleDto} from '../../../dto/configuration/response-locale-dto';
 import {LocaleMapperService} from '../../../services/locale-mapper.service';
 
+interface PasswordStrength {
+  score: number;
+  text: string;
+  class: string;
+}
+
 @Component({
   selector: 'app-customers',
   templateUrl: './customers.component.html',
@@ -47,6 +53,12 @@ export class CustomersComponent implements OnInit, OnDestroy {
   locales: ResponseLocaleDto[] = [];
   selectedLanguage?: ResponseLocaleDto;
   languageChanged = false;
+
+  // Password visibility and strength properties
+  hideCurrentPassword = true;
+  hideNewPassword = true;
+  hideConfirmPassword = true;
+  passwordStrength: PasswordStrength = { score: 0, text: '', class: '' };
 
   constructor(
     private fb: FormBuilder,
@@ -180,6 +192,84 @@ export class CustomersComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Password strength methods matching user registration component
+  checkPasswordStrength(): void {
+    const password = this.passwordForm.get('passwordChange.newPassword')?.value;
+
+    if (!password) {
+      this.passwordStrength = { score: 0, text: '', class: '' };
+      return;
+    }
+
+    let score = 0;
+
+    // More friendly scoring system
+    if (password.length >= 6) score++; // Basic length
+    if (password.length >= 8) score++; // Good length
+    if (password.length >= 12) score++; // Great length
+
+    // Simple complexity checks (bonus points)
+    if (/[A-Z]/.test(password)) score++; // Uppercase letters
+    if (/[0-9]/.test(password)) score++; // Numbers
+    if (/[^A-Za-z0-9]/.test(password)) score++; // Special characters
+
+    // Determine strength level - More user-friendly approach
+    if (score <= 1) {
+      this.passwordStrength = {
+        score,
+        text: 'USER_REGISTRATION.PASSWORD_VERY_WEAK',
+        class: 'very-weak'
+      };
+    } else if (score <= 2) {
+      this.passwordStrength = {
+        score,
+        text: 'USER_REGISTRATION.PASSWORD_WEAK',
+        class: 'weak'
+      };
+    } else if (score <= 3) {
+      this.passwordStrength = {
+        score,
+        text: 'USER_REGISTRATION.PASSWORD_FAIR',
+        class: 'fair'
+      };
+    } else if (score <= 4) {
+      this.passwordStrength = {
+        score,
+        text: 'USER_REGISTRATION.PASSWORD_GOOD',
+        class: 'good'
+      };
+    } else {
+      this.passwordStrength = {
+        score,
+        text: 'USER_REGISTRATION.PASSWORD_STRONG',
+        class: 'strong'
+      };
+    }
+  }
+
+  getStrengthClass(barNumber: number): string {
+    if (barNumber <= this.passwordStrength.score) {
+      return this.passwordStrength.class;
+    }
+    return '';
+  }
+
+  hasMinLength(): boolean {
+    const password = this.passwordForm.get('passwordChange.newPassword')?.value;
+    return password && password.length >= 8;
+  }
+
+  hasNoSpaces(): boolean {
+    const password = this.passwordForm.get('passwordChange.newPassword')?.value;
+    return password && /^\S+$/.test(password);
+  }
+
+  passwordsMatch(): boolean {
+    const newPassword = this.passwordForm.get('passwordChange.newPassword')?.value;
+    const confirmPassword = this.passwordForm.get('passwordChange.confirmNewPassword')?.value;
+    return newPassword && confirmPassword && newPassword === confirmPassword;
+  }
+
   private initializeForms(): void {
     this.customerForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -217,6 +307,11 @@ export class CustomersComponent implements OnInit, OnDestroy {
     });
 
     this.setupBillingAddressValidation();
+
+    // Check password strength on every change
+    this.passwordForm.get('passwordChange.newPassword')?.valueChanges.subscribe(() => {
+      this.checkPasswordStrength();
+    });
   }
 
   private setupBillingAddressValidation(): void {
