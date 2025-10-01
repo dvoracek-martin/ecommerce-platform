@@ -4,6 +4,9 @@ import com.dvoracekmartin.common.dto.cart.CartItemType;
 import com.dvoracekmartin.common.dto.customer.ResponseCustomerDTO;
 import com.dvoracekmartin.common.dto.mixture.ResponseMixtureDTO;
 import com.dvoracekmartin.common.dto.product.ResponseProductDTO;
+import com.dvoracekmartin.common.event.translation.LocalizedField;
+import com.dvoracekmartin.common.event.translation.TranslationGetOrDeleteEvent;
+import com.dvoracekmartin.common.event.translation.TranslationObjectsEnum;
 import com.dvoracekmartin.orderservice.application.service.customer.CustomerClient;
 import com.dvoracekmartin.orderservice.application.service.product.CatalogClient;
 import com.dvoracekmartin.orderservice.domain.model.Order;
@@ -14,12 +17,15 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +33,35 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
     private final CustomerClient customerClient;
     private final CatalogClient catalogClient;
+    private final WebClient translationWebClient;
+    private final WebClient catalogWebClient;
 
-    public byte[] generateInvoice(Order order) {
+    private static TranslationGetOrDeleteEvent createRequestForTranslationGetOrDelete(Long elementId, TranslationObjectsEnum elementType) {
+        return new TranslationGetOrDeleteEvent(
+                elementType,
+                elementId
+        );
+    }
+    public ResponseMixtureDTO getMixtureById(Long id) {
+        return translationWebClient.get()
+                .uri("/mixtures/{id}", id)
+                .retrieve()
+                .bodyToMono(ResponseMixtureDTO.class)
+                .block();
+    }
+
+
+    private Map<String, LocalizedField> getTranslationMap(TranslationGetOrDeleteEvent translationGetOrDeleteEvent) {
+        return translationWebClient.post()
+                .uri("/get")
+                .bodyValue(translationGetOrDeleteEvent)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, LocalizedField>>() {
+                })
+                .block();
+    }
+
+    public byte[] generateInvoice(Order order, String selectedLocale) {
         try (PDDocument document = new PDDocument();
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
@@ -102,12 +135,24 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
                 for (OrderItem item : order.getItems()) {
                     if (item.getItemType().equals(CartItemType.PRODUCT.name())) {
                         ResponseProductDTO responseProductDTO = catalogClient.getProductById(item.getItemId()).getBody();
-                        itemName = responseProductDTO.getName();
+                        Map<String, LocalizedField> translationMap = getTranslationMap(createRequestForTranslationGetOrDelete(responseProductDTO.getId(), TranslationObjectsEnum.PRODUCT));
+                        if (translationMap != null) {
+                            itemName = translationMap.get(selectedLocale).getName();
+                        }
                         itemPrice = responseProductDTO.getPrice();
                     } else if (item.getItemType().equals(CartItemType.MIXTURE.name())) {
                         ResponseMixtureDTO responseMixtureDTO = catalogClient.getMixtureById(item.getItemId()).getBody();
-                        itemName = responseMixtureDTO.getName();
-                        itemPrice = responseMixtureDTO.getPrice();
+                        Map<String, LocalizedField> translationMap = getTranslationMap(createRequestForTranslationGetOrDelete(responseMixtureDTO.getId(), TranslationObjectsEnum.MIXTURE));
+                        if (translationMap != null) {
+                            LocalizedField localizedField = translationMap.get(selectedLocale);
+                            if (localizedField == null) {
+                                // user-defined mixture
+                                itemName = responseMixtureDTO.getName();
+                            } else {
+                                itemName = localizedField.getName();
+                            }
+                            itemPrice = responseMixtureDTO.getPrice();
+                        }
                     }
                     contentStream.beginText();
                     contentStream.setFont(normalFont, 10);

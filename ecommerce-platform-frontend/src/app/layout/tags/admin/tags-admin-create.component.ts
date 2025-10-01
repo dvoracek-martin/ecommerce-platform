@@ -122,7 +122,7 @@ export class TagsAdminCreateComponent implements OnInit, OnDestroy {
     const formConfig: any = {
       active: [false],
       media: this.fb.array([]),
-      priority: ['0', [Validators.required, Validators.min(0)]],
+      priority: [0, [Validators.required, Validators.min(0)]],
     };
 
     this.usedLocales.forEach(locale => {

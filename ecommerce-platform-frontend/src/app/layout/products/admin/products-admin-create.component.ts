@@ -29,8 +29,8 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
   saving = false;
   categories: ResponseCategoryDTO[] = [];
   allTags: ResponseTagDTO[] = [];
-  private readonly destroy$ = new Subject<void>();
-  usedLocales: ResponseLocaleDto[] = [];
+  private readonly
+  usedLocales: ResponseLocaleDto[] = []; destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,

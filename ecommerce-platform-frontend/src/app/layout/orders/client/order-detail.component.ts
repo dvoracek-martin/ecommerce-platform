@@ -21,6 +21,7 @@ interface OrderItemWithDetails extends CartItemDTO {
   mixture?: ResponseMixtureDTO;
   itemPrice?: number;
   itemName?: string;
+  translatedName?: string;
   loaded: boolean;
 }
 
@@ -110,6 +111,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
         this.orderItemsWithDetails = itemsWithDetails as OrderItemWithDetails[];
         this.isLoading = false;
         this.isOrderLoaded = true;
+        this.orderCartItems();
       },
       error: err => {
         console.error('Error loading order:', err);
@@ -217,5 +219,33 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   navigateBackToList() {
     this.router.navigate(['/admin/orders']);
+  }
+
+  private orderCartItems() {
+    this.orderItemsWithDetails.forEach(cartItem => {
+      if (cartItem.cartItemType === CartItemType.PRODUCT && cartItem.product) {
+        this.productService.getProductById(cartItem.product.id).subscribe(responseProductDTO => {
+          cartItem.translatedName = this.productService.getLocalizedName(responseProductDTO);
+          cartItem.product.translatedName = cartItem.translatedName;
+          cartItem.product.translatedDescription =  this.productService.getLocalizedDescription(responseProductDTO);
+        });
+      } else if (cartItem.cartItemType === CartItemType.MIXTURE && cartItem.mixture) {
+        console.log(cartItem.mixture);
+        if (Object.keys(cartItem.mixture.localizedFields).length === 0) {
+          // customer-created mixtures don't have localized fields
+          cartItem.translatedName = cartItem.mixture.name;
+        } else {
+          this.mixtureService.getMixtureById(cartItem.mixture.id).subscribe(responseMixtureDTO => {
+            cartItem.translatedName = this.mixtureService.getLocalizedName(cartItem.mixture);
+            cartItem.mixture.translatedName = cartItem.translatedName;
+          });
+        }
+        cartItem.mixture.products.forEach(product => {
+          this.productService.getProductById(product.id).subscribe(responseProductDTO => {
+            product.translatedName = this.productService.getLocalizedName(responseProductDTO);
+          })
+        });
+      }
+    });
   }
 }

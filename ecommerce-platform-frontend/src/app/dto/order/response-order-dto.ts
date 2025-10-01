@@ -15,4 +15,5 @@ export interface ResponseOrderDTO {
   orderDate: string;
   trackingNumber?: string;
   orderYearOrderCounter: number;
+  selectedLocale: string;
 }

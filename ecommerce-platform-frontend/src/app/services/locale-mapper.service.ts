@@ -8,7 +8,7 @@
   })
   export class LocaleMapperService {
 
-    private currentLocale: string = ''; // Default locale
+    private currentLocale: string = '';
     constructor(private translate: TranslateService) {}
 
     public mapLocale(languageCode: string, regionCode: string): string {

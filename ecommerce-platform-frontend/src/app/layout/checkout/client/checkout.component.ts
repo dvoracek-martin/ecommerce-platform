@@ -22,10 +22,11 @@ import {catchError, map, switchMap} from 'rxjs/operators';
 import {TermsModalComponent} from '../../../shared/terms-modal/terms-modal.component';
 import {CustomerService} from '../../../services/customer.service';
 import {OrderStateService} from '../../../services/order-state.service';
-import {Address} from 'node:cluster';
 import {Customer} from '../../../dto/customer/customer-dto';
 import {CustomerBillingAddress} from '../../../dto/customer/custommer-billing-address-dto';
 import {CustomerAddress} from '../../../dto/customer/customer-address-dto';
+import {HeaderComponent} from '../../header/header.component';
+import {LocaleMapperService} from '../../../services/locale-mapper.service';
 
 interface CartItemWithDetails extends CartItem {
   product?: ResponseProductDTO;
@@ -101,7 +102,8 @@ export class CheckoutComponent implements OnInit {
     private productService: ProductService,
     private mixtureService: MixtureService,
     private customerService: CustomerService,
-    private orderState: OrderStateService
+    private orderState: OrderStateService,
+    private localeMapperService: LocaleMapperService
   ) {
     this.matIconRegistry.addSvgIcon(
       'flag_ch',
@@ -634,7 +636,8 @@ export class CheckoutComponent implements OnInit {
       cartTotal: this.cartTotal,
       finalTotal: this.finalTotal,
       shippingMethod: this.customerForm.get('shippingMethod')?.value,
-      paymentMethod: this.customerForm.get('paymentMethod')?.value
+      paymentMethod: this.customerForm.get('paymentMethod')?.value,
+      selectedLocale: this.localeMapperService.getCurrentLocale()
     };
 
     this.orderService.createOrder(orderData).subscribe({
@@ -643,8 +646,8 @@ export class CheckoutComponent implements OnInit {
         this.orderComplete = true;
         this.isPlacingOrder = false; // Reset loading state
 
-        // Clear the cart after successful order
-        this.cartService.clearCart().subscribe(() => {
+          // Clear the cart after successful order
+          this.cartService.clearCart().subscribe(() => {
           // After clearing the cart, we don't want to show the empty cart message
           // because we are in the order complete state
           this.isCartEmpty = false;
@@ -692,7 +695,6 @@ export class CheckoutComponent implements OnInit {
   }
 
   viewOrder(): void {
-
     this.orderState.setSelectedOrder(this.orderId);
     this.router.navigate(['/orders/detail']);
   }
@@ -718,7 +720,7 @@ export class CheckoutComponent implements OnInit {
           cartItem.mixture.translatedName = this.mixtureService.getLocalizedName(cartItem.mixture);
         }
         cartItem.mixture.products.forEach(product => {
-          this.productService.getProductById(product.id).subscribe( responseProductDTO=>{
+          this.productService.getProductById(product.id).subscribe(responseProductDTO => {
             product.translatedName = this.productService.getLocalizedName(responseProductDTO);
           })
         });

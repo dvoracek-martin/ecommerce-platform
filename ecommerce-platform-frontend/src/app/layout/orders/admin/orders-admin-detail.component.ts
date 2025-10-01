@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {forkJoin, of, Subscription} from 'rxjs';
-import {catchError, map, switchMap} from 'rxjs/operators';
+import {forkJoin, of, Subscription, Subject} from 'rxjs';
+import {catchError, map, switchMap, takeUntil} from 'rxjs/operators';
 import {ResponseMixtureDTO} from '../../../dto/mixtures/response-mixture-dto';
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {CartItemDTO} from '../../../dto/cart/cart-item-dto';
@@ -16,12 +16,16 @@ import {AuthService} from '../../../services/auth.service';
 import {HttpResponse} from '@angular/common/http';
 import {UpdateOrderDTO} from '../../../dto/order/update-order-dto';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {ConfigurationService} from '../../../services/configuration.service';
+import {ResponseLocaleDto} from '../../../dto/configuration/response-locale-dto';
+import {LocaleMapperService} from '../../../services/locale-mapper.service';
 
 interface OrderItemWithDetails extends CartItemDTO {
   product?: ResponseProductDTO;
   mixture?: ResponseMixtureDTO;
   itemPrice?: number;
   itemName?: string;
+  translatedName?: string;
   loaded: boolean;
 }
 
@@ -42,6 +46,9 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
   selectedStatus?: OrderStatus;
   trackingNumber: string = '';
   orderStatuses = Object.values(OrderStatus);
+  usedLocales: ResponseLocaleDto[] = [];
+  selectedLocale: string = '';
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
@@ -51,7 +58,10 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
     private orderState: OrderStateService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-  ) {}
+    private configService: ConfigurationService,
+    private localeMapperService: LocaleMapperService,
+  ) {
+  }
 
   ngOnInit(): void {
     const orderId = this.orderState.getSelectedOrder();
@@ -60,12 +70,36 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.loadUsedLocales();
     this.loadOrder(orderId);
   }
 
   ngOnDestroy(): void {
     if (this.orderSubscription) this.orderSubscription.unsubscribe();
     this.orderState.clearSelectedOrder();
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadUsedLocales(): void {
+    this.configService.getLastAppSettings()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (settings) => {
+          this.usedLocales = settings.usedLocales.map(locale => ({
+            ...locale,
+            translatedName: this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode)
+          }));
+          // Set default locale if available
+          if (this.usedLocales.length > 0) {
+            this.selectedLocale = `${this.usedLocales[0].languageCode}_${this.usedLocales[0].regionCode}`;
+          }
+        },
+        error: () => {
+          this.usedLocales = [{ languageCode: 'en', regionCode: 'US', translatedName: 'English' }];
+          this.selectedLocale = 'en_US';
+        }
+      });
   }
 
   loadOrder(orderId: number): void {
@@ -87,21 +121,20 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
                 ...item,
                 product,
                 itemPrice: product.price,
-                // TODO
-                // itemName: product.name,
+                itemName: product.translatedName,
                 loaded: true
               })),
               catchError(() => of({...item, loaded: false}))
             );
           } else if (item.cartItemType === CartItemType.MIXTURE) {
             return this.mixtureService.getMixtureById(item.itemId).pipe(
-              // map(mixture => ({
-              //   ...item,
-              //   mixture,
-              //   itemPrice: mixture.price,
-              //   itemName: mixture.name,
-              //   loaded: true
-              // })),
+              map(mixture => ({
+                ...item,
+                mixture,
+                itemPrice: mixture.price,
+                itemName: mixture.translatedName,
+                loaded: true
+              })),
               catchError(() => of({...item, loaded: false}))
             );
           }
@@ -115,6 +148,7 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
         this.orderItemsWithDetails = itemsWithDetails as OrderItemWithDetails[];
         this.isLoading = false;
         this.isOrderLoaded = true;
+        this.orderCartItems();
       },
       error: err => {
         console.error('Error loading order:', err);
@@ -138,31 +172,51 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
 
   getStatusClass(status?: string): string {
     switch (status) {
-      case this.OrderStatus.CREATED: return 'status-created';
-      case this.OrderStatus.PENDING: return 'status-pending';
-      case this.OrderStatus.CONFIRMED: return 'status-confirmed';
-      case this.OrderStatus.PROCESSING: return 'status-processing';
-      case this.OrderStatus.SHIPPED: return 'status-shipped';
-      case this.OrderStatus.DELIVERED: return 'status-delivered';
-      case this.OrderStatus.FINISHED: return 'status-finished';
-      case this.OrderStatus.REJECTED: return 'status-rejected';
-      case this.OrderStatus.CANCELLED: return 'status-cancelled';
-      default: return '';
+      case this.OrderStatus.CREATED:
+        return 'status-created';
+      case this.OrderStatus.PENDING:
+        return 'status-pending';
+      case this.OrderStatus.CONFIRMED:
+        return 'status-confirmed';
+      case this.OrderStatus.PROCESSING:
+        return 'status-processing';
+      case this.OrderStatus.SHIPPED:
+        return 'status-shipped';
+      case this.OrderStatus.DELIVERED:
+        return 'status-delivered';
+      case this.OrderStatus.FINISHED:
+        return 'status-finished';
+      case this.OrderStatus.REJECTED:
+        return 'status-rejected';
+      case this.OrderStatus.CANCELLED:
+        return 'status-cancelled';
+      default:
+        return '';
     }
   }
 
   getStatusIcon(status?: OrderStatus): string {
     switch (status) {
-      case this.OrderStatus.CREATED: return 'add';
-      case this.OrderStatus.PENDING: return 'schedule';
-      case this.OrderStatus.CONFIRMED: return 'check_circle';
-      case this.OrderStatus.PROCESSING: return 'build';
-      case this.OrderStatus.SHIPPED: return 'local_shipping';
-      case this.OrderStatus.DELIVERED: return 'assignment_turned_in';
-      case this.OrderStatus.FINISHED: return 'done_all';
-      case this.OrderStatus.REJECTED: return 'cancel';
-      case this.OrderStatus.CANCELLED: return 'not_interested';
-      default: return 'help';
+      case this.OrderStatus.CREATED:
+        return 'add';
+      case this.OrderStatus.PENDING:
+        return 'schedule';
+      case this.OrderStatus.CONFIRMED:
+        return 'check_circle';
+      case this.OrderStatus.PROCESSING:
+        return 'build';
+      case this.OrderStatus.SHIPPED:
+        return 'local_shipping';
+      case this.OrderStatus.DELIVERED:
+        return 'assignment_turned_in';
+      case this.OrderStatus.FINISHED:
+        return 'done_all';
+      case this.OrderStatus.REJECTED:
+        return 'cancel';
+      case this.OrderStatus.CANCELLED:
+        return 'not_interested';
+      default:
+        return 'help';
     }
   }
 
@@ -210,8 +264,42 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  navigateToProduct(productId: number): void {
-    this.router.navigate(['/products', productId]);
+  generateInvoiceInLocale(): void {
+    if (!this.order || !this.selectedLocale) {
+      this.snackBar.open('Please select a language for the invoice.', 'Close', { duration: 5000 });
+      return;
+    }
+
+    this.orderService.generateInvoiceInLocale(this.order.id, this.selectedLocale).subscribe({
+      next: (response: HttpResponse<ArrayBuffer>) => {
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = `invoice_${this.order?.id}_${this.selectedLocale}.pdf`;
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+          if (filenameMatch != null && filenameMatch[1]) filename = filenameMatch[1];
+        }
+        const blob = new Blob([response.body!], {type: 'application/pdf'});
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        this.snackBar.open('Invoice generated successfully!', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        console.error('Error generating invoice:', err);
+        this.snackBar.open('Failed to generate invoice.', 'Close', { duration: 5000 });
+      }
+    });
+  }
+
+  goToProduct(product: ResponseProductDTO) {
+    const slug = this.productService.slugify(product.translatedName);
+    this.router.navigate([`/products/${product.id}/${slug}`]);
   }
 
   saveOrderChanges(): void {
@@ -245,16 +333,44 @@ export class OrdersAdminDetailComponent implements OnInit, OnDestroy {
         this.order!.status = updatedOrder.status;
         this.order!.trackingNumber = updatedOrder.trackingNumber;
 
-        snackMessages.forEach(msg => this.snackBar.open(msg, 'Close', { duration: 5000 }));
+        snackMessages.forEach(msg => this.snackBar.open(msg, 'Close', {duration: 5000}));
       },
       error: err => {
         console.error('Failed to update order', err);
-        this.snackBar.open('Failed to update order.', 'Close', { duration: 5000 });
+        this.snackBar.open('Failed to update order.', 'Close', {duration: 5000});
       }
     });
   }
 
   navigateBackToList() {
     this.router.navigate(['/admin/orders']);
+  }
+
+  private orderCartItems() {
+    this.orderItemsWithDetails.forEach(cartItem => {
+      if (cartItem.cartItemType === CartItemType.PRODUCT && cartItem.product) {
+        this.productService.getProductById(cartItem.product.id).subscribe(responseProductDTO => {
+          cartItem.translatedName = this.productService.getLocalizedName(responseProductDTO);
+          cartItem.product.translatedName = cartItem.translatedName;
+          cartItem.product.translatedDescription = this.productService.getLocalizedDescription(responseProductDTO);
+        });
+      } else if (cartItem.cartItemType === CartItemType.MIXTURE && cartItem.mixture) {
+        console.log(cartItem.mixture);
+        if (Object.keys(cartItem.mixture.localizedFields).length === 0) {
+          // customer-created mixtures don't have localized fields
+          cartItem.translatedName = cartItem.mixture.name;
+        } else {
+          this.mixtureService.getMixtureById(cartItem.mixture.id).subscribe(responseMixtureDTO => {
+            cartItem.translatedName = this.mixtureService.getLocalizedName(cartItem.mixture);
+            cartItem.mixture.translatedName = cartItem.translatedName;
+          });
+        }
+        cartItem.mixture.products.forEach(product => {
+          this.productService.getProductById(product.id).subscribe(responseProductDTO => {
+            product.translatedName = this.productService.getLocalizedName(responseProductDTO);
+          })
+        });
+      }
+    });
   }
 }

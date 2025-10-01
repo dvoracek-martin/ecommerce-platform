@@ -69,7 +69,6 @@ public class CatalogServiceImpl implements CatalogService {
     private final ElasticsearchService elasticsearchService;
     private final WebClient translationWebClient;
 
-
     // Helper methods
     private List<MediaDTO> retrieveMediaForEntity(String entityId, BucketName bucketName) {
         List<String> keys = mediaRetriever.listMediaKeysInFolder(entityId, bucketName.getName());

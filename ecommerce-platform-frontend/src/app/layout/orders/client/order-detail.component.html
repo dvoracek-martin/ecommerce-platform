@@ -49,7 +49,7 @@
                    *ngIf="item.cartItemType === CartItemType.PRODUCT && item.product">
                 <img *ngIf="item.product?.media?.[0]"
                      [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
-                     alt="{{ item.itemName }}"/>
+                     alt="{{ item.translatedName }}"/>
                 <div *ngIf="!item.product?.media?.[0]" class="no-image">
                   <span class="material-icons">inventory_2</span>
                 </div>
@@ -60,7 +60,7 @@
                   <img *ngIf="(item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0])"
                        [src]="item.product?.media?.[0] ? 'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data :
                              (item.mixture?.products?.[0]?.media?.[0] ? 'data:' + item.mixture.products[0].media[0].contentType + ';base64,' + item.mixture.products[0].media[0].base64Data : '')"
-                       alt="{{ item.itemName }}"/>
+                       alt="{{ item.translatedName }}"/>
                 </ng-container>
                 <div *ngIf="!((item.product?.media?.[0]) || (item.mixture?.products?.[0]?.media?.[0]))"
                      class="no-image">
@@ -74,27 +74,26 @@
                   <h3 class="item-name"
                       (click)="navigateToProduct(item.product.id)"
                       *ngIf="item.cartItemType === CartItemType.PRODUCT && item.product">
-                    {{ item.itemName }}
+                    {{ item.translatedName }}
                   </h3>
 
                   <h3 class="item-name" *ngIf="item.cartItemType !== CartItemType.PRODUCT || !item.product">
-                    {{ item.itemName }}
+                    {{ item.translatedName }}
                   </h3>
                   <div class="item-price">{{ item.itemPrice | currency }}</div>
                 </div>
-<!--TODO-->
-<!--                <div class="item-description truncate-text" *ngIf="item.product?.description"-->
-<!--                     [title]="item.product.description">-->
-<!--                  {{ item.product.description }}-->
-<!--                </div>-->
+                <div class="item-description truncate-text" *ngIf="item.product?.translatedDescription"
+                     [title]="item.product.translatedDescription">
+                  {{ item.product.translatedDescription }}
+                </div>
 
                 <div *ngIf="item.cartItemType === CartItemType.MIXTURE && item.mixture" class="mixture-display">
                   <h4>{{ 'ORDER_DETAIL.MIXTURE_CONTAINS' | translate }}</h4>
                   <div class="mixture-products-list">
-                    <div *ngFor="let product of item.mixture.products" class="mixture-product-item">
+                    <div *ngFor="let mixture of item.mixture.products" class="mixture-product-item">
                       <div class="mixture-product-info">
-<!--                        <div class="mixture-product-name">{{ product.name }}</div>-->
-                        <div class="mixture-product-price">{{ product.price | currency }}</div>
+                        <div class="mixture-product-name">{{ mixture.translatedName }}</div>
+                        <div class="mixture-product-price">{{ mixture.price | currency }}</div>
                       </div>
                     </div>
                   </div>

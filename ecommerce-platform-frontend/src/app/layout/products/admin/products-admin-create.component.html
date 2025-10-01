@@ -23,6 +23,9 @@
           </h3>
 
           <!-- TABS CONTAINER -->
+          <mat-error  *ngIf="usedLocales.length === 0">
+            {{ 'CONFIGURATION.SELECT_DEFAULT_LANGUAGE' | translate }}
+          </mat-error>
           <mat-tab-group *ngIf="usedLocales.length > 0">
             <mat-tab *ngFor="let locale of usedLocales" label="{{ locale.translatedName }}">
 

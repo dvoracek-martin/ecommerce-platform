@@ -9,7 +9,12 @@
       </div>
     </div>
 
-    <form (ngSubmit)="onSave()" [formGroup]="categoryForm" class="form-and-media-wrapper" id="categoryForm">
+    <!-- Add *ngIf to wait for form initialization -->
+    <form *ngIf="formInitialized && categoryForm"
+          (ngSubmit)="onSave()"
+          [formGroup]="categoryForm"
+          class="form-and-media-wrapper"
+          id="categoryForm">
       <div class="form-content">
         <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
 
@@ -19,6 +24,12 @@
             {{ 'CATEGORIES.ADMIN.BASIC_INFO' | translate }}
           </h3>
           <!-- TABS CONTAINER -->
+          <mat-error  *ngIf="usedLocales.length === 0">
+            {{ 'CONFIGURATION.SELECT_DEFAULT_LANGUAGE' | translate }}
+          </mat-error>
+          <mat-error  *ngIf="usedLocales.length === 0">
+            {{ 'CONFIGURATION.SELECT_DEFAULT_LANGUAGE' | translate }}
+          </mat-error>
           <mat-tab-group *ngIf="usedLocales.length > 0">
             <mat-tab *ngFor="let locale of usedLocales" label="{{ locale.translatedName }}">
 
@@ -55,13 +66,15 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'CATEGORIES.PRIORITY' | translate }}</mat-label>
-              <input formControlName="priority" matInput required type="number" [value]="categoryForm.get('priority')?.value">
-              <mat-error
-                *ngIf="categoryForm.get('priority')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}
+              <input formControlName="priority" matInput required type="number">
+              <mat-error *ngIf="categoryForm.get('priority')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
-              <mat-error *ngIf="categoryForm.get('priority')?.hasError('min')">{{ 'VALIDATION.MIN' | translate }}: 0
+              <mat-error *ngIf="categoryForm.get('priority')?.hasError('min')">
+                {{ 'VALIDATION.MIN' | translate }}: 0
               </mat-error>
             </mat-form-field>
+
           </div>
           <div class="form-row checkboxes-row">
             <div class="form-field half-width centered">
@@ -91,7 +104,7 @@
             <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>{{ 'CATEGORIES.ADMIN.SELECT_TAGS' | translate }}</mat-label>
               <mat-select formControlName="tagIds" multiple>
-                <mat-option *ngFor="let t of allTags" [value]="t.id">
+                <mat-option *ngFor="let t of allTags" [value]="t">
                   {{ t.translatedName }}
                 </mat-option>
               </mat-select>
@@ -145,7 +158,10 @@
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
-        <button [disabled]="categoryForm.invalid || saving" color="primary" form="categoryForm" mat-flat-button
+        <button [disabled]="!formInitialized || categoryForm?.invalid || saving"
+                color="primary"
+                form="categoryForm"
+                mat-flat-button
                 type="submit">
           <mat-icon>save</mat-icon>
           {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}

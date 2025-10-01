@@ -144,7 +144,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
               this.selectedLanguage = cachedLang;
               this.translate.use(cachedLang.languageCode);
               this.localeMapperService.setCurrentLocale(this.selectedLanguage.languageCode + "_" + this.selectedLanguage.regionCode);
-              return; // ✅ stop here, no need to go further
+              return;
             }
           }
         }

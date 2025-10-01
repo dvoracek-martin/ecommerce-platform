@@ -115,7 +115,8 @@
   .card-link {
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* Make this section grow to fill available space */
+    flex-grow: 1;
+    cursor: pointer;
   }
 
   .product-image-container {

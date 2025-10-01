@@ -100,6 +100,9 @@
     "ZIP_CODE_NUMBERS_ONLY": "ZIP code must contain numbers only",
     "ZIP_CODE_REQUIRED": "ZIP code is required"
   },
+  "CONFIGURATION": {
+    "SELECT_DEFAULT_LANGUAGE": "Please select your default language in the settings."
+  },
   "CHECKOUT": {
     "SHIPPING_PAYMENT": "Shipping & Payment",
     "SHIPPING_METHOD": "Shipping Method",

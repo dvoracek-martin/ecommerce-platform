@@ -29,6 +29,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
   allTags: ResponseTagDTO[] = [];
   private readonly destroy$ = new Subject<void>();
   usedLocales: ResponseLocaleDto[] = [];
+  formInitialized = false; // Add this flag
 
   constructor(
     private fb: FormBuilder,
@@ -42,7 +43,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
   ) {}
 
   get mediaControls(): FormArray {
-    return this.categoryForm.get('media') as FormArray;
+    return this.categoryForm?.get('media') as FormArray;
   }
 
   ngOnInit() {
@@ -91,6 +92,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
     });
 
     this.categoryForm = this.fb.group(formConfig);
+    this.formInitialized = true; // Set flag when form is ready
   }
 
   private loadTags() {
@@ -187,7 +189,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
   }
 
   openCancelDialog(): void {
-    if (this.categoryForm.dirty) {
+    if (this.categoryForm?.dirty) {
       this.dialog.open(ConfirmationDialogComponent, {
         data: { title: 'Cancel Update', message: 'Discard changes?', warn: true }
       }).afterClosed().subscribe(ok => {
