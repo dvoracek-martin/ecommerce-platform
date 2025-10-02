@@ -34,7 +34,7 @@ export class CategoryService {
 
   // Admin endpoints
   getCategoryById(id: number): Observable<ResponseCategoryDTO> {
-    return this.http.get<ResponseCategoryDTO>(`${this.apiAdminUrl}/categories/${id}`);
+    return this.http.get<ResponseCategoryDTO>(`${this.apiUrl}/categories/${id}`);
   }
 
   createCategory(createCategoryDTO: CreateCategoryDTO): Observable<ResponseCategoryDTO> {

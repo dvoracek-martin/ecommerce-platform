@@ -9,6 +9,7 @@ export class AuthInterceptor implements HttpInterceptor {
   private apiVersion = 'v1';
   private configurationApiUrl = 'api/configuration/';
   private usersApiUrl = 'api/users/';
+  private catalogApiUrl = 'api/catalog/';
 
   constructor(private authService: AuthService) {
   }
@@ -30,6 +31,12 @@ export class AuthInterceptor implements HttpInterceptor {
       || req.url.includes(this.usersApiUrl + this.apiVersion + '/reset-password')) {
       return next.handle(req);
     }
+    // CATALOG endpoints that do not require auth
+    if (req.url.includes(this.catalogApiUrl + this.apiVersion + '/active-categories')
+    || (req.url.includes(this.catalogApiUrl + this.apiVersion + '/all-tags'))) {
+      return next.handle(req);
+    }
+
 
 
     // Add auth header for other requests

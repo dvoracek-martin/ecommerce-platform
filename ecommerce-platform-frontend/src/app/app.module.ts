@@ -45,7 +45,7 @@ import {OrdersAdminListComponent} from './layout/orders/admin/orders-admin-list.
 import {OrdersAdminDetailComponent} from './layout/orders/admin/orders-admin-detail.component';
 import {ProductsAdminListComponent} from './layout/products/admin/products-admin-list.component';
 import {ProductsDetailComponent} from './layout/products/client/products-detail.component';
-import {MatChip, MatChipListbox, MatChipSet} from '@angular/material/chips';
+import {MatChip, MatChipListbox, MatChipOption, MatChipSet} from '@angular/material/chips';
 import {HeaderComponent} from './layout/header/header.component';
 import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 import {CustomersAdminDetailComponent} from './layout/customers/admin/customers-admin-detail.component';
@@ -129,6 +129,7 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     MatTabGroup,
     SwissCurrencyPipe,
     MatChipListbox,
+    MatChipOption,
   ],
   providers: [
     {

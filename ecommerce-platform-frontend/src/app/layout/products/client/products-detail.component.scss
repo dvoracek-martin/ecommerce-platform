@@ -355,12 +355,18 @@
   background: var(--background-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-lg); /* menší padding nahoře/dole */
   box-shadow: 0 4px 15px var(--shadow-light);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-sm); /* menší mezera mezi cenou a tlačítkem */
+
+  &:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 15px var(--shadow-light);
+  }
 }
+
 
 .price-section {
   text-align: center;
@@ -407,6 +413,11 @@
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   box-shadow: 0 4px 15px var(--shadow-light);
+
+  &:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 15px var(--shadow-light);
+  }
 }
 
 .gallery-title {
@@ -416,6 +427,12 @@
   margin: 0 0 var(--spacing-md) 0;
   color: var(--text-primary);
   font-size: var(--font-size-lg);
+
+
+  &:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 15px var(--shadow-light);
+  }
 
   mat-icon {
     color: var(--primary-color);

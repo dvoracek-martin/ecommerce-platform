@@ -15,7 +15,9 @@
                     <!-- Tags as Badges -->
                     <div class="tags-badges" *ngIf="product.responseTagDTOS?.length">
                     <span *ngFor="let tag of product.responseTagDTOS"
-                          class="tag-badge">
+                          class="tag-badge"
+                          [matTooltip]="'dfsaf'"
+                          matTooltipPosition="above">
                       <mat-icon class="tag-icon" *ngIf="getTagIcon(tag)">{{ getTagIcon(tag) }}</mat-icon>
                       <span class="tag-text">{{ tag.translatedName }}</span>
                     </span>
@@ -76,10 +78,10 @@
             <div class="info-section">
               <!-- Description -->
               <div class="info-card" *ngIf="product.translatedDescription">
-<!--                <h3>-->
-<!--                  <mat-icon>description</mat-icon>-->
-<!--                  {{ 'PRODUCTS.DESCRIPTION' | translate }}-->
-<!--                </h3>-->
+                <h3>
+                  <mat-icon>description</mat-icon>
+                  {{ 'PRODUCTS.DESCRIPTION' | translate }}
+                </h3>
                 <p>{{ product.translatedDescription }}</p>
               </div>
 
@@ -101,6 +103,18 @@
 
           <!-- Sidebar with Purchase and Gallery -->
           <div class="sidebar">
+
+            <!-- Purchase Box -->
+            <div class="purchase-card">
+              <div class="price-section">
+                <span class="price">{{ product.price | swissCurrency }}</span>
+              </div>
+              <button (click)="addToCart()" class="add-to-cart-btn">
+                <mat-icon>add_shopping_cart</mat-icon>
+                {{ 'PRODUCTS.ADD_TO_CART' | translate }}
+              </button>
+            </div>
+
 
             <!-- Gallery Box -->
             <div class="gallery-card" *ngIf="product.media?.length">
@@ -167,17 +181,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-
-            <!-- Purchase Box -->
-            <div class="purchase-card">
-              <div class="price-section">
-                <span class="price">{{ product.price | swissCurrency }}</span>
-              </div>
-              <button (click)="addToCart()" class="add-to-cart-btn">
-                <mat-icon>add_shopping_cart</mat-icon>
-                {{ 'PRODUCTS.ADD_TO_CART' | translate }}
-              </button>
             </div>
 
             <!-- Back Button -->

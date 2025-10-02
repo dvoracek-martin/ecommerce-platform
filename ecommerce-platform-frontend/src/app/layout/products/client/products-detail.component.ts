@@ -25,16 +25,40 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   private routeSub!: Subscription;
   private categoryName: string = 'Category';
 
-  // Tag icons mapping - removed colors since we're using consistent primary color
-  private tagConfig: { [key: string]: { icon: string } } = {
-    'bio': { icon: 'eco' },
-    'organic': { icon: 'spa' },
-    'premium': { icon: 'workspace_premium' },
-    'swiss': { icon: 'flag' },
-    'natural': { icon: 'nature' },
-    'vegan': { icon: 'cruelty_free' },
-    'gluten-free': { icon: 'health_and_safety' },
-    'sustainable': { icon: 'recycling' }
+  // Tag icons and tooltips mapping
+  private tagConfig: { [key: string]: { icon: string, tooltip: string } } = {
+    'bio': {
+      icon: 'eco',
+      tooltip: 'Certified organic and environmentally friendly product'
+    },
+    'organic': {
+      icon: 'spa',
+      tooltip: 'Made with 100% organic ingredients'
+    },
+    'premium': {
+      icon: 'workspace_premium',
+      tooltip: 'High-quality premium product with exceptional standards'
+    },
+    'swiss': {
+      icon: 'flag',
+      tooltip: 'Made in Switzerland with Swiss quality standards'
+    },
+    'natural': {
+      icon: 'nature',
+      tooltip: 'Contains only natural ingredients, no artificial additives'
+    },
+    'vegan': {
+      icon: 'cruelty_free',
+      tooltip: '100% vegan, no animal-derived ingredients'
+    },
+    'gluten-free': {
+      icon: 'health_and_safety',
+      tooltip: 'Suitable for gluten-free diets'
+    },
+    'sustainable': {
+      icon: 'recycling',
+      tooltip: 'Produced with sustainable practices and packaging'
+    }
   };
 
   constructor(
@@ -198,5 +222,12 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     const tagName = tag.translatedName?.toLowerCase() || tag.name?.toLowerCase() || '';
     const config = this.tagConfig[tagName];
     return config?.icon || 'label';
+  }
+
+  // Get tag tooltip based on tag name
+  getTagTooltip(tag: any): string {
+    const tagName = tag.translatedName?.toLowerCase() || tag.name?.toLowerCase() || '';
+    const config = this.tagConfig[tagName];
+    return config?.tooltip || tag.translatedDescription || tag.description || `This product is ${tag.translatedName || tag.name}`;
   }
 }

@@ -1,58 +1,215 @@
 <div class="products-container">
-  <h1>{{ 'PRODUCTS.TITLE' | translate }}</h1>
+  <!-- Header Section -->
+  <div class="products-header">
+    <h1>{{ 'PRODUCTS.TITLE' | translate }}</h1>
+    <p class="subtitle">{{ 'PRODUCTS.SUBTITLE' | translate }}</p>
+  </div>
 
+  <!-- Controls Section -->
+  <div class="products-controls">
+    <div class="controls-left">
+      <div class="search-box">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          [placeholder]="'PRODUCTS.SEARCH_PLACEHOLDER' | translate"
+          [formControl]="searchControl"
+          class="search-input">
+        <button
+          (click)="clearSearch()"
+          *ngIf="searchControl.value"
+          class="clear-search-btn"
+          mat-icon-button>
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="filter-trigger" (click)="toggleFilters()">
+        <mat-icon>filter_list</mat-icon>
+        <span>{{ 'PRODUCTS.FILTERS' | translate }}</span>
+      </div>
+    </div>
+
+    <div class="controls-right">
+      <div class="sort-dropdown">
+        <mat-icon>sort</mat-icon>
+        <select (change)="onSortChange($event)" class="sort-select">
+          <option value="name_asc">{{ 'PRODUCTS.SORT_NAME_ASC' | translate }}</option>
+          <option value="name_desc">{{ 'PRODUCTS.SORT_NAME_DESC' | translate }}</option>
+          <option value="price_asc">{{ 'PRODUCTS.SORT_PRICE_ASC' | translate }}</option>
+          <option value="price_desc">{{ 'PRODUCTS.SORT_PRICE_DESC' | translate }}</option>
+          <option value="newest">{{ 'PRODUCTS.SORT_NEWEST' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="view-toggle">
+        <button
+          (click)="setViewMode('grid')"
+          [class.active]="viewMode === 'grid'"
+          class="view-btn">
+          <mat-icon>grid_view</mat-icon>
+        </button>
+        <button
+          (click)="setViewMode('list')"
+          [class.active]="viewMode === 'list'"
+          class="view-btn">
+          <mat-icon>view_list</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Count - Subtle centered display -->
+  <div class="results-count-section" *ngIf="!isLoading && !error && filteredProducts.length > 0">
+    <div class="results-count">
+      {{ 'PRODUCTS.SHOWING' | translate }} {{ displayedProducts.length }} {{ 'PRODUCTS.OF' | translate }} {{ filteredProducts.length }} {{ 'PRODUCTS.PRODUCTS' | translate }}
+      <span *ngIf="hasMoreProducts" class="load-more-info">
+        • {{ 'PRODUCTS.LOAD_MORE_AVAILABLE' | translate }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel" [class.active]="showFilters">
+    <div class="filters-header">
+      <h3>{{ 'PRODUCTS.FILTERS' | translate }}</h3>
+      <button (click)="clearAllFilters()" class="clear-filters-btn">
+        {{ 'PRODUCTS.CLEAR_ALL' | translate }}
+      </button>
+    </div>
+
+    <div class="filters-content">
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <h4>{{ 'PRODUCTS.CATEGORIES' | translate }}</h4>
+        <div class="category-chips">
+          <mat-chip-listbox
+            #categoryChipList
+            multiple
+            (change)="onCategoryFilterChange()">
+            <mat-chip-option *ngFor="let category of categories"
+                             [value]="category.id"
+                             [selected]="isCategorySelected(category.id)">
+              {{ category.translatedName }}
+            </mat-chip-option>
+          </mat-chip-listbox>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h4>{{ 'PRODUCTS.TAGS' | translate }}</h4>
+        <div class="tags-filter">
+          <span
+            *ngFor="let tag of availableTags"
+            (click)="toggleTagFilter(tag)"
+            [class.active]="isTagSelected(tag)"
+            class="tag-filter">
+            {{ tag.translatedName }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-section">
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    <div class="loading-text">{{ 'PRODUCTS.LOADING' | translate }}</div>
+    <div class="loading-content">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <div class="loading-text">{{ 'PRODUCTS.LOADING' | translate }}</div>
+    </div>
   </div>
 
+  <!-- Error State -->
   <div *ngIf="error" class="error-section">
-    <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
-    <div class="error-text">{{ error }}</div>
-    <button (click)="navigateHome()" color="warn" mat-stroked-button>
-      <mat-icon>arrow_back</mat-icon>
-      {{ 'COMMON.BACK_TO_HOME' | translate }}
-    </button>
+    <div class="error-content">
+      <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
+      <div class="error-text">{{ error }}</div>
+      <button (click)="navigateHome()" color="warn" mat-stroked-button>
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'COMMON.BACK_TO_HOME' | translate }}
+      </button>
+    </div>
   </div>
 
-  <div class="products-grid">
-    <div (click)="goToProduct(product)"
-         *ngFor="let product of products; let productIndex = index; trackBy: trackById"
-         class="product-card">
+  <!-- Products Grid/List -->
+  <div
+    [class.products-grid]="viewMode === 'grid'"
+    [class.products-list]="viewMode === 'list'"
+    class="products-view">
 
-      <ng-container *ngIf="product.media?.length; else noMedia">
-        <div class="product-image-container">
-          <!-- Carousel Slides -->
-          <div class="carousel-slides"
-               [style.transform]="'translateX(' + (-activeSlideIndices[productIndex] * 100) + '%)'">
-            <div *ngFor="let media of product.media; let i = index" class="slide">
-              <img *ngIf="media.contentType?.startsWith('image/')"
-                   [alt]="product.translatedName"
-                   [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                   class="product-image"/>
-              <video *ngIf="media.contentType?.startsWith('video/')"
-                     [attr.muted]="true"
-                     [muted]="true"
-                     autoplay
-                     class="product-image"
-                     loop
-                     playsinline
-                     preload="metadata">
-                <source
-                  [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                  [type]="media.contentType"/>
-              </video>
+    <div
+      (click)="goToProduct(product)"
+      *ngFor="let product of displayedProducts; let productIndex = index; trackBy: trackById"
+      class="product-card"
+      [class.list-view]="viewMode === 'list'">
+
+      <!-- Media Section -->
+      <div class="product-media">
+        <ng-container *ngIf="product.media?.length; else noMedia">
+          <div class="product-image-container">
+            <!-- Carousel Slides -->
+            <div class="carousel-slides"
+                 [style.transform]="'translateX(' + (-activeSlideIndices[productIndex] * 100) + '%)'">
+              <div *ngFor="let media of product.media; let i = index" class="slide">
+                <img *ngIf="media.contentType?.startsWith('image/')"
+                     [alt]="product.translatedName"
+                     [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                     class="product-image"/>
+                <video *ngIf="media.contentType?.startsWith('video/')"
+                       [attr.muted]="true"
+                       [muted]="true"
+                       autoplay
+                       class="product-image"
+                       loop
+                       playsinline
+                       preload="metadata">
+                  <source
+                    [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+                    [type]="media.contentType"/>
+                </video>
+              </div>
+            </div>
+
+            <!-- Carousel Indicators -->
+            <div *ngIf="product.media.length > 1" class="carousel-indicators">
+              <div
+                *ngFor="let media of product.media; let i = index"
+                (click)="$event.stopPropagation(); setActiveSlide(productIndex, i)"
+                [class.active]="activeSlideIndices[productIndex] === i"
+                class="indicator">
+              </div>
+            </div>
+
+            <!-- Quick Actions Overlay -->
+            <div class="product-actions">
+              <button
+                (click)="$event.stopPropagation(); addToWishlist(product)"
+                class="action-btn wishlist-btn">
+                <mat-icon>favorite_border</mat-icon>
+              </button>
+              <button
+                (click)="$event.stopPropagation(); quickView(product)"
+                class="action-btn quickview-btn">
+                <mat-icon>visibility</mat-icon>
+              </button>
             </div>
           </div>
-        </div>
-      </ng-container>
+        </ng-container>
 
-      <ng-template #noMedia>
-        <div class="no-media">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
-      </ng-template>
+        <ng-template #noMedia>
+          <div class="no-media">
+            <mat-icon>photo</mat-icon>
+            <span>{{ 'PRODUCTS.NO_MEDIA' | translate }}</span>
+          </div>
+        </ng-template>
+      </div>
 
+      <!-- Product Details -->
       <div class="product-details">
-        <h2 class="product-name">{{ product.translatedName }}</h2>
+        <div class="product-header">
+          <h2 class="product-name">{{ product.translatedName }}</h2>
+        </div>
+
         <p class="product-description">{{ product.translatedDescription }}</p>
 
         <div *ngIf="product.responseTagDTOS?.length" class="card-tags">
@@ -64,14 +221,55 @@
         </div>
       </div>
 
+      <!-- Product Bottom Box -->
       <div class="product-bottom-box">
+        <div class="price">{{ product.price | swissCurrency }}</div>
         <button (click)="$event.stopPropagation(); addToCart(product)"
                 class="add-to-cart-btn">
           <mat-icon>add_shopping_cart</mat-icon>
           {{ 'PRODUCTS.ADD_TO_CART' | translate }}
         </button>
-        <div class="price">{{ product.price | swissCurrency }}</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Load More Button -->
+  <div class="load-more-section" *ngIf="hasMoreProducts && !isLoading && !error">
+    <button
+      (click)="loadMoreProducts()"
+      class="load-more-btn"
+      [disabled]="isLoadingMore">
+      <div class="btn-content">
+        <div class="btn-background"></div>
+        <div class="btn-foreground">
+          <mat-icon *ngIf="!isLoadingMore" class="btn-icon">expand_more</mat-icon>
+          <mat-spinner *ngIf="isLoadingMore" diameter="20" class="btn-spinner"></mat-spinner>
+          <span class="btn-text">
+            {{ isLoadingMore ? ('PRODUCTS.LOADING' | translate) : ('PRODUCTS.LOAD_MORE' | translate) }}
+          </span>
+        </div>
+        <div class="btn-shine"></div>
+      </div>
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && filteredProducts.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">inventory_2</mat-icon>
+    <h3>{{ 'PRODUCTS.NO_PRODUCTS_FOUND' | translate }}</h3>
+    <p>{{ 'PRODUCTS.TRY_ADJUSTING_FILTERS' | translate }}</p>
+    <button (click)="clearAllFilters()" mat-raised-button color="primary">
+      {{ 'PRODUCTS.CLEAR_FILTERS' | translate }}
+    </button>
+  </div>
+
+  <!-- Quick View Modal -->
+  <div *ngIf="selectedProduct" class="quick-view-modal" [class.active]="showQuickView">
+    <div class="modal-backdrop" (click)="closeQuickView()"></div>
+    <div class="modal-content">
+      <button class="close-btn" (click)="closeQuickView()">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
   </div>
 </div>

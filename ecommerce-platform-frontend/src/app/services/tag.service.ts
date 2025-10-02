@@ -14,6 +14,7 @@ import {LocaleMapperService} from './locale-mapper.service';
 })
 export class TagService {
   private apiAdminUrl = 'http://localhost:8080/api/catalog/v1/admin/';
+  private apiUrl = 'http://localhost:8080/api/catalog/v1/';
 
   constructor(private http: HttpClient,
               private localeMapperService: LocaleMapperService) {
@@ -28,11 +29,11 @@ export class TagService {
   }
 
   getAllTags(): Observable<ResponseTagDTO[]> {
-    return this.http.get<ResponseTagDTO[]>(`${this.apiAdminUrl}all-tags`);
+    return this.http.get<ResponseTagDTO[]>(`${this.apiUrl}all-tags`);
   }
 
   getTagById(id: number): Observable<ResponseTagDTO> {
-    return this.http.get<ResponseTagDTO>(`${this.apiAdminUrl}tags/${id}`);
+    return this.http.get<ResponseTagDTO>(`${this.apiUrl}tags/${id}`);
   }
 
   updateTag(tag: UpdateTagDTO): Observable<ResponseTagDTO> {

@@ -7,7 +7,6 @@ import com.dvoracekmartin.common.dto.tag.ResponseTagDTO;
 
 import java.util.List;
 
-// TODO
 public record ResponseSearchResultDTO(
         List<ResponseProductDTO> products,
         List<ResponseCategoryDTO> categories,

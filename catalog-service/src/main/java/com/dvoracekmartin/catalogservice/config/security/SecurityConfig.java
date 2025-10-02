@@ -1,4 +1,4 @@
-package com.dvoracekmartin.catalogservice.config;
+package com.dvoracekmartin.catalogservice.config.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,24 +29,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers(
-                                "/api/catalog/v1/all-products",
-                                "/api/catalog/v1/products/{id}",
-                                "/api/catalog/v1/all-products-and-mixtures",
-                                "/api/catalog/v1/all-categories",
-                                "/api/catalog/v1/all-mixtures",
-                                "/api/catalog/v1/all-products-by-category-id/{categoryId}",
-                                "/api/catalog/v1/active-products-by-category-id/{categoryId}",
-                                "/api/catalog/v1/active-products-for-display-in-products",
-                                "/api/catalog/v1/active-categories-for-mixing",
-                                "/api/catalog/v1/search",
-                                "/api/catalog/v1/active-categories",
-                                "/api/catalog/v1/all-mixtures/{id}",
-                                "/api/catalog/v1/mixtures",
-                                "/api/catalog/v1/mixtures/{id}"
-                        ).permitAll()
-                        // Everything else JWT
+                        .requestMatchers(ApiEndpoints.PUBLIC_GET_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

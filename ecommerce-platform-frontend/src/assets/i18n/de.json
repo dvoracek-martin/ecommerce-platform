@@ -14,6 +14,14 @@
     "VIEW_CART": "Warenkorb anzeigen",
     "CHECKOUT": "Zur Kasse"
   },
+  "PRODUCTS": {
+    "LOAD_MORE": "Load More Products",
+    "LOAD_MORE_AVAILABLE": "More products available",
+    "LOADING": "Loading...",
+    "SHOWING": "Showing",
+    "OF": "of",
+    "PRODUCTS": "products"
+  },
   "CATEGORIES": {
     "ADMIN": {
       "BASIC_INFO": "Basisinformationen",
@@ -120,7 +128,7 @@
       "MIXTURES": "Mixtures",
       "SALES": "Sales",
       "ABOUT_US": "About Us",
-      "MIXING" : "Mixing",
+      "MIXING": "Mixing",
       "CONTACT": "Contact"
     },
     "ADMIN": {
