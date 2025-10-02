@@ -2,14 +2,54 @@
   <div class="product-detail-container">
     <div class="product-card">
       <!-- Header -->
-      <div class="admin-header-section" *ngIf="product">
-        <div class="admin-header-content">
-          <div class="admin-title-section">
-            <h1>{{ product.translatedName }}</h1>
-            <p class="admin-subtitle">{{ 'PRODUCTS.ADMIN_SUBTITLE.CREATE' | translate }}</p>
+      <div class="product-header-section" *ngIf="product">
+        <div class="product-header-content">
+          <!-- Title and Tags Section -->
+          <div class="product-title-section">
+            <div class="title-content">
+              <div class="title-main">
+                <h1 class="product-title">{{ product.translatedName }}</h1>
+                <div class="title-meta">
+                  <div class="product-row">
+                    <p class="product-subtitle">{{ 'PRODUCTS.ADMIN_SUBTITLE.CREATE' | translate }}</p>
+                    <!-- Tags as Badges -->
+                    <div class="tags-badges" *ngIf="product.responseTagDTOS?.length">
+                    <span *ngFor="let tag of product.responseTagDTOS"
+                          class="tag-badge">
+                      <mat-icon class="tag-icon" *ngIf="getTagIcon(tag)">{{ getTagIcon(tag) }}</mat-icon>
+                      <span class="tag-text">{{ tag.translatedName }}</span>
+                    </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Modern Breadcrumbs -->
+      <nav class="modern-breadcrumbs">
+        <a class="breadcrumb-item" [routerLink]="['/']">
+          <mat-icon class="breadcrumb-icon">home</mat-icon>
+          <span class="breadcrumb-text">{{ 'COMMON.HOME' | translate }}</span>
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <a class="breadcrumb-item" [routerLink]="['/categories', product?.categoryId]">
+          <mat-icon class="breadcrumb-icon">category</mat-icon>
+          <span class="breadcrumb-text">{{ getCategoryName() }}</span>
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <a class="breadcrumb-item" [routerLink]="['/products']">
+          <mat-icon class="breadcrumb-icon">shopping_bag</mat-icon>
+          <span class="breadcrumb-text">{{ 'COMMON.PRODUCTS' | translate }}</span>
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="breadcrumb-item current">
+          <mat-icon class="breadcrumb-icon">inventory_2</mat-icon>
+          <span class="breadcrumb-text">{{ product?.translatedName }}</span>
+        </span>
+      </nav>
 
       <!-- Loading state -->
       <div *ngIf="loading" class="loading-section">
@@ -36,10 +76,10 @@
             <div class="info-section">
               <!-- Description -->
               <div class="info-card" *ngIf="product.translatedDescription">
-                <h3>
-                  <mat-icon>description</mat-icon>
-                  {{ 'PRODUCTS.DESCRIPTION' | translate }}
-                </h3>
+<!--                <h3>-->
+<!--                  <mat-icon>description</mat-icon>-->
+<!--                  {{ 'PRODUCTS.DESCRIPTION' | translate }}-->
+<!--                </h3>-->
                 <p>{{ product.translatedDescription }}</p>
               </div>
 
@@ -56,34 +96,11 @@
                   </div>
                 </div>
               </div>
-
-              <!-- Tags -->
-              <div class="info-card" *ngIf="product.responseTagDTOS?.length">
-                <h3>
-                  <mat-icon>label</mat-icon>
-                  {{ 'PRODUCTS.TAGS' | translate }}
-                </h3>
-                <div class="tags-container">
-                  <span *ngFor="let tag of product.responseTagDTOS" class="tag">
-                    {{ tag.translatedName }}
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
 
           <!-- Sidebar with Purchase and Gallery -->
           <div class="sidebar">
-            <!-- Purchase Box -->
-            <div class="purchase-card">
-              <div class="price-section">
-                <span class="price">{{ product.price | swissCurrency }}</span>
-              </div>
-              <button (click)="addToCart()" class="add-to-cart-btn">
-                <mat-icon>add_shopping_cart</mat-icon>
-                {{ 'PRODUCTS.ADD_TO_CART' | translate }}
-              </button>
-            </div>
 
             <!-- Gallery Box -->
             <div class="gallery-card" *ngIf="product.media?.length">
@@ -150,6 +167,17 @@
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Purchase Box -->
+            <div class="purchase-card">
+              <div class="price-section">
+                <span class="price">{{ product.price | swissCurrency }}</span>
+              </div>
+              <button (click)="addToCart()" class="add-to-cart-btn">
+                <mat-icon>add_shopping_cart</mat-icon>
+                {{ 'PRODUCTS.ADD_TO_CART' | translate }}
+              </button>
             </div>
 
             <!-- Back Button -->

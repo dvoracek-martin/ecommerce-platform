@@ -7,6 +7,7 @@ import {CartItemType} from '../../../dto/cart/cart-item-type';
 import {switchMap} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
 import {TagService} from '../../../services/tag.service';
+import {CategoryService} from '../../../services/category.service';
 
 @Component({
   selector: 'app-products-detail',
@@ -22,13 +23,27 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   isGalleryOpen = false;
   private interval: any;
   private routeSub!: Subscription;
+  private categoryName: string = 'Category';
+
+  // Tag icons mapping - removed colors since we're using consistent primary color
+  private tagConfig: { [key: string]: { icon: string } } = {
+    'bio': { icon: 'eco' },
+    'organic': { icon: 'spa' },
+    'premium': { icon: 'workspace_premium' },
+    'swiss': { icon: 'flag' },
+    'natural': { icon: 'nature' },
+    'vegan': { icon: 'cruelty_free' },
+    'gluten-free': { icon: 'health_and_safety' },
+    'sustainable': { icon: 'recycling' }
+  };
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
     private cartService: CartService,
-    private tagService: TagService
+    private tagService: TagService,
+    private categoryService: CategoryService
   ) {
   }
 
@@ -50,6 +65,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.translateProduct();
         this.translateTags();
+        this.loadCategoryName();
         // Slug for SEO
         const slugParam = this.route.snapshot.paramMap.get('slug');
         const correctSlug = this.product ? this.slugify(this.product.translatedName) : '';
@@ -66,6 +82,23 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
         this.product = null;
       }
     });
+  }
+
+  private loadCategoryName(): void {
+    if (this.product?.categoryId) {
+      this.categoryService.getCategoryById(this.product.categoryId).subscribe({
+        next: (category) => {
+          this.categoryName = this.categoryService.getLocalizedName(category);
+        },
+        error: () => {
+          this.categoryName = 'Category';
+        }
+      });
+    }
+  }
+
+  getCategoryName(): string {
+    return this.categoryName;
   }
 
   private slugify(text: string): string {
@@ -158,5 +191,12 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
       tags.translatedDescription = this.tagService.getLocalizedDescription(tags);
       tags.translatedUrl = this.tagService.getLocalizedUrl(tags);
     });
+  }
+
+  // Get tag icon based on tag name
+  getTagIcon(tag: any): string {
+    const tagName = tag.translatedName?.toLowerCase() || tag.name?.toLowerCase() || '';
+    const config = this.tagConfig[tagName];
+    return config?.icon || 'label';
   }
 }

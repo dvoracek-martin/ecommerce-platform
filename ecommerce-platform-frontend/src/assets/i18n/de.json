@@ -119,7 +119,9 @@
       "PRODUCTS": "Products",
       "MIXTURES": "Mixtures",
       "SALES": "Sales",
-      "ABOUT_US": "About Us"
+      "ABOUT_US": "About Us",
+      "MIXING" : "Mixing",
+      "CONTACT": "Contact"
     },
     "ADMIN": {
       "CATEGORIES": "Kategorien",

@@ -1,5 +1,3 @@
-@import '../../../styles/variables';
-
 .customer-container {
   font-family: var(--font-primary);
   color: var(--text-primary);
@@ -590,6 +588,88 @@
       font-size: var(--font-size-base);
       color: var(--text-primary);
       font-weight: 600;
+    }
+  }
+}
+
+/* ==============================
+   Full Width Orders Container
+=============================== */
+.full-width-orders-container {
+  margin-left: calc(-1 * var(--spacing-xl));
+  margin-right: calc(-1 * var(--spacing-xl));
+  width: calc(100% + 2 * var(--spacing-xl));
+
+  .order-info-section {
+    border-radius: 0;
+    margin: 0;
+    padding-left: var(--spacing-xl);
+    padding-right: var(--spacing-xl);
+
+    .table-container {
+      border-radius: 0;
+      margin: 0;
+      width: 100%;
+
+      .orders-table {
+        width: 100%;
+        table-layout: auto;
+
+        .mat-header-cell,
+        .mat-cell {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+
+          // Ensure all columns have enough space
+          &:nth-child(1) { min-width: 120px; } /* Invoice ID */
+          &:nth-child(2) { min-width: 180px; } /* Order Date */
+          &:nth-child(3) { min-width: 150px; } /* Shipping Method */
+          &:nth-child(4) { min-width: 150px; } /* Payment Method */
+          &:nth-child(5) { min-width: 120px; } /* Total */
+          &:nth-child(6) { min-width: 120px; } /* Status */
+          &:nth-child(7) { min-width: 100px; } /* Actions */
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    margin-left: calc(-1 * var(--spacing-md));
+    margin-right: calc(-1 * var(--spacing-md));
+    width: calc(100% + 2 * var(--spacing-md));
+
+    .order-info-section {
+      padding-left: var(--spacing-md);
+      padding-right: var(--spacing-md);
+
+      .orders-table {
+        .mat-header-cell,
+        .mat-cell {
+          padding: var(--spacing-sm);
+          font-size: var(--font-size-xs);
+
+          // Adjust column widths for smaller screens
+          &:nth-child(1) { min-width: 100px; }
+          &:nth-child(2) { min-width: 140px; }
+          &:nth-child(3) { min-width: 120px; }
+          &:nth-child(4) { min-width: 120px; }
+          &:nth-child(5) { min-width: 100px; }
+          &:nth-child(6) { min-width: 100px; }
+          &:nth-child(7) { min-width: 80px; }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    margin-left: calc(-1 * var(--spacing-sm));
+    margin-right: calc(-1 * var(--spacing-sm));
+    width: calc(100% + 2 * var(--spacing-sm));
+
+    .order-info-section {
+      padding-left: var(--spacing-sm);
+      padding-right: var(--spacing-sm);
     }
   }
 }

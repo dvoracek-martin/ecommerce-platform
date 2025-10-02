@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractControl, FormBuilder, FormGroup, FormGroupDirective, ValidatorFn, Validators} from '@angular/forms';
 import {AuthService} from '../../../services/auth.service';
 import {Router} from '@angular/router';
@@ -38,7 +38,7 @@ interface ClientOrder extends ResponseOrderDTO {
     ])
   ]
 })
-export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
+export class CustomersAdminDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   customerForm: FormGroup;
   passwordForm: FormGroup;
   loading = true;
@@ -59,8 +59,24 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
   locales: ResponseLocaleDto[] = [];
   selectedLanguage: ResponseLocaleDto | null = null;
 
-  @ViewChild(MatSort) ordersSort!: MatSort;
-  @ViewChild(MatPaginator) ordersPaginator!: MatPaginator;
+  // FIX: Use setters for Paginator and Sort to guarantee they are linked
+  // as soon as they are available in the view.
+  private sort!: MatSort;
+  private paginator!: MatPaginator;
+
+  @ViewChild(MatSort) set ordersSort(sort: MatSort) {
+    this.sort = sort;
+    if (this.ordersDataSource) {
+      this.ordersDataSource.sort = this.sort;
+    }
+  }
+
+  @ViewChild(MatPaginator) set ordersPaginator(paginator: MatPaginator) {
+    this.paginator = paginator;
+    if (this.ordersDataSource) {
+      this.ordersDataSource.paginator = this.paginator;
+    }
+  }
 
   customer: Customer | null = null;
 
@@ -95,13 +111,47 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.ordersDataSource.sort = this.ordersSort;
-    this.ordersDataSource.paginator = this.ordersPaginator;
+    // FIX: Define data accessors and predicates here once.
+
+    this.ordersDataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'invoiceId':
+          return item.invoiceId || '';
+        case 'orderDate':
+          return new Date(item.orderDate).getTime();
+        case 'shippingMethod':
+          return item.shippingMethod || '';
+        case 'paymentMethod':
+          return item.paymentMethod || '';
+        case 'finalTotal':
+          return item.finalTotal || 0;
+        case 'status':
+          return item.status || '';
+        default:
+          return (item as any)[property] || '';
+      }
+    };
+
+    this.ordersDataSource.filterPredicate = (data: ClientOrder, filter: string): boolean => {
+      const searchStr = filter.toLowerCase();
+      return (
+        (data.invoiceId || '').toLowerCase().includes(searchStr) ||
+        data.shippingMethod.toLowerCase().includes(searchStr) ||
+        data.paymentMethod.toLowerCase().includes(searchStr) ||
+        (data.finalTotal || 0).toString().includes(searchStr) ||
+        (data.status || '').toLowerCase().includes(searchStr) ||
+        data.orderDate.toString().toLowerCase().includes(searchStr)
+      );
+    };
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  get dateOfBirthControl(): AbstractControl | null {
+    return this.customerForm.get('dateOfBirth');
   }
 
   private loadConfigurationAndCustomer(): void {
@@ -116,7 +166,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Error loading configuration:', err);
-          this.loadCustomerData(); // Load customer even if config fails
+          this.loadCustomerData();
         }
       });
   }
@@ -144,7 +194,6 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
 
     this.patchFormValues(customer);
 
-    // Set selected language
     if (customer.preferredLanguageId && this.locales.length > 0) {
       this.selectedLanguage = this.locales.find(l => l.id === customer.preferredLanguageId) || null;
     }
@@ -160,6 +209,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       firstName: customer.firstName || '',
       lastName: customer.lastName || '',
       preferredLanguageId: customer.preferredLanguageId || '',
+      dateOfBirth: (customer as any).dateOfBirth || null,
       address: {
         phone: customer.address?.phone || '',
         street: customer.address?.street || '',
@@ -211,6 +261,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       email: ['', [Validators.required, Validators.email]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
+      dateOfBirth: [null],
       preferredLanguageId: [''],
       address: this.fb.group({
         phone: ['', [Validators.pattern(/^\+?[0-9\s-]+$/)]],
@@ -254,13 +305,11 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
         const billingAddress = this.customerForm.get('billingAddress') as FormGroup;
 
         if (checked) {
-          // Clear validators when using shipping address
           Object.keys(billingAddress.controls).forEach(controlName => {
             billingAddress.get(controlName)?.clearValidators();
             billingAddress.get(controlName)?.updateValueAndValidity();
           });
 
-          // Reset billing address to empty values
           billingAddress.patchValue({
             firstName: '',
             lastName: '',
@@ -274,7 +323,6 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
             phone: ''
           });
         } else {
-          // Set validators for billing address
           billingAddress.get('firstName')?.setValidators(Validators.required);
           billingAddress.get('lastName')?.setValidators(Validators.required);
           billingAddress.get('street')?.setValidators(Validators.required);
@@ -284,7 +332,6 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
           billingAddress.get('country')?.setValidators(Validators.required);
           billingAddress.updateValueAndValidity();
 
-          // Restore initial billing address if available
           if (this.initialBillingAddress) {
             billingAddress.patchValue(this.initialBillingAddress);
           }
@@ -308,16 +355,6 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     this.selectedLanguage = lang;
     this.customerForm.patchValue({ preferredLanguageId: lang.id });
     this.languageChanged = true;
-
-    // Change application language
-    this.translateService.use(lang.languageCode.toLowerCase()).subscribe({
-      next: () => {
-        console.log('Language changed to:', lang.languageCode.toLowerCase());
-      },
-      error: (err) => {
-        console.error('Error changing language:', err);
-      }
-    });
   }
 
   onSave(): void {
@@ -350,6 +387,7 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       email: formValue.email,
       firstName: formValue.firstName,
       lastName: formValue.lastName,
+      dateOfBirth: formValue.dateOfBirth,
       phone: formValue.address.phone,
       active: formValue.active,
       preferredLanguageId: formValue.preferredLanguageId,
@@ -381,7 +419,6 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
     this.languageChanged = false;
     this.saving = false;
 
-    // Reload customer data to get updated information
     this.loadCustomerData();
   }
 
@@ -407,7 +444,6 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Use the customer service method for password change
     this.customerService.changeCustomerPassword(this.customerId, newPassword)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -459,28 +495,8 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       return { ...order, invoiceId };
     });
 
+    // Set the data directly to the dataSource
     this.ordersDataSource.data = ordersWithInvoice;
-
-    // Setup sorting
-    this.ordersDataSource.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case 'invoiceId':
-          return item.invoiceId || '';
-        case 'orderDate':
-          return new Date(item.orderDate).getTime();
-        case 'shippingMethod':
-          return item.shippingMethod || '';
-        case 'paymentMethod':
-          return item.paymentMethod || '';
-        case 'finalTotal':
-          return item.finalTotal || 0;
-        case 'status':
-          return item.status || '';
-        default:
-          return (item as any)[property] || '';
-      }
-    };
-
     this.isOrdersLoading = false;
   }
 
@@ -502,7 +518,6 @@ export class CustomersAdminDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
-          // Handle file download
           const blob = new Blob([response], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');

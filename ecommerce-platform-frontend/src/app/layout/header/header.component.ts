@@ -46,15 +46,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private searchSubscription!: Subscription;
   totalCartItemCount$: Observable<number>;
 
-  // Cart Preview (keep original)
+  // Cart Preview
   isCartPreviewOpen = false;
   private closeCartPreviewTimeout: any = null;
   private cartPreviewCloseDelay = 300;
 
-  // Navigation Menu (same as cart preview)
+  // Navigation Menu
   isMenuOpen = false;
   private closeMenuTimeout: any = null;
   private menuCloseDelay = 300;
+
+  // User Menu
+  isUserMenuOpen = false;
+  private closeUserMenuTimeout: any = null;
+  private userMenuCloseDelay = 300;
 
   loadingItems = new Map<string, boolean>();
   isLoadingCart = true;
@@ -114,8 +119,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       if (event instanceof NavigationStart) {
         this.isCartPreviewOpen = false;
         this.isMenuOpen = false;
+        this.isUserMenuOpen = false;
         this.cancelCloseCartPreview();
         this.cancelCloseMenu();
+        this.cancelCloseUserMenu();
       }
     });
 
@@ -138,10 +145,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.routerSubscription) this.routerSubscription.unsubscribe();
     this.cancelCloseCartPreview();
     this.cancelCloseMenu();
+    this.cancelCloseUserMenu();
     this.searchSubject.complete();
   }
 
-  // ===== NAVIGATION MENU (same as cart preview) =====
+  // ===== NAVIGATION MENU =====
   onMenuButtonMouseEnter(): void {
     this.cancelCloseMenu();
     this.isMenuOpen = true;
@@ -173,7 +181,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ===== CART PREVIEW (keep original) =====
+  // ===== CART PREVIEW =====
   onCartButtonMouseEnter(): void {
     this.cancelCloseCartPreview();
     this.isCartPreviewOpen = true;
@@ -207,7 +215,39 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ===== EXISTING METHODS (keep all your original methods below) =====
+  // ===== USER MENU =====
+  onUserButtonMouseEnter(): void {
+    this.cancelCloseUserMenu();
+    this.isUserMenuOpen = true;
+  }
+
+  onUserButtonMouseLeave(): void {
+    this.scheduleCloseUserMenu();
+  }
+
+  onUserMenuMouseEnter(): void {
+    this.cancelCloseUserMenu();
+  }
+
+  onUserMenuMouseLeave(): void {
+    this.scheduleCloseUserMenu();
+  }
+
+  private scheduleCloseUserMenu(): void {
+    this.cancelCloseUserMenu();
+    this.closeUserMenuTimeout = setTimeout(() => {
+      this.isUserMenuOpen = false;
+    }, this.userMenuCloseDelay);
+  }
+
+  private cancelCloseUserMenu(): void {
+    if (this.closeUserMenuTimeout) {
+      clearTimeout(this.closeUserMenuTimeout);
+      this.closeUserMenuTimeout = null;
+    }
+  }
+
+  // ===== EXISTING METHODS =====
   private loadAppSettings(): void {
     this.configurationService.getLastAppSettingsWithCache().subscribe({
       next: (settings) => {
@@ -329,19 +369,47 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.router.navigate([`/categories/${category.id}`]);
   }
 
-  navigateToProducts(product: ResponseProductDTO) {
+  navigateToProduct(product: ResponseProductDTO) {
     this.showResults = false;
     this.isSearchFocused = false;
     this.router.navigate([`/products/${product.id}`]);
   }
 
-  navigateToMixtures(mixture: ResponseMixtureDTO) {
-    this.showResults = false;
-    this.isSearchFocused = false;
-    this.router.navigate([`/mixtures/${mixture.id}`]);
+  navigateToProducts() {
+    this.router.navigate([`/products`]);
   }
 
-  goToTag(tag: ResponseTagDTO) {
+  navigateToCategories() {
+    this.router.navigate([`/categories`]);
+  }
+
+  navigateToMixture(mixture: ResponseMixtureDTO) {
+    this.showResults = false;
+    this.isSearchFocused = false;
+    this.router.navigate([`/mixture/${mixture.id}`]);
+  }
+
+  navigateToMixtures() {
+    this.router.navigate([`/mixtures`]);
+  }
+
+  navigateToMixing() {
+    this.router.navigate([`/mixing`]);
+  }
+
+  navigateToSales() {
+    this.router.navigate([`/sales`]);
+  }
+
+  navigateToAboutUs() {
+    this.router.navigate([`/about-us`]);
+  }
+
+  navigateToContact() {
+    this.router.navigate([`/contact`]);
+  }
+
+  navigateToTag(tag: ResponseTagDTO) {
     this.showResults = false;
     this.isSearchFocused = false;
     this.router.navigate([`/tags/${tag.id}`]);
@@ -354,43 +422,55 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   navigateToProfile(): void {
     this.router.navigate(['/customer']);
+    this.isUserMenuOpen = false;
   }
 
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/']);
+    this.isUserMenuOpen = false;
   }
 
   navigateToAdminCategories(): void {
     this.router.navigate(['/admin/categories']);
+    this.isUserMenuOpen = false;
   }
 
   navigateToAdminProducts(): void {
     this.router.navigate(['/admin/products']);
+    this.isUserMenuOpen = false;
   }
 
   navigateToAdminMixtures(): void {
     this.router.navigate(['/admin/mixtures']);
+    this.isUserMenuOpen = false;
   }
 
   navigateToAdminCustomers(): void {
     this.router.navigate(['/admin/customers']);
+    this.isUserMenuOpen = false;
   }
 
   navigateToAdminOrders(): void {
     this.router.navigate(['/admin/orders']);
+    this.isUserMenuOpen = false;
   }
 
   navigateToAdminTags(): void {
     this.router.navigate(['/admin/tags']);
+    this.isUserMenuOpen = false;
   }
 
   navigateToAdminConfiguration() {
     this.router.navigate([`/admin/configuration`]);
+    this.isUserMenuOpen = false;
   }
 
   onUserIconClick(): void {
-    if (!this.authService.isTokenValid()) this.isPopupOpen = true;
+    if (!this.authService.isTokenValid()) {
+      this.isPopupOpen = true;
+      this.isUserMenuOpen = false;
+    }
   }
 
   closeAuthPopup(): void {
@@ -494,6 +574,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   navigateToOrders() {
     this.router.navigate(['/orders']);
+    this.isUserMenuOpen = false;
   }
 
   goToProductFromCart(product: ResponseProductDTO): void {

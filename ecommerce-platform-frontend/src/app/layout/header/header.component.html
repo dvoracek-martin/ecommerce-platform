@@ -10,7 +10,7 @@
       <mat-icon>menu</mat-icon>
     </button>
 
-    <!-- Menu Panel (similar to cart preview) -->
+    <!-- Menu Panel -->
     <div
       class="navigation-menu-panel"
       *ngIf="isMenuOpen"
@@ -31,6 +31,7 @@
 
         <button
           mat-menu-item
+          (click)="navigateToProducts()"
           class="modern-menu-item">
           <mat-icon>shopping_bag</mat-icon>
           <span>{{ 'MENU.NAVIGATION.PRODUCTS' | translate }}</span>
@@ -38,13 +39,23 @@
 
         <button
           mat-menu-item
+          (click)="navigateToMixing()"
           class="modern-menu-item">
           <mat-icon>blender</mat-icon>
-          <span>{{ 'MENU.NAVIGATION.MIXTURES' | translate }}</span>
+          <span>{{ 'MENU.NAVIGATION.MIXING' | translate }}</span>
         </button>
+
+<!--        <button-->
+<!--          mat-menu-item-->
+<!--          (click)="navigateToMixtures()"-->
+<!--          class="modern-menu-item">-->
+<!--          <mat-icon>blender</mat-icon>-->
+<!--          <span>{{ 'MENU.NAVIGATION.MIXTURES' | translate }}</span>-->
+<!--        </button>-->
 
         <button
           mat-menu-item
+          (click)="navigateToSales()"
           class="modern-menu-item">
           <mat-icon>local_offer</mat-icon>
           <span>{{ 'MENU.NAVIGATION.SALES' | translate }}</span>
@@ -52,9 +63,18 @@
 
         <button
           mat-menu-item
+          (click)="navigateToAboutUs()"
           class="modern-menu-item">
           <mat-icon>info</mat-icon>
           <span>{{ 'MENU.NAVIGATION.ABOUT_US' | translate }}</span>
+        </button>
+
+        <button
+          mat-menu-item
+          (click)="navigateToContact()"
+          class="modern-menu-item">
+          <mat-icon>phone</mat-icon>
+          <span>{{ 'MENU.NAVIGATION.CONTACT' | translate }}</span>
         </button>
       </div>
     </div>
@@ -295,10 +315,34 @@
 
     <!-- User Menu -->
     <div class="modern-user-menu-container">
-      <mat-menu
-        #modernUserMenu="matMenu"
-        panelClass="modern-user-menu-panel"
-        class="modern-user-menu">
+      <!-- User Button - Logged In -->
+      <button
+        *ngIf="authService.isAuthenticated$ | async; else modernLoginBtn"
+        mat-icon-button
+        class="modern-user-button logged-in"
+        (mouseenter)="onUserButtonMouseEnter()"
+        (mouseleave)="onUserButtonMouseLeave()">
+        <mat-icon>person</mat-icon>
+      </button>
+
+      <!-- User Button - Anonymous -->
+      <ng-template #modernLoginBtn>
+        <button
+          (click)="onUserIconClick()"
+          mat-icon-button
+          class="modern-user-button anonymous"
+          (mouseenter)="onUserButtonMouseEnter()"
+          (mouseleave)="onUserButtonMouseLeave()">
+          <mat-icon>person</mat-icon>
+        </button>
+      </ng-template>
+
+      <!-- User Menu Panel -->
+      <div
+        class="user-menu-panel"
+        *ngIf="isUserMenuOpen"
+        (mouseenter)="onUserMenuMouseEnter()"
+        (mouseleave)="onUserMenuMouseLeave()">
 
         <!-- Admin Section -->
         <div
@@ -393,26 +437,22 @@
             <span>{{ 'MENU.LOGOUT' | translate }}</span>
           </button>
         </div>
-      </mat-menu>
 
-      <!-- User Button - Logged In -->
-      <button
-        *ngIf="authService.isAuthenticated$ | async; else modernLoginBtn"
-        [matMenuTriggerFor]="modernUserMenu"
-        mat-icon-button
-        class="modern-user-button logged-in">
-        <mat-icon>person</mat-icon>
-      </button>
+        <!-- Anonymous Section -->
+        <div
+          class="modern-menu-section anonymous-section"
+          *ngIf="!(authService.isAuthenticated$ | async)">
+          <h4 class="modern-section-title">{{ 'MENU.ACCOUNT.TITLE' | translate }}</h4>
 
-      <!-- User Button - Anonymous -->
-      <ng-template #modernLoginBtn>
-        <button
-          (click)="onUserIconClick()"
-          mat-icon-button
-          class="modern-user-button anonymous">
-          <mat-icon>person</mat-icon>
-        </button>
-      </ng-template>
+          <button
+            mat-menu-item
+            (click)="onUserIconClick()"
+            class="modern-menu-item">
+            <mat-icon>login</mat-icon>
+            <span>{{ 'MENU.LOGIN' | translate }}</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </mat-toolbar>
