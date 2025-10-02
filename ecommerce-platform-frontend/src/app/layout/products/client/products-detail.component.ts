@@ -134,6 +134,10 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
       .replace(/--+/g, '-');
   }
 
+  private normalizeName(name: string): string {
+    return name.toLowerCase().trim().replace(/\s+/g, '-');
+  }
+
   startCarousel() {
     if (!this.product?.media || this.product.media.length < 1) return;
     if (this.interval) clearInterval(this.interval);
@@ -191,6 +195,24 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
 
   backToList() {
     this.router.navigate(['/products']);
+  }
+
+  navigateToCategory(): void {
+    if (this.product?.categoryId && this.categoryName) {
+      const normalizedCategoryName = this.normalizeName(this.categoryName);
+      this.router.navigate(['/products'], {
+        queryParams: { categories: normalizedCategoryName }
+      });
+    }
+  }
+
+  navigateToTag(tag: any): void {
+    if (tag && tag.translatedName) {
+      const normalizedTagName = this.normalizeName(tag.translatedName);
+      this.router.navigate(['/products'], {
+        queryParams: { tags: normalizedTagName }
+      });
+    }
   }
 
   ngOnDestroy(): void {

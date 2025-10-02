@@ -14,13 +14,14 @@
                     <p class="product-subtitle">{{ 'PRODUCTS.ADMIN_SUBTITLE.CREATE' | translate }}</p>
                     <!-- Tags as Badges -->
                     <div class="tags-badges" *ngIf="product.responseTagDTOS?.length">
-                    <span *ngFor="let tag of product.responseTagDTOS"
-                          class="tag-badge"
-                          [matTooltip]="'dfsaf'"
-                          matTooltipPosition="above">
-                      <mat-icon class="tag-icon" *ngIf="getTagIcon(tag)">{{ getTagIcon(tag) }}</mat-icon>
-                      <span class="tag-text">{{ tag.translatedName }}</span>
-                    </span>
+                      <span *ngFor="let tag of product.responseTagDTOS"
+                            class="tag-badge"
+                            [matTooltip]="getTagTooltip(tag)"
+                            matTooltipPosition="above"
+                            (click)="navigateToTag(tag); $event.stopPropagation()">
+                        <mat-icon class="tag-icon" *ngIf="getTagIcon(tag)">{{ getTagIcon(tag) }}</mat-icon>
+                        <span class="tag-text">{{ tag.translatedName }}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -37,14 +38,14 @@
           <span class="breadcrumb-text">{{ 'COMMON.HOME' | translate }}</span>
         </a>
         <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
-        <a class="breadcrumb-item" [routerLink]="['/categories', product?.categoryId]">
-          <mat-icon class="breadcrumb-icon">category</mat-icon>
-          <span class="breadcrumb-text">{{ getCategoryName() }}</span>
+        <a class="breadcrumb-item" [routerLink]="['/products']">
+          <mat-icon class="breadcrumb-icon">inventory</mat-icon>
+          <span class="breadcrumb-text">{{ 'COMMON.PRODUCTS' | translate }}</span>
         </a>
         <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
-        <a class="breadcrumb-item" [routerLink]="['/products']">
-          <mat-icon class="breadcrumb-icon">shopping_bag</mat-icon>
-          <span class="breadcrumb-text">{{ 'COMMON.PRODUCTS' | translate }}</span>
+        <a class="breadcrumb-item" (click)="navigateToCategory()" style="cursor: pointer;">
+          <mat-icon class="breadcrumb-icon">category</mat-icon>
+          <span class="breadcrumb-text">{{ getCategoryName() }}</span>
         </a>
         <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
         <span class="breadcrumb-item current">

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
 import { ProductService } from '../../../services/product.service';
 import { CartService } from '../../../services/cart.service';
@@ -54,6 +54,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private cartService: CartService,
     private router: Router,
+    private route: ActivatedRoute,
     private tagService: TagService,
     private categoryService: CategoryService
   ) {}
@@ -63,6 +64,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     this.loadCategories();
     this.loadAvailableTags();
     this.setupSearchFilter();
+    this.setupRouteParamsListener();
   }
 
   loadProducts(): void {
@@ -77,6 +79,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         this.filteredProducts = [...this.products];
         this.initializeCarousels();
         this.translateProducts();
+        this.applyUrlFilters(); // Apply URL filters after products are loaded
         this.applyFilters();
         this.isLoading = false;
       },
@@ -172,12 +175,113 @@ export class ProductsListComponent implements OnInit, OnDestroy {
       });
   }
 
+  setupRouteParamsListener(): void {
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        // URL parameters will be processed in applyUrlFilters after data is loaded
+        if (this.products.length > 0) {
+          this.applyUrlFilters();
+        }
+      });
+  }
+
+  applyUrlFilters(): void {
+    this.route.queryParams.subscribe(params => {
+      const categoriesParam = params['categories'];
+      const tagsParam = params['tags'];
+
+      // Reset current filters
+      this.selectedCategoryIds = [];
+      this.availableTags.forEach(tag => tag.selected = false);
+
+      // Apply category filters from URL
+      if (categoriesParam) {
+        const categoryNames = Array.isArray(categoriesParam) ? categoriesParam : [categoriesParam];
+        this.applyCategoryFiltersFromUrl(categoryNames);
+      }
+
+      // Apply tag filters from URL
+      if (tagsParam) {
+        const tagNames = Array.isArray(tagsParam) ? tagsParam : [tagsParam];
+        this.applyTagFiltersFromUrl(tagNames);
+      }
+
+      // Update chip list if available
+      if (this.categoryChipList) {
+        this.categoryChipList.value = this.selectedCategoryIds;
+      }
+
+      // Apply the filters
+      this.applyFilters();
+    });
+  }
+
+  private applyCategoryFiltersFromUrl(categoryNames: string[]): void {
+    categoryNames.forEach(categoryName => {
+      const category = this.categories.find(cat =>
+        this.normalizeName(cat.translatedName) === this.normalizeName(categoryName)
+      );
+      if (category && !this.selectedCategoryIds.includes(category.id)) {
+        this.selectedCategoryIds.push(category.id);
+      }
+    });
+  }
+
+  private applyTagFiltersFromUrl(tagNames: string[]): void {
+    tagNames.forEach(tagName => {
+      const tag = this.availableTags.find(t =>
+        this.normalizeName(t.translatedName) === this.normalizeName(tagName)
+      );
+      if (tag) {
+        tag.selected = true;
+      }
+    });
+  }
+
+  private normalizeName(name: string): string {
+    return name.toLowerCase().trim().replace(/\s+/g, '-');
+  }
+
+  updateUrlWithFilters(): void {
+    const queryParams: any = {};
+
+    // Add categories to URL
+    if (this.selectedCategoryIds.length > 0) {
+      const selectedCategories = this.categories
+        .filter(cat => this.selectedCategoryIds.includes(cat.id))
+        .map(cat => this.normalizeName(cat.translatedName));
+
+      if (selectedCategories.length > 0) {
+        queryParams['categories'] = selectedCategories;
+      }
+    }
+
+    // Add tags to URL
+    const selectedTags = this.availableTags
+      .filter(tag => tag.selected)
+      .map(tag => this.normalizeName(tag.translatedName));
+
+    if (selectedTags.length > 0) {
+      queryParams['tags'] = selectedTags;
+    }
+
+    // Update URL without reloading the page
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: Object.keys(queryParams).length > 0 ? queryParams : null,
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
   // Category Filter Methods
   onCategoryFilterChange(): void {
     if (this.categoryChipList) {
       const selectedChips = this.categoryChipList.value as number[];
       this.selectedCategoryIds = selectedChips || [];
     }
+    this.updateUrlWithFilters();
     this.applyFilters();
   }
 
@@ -196,12 +300,14 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     if (this.categoryChipList) {
       this.categoryChipList.value = this.selectedCategoryIds;
     }
+    this.updateUrlWithFilters();
     this.applyFilters();
   }
 
   // Tag Filter Methods
   toggleTagFilter(tag: any): void {
     tag.selected = !tag.selected;
+    this.updateUrlWithFilters();
     this.applyFilters();
   }
 
@@ -215,6 +321,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
 
   removeTagFilter(tag: any): void {
     tag.selected = false;
+    this.updateUrlWithFilters();
     this.applyFilters();
   }
 
@@ -290,6 +397,13 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     if (this.categoryChipList) {
       this.categoryChipList.value = [];
     }
+
+    // Clear URL parameters
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true
+    });
 
     this.applyFilters();
   }
