@@ -282,8 +282,8 @@
       }
     }
   }
-k
 
+  k
   .filters-content {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -665,14 +665,15 @@ k
   justify-content: center;
   padding: var(--spacing-xl);
   text-align: center;
+  width: 100%;
 
   .loading-content, .error-content {
     background: var(--background-card);
     border-radius: var(--radius-lg);
     box-shadow: 0 4px 15px var(--shadow-light);
     padding: var(--spacing-xl);
-    max-width: 400px;
     width: 100%;
+    max-width: none;
   }
 }
 
