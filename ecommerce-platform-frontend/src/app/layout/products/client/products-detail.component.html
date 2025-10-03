@@ -13,7 +13,6 @@
                   <div class="product-row">
                     <p class="product-subtitle">{{ 'PRODUCTS.ADMIN_SUBTITLE.CREATE' | translate }}</p>
                     <div class="tags-badges" *ngIf="product.responseTagDTOS?.length">
-
                       <div class="tags-container" *ngIf="product.responseTagDTOS?.length">
                         <app-tag-badge
                           *ngFor="let tag of product.responseTagDTOS"
