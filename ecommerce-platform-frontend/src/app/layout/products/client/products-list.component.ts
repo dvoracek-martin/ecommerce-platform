@@ -1,16 +1,16 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { ResponseProductDTO } from '../../../dto/product/response-product-dto';
-import { ProductService } from '../../../services/product.service';
-import { CartService } from '../../../services/cart.service';
-import { CartItemType } from '../../../dto/cart/cart-item-type';
-import { TagService } from '../../../services/tag.service';
-import { CategoryService } from '../../../services/category.service';
-import { ResponseCategoryDTO } from '../../../dto/category/response-category-dto';
-import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
-import { MatChipListbox } from '@angular/material/chips';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
+import {ProductService} from '../../../services/product.service';
+import {CartService} from '../../../services/cart.service';
+import {CartItemType} from '../../../dto/cart/cart-item-type';
+import {TagService} from '../../../services/tag.service';
+import {CategoryService} from '../../../services/category.service';
+import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
+import {FormControl} from '@angular/forms';
+import {debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
+import {Subject} from 'rxjs';
+import {MatChipListbox} from '@angular/material/chips';
 
 @Component({
   selector: 'app-products-list',
@@ -57,7 +57,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private tagService: TagService,
     private categoryService: CategoryService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadProducts();
@@ -197,12 +198,14 @@ export class ProductsListComponent implements OnInit, OnDestroy {
 
       // Apply category filters from URL
       if (categoriesParam) {
+        this.showFilters = true;
         const categoryNames = Array.isArray(categoriesParam) ? categoriesParam : [categoriesParam];
         this.applyCategoryFiltersFromUrl(categoryNames);
       }
 
       // Apply tag filters from URL
       if (tagsParam) {
+        this.showFilters = true;
         const tagNames = Array.isArray(tagsParam) ? tagsParam : [tagsParam];
         this.applyTagFiltersFromUrl(tagNames);
       }
@@ -390,7 +393,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   clearAllFilters(): void {
     this.searchControl.setValue('');
     this.selectedCategoryIds = [];
-    this.availableTags = this.availableTags.map(tag => ({ ...tag, selected: false }));
+    this.availableTags = this.availableTags.map(tag => ({...tag, selected: false}));
     this.currentSort = 'name_asc';
     this.showFilters = false;
 
