@@ -1,6 +1,7 @@
 package com.dvoracekmartin.catalogservice.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.NotBlank;
@@ -33,8 +34,9 @@ public class Tag extends BaseEntity {
     @EqualsAndHashCode.Exclude
     private List<Mixture> mixtures;
 
-// TOOD
-    public Tag(@NotBlank @Size(min = 3) String name, String description, int priority, boolean active, String url) {
-        super(null, priority, active, new ArrayList<>());
-    }
+    @Column(name = "color", nullable = false, length = 7, columnDefinition = "TEXT")
+    private String color;
+
+    @Column(name = "icon", columnDefinition = "TEXT")
+    private String icon;
 }

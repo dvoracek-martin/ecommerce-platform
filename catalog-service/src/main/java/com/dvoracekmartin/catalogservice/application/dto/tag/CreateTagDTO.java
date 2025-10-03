@@ -13,7 +13,12 @@ import java.util.Map;
 @Data
 public class CreateTagDTO extends BaseCreateDTO {
 
-    public CreateTagDTO(Map<String, LocalizedField> localizedFields, int priority, boolean active, List<MediaDTO> media) {
+    private String color;
+    private String icon;
+
+    public CreateTagDTO(Map<String, LocalizedField> localizedFields, int priority, boolean active, List<MediaDTO> media, String color, String icon) {
         super(localizedFields, priority, active, media);
+        this.color = color;
+        this.icon = icon;
     }
 }

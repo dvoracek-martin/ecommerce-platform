@@ -39,15 +39,16 @@
       h1 {
         font-size: var(--font-size-xxl);
         font-weight: 700;
-        background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        background: none;
+        -webkit-text-fill-color: white;
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
         background-clip: text;
         margin: 0 0 var(--spacing-xs) 0;
       }
 
       .admin-subtitle {
-        color: var(--text-muted);
+        color: white;
         font-size: var(--font-size-sm);
         margin: 0;
       }

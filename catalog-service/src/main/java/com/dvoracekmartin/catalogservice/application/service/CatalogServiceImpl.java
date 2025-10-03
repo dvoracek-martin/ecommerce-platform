@@ -627,6 +627,8 @@ public class CatalogServiceImpl implements CatalogService {
         Tag tag = new Tag();
         tag.setPriority(createTagDTO.getPriority());
         tag.setActive(createTagDTO.isActive());
+        tag.setColor(createTagDTO.getColor());
+        tag.setIcon(createTagDTO.getIcon());
 
         Tag finalTag = tagRepository.save(tag);
 
@@ -659,6 +661,8 @@ public class CatalogServiceImpl implements CatalogService {
 
         existingTag.setPriority(updateTagDTO.getPriority());
         existingTag.setActive(updateTagDTO.isActive());
+        existingTag.setColor(updateTagDTO.getColor());
+        existingTag.setIcon(updateTagDTO.getIcon());
 
         List<Category> newCategories = updateTagDTO.getCategoryIds() != null
                 ? updateTagDTO.getCategoryIds().stream()
@@ -761,7 +765,9 @@ public class CatalogServiceImpl implements CatalogService {
                 null,
                 tag.getCategories().stream().map(catalogMapper::mapCategoryToResponseCategoryDTO).toList(),
                 tag.getProducts().stream().map(catalogMapper::mapProductToResponseProductDTO).toList(),
-                tag.getMixtures().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList()
+                tag.getMixtures().stream().map(catalogMapper::mapMixtureToResponseMixtureDTO).toList(),
+                tag.getColor(),
+                tag.getIcon()
         );
     }
 

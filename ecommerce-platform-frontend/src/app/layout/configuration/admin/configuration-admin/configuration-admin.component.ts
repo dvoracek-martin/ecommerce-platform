@@ -152,7 +152,7 @@ export class ConfigurationAdminComponent implements OnInit, OnDestroy {
     if (this.configurationForm.invalid) {
       this.configurationForm.markAllAsTouched();
       this.snackBar.open('Please correct the highlighted fields.', 'Close', {duration: 5000});
-      return;
+      this.router.navigate(['/`']);
     }
 
     this.saving = true;

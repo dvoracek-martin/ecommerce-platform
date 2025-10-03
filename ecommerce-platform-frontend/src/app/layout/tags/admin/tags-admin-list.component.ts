@@ -1,17 +1,17 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
-import {MatDialog} from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {Subject, takeUntil} from 'rxjs';
-import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
-import {TagService} from '../../../services/tag.service';
-import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
-import {FormControl} from '@angular/forms';
-import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
-import {CategoryService} from '../../../services/category.service';
-import {ProductService} from '../../../services/product.service';
-import {MixtureService} from '../../../services/mixture.service';
-import {UpdateTagDTO} from '../../../dto/tag/update-tag-dto';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject, takeUntil } from 'rxjs';
+import { ResponseTagDTO } from '../../../dto/tag/response-tag-dto';
+import { TagService } from '../../../services/tag.service';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
+import { FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { CategoryService } from '../../../services/category.service';
+import { ProductService } from '../../../services/product.service';
+import { MixtureService } from '../../../services/mixture.service';
+import { UpdateTagDTO } from '../../../dto/tag/update-tag-dto';
 
 @Component({
   selector: 'app-tags-admin-list',
@@ -24,10 +24,8 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
   filteredTags: ResponseTagDTO[] = [];
   isLoading = true;
   error: string | null = null;
-  activeSlideIndices: number[] = [];
   searchControl = new FormControl('');
   activeSeControl = new FormControl(false);
-  private intervals: any[] = [];
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -48,14 +46,17 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.intervals.forEach(i => clearInterval(i));
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   setupSearchFilter(): void {
     this.searchControl.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged())
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
       .subscribe(() => this.applyFilters());
   }
 
@@ -91,11 +92,10 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
         error: (err) => {
           this.error = err.message || 'Failed to load tags';
           this.isLoading = false;
-          this.snackBar.open('Failed to load tags.', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
+          this.snackBar.open('Failed to load tags.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
         }
       });
   }
-
 
   trackById(_idx: number, item: ResponseTagDTO): number {
     return item.id;
@@ -105,11 +105,19 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
     this.router.navigate([`/admin/tags/update/${tagId}`]);
   }
 
+  navigateToCreate(): void {
+    this.router.navigate(['/admin/tags/create']);
+  }
+
+  navigateHome(): void {
+    this.router.navigate(['/']);
+  }
+
   openDeleteDialog(tagId: number): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
-        title: 'TAGS.ADMIN.DELETE_TITLE',
-        message: 'TAGS.ADMIN.DELETE_CONFIRM'
+        title: 'Delete Tag',
+        message: 'Are you sure you want to delete this tag?'
       }
     });
 
@@ -120,8 +128,12 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
       });
   }
 
-  navigateToCreate(): void {
-    this.router.navigate(['/admin/tags/create']);
+  // Helper method to check if an icon is an emoji
+  isEmoji(icon: string): boolean {
+    if (!icon) return false;
+    // Simple emoji detection - emojis are usually single characters or have different unicode patterns
+    const emojiRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
+    return emojiRegex.test(icon);
   }
 
   private deleteTag(id: number): void {
@@ -152,7 +164,7 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
           next: () => this.callDelete(id),
           error: err => {
             console.error('Failed to remove relations before delete:', err);
-            this.snackBar.open('Failed to remove tag relations.', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
+            this.snackBar.open('Failed to remove tag relations.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
           }
         });
     } else {
@@ -167,15 +179,14 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
         next: () => {
           this.tags = this.tags.filter(t => t.id !== id);
           this.filteredTags = this.filteredTags.filter(p => p.id !== id);
-          this.snackBar.open('Tag deleted successfully.', 'Close', {duration: 3000});
+          this.snackBar.open('Tag deleted successfully.', 'Close', { duration: 3000 });
         },
         error: err => {
           console.error('Delete failed:', err);
-          this.snackBar.open('Failed to delete tag.', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
+          this.snackBar.open('Failed to delete tag.', 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
         }
       });
   }
-
 
   private translateTags() {
     this.tags.forEach(tag => {
@@ -184,7 +195,6 @@ export class TagsAdminListComponent implements OnInit, OnDestroy {
       tag.translatedUrl = this.tagService.getLocalizedUrl(tag);
     });
   }
-
 
   private translateCategories() {
     this.tags.forEach(tag => {

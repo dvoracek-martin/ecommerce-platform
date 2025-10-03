@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
+
+    <!-- BaseEntity = common fields -->
+    <changeSet id="1-create-category" author="martin">
+        <createTable tableName="category">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="priority" type="INT"/>
+            <column name="active" type="BOOLEAN"/>
+            <column name="mixable" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2-create-product" author="martin">
+        <createTable tableName="product">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="priority" type="INT"/>
+            <column name="active" type="BOOLEAN"/>
+            <column name="price" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mixable" type="BOOLEAN"/>
+            <column name="display_in_products" type="BOOLEAN"/>
+            <column name="weight_grams" type="DECIMAL(10,2)"/>
+            <column name="category_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="product" baseColumnNames="category_id"
+                referencedTableName="category" referencedColumnNames="id"
+                constraintName="fk_product_category"/>
+    </changeSet>
+
+    <changeSet id="3-create-mixure" author="martin">
+        <createTable tableName="mixture">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="priority" type="INT"/>
+            <column name="active" type="BOOLEAN"/>
+            <column name="price" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weight_grams" type="DECIMAL(10,2)"/>
+            <column name="display_in_products" type="BOOLEAN"/>
+            <column name="category_id" type="BIGINT"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="mixture" baseColumnNames="category_id"
+                referencedTableName="category" referencedColumnNames="id"
+                constraintName="fk_mixture_category"/>
+    </changeSet>
+
+    <changeSet id="4-create-tag" author="martin">
+        <createTable tableName="tag">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="priority" type="INT"/>
+            <column name="active" type="BOOLEAN"/>
+            <column name="color" type="VARCHAR(7)">
+                <constraints nullable="false"/>
+            </column>
+            <!-- icon stored as utf8mb4 text for emojis -->
+            <column name="icon" type="TEXT" encoding="utf8mb4"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Join Tables -->
+    <changeSet id="5-create-category-tags" author="martin">
+        <createTable tableName="category_tags">
+            <column name="category_id" type="BIGINT"/>
+            <column name="tag_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="category_tags" baseColumnNames="category_id"
+                referencedTableName="category" referencedColumnNames="id"
+                constraintName="fk_categorytags_category"/>
+        <addForeignKeyConstraint
+                baseTableName="category_tags" baseColumnNames="tag_id"
+                referencedTableName="tag" referencedColumnNames="id"
+                constraintName="fk_categorytags_tag"/>
+    </changeSet>
+
+    <changeSet id="6-create-product-tags" author="martin">
+        <createTable tableName="product_tags">
+            <column name="product_id" type="BIGINT"/>
+            <column name="tag_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="product_tags" baseColumnNames="product_id"
+                referencedTableName="product" referencedColumnNames="id"
+                constraintName="fk_producttags_product"/>
+        <addForeignKeyConstraint
+                baseTableName="product_tags" baseColumnNames="tag_id"
+                referencedTableName="tag" referencedColumnNames="id"
+                constraintName="fk_producttags_tag"/>
+    </changeSet>
+
+    <changeSet id="7-create-mixture-products" author="martin">
+        <createTable tableName="mixture_products">
+            <column name="mixture_id" type="BIGINT"/>
+            <column name="product_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="mixture_products" baseColumnNames="mixture_id"
+                referencedTableName="mixture" referencedColumnNames="id"
+                constraintName="fk_mixtureproducts_mixture"/>
+        <addForeignKeyConstraint
+                baseTableName="mixture_products" baseColumnNames="product_id"
+                referencedTableName="product" referencedColumnNames="id"
+                constraintName="fk_mixtureproducts_product"/>
+    </changeSet>
+
+    <changeSet id="8-create-mixture-tags" author="martin">
+        <createTable tableName="mixture_tags">
+            <column name="mixture_id" type="BIGINT"/>
+            <column name="tag_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="mixture_tags" baseColumnNames="mixture_id"
+                referencedTableName="mixture" referencedColumnNames="id"
+                constraintName="fk_mixturetags_mixture"/>
+        <addForeignKeyConstraint
+                baseTableName="mixture_tags" baseColumnNames="tag_id"
+                referencedTableName="tag" referencedColumnNames="id"
+                constraintName="fk_mixturetags_tag"/>
+    </changeSet>
+
+</databaseChangeLog>

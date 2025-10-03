@@ -77,11 +77,8 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'TAGS.PRIORITY' | translate }}</mat-label>
-              <input formControlName="priority"
-                     matInput
-                     type="number"
-                     [placeholder]="'TAGS.PRIORITY_PLACEHOLDER' | translate"
-                     required>
+              <input formControlName="priority" matInput type="number"
+                     [placeholder]="'TAGS.PRIORITY_PLACEHOLDER' | translate" required>
               <mat-error *ngIf="tagForm.get('priority')?.hasError('required')">
                 {{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
@@ -94,6 +91,53 @@
               <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
                 {{ 'TAGS.ACTIVE' | translate }}
               </mat-checkbox>
+            </div>
+          </div>
+
+          <!-- VISUAL PROPERTIES -->
+          <div class="visual-properties-section">
+            <div class="form-row">
+              <!-- Color Picker -->
+              <div class="color-picker-field">
+                <label class="field-label">{{ 'TAGS.COLOR' | translate }}</label>
+                <div class="color-picker-container">
+                  <label class="color-picker-wrapper">
+                    <div class="color-preview" [style.background]="tagForm.get('color')?.value || '#3498db'">
+                      <mat-icon class="color-preview-icon">palette</mat-icon>
+                    </div>
+                    <input type="color"
+                           formControlName="color"
+                           class="color-input"
+                           [value]="tagForm.get('color')?.value || '#3498db'"
+                           (input)="onColorChange($event)">
+                  </label>
+                  <span class="color-value">{{ tagForm.get('color')?.value || '#3498db' }}</span>
+                </div>
+              </div>
+
+              <!-- Icon Selector -->
+              <div class="icon-selector-field">
+                <label class="field-label">{{ 'TAGS.ICON' | translate }}</label>
+                <div class="icon-selector-container">
+                  <button type="button"
+                          class="icon-selector-trigger"
+                          (click)="openIconSelector()"
+                          [class.has-icon]="tagForm.get('icon')?.value">
+                    <span *ngIf="tagForm.get('icon')?.value" class="selected-icon-content">
+                      <mat-icon *ngIf="!isEmoji(tagForm.get('icon')?.value)" class="selected-icon">
+                        {{ tagForm.get('icon')?.value }}
+                      </mat-icon>
+                      <span *ngIf="isEmoji(tagForm.get('icon')?.value)" class="selected-emoji">
+                        {{ tagForm.get('icon')?.value }}
+                      </span>
+                    </span>
+                    <span *ngIf="!tagForm.get('icon')?.value" class="icon-placeholder">
+                      {{ 'TAGS.SELECT_ICON' | translate }}
+                    </span>
+                    <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -164,4 +208,71 @@
       </div>
     </div>
   </mat-card>
+</div>
+
+<!-- Icon Selector Modal -->
+<div *ngIf="showIconSelector" class="icon-selector-modal" [class.show]="showIconSelector">
+  <div class="modal-backdrop" (click)="closeIconSelector()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>{{ 'TAGS.SELECT_ICON' | translate }}</h3>
+      <button class="close-btn" (click)="closeIconSelector()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="search-section">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>{{ 'TAGS.SEARCH_ICONS' | translate }}</mat-label>
+        <input matInput
+               [(ngModel)]="iconSearchTerm"
+               (ngModelChange)="onIconSearchChange()"
+               [placeholder]="'TAGS.SEARCH_ICONS_PLACEHOLDER' | translate">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <!-- ADD THIS MODAL-BODY WRAPPER -->
+    <div class="modal-body">
+      <mat-tab-group (selectedTabChange)="onIconTabChange($event.index)" class="icon-type-tabs">
+        <mat-tab label="Material Icons">
+          <div class="icons-grid-container">
+            <div class="icons-grid">
+              <div *ngFor="let icon of filteredIcons"
+                   class="icon-item"
+                   [class.selected]="selectedIcon === icon"
+                   (click)="selectIcon(icon)">
+                <mat-icon class="icon-display">{{ icon }}</mat-icon>
+                <span class="icon-name">{{ icon }}</span>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+        <mat-tab label="Emojis">
+          <div class="icons-grid-container">
+            <div class="icons-grid emoji-grid">
+              <div *ngFor="let emoji of filteredEmojis"
+                   class="icon-item emoji-item"
+                   [class.selected]="selectedIcon === emoji.emoji"
+                   (click)="selectIcon(emoji)">
+                <span class="emoji-display">{{ emoji.emoji }}</span>
+                <span class="icon-name">{{ emoji.description }}</span>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+    <!-- END MODAL-BODY WRAPPER -->
+
+    <!-- MODAL ACTIONS -->
+    <div class="modal-actions">
+      <button mat-stroked-button (click)="closeIconSelector()" class="cancel-icon-btn">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button mat-flat-button color="primary" (click)="confirmIconSelection()" class="confirm-icon-btn">
+        {{ 'COMMON.SELECT' | translate }}
+      </button>
+    </div>
+  </div>
 </div>

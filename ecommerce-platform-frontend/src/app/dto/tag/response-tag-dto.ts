@@ -7,4 +7,6 @@ export interface ResponseTagDTO extends BaseUpdateOrResponseDTO {
   categories?: ResponseCategoryDTO[];
   products?: ResponseProductDTO[];
   mixtures?: ResponseMixtureDTO[];
+  color: string;
+  icon: string;
 }

@@ -242,9 +242,9 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     });
   }
 
-  private normalizeName(name: string): string {
-    return name.toLowerCase().trim().replace(/\s+/g, '-');
-  }
+    private normalizeName(name: string): string {
+      return name.toLowerCase().trim().replace(/\s+/g, '-');
+    }
 
   updateUrlWithFilters(): void {
     const queryParams: any = {};

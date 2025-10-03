@@ -84,21 +84,23 @@ public interface CatalogMapper {
     @Mapping(target = "mixtures", ignore = true)
     Tag mapTagToTagDTO(Tag tag);
 
-    @Mapping(target = "products", ignore = true)
-    @Mapping(target = "categories", ignore = true)
-    @Mapping(target = "mixtures", ignore = true)
-    default Tag mapCreateTagDTOToTag(CreateTagDTO createTagDTO) {
-        return new Tag(
-                // TODO
-                //createTagDTO.getLocalizedBasicProperties()
-                //               .stream().map()
-                null,
-                null,
-                createTagDTO.getPriority(),
-                createTagDTO.isActive(),
-                null
-        );
-    }
+//    @Mapping(target = "products", ignore = true)
+//    @Mapping(target = "categories", ignore = true)
+//    @Mapping(target = "mixtures", ignore = true)
+//    default Tag mapCreateTagDTOToTag(CreateTagDTO createTagDTO) {
+//        return new Tag(
+//                // TODO
+//                //createTagDTO.getLocalizedBasicProperties()
+//                //               .stream().map()
+//                null,
+//                null,
+//                createTagDTO.getPriority(),
+//                createTagDTO.isActive(),
+//                null,
+//                createTagDTO.getColor(),
+//                createTagDTO.getIcon()
+//        );
+//    }
 
 
     @Mapping(target = "products", ignore = true)
@@ -115,7 +117,9 @@ public interface CatalogMapper {
                 null,
                 finalTag.getCategories().stream().map(this::mapCategoryToResponseCategoryDTO).toList(),
                 finalTag.getProducts().stream().map(this::mapProductToResponseProductDTO).toList(),
-                finalTag.getMixtures().stream().map(this::mapMixtureToResponseMixtureDTO).toList()
+                finalTag.getMixtures().stream().map(this::mapMixtureToResponseMixtureDTO).toList(),
+                finalTag.getColor(),
+                finalTag.getIcon()
         );
     }
 }

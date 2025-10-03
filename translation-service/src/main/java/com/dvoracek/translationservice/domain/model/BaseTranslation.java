@@ -1,7 +1,8 @@
 package com.dvoracek.translationservice.domain.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode()
 @MappedSuperclass

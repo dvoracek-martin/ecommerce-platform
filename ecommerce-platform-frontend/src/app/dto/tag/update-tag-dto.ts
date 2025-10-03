@@ -4,4 +4,6 @@ export interface UpdateTagDTO extends BaseUpdateOrResponseDTO {
   categoryIds?: number[];
   productIds?: number[];
   mixtureIds?: number[];
+  color: string;
+  icon: string;
 }

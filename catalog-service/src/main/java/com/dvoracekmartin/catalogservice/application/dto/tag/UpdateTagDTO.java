@@ -16,12 +16,16 @@ public class UpdateTagDTO extends BaseUpdateOrResponseDTO {
     List<Long> categoryIds;
     List<Long> productIds;
     List<Long> mixtureIds;
+    String color;
+    String icon;
 
-    public UpdateTagDTO(Long id, Map<String, LocalizedField> localizedFields, int priority, boolean active, List<MediaDTO> media, List<Long> categoryIds, List<Long> productIds, List<Long> mixtureIds) {
+    public UpdateTagDTO(Long id, Map<String, LocalizedField> localizedFields, int priority, boolean active, List<MediaDTO> media, List<Long> categoryIds, List<Long> productIds, List<Long> mixtureIds, String color, String icon) {
         super(id, localizedFields, priority, active, media);
         this.categoryIds = categoryIds;
         this.productIds = productIds;
         this.mixtureIds = mixtureIds;
+        this.color = color;
+        this.icon = icon;
     }
 }
 
