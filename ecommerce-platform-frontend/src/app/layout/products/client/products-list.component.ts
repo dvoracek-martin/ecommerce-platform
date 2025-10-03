@@ -11,6 +11,7 @@ import {FormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 import {MatChipListbox} from '@angular/material/chips';
+import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
 
 @Component({
   selector: 'app-products-list',
@@ -525,6 +526,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
       product.responseTagDTOS.forEach(tag => {
         this.tagService.getTagById(tag.id).subscribe(responseTagDTO => {
           tag.translatedName = this.tagService.getLocalizedName(responseTagDTO);
+          tag.translatedDescription = this.tagService.getLocalizedDescription(responseTagDTO);
+          tag.translatedUrl = this.tagService.getLocalizedUrl(responseTagDTO);
         });
       });
     });
@@ -550,5 +553,19 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     this.intervals.forEach(i => clearInterval(i));
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  onTagClick(responseTagDTO: ResponseTagDTO): void {
+    if (responseTagDTO && responseTagDTO.translatedName) {
+      const tagName = this.normalizeName(responseTagDTO.translatedName);
+
+      // Navigate with only the tag filter, replacing all other filters
+      this.router.navigate(['/products'], {
+        queryParams: { tags: tagName }
+      }).then(() => {
+        // The URL change will trigger applyUrlFilters() via the route params listener
+        // which will automatically clear all other filters and apply only this tag
+      });
+    }
   }
 }

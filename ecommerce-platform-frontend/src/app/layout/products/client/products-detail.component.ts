@@ -136,7 +136,6 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   }
 
   onTagClick(responseTagDTO: ResponseTagDTO): void {
-    console.log(JSON.stringify(responseTagDTO))
     if (responseTagDTO && responseTagDTO.translatedUrl) {
       this.router.navigate(['/products'], {
         queryParams: {tags: responseTagDTO.translatedUrl}
