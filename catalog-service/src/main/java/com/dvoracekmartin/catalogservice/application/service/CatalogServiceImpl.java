@@ -624,7 +624,7 @@ public class CatalogServiceImpl implements CatalogService {
     // Tag methods
     @Override
     public ResponseTagDTO createTag(@Valid CreateTagDTO createTagDTO) {
-        Tag tag = new Tag();
+         Tag tag = new Tag();
         tag.setPriority(createTagDTO.getPriority());
         tag.setActive(createTagDTO.isActive());
         tag.setColor(createTagDTO.getColor());
