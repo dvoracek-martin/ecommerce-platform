@@ -46,7 +46,7 @@
                    class="order-item"
                    [class.mixture-item]="item.cartItemType === CartItemType.MIXTURE">
 
-                <div class="item-media" (click)="navigateToProduct(item.product.id)"
+                <div class="item-media" (click)="navigateToProduct(item.product)"
                      *ngIf="item.cartItemType === CartItemType.PRODUCT && item.product">
                   <img *ngIf="item.product?.media?.[0]"
                        [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
@@ -73,7 +73,7 @@
                 <div class="item-info">
                   <div class="item-header">
                     <h3 class="item-name"
-                        (click)="navigateToProduct(item.product.id)"
+                        (click)="navigateToProduct(item.product)"
                         *ngIf="item.cartItemType === CartItemType.PRODUCT && item.product">
                       {{ item.translatedName }}
                     </h3>

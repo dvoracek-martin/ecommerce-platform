@@ -217,6 +217,7 @@
     background: var(--background-card);
     transition: all var(--transition-normal);
     border-bottom: 1px solid var(--divider-color);
+    position: relative;
 
     &:hover {
       background: var(--background-hover);
@@ -224,6 +225,45 @@
 
     &:last-child {
       border-bottom: none;
+    }
+
+    /* Inactive Row Styling */
+    &.inactive-row {
+      background: linear-gradient(
+          90deg,
+          var(--error-color) 0%,
+          var(--error-color) 25%,
+          var(--background-light) 25%,
+          var(--background-light) 100%
+      );
+      position: relative;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 25%;
+        height: 100%;
+        background: var(--error-color);
+        z-index: 1;
+      }
+
+      .mat-cell {
+        position: relative;
+        z-index: 2;
+        background: transparent;
+      }
+
+      &:hover {
+        background: linear-gradient(
+            90deg,
+            var(--error-color) 0%,
+            var(--error-color) 25%,
+            var(--background-hover) 25%,
+            var(--background-hover) 100%
+        );
+      }
     }
   }
 
@@ -236,6 +276,7 @@
     border-bottom: 1px solid var(--divider-color);
     font-weight: 500;
     vertical-align: top;
+    background: transparent;
   }
 
   /* Specific Cell Styling */
@@ -250,6 +291,16 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+
+      .inactive-indicator {
+        color: var(--error-color);
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
     }
 
     .customer-id {
@@ -273,6 +324,25 @@
     font-weight: 600;
     text-transform: uppercase;
     display: inline-block;
+  }
+
+  .status-cell .status-badge {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+
+    &.active {
+      background: rgba(46, 204, 113, 0.1);
+      color: var(--success-color);
+    }
+
+    &.inactive {
+      background: rgba(231, 76, 60, 0.1);
+      color: var(--error-color);
+    }
   }
 }
 
@@ -564,6 +634,20 @@
     .mat-cell {
       padding: var(--spacing-sm);
       font-size: var(--font-size-xs);
+    }
+
+    .mat-row.inactive-row {
+      background: linear-gradient(
+          90deg,
+          var(--error-color) 0%,
+          var(--error-color) 15%,
+          var(--background-light) 15%,
+          var(--background-light) 100%
+      );
+
+      &::before {
+        width: 15%;
+      }
     }
   }
 

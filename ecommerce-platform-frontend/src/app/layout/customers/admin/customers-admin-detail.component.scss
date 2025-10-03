@@ -54,9 +54,64 @@
       .mat-mdc-chip {
         font-weight: 600;
         backdrop-filter: blur(10px);
-        background: rgba(255, 255, 255, 0.2) !important;
-        color: white !important;
         border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+
+        /* Modern gradient backgrounds */
+        &[color="primary"] {
+          background: linear-gradient(135deg, var(--success-color) 0%, var(--success-color) 100%) !important;
+          color: white !important;
+          box-shadow: 0 4px 15px rgba(var(--success-color-rgb), 0.3);
+
+          /* Add subtle shine effect */
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: left 0.5s ease;
+          }
+
+          &:hover::before {
+            left: 100%;
+          }
+        }
+
+        &[color="warn"] {
+          background: linear-gradient(135deg, var(--error-color) 0%, var(--error-color) 100%) !important;
+          color: white !important;
+          box-shadow: 0 4px 15px rgba(var(--error-color-rgb), 0.3);
+
+          /* Add subtle shine effect */
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: left 0.5s ease;
+          }
+
+          &:hover::before {
+            left: 100%;
+          }
+        }
       }
     }
   }
@@ -133,7 +188,17 @@
 /* ==============================
    Form Sections
 =============================== */
-.customer-items-section,
+.customer-items-section {
+  background: var(--background-card);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 15px var(--shadow-light);
+  padding: var(--spacing-xl);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl); /* This creates space between forms */
+}
+
 .order-info-section {
   background: var(--background-card);
   border-radius: var(--radius-lg);
@@ -190,6 +255,75 @@
 
     mat-icon {
       color: var(--primary-color);
+    }
+  }
+}
+
+/* ==============================
+   Centered Checkbox Sections
+=============================== */
+.form-section:has(.admin-active-checkbox-wrapper),
+.form-section:has(mat-checkbox:not(.admin-active-checkbox-wrapper)) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  .form-row {
+    justify-content: center;
+    margin-bottom: 0;
+    width: 100%;
+
+    mat-checkbox {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      background: rgba(var(--primary-color-rgb), 0.05);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(var(--primary-color-rgb), 0.1);
+
+      ::ng-deep .mdc-label {
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+    }
+
+    .admin-active-checkbox-wrapper {
+      ::ng-deep .mdc-label {
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+/* ==============================
+   Password Form Specific Styling
+=============================== */
+.form-one-column-wrapper:has(#passwordForm) {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--divider-color);
+
+  .form-content {
+    gap: var(--spacing-lg);
+  }
+
+  .form-section {
+    padding: var(--spacing-lg);
+    background: var(--background-light);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+
+    .section-subtitle {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-size: var(--font-size-lg);
+      color: var(--text-primary);
+      margin: 0 0 var(--spacing-lg) 0;
+      font-weight: 600;
+
+      mat-icon {
+        color: var(--accent-color);
+      }
     }
   }
 }
@@ -253,13 +387,6 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-}
-
-/* ==============================
-   Checkboxes
-=============================== */
-.admin-active-checkbox-wrapper {
-  margin-bottom: var(--spacing-md);
 }
 
 /* ==============================
@@ -368,28 +495,153 @@
 }
 
 /* ==============================
-   Status Badges
+   Fixed Size Order Status Badges (20 characters)
 =============================== */
 .status-badge {
-  padding: 6px 12px;
-  border-radius: 16px;
+  padding: 8px 12px;
+  border-radius: var(--radius-lg);
   font-size: var(--font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 10rem;
+  max-width: 10rem;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all var(--transition-normal);
+  border: 1px solid transparent;
 
-  &.status-created { background: #e3f2fd; color: #1976d2; }
-  &.status-pending { background: #fff3e0; color: #f57c00; }
-  &.status-confirmed { background: #e8f5e8; color: #2e7d32; }
-  &.status-processing { background: #f3e5f5; color: #7b1fa2; }
-  &.status-shipped { background: #e1f5fe; color: #0288d1; }
-  &.status-delivered { background: #e8f5e8; color: #2e7d32; }
-  &.status-finished { background: #f1f8e9; color: #689f38; }
-  &.status-rejected { background: #ffebee; color: #c62828; }
-  &.status-cancelled { background: #f5f5f5; color: #616161; }
-  &.status-unknown { background: #fafafa; color: #9e9e9e; }
+  /* Status-specific styles using the better colors from admin design */
+  &.status-created {
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--primary-color);
+    border-color: rgba(52, 152, 219, 0.2);
+  }
+
+  &.status-pending {
+    background: rgba(243, 156, 18, 0.1);
+    color: var(--warning-color);
+    border-color: rgba(243, 156, 18, 0.2);
+  }
+
+  &.status-confirmed {
+    background: rgba(41, 128, 185, 0.1);
+    color: #2874a6;
+    border-color: rgba(41, 128, 185, 0.2);
+  }
+
+  &.status-processing {
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--success-color);
+    border-color: rgba(46, 204, 113, 0.2);
+  }
+
+  &.status-shipped {
+    background: rgba(155, 89, 182, 0.1);
+    color: var(--tertiary-color);
+    border-color: rgba(155, 89, 182, 0.2);
+  }
+
+  &.status-delivered {
+    background: rgba(39, 174, 96, 0.1);
+    color: #186a3b;
+    border-color: rgba(39, 174, 96, 0.2);
+  }
+
+  &.status-finished {
+    background: rgba(30, 132, 73, 0.1);
+    color: #145a32;
+    border-color: rgba(30, 132, 73, 0.2);
+  }
+
+  &.status-rejected {
+    background: rgba(231, 76, 60, 0.1);
+    color: var(--error-color);
+    border-color: rgba(231, 76, 60, 0.2);
+  }
+
+  &.status-cancelled {
+    background: rgba(192, 57, 43, 0.1);
+    color: #922b21;
+    border-color: rgba(192, 57, 43, 0.2);
+  }
+
+  &.status-unknown {
+    background: rgba(189, 195, 199, 0.1);
+    color: #7f8c8d;
+    border-color: rgba(189, 195, 199, 0.2);
+  }
+
+  /* Hover effects */
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 }
 
+/* ==============================
+   Customer Status Badge in Summary
+=============================== */
+.customer-summary {
+  .summary-item:last-child {
+    .summary-value {
+      display: inline-flex;
+      align-items: center;
+
+      &::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 8px;
+        animation: pulse 2s infinite;
+      }
+
+      /* Active customer */
+      &:contains('Active')::before {
+        background: var(--success-color);
+        box-shadow: 0 0 0 rgba(var(--success-color-rgb), 0.4);
+      }
+
+      /* Inactive customer */
+      &:contains('Inactive')::before {
+        background: var(--error-color);
+        box-shadow: 0 0 0 rgba(var(--error-color-rgb), 0.4);
+      }
+    }
+  }
+}
+
+/* Pulse animation for status indicators */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--success-color-rgb), 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(var(--success-color-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--success-color-rgb), 0);
+  }
+}
+
+/* ==============================
+   Enhanced Material Chip Styles
+=============================== */
+::ng-deep {
+  .mat-mdc-chip {
+    transition: all var(--transition-normal) !important;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+}
 /* ==============================
    Actions Column
 =============================== */
@@ -557,31 +809,29 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
-    padding: var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    transition: background-color var(--transition-normal);
+    padding: var(--spacing-sm) 0;
 
-    &:hover {
-      background: var(--background-hover);
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--divider-color);
     }
 
     mat-icon {
       color: var(--primary-color);
-      flex-shrink: 0;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
     .summary-text {
       display: flex;
       flex-direction: column;
-      flex: 1;
+      gap: 2px;
     }
 
     .summary-label {
-      font-size: var(--font-size-xs);
+      font-size: var(--font-size-sm);
       color: var(--text-muted);
       font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .summary-value {
@@ -592,6 +842,21 @@
   }
 }
 
+/* ==============================
+   Responsive Badge Styles
+=============================== */
+@media (max-width: 768px) {
+  .status-badge {
+    padding: 6px 10px;
+    font-size: 0.65rem;
+    min-width: 100px;
+    max-width: 100px;
+  }
+
+  .admin-status-section .mat-mdc-chip {
+    font-size: var(--font-size-sm);
+  }
+}
 /* ==============================
    Full Width Orders Container
 =============================== */
@@ -696,6 +961,24 @@
     }
   }
 
+  // Enhanced Checkbox Styling
+  .admin-active-checkbox-wrapper,
+  .billing-checkbox {
+    .mdc-form-field {
+      align-items: center;
+    }
+
+    .mdc-label {
+      font-size: var(--font-size-base);
+      line-height: 1.4;
+    }
+
+    .mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background {
+      border-color: var(--primary-color);
+      background-color: var(--primary-color);
+    }
+  }
+
   // Paginator styling to match customers list
   .mat-mdc-paginator {
     background: transparent !important;
@@ -778,6 +1061,8 @@
   .status-badge {
     font-size: 0.65rem;
     padding: 4px 8px;
+    min-width: 90px;
+    max-width: 90px;
   }
 }
 

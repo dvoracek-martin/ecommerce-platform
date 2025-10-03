@@ -22,7 +22,7 @@ import {TranslateService} from '@ngx-translate/core';
 })
 export class CustomersAdminListComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource<Customer>();
-  displayedColumns: string[] = ['customer', 'email', 'preferredLanguage', 'actions']; // Fixed to match template
+  displayedColumns: string[] = ['customer', 'email', 'preferredLanguage', 'status', 'actions']; // Added status column
 
   private readonly destroy$ = new Subject<void>();
   searchControl = new FormControl('');
@@ -84,7 +84,9 @@ export class CustomersAdminListComponent implements OnInit, OnDestroy {
 
       return {
         ...customer,
-        preferredLanguage: languageLabel
+        preferredLanguage: languageLabel,
+        // Ensure active property exists, default to true if undefined
+        active: customer.active !== undefined ? customer.active : true
       };
     });
 
@@ -111,7 +113,7 @@ export class CustomersAdminListComponent implements OnInit, OnDestroy {
         fullName.includes(searchStr) ||
         (data.email || '').toLowerCase().includes(searchStr)
         // ||
-        // language.includes(searchStr)
+        // (language || '').includes(searchStr)
       );
     };
   }

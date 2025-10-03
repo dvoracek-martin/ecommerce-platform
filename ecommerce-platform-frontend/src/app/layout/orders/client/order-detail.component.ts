@@ -213,8 +213,9 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  navigateToProduct(productId: number): void {
-    this.router.navigate(['/products', productId]);
+  navigateToProduct(product: ResponseProductDTO): void {
+    const slug = this.productService.slugify(product.translatedName);
+    this.router.navigate([`/products/${product.id}/${slug}`]);
   }
 
   navigateBackToList() {

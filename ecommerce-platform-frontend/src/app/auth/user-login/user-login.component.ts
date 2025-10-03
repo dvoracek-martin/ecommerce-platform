@@ -52,14 +52,16 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.loginForm.invalid) {
       this.snackBar.open('Please fix validation errors.', 'Close', { duration: 5000 });
-      return;
     }
 
     this.loading = true;
     const { email, password, rememberMe } = this.loginForm.value;
 
     this.authService.login(email, password).subscribe({
-      next: () => this.handleLoginSuccess(rememberMe, email),
+      next: () => {
+        this.handleLoginSuccess(rememberMe, email);
+        window.location.reload();
+      },
       error: (err) => this.handleLoginError(err)
     });
   }

@@ -89,7 +89,8 @@
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field" *ngIf="locales.length > 0">
                     <mat-label>{{ 'CUSTOMER.PREFERRED_LANGUAGE' | translate }}</mat-label>
-                    <mat-select formControlName="preferredLanguageId" (selectionChange)="onLanguageChange($event.value)">
+                    <mat-select formControlName="preferredLanguageId"
+                                (selectionChange)="onLanguageChange($event.value)">
                       <!-- Selected Language Display -->
                       <mat-select-trigger>
                         <ng-container *ngIf="selectedLanguage">
@@ -193,12 +194,6 @@
               <!-- Account Settings -->
               <div class="form-section">
                 <div class="form-row">
-                  <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
-                    {{ 'CUSTOMER.ACTIVE_ACCOUNT' | translate }}
-                  </mat-checkbox>
-                </div>
-
-                <div class="form-row">
                   <mat-checkbox formControlName="sameBillingAddress">
                     {{ 'CUSTOMER.SAME_BILLING_ADDRESS' | translate }}
                   </mat-checkbox>
@@ -269,7 +264,7 @@
                     <input formControlName="city" matInput [required]="showBillingAddress">
                     <mat-icon matSuffix>location_city</mat-icon>
                     <mat-error *ngIf="customerForm.get(['billingAddress', 'city'])?.hasError('required')">
-                    {{ 'CUSTOMER.CITY_REQUIRED' | translate }}
+                      {{ 'CUSTOMER.CITY_REQUIRED' | translate }}
                     </mat-error>
                   </mat-form-field>
 
@@ -301,6 +296,15 @@
                   </mat-form-field>
                 </div>
               </div>
+
+              <div class="form-section">
+                <div class="form-row">
+                  <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
+                    {{ 'CUSTOMER.ACTIVE_ACCOUNT' | translate }}
+                  </mat-checkbox>
+                </div>
+              </div>
+
             </div>
           </form>
 
@@ -308,7 +312,8 @@
           <form #passwordFormDirective="ngForm" (ngSubmit)="onChangePassword(passwordFormDirective)"
                 [formGroup]="passwordForm" class="form-one-column-wrapper">
             <div class="form-content">
-              <mat-progress-bar *ngIf="savingPassword" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
+              <mat-progress-bar *ngIf="savingPassword" class="admin-save-progress"
+                                mode="indeterminate"></mat-progress-bar>
 
               <div class="form-section">
                 <h3 class="section-subtitle">
@@ -336,7 +341,8 @@
                       <mat-label>{{ 'CUSTOMER.CONFIRM_NEW_PASSWORD' | translate }}</mat-label>
                       <input formControlName="confirmNewPassword" matInput type="password" required>
                       <mat-icon matSuffix>vpn_key</mat-icon>
-                      <mat-error *ngIf="passwordForm.get(['passwordChange', 'confirmNewPassword'])?.hasError('required')">
+                      <mat-error
+                        *ngIf="passwordForm.get(['passwordChange', 'confirmNewPassword'])?.hasError('required')">
                         {{ 'USER_REGISTRATION.PASSWORD_REQUIRED' | translate }}
                       </mat-error>
                       <mat-error *ngIf="passwordForm.get('passwordChange')?.hasError('mismatch') &&
@@ -564,7 +570,7 @@
               [pageSizeOptions]="[5, 10, 20]"
               showFirstLastButtons
               pageSize="5"
-              [length]="ordersDataSource.data.length">  </mat-paginator>
+              [length]="ordersDataSource.data.length"></mat-paginator>
           </div>
         </div>
       </div>

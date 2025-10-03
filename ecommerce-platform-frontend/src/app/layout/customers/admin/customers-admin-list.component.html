@@ -119,6 +119,18 @@
             </td>
           </ng-container>
 
+          <!-- Status -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="status-header">
+              {{ 'CUSTOMERS.STATUS' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let customer" class="status-cell">
+              <span class="status-badge" [class.active]="customer.active" [class.inactive]="!customer.active">
+                {{ customer.active ? ('CUSTOMERS.ACTIVE' | translate) : ('CUSTOMERS.INACTIVE' | translate) }}
+              </span>
+            </td>
+          </ng-container>
+
           <!-- Actions -->
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef class="actions-header">
@@ -139,7 +151,10 @@
 
           <!-- Header and Row Definitions -->
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <tr mat-row
+              *matRowDef="let row; columns: displayedColumns;"
+              [class.inactive-row]="!row.active">
+          </tr>
         </table>
       </div>
 
