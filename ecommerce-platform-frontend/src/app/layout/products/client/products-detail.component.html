@@ -12,16 +12,15 @@
                 <div class="title-meta">
                   <div class="product-row">
                     <p class="product-subtitle">{{ 'PRODUCTS.ADMIN_SUBTITLE.CREATE' | translate }}</p>
-                    <!-- Tags as Badges -->
                     <div class="tags-badges" *ngIf="product.responseTagDTOS?.length">
-                      <span *ngFor="let tag of product.responseTagDTOS"
-                            class="tag-badge"
-                            [matTooltip]="getTagTooltip(tag)"
-                            matTooltipPosition="above"
-                            (click)="navigateToTag(tag); $event.stopPropagation()">
-                        <mat-icon class="tag-icon" *ngIf="getTagIcon(tag)">{{ getTagIcon(tag) }}</mat-icon>
-                        <span class="tag-text">{{ tag.translatedName }}</span>
-                      </span>
+
+                      <div class="tags-container" *ngIf="product.responseTagDTOS?.length">
+                        <app-tag-badge
+                          *ngFor="let tag of product.responseTagDTOS"
+                          [tag]="tag"
+                          (tagClicked)="onTagClick($event)">
+                        </app-tag-badge>
+                      </div>
                     </div>
                   </div>
                 </div>

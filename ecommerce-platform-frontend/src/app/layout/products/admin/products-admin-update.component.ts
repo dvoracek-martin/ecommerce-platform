@@ -41,6 +41,9 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   formInitialized = false;
   private product: ResponseProductDTO;
 
+  // Track manual URL changes
+  private manualUrlChanges: Set<string> = new Set();
+
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
@@ -85,6 +88,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
             translatedName: this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode)
           }));
           this.initForm();
+          this.setupNameUrlSync();
           this.loadTags();
           this.loadCategories();
           this.loadProduct();
@@ -92,11 +96,41 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
         error: () => {
           this.usedLocales = [{languageCode: 'en', regionCode: 'US', translatedName: 'English'}];
           this.initForm();
+          this.setupNameUrlSync();
           this.loadTags();
           this.loadCategories();
           this.loadProduct();
         }
       });
+  }
+
+  private setupNameUrlSync(): void {
+    this.usedLocales.forEach(locale => {
+      const nameControl = this.productForm.get(`name_${locale.languageCode}_${locale.regionCode}`);
+      const urlControl = this.productForm.get(`url_${locale.languageCode}_${locale.regionCode}`);
+
+      if (nameControl && urlControl) {
+        nameControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(name => {
+          const localeKey = `${locale.languageCode}_${locale.regionCode}`;
+
+          if (!this.manualUrlChanges.has(localeKey) && name && name.trim()) {
+            const normalizedUrl = this.normalizeName(name);
+            urlControl.setValue(normalizedUrl, {emitEvent: false});
+          }
+        });
+
+        urlControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(url => {
+          const localeKey = `${locale.languageCode}_${locale.regionCode}`;
+          if (url && url.trim()) {
+            this.manualUrlChanges.add(localeKey);
+          }
+        });
+      }
+    });
+  }
+
+  private normalizeName(name: string): string {
+    return name.toLowerCase().trim().replace(/\s+/g, '-');
   }
 
   onFileSelected(event: Event): void {
@@ -337,6 +371,11 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
         [`description${suffix}`]: localizedData['description'] || '',
         [`url${suffix}`]: localizedData['url'] || '',
       });
+
+      // Track existing URLs as manual changes
+      if (localizedData['url']) {
+        this.manualUrlChanges.add(localeKey);
+      }
     });
 
     // Tags

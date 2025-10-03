@@ -56,6 +56,7 @@ import {MatDatepicker, MatDatepickerInput, MatDatepickerToggle} from "@angular/m
 import {MatNativeDateModule} from '@angular/material/core';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
 import {SwissCurrencyPipe} from './shared/currency-pipe/swiss-currency.pipe';
+import {TagBadgeComponent} from './shared/tag-badge/tag-badge.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -130,6 +131,7 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     SwissCurrencyPipe,
     MatChipListbox,
     MatChipOption,
+    TagBadgeComponent
   ],
   providers: [
     {

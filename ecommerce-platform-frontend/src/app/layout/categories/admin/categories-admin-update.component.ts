@@ -33,6 +33,9 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   formInitialized = false;
   private category: ResponseCategoryDTO;
 
+  // Track manual URL changes
+  private manualUrlChanges: Set<string> = new Set();
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -76,16 +79,47 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
             translatedName: this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode)
           }));
           this.initForm();
+          this.setupNameUrlSync();
           this.loadTags();
           this.loadCategory();
         },
         error: () => {
           this.usedLocales = [{languageCode: 'en', regionCode: 'US', translatedName: 'English'}];
           this.initForm();
+          this.setupNameUrlSync();
           this.loadTags();
           this.loadCategory();
         }
       });
+  }
+
+  private setupNameUrlSync(): void {
+    this.usedLocales.forEach(locale => {
+      const nameControl = this.categoryForm.get(`name_${locale.languageCode}_${locale.regionCode}`);
+      const urlControl = this.categoryForm.get(`url_${locale.languageCode}_${locale.regionCode}`);
+
+      if (nameControl && urlControl) {
+        nameControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(name => {
+          const localeKey = `${locale.languageCode}_${locale.regionCode}`;
+
+          if (!this.manualUrlChanges.has(localeKey) && name && name.trim()) {
+            const normalizedUrl = this.normalizeName(name);
+            urlControl.setValue(normalizedUrl, {emitEvent: false});
+          }
+        });
+
+        urlControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(url => {
+          const localeKey = `${locale.languageCode}_${locale.regionCode}`;
+          if (url && url.trim()) {
+            this.manualUrlChanges.add(localeKey);
+          }
+        });
+      }
+    });
+  }
+
+  private normalizeName(name: string): string {
+    return name.toLowerCase().trim().replace(/\s+/g, '-');
   }
 
   onFileSelected(event: Event): void {
@@ -156,10 +190,17 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
         contentType: value.contentType
       };
       if (value.base64Data) {
-        mediaItem.base64Data = value.base64Data; // jen nové soubory
+        mediaItem.base64Data = value.base64Data;
       }
       return mediaItem;
     });
+
+    // Get tag IDs directly from the form control value
+    const tagIds = this.categoryForm.get('tagIds')?.value || [];
+
+    // Debug logging to check what's in tagIds
+    console.log('Selected tag IDs:', tagIds);
+    console.log('All tags:', this.allTags);
 
     // Build main payload
     const payload: UpdateCategoryDTO = {
@@ -169,11 +210,13 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
       active: this.categoryForm.get('active')?.value,
       mixable: this.categoryForm.get('mixable')?.value,
       media: mediaPayload,
-      tagIds: this.categoryForm.get('tagIds')?.value,
+      tagIds: tagIds, // Use the array directly - it should already contain IDs
       translatedName: null,
       translatedDescription: null,
       translatedUrl: null
     };
+
+    console.log('Final payload:', payload);
 
     this.categoryService.updateCategory(payload)
       .pipe(takeUntil(this.destroy$))
@@ -227,7 +270,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     });
 
     this.categoryForm = this.fb.group(formConfig);
-    this.formInitialized = true; // Set flag when form is ready
+    this.formInitialized = true;
   }
 
   private loadTags() {
@@ -279,9 +322,14 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
         [`description${suffix}`]: localizedData['description'] || '',
         [`url${suffix}`]: localizedData['url'] || '',
       });
+
+      // Track existing URLs as manual changes
+      if (localizedData['url']) {
+        this.manualUrlChanges.add(localeKey);
+      }
     });
 
-    // Set tag IDs
+    // Set tag IDs - these are already IDs, not objects
     const existingIds = responseCategoryDTO.responseTagDTOS.map(t => t.id);
     this.tagIdsControl.setValue(existingIds);
 
@@ -292,7 +340,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
         objectKey: [m.objectKey],
         contentType: [m.contentType],
         preview: [`data:${m.contentType};base64,${m.base64Data || ''}`],
-        base64Data: [m.base64Data || null] // existující soubory mohou mít null
+        base64Data: [m.base64Data || null]
       }));
     });
 
@@ -302,7 +350,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
 
   private handleSaveSuccess(): void {
     this.saving = false;
-    this.categoryForm.markAsPristine(); // Reset state after a successful save
+    this.categoryForm.markAsPristine();
     this.snackBar.open('Category updated!', 'Close', {duration: 3000});
     this.router.navigate(['/admin/categories']);
   }

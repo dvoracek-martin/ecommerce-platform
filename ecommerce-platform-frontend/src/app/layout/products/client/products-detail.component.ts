@@ -8,12 +8,13 @@ import {switchMap} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
 import {TagService} from '../../../services/tag.service';
 import {CategoryService} from '../../../services/category.service';
+import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
 
 @Component({
   selector: 'app-products-detail',
   templateUrl: './products-detail.component.html',
   standalone: false,
-  styleUrls: ['./products-detail.component.scss']
+  styleUrls: ['./products-detail.component.scss'],
 })
 export class ProductsDetailComponent implements OnInit, OnDestroy {
   product: ResponseProductDTO | null = null;
@@ -94,7 +95,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
         const slugParam = this.route.snapshot.paramMap.get('slug');
         const correctSlug = this.product ? this.slugify(this.product.translatedName) : '';
         if (slugParam !== correctSlug) {
-          this.router.navigate([`/products/${this.product?.id}/${correctSlug}`], { replaceUrl: true });
+          this.router.navigate([`/products/${this.product?.id}/${correctSlug}`], {replaceUrl: true});
         }
 
         if (this.interval) clearInterval(this.interval);
@@ -132,6 +133,15 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
       .replace(/[^\w\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/--+/g, '-');
+  }
+
+  onTagClick(responseTagDTO: ResponseTagDTO): void {
+    console.log(JSON.stringify(responseTagDTO))
+    if (responseTagDTO && responseTagDTO.translatedUrl) {
+      this.router.navigate(['/products'], {
+        queryParams: {tags: responseTagDTO.translatedUrl}
+      });
+    }
   }
 
   private normalizeName(name: string): string {
@@ -201,16 +211,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     if (this.product?.categoryId && this.categoryName) {
       const normalizedCategoryName = this.normalizeName(this.categoryName);
       this.router.navigate(['/products'], {
-        queryParams: { categories: normalizedCategoryName }
-      });
-    }
-  }
-
-  navigateToTag(tag: any): void {
-    if (tag && tag.translatedName) {
-      const normalizedTagName = this.normalizeName(tag.translatedName);
-      this.router.navigate(['/products'], {
-        queryParams: { tags: normalizedTagName }
+        queryParams: {categories: normalizedCategoryName}
       });
     }
   }
@@ -227,6 +228,8 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     this.product.responseTagDTOS.forEach(tag => {
       this.tagService.getTagById(tag.id).subscribe(responseTagDTO => {
         tag.translatedName = this.tagService.getLocalizedName(responseTagDTO);
+        tag.translatedDescription = this.tagService.getLocalizedDescription(responseTagDTO);
+        tag.translatedUrl = this.tagService.getLocalizedUrl(responseTagDTO);
       });
     });
   }
@@ -237,19 +240,5 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
       tags.translatedDescription = this.tagService.getLocalizedDescription(tags);
       tags.translatedUrl = this.tagService.getLocalizedUrl(tags);
     });
-  }
-
-  // Get tag icon based on tag name
-  getTagIcon(tag: any): string {
-    const tagName = tag.translatedName?.toLowerCase() || tag.name?.toLowerCase() || '';
-    const config = this.tagConfig[tagName];
-    return config?.icon || 'label';
-  }
-
-  // Get tag tooltip based on tag name
-  getTagTooltip(tag: any): string {
-    const tagName = tag.translatedName?.toLowerCase() || tag.name?.toLowerCase() || '';
-    const config = this.tagConfig[tagName];
-    return config?.tooltip || tag.translatedDescription || tag.description || `This product is ${tag.translatedName || tag.name}`;
   }
 }

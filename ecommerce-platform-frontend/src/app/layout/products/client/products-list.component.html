@@ -122,12 +122,7 @@
   <!-- Error State -->
   <div *ngIf="error" class="error-section">
     <div class="error-content">
-      <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
       <div class="error-text">{{ error }}</div>
-      <button (click)="navigateHome()" color="warn" mat-stroked-button>
-        <mat-icon>arrow_back</mat-icon>
-        {{ 'COMMON.BACK_TO_HOME' | translate }}
-      </button>
     </div>
   </div>
 

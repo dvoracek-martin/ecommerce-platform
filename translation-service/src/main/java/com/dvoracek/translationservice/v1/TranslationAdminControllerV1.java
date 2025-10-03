@@ -26,10 +26,13 @@ public class TranslationAdminControllerV1 {
     @PostMapping("/save")
     public void saveTranslation(@RequestBody TranslationSaveEvent request) {
         log.info("Received translation save request: {}", request);
-
         if (request.getObjectType() == TranslationObjectsEnum.CATEGORY) {
             translationService.createOrUpdateCategoryTranslation(request.getEntityId(), request.getLocalizedFields());
         } else if (request.getObjectType() == TranslationObjectsEnum.PRODUCT) {
+            translationService.createOrUpdateProductTranslation(request.getEntityId(), request.getLocalizedFields());
+        } if (request.getObjectType() == TranslationObjectsEnum.MIXTURE) {
+            translationService.createOrUpdateProductTranslation(request.getEntityId(), request.getLocalizedFields());
+        } if (request.getObjectType() == TranslationObjectsEnum.TAG) {
             translationService.createOrUpdateProductTranslation(request.getEntityId(), request.getLocalizedFields());
         } else {
             log.warn("Unknown object type: {}", request.getObjectType());

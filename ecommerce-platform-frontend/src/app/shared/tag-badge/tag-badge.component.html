@@ -1,0 +1,7 @@
+<div class="tag-badge"
+     [style.background]="tag.color"
+     [matTooltip]="tag.translatedName"
+     (click)="onTagClick($event)">
+  <mat-icon class="tag-icon" *ngIf="tag.icon">{{ tag.icon }}</mat-icon>
+  <span class="tag-text">{{ tag.translatedName }}</span>
+</div>

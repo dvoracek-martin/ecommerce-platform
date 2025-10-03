@@ -29,8 +29,11 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
   saving = false;
   categories: ResponseCategoryDTO[] = [];
   allTags: ResponseTagDTO[] = [];
-  private readonly
-  usedLocales: ResponseLocaleDto[] = []; destroy$ = new Subject<void>();
+  usedLocales: ResponseLocaleDto[] = [];
+  private readonly destroy$ = new Subject<void>();
+
+  // Track manual URL changes
+  private manualUrlChanges: Set<string> = new Set();
 
   constructor(
     private fb: FormBuilder,
@@ -68,14 +71,45 @@ export class ProductsAdminCreateComponent implements OnInit, OnDestroy {
             translatedName: this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode)
           }));
           this.initForm();
+          this.setupNameUrlSync();
           this.loadTags();
         },
         error: () => {
           this.usedLocales = [{languageCode: 'en', regionCode: 'US', translatedName: 'English'}];
           this.initForm();
+          this.setupNameUrlSync();
           this.loadTags();
         }
       });
+  }
+
+  private setupNameUrlSync(): void {
+    this.usedLocales.forEach(locale => {
+      const nameControl = this.productForm.get(`name_${locale.languageCode}_${locale.regionCode}`);
+      const urlControl = this.productForm.get(`url_${locale.languageCode}_${locale.regionCode}`);
+
+      if (nameControl && urlControl) {
+        nameControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(name => {
+          const localeKey = `${locale.languageCode}_${locale.regionCode}`;
+
+          if (!this.manualUrlChanges.has(localeKey) && name && name.trim()) {
+            const normalizedUrl = this.normalizeName(name);
+            urlControl.setValue(normalizedUrl, {emitEvent: false});
+          }
+        });
+
+        urlControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(url => {
+          const localeKey = `${locale.languageCode}_${locale.regionCode}`;
+          if (url && url.trim()) {
+            this.manualUrlChanges.add(localeKey);
+          }
+        });
+      }
+    });
+  }
+
+  private normalizeName(name: string): string {
+    return name.toLowerCase().trim().replace(/\s+/g, '-');
   }
 
   private initForm(): void {

@@ -29,7 +29,10 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
   allTags: ResponseTagDTO[] = [];
   private readonly destroy$ = new Subject<void>();
   usedLocales: ResponseLocaleDto[] = [];
-  formInitialized = false; // Add this flag
+  formInitialized = false;
+
+  // Track manual URL changes
+  private manualUrlChanges: Set<string> = new Set();
 
   constructor(
     private fb: FormBuilder,
@@ -65,14 +68,45 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
             translatedName: this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode)
           }));
           this.initForm();
+          this.setupNameUrlSync();
           this.loadTags();
         },
         error: () => {
           this.usedLocales = [{ languageCode: 'en', regionCode: 'US', translatedName: 'English' }];
           this.initForm();
+          this.setupNameUrlSync();
           this.loadTags();
         }
       });
+  }
+
+  private setupNameUrlSync(): void {
+    this.usedLocales.forEach(locale => {
+      const nameControl = this.categoryForm.get(`name_${locale.languageCode}_${locale.regionCode}`);
+      const urlControl = this.categoryForm.get(`url_${locale.languageCode}_${locale.regionCode}`);
+
+      if (nameControl && urlControl) {
+        nameControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(name => {
+          const localeKey = `${locale.languageCode}_${locale.regionCode}`;
+
+          if (!this.manualUrlChanges.has(localeKey) && name && name.trim()) {
+            const normalizedUrl = this.normalizeName(name);
+            urlControl.setValue(normalizedUrl, {emitEvent: false});
+          }
+        });
+
+        urlControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(url => {
+          const localeKey = `${locale.languageCode}_${locale.regionCode}`;
+          if (url && url.trim()) {
+            this.manualUrlChanges.add(localeKey);
+          }
+        });
+      }
+    });
+  }
+
+  private normalizeName(name: string): string {
+    return name.toLowerCase().trim().replace(/\s+/g, '-');
   }
 
   private initForm(): void {
@@ -92,7 +126,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
     });
 
     this.categoryForm = this.fb.group(formConfig);
-    this.formInitialized = true; // Set flag when form is ready
+    this.formInitialized = true;
   }
 
   private loadTags() {
@@ -158,15 +192,20 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
       };
     });
 
+    // Get tag IDs directly from the form control value
+    const tagIds = this.categoryForm.get('tagIds')?.value || [];
+
     // Build main payload
     const category: CreateCategoryDTO = {
       localizedFields: localizedFields,
       priority: this.categoryForm.get('priority')?.value,
       active: this.categoryForm.get('active')?.value,
       media: this.categoryForm.get('media')?.value as MediaDTO[],
-      tagIds: this.categoryForm.get('tagIds')?.value.map((t: ResponseTagDTO) => t.id),
+      tagIds: tagIds,
       mixable: this.categoryForm.get('mixable')?.value,
     };
+
+    console.log('Final payload:', category);
 
     this.categoryService.createCategory(category)
       .pipe(takeUntil(this.destroy$))

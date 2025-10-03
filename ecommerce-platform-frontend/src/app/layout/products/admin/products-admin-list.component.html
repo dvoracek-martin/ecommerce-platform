@@ -56,12 +56,7 @@
   </div>
 
   <div *ngIf="!isLoading && !error && filteredProducts.length === 0" class="no-products-section">
-    <mat-icon class="no-products-icon">inventory_2</mat-icon>
     <div class="no-products-text">{{ 'PRODUCTS.NO_PRODUCTS' | translate }}</div>
-    <button (click)="navigateToCreate()" class="admin-new-btn" color="primary" mat-raised-button>
-      <mat-icon>add</mat-icon>
-      {{ 'PRODUCTS.CREATE_FIRST_PRODUCT' | translate }}
-    </button>
   </div>
 
   <div *ngIf="!isLoading && !error && filteredProducts.length > 0" class="products-grid">

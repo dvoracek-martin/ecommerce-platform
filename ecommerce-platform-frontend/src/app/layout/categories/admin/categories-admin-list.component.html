@@ -56,12 +56,7 @@
   </div>
 
   <div *ngIf="!isLoading && !error && filteredCategories.length === 0" class="no-categories-section">
-    <mat-icon class="no-categories-icon">category</mat-icon>
     <div class="no-categories-text">{{ 'CATEGORIES.NO_CATEGORIES' | translate }}</div>
-    <button (click)="navigateToCreate()" class="admin-new-btn" color="primary" mat-raised-button>
-      <mat-icon>add</mat-icon>
-      {{ 'CATEGORIES.CREATE_FIRST_CATEGORY' | translate }}
-    </button>
   </div>
 
   <div *ngIf="!isLoading && !error && filteredCategories.length > 0" class="categories-grid">
