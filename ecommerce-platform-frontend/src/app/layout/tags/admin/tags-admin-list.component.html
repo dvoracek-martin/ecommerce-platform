@@ -56,19 +56,13 @@
   </div>
 
   <div *ngIf="!isLoading && !error && filteredTags.length === 0" class="no-tags-section">
-    <mat-icon class="no-tags-icon">label_off</mat-icon>
     <div class="no-tags-text">{{ 'TAGS.NO_TAGS_FOUND' | translate }}</div>
-    <button (click)="navigateToCreate()" class="admin-new-btn" mat-raised-button color="primary">
-      <mat-icon>add</mat-icon>
-      {{ 'TAGS.CREATE_FIRST_TAG' | translate }}
-    </button>
   </div>
 
   <div *ngIf="!isLoading && !error && filteredTags.length > 0" class="tags-grid">
     <div
       *ngFor="let tag of filteredTags; trackBy: trackById"
-      class="tag-card"
-    >
+      class="tag-card">
       <div (click)="navigateToUpdate(tag.id)" class="card-link">
         <!-- Updated Tag Icon Container - Matching Modal Style -->
         <div class="tag-icon-container" [style.background]="tag.color">
@@ -145,8 +139,7 @@
           (click)="$event.stopPropagation(); openDeleteDialog(tag.id)"
           class="btn-delete"
           mat-icon-button
-          [matTooltip]="'COMMON.DELETE' | translate"
-        >
+          [matTooltip]="'COMMON.DELETE' | translate">
           <mat-icon>delete</mat-icon>
         </button>
       </div>
