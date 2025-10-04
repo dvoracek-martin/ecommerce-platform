@@ -91,28 +91,31 @@
           </div>
 
           <p class="category-description">{{ category.translatedDescription }}</p>
-
-          <div class="tags-badges" *ngIf="category.responseTagDTOS?.length">
-            <div class="tags-container" *ngIf="category.responseTagDTOS?.length">
-              <app-tag-badge
-                *ngFor="let tag of category.responseTagDTOS"
-                [tag]="tag"
-                (tagClicked)="onTagClick($event)">
-              </app-tag-badge>
-            </div>
-          </div>
         </div>
       </div>
 
-      <div class="category-actions">
-        <button
-          (click)="$event.stopPropagation(); openDeleteDialog(category.id)"
-          class="btn-delete"
-          mat-icon-button
-          [matTooltip]="'COMMON.DELETE' | translate"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
+      <div class="bottom-box">
+        <div class="tags-section" *ngIf="category.responseTagDTOS?.length">
+          <div class="tags-container">
+            <app-tag-badge
+              *ngFor="let tag of category.responseTagDTOS"
+              [tag]="tag"
+              (tagClicked)="onTagClick($event)">
+            </app-tag-badge>
+          </div>
+        </div>
+        <div class="bottom-box">
+          <div class="category-actions">
+            <button
+              (click)="$event.stopPropagation(); openDeleteDialog(category.id)"
+              class="btn-delete"
+              mat-icon-button
+              [matTooltip]="'COMMON.DELETE' | translate"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

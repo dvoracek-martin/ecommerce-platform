@@ -330,7 +330,7 @@
       justify-content: space-between;
     }
 
-    .product-bottom-box {
+    .bottom-box {
       flex: 0 0 180px;
       border-left: 1px solid var(--divider-color);
       border-top: none;
@@ -431,7 +431,7 @@
   margin-top: auto;
 }
 
-.product-bottom-box {
+.bottom-box {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
@@ -646,7 +646,7 @@
       height: auto;
     }
 
-    .product-bottom-box {
+    .bottom-box {
       flex: none;
       border-left: none;
       border-top: 1px solid var(--divider-color);
@@ -677,7 +677,7 @@
     grid-template-columns: 1fr;
   }
 
-  .product-bottom-box {
+  .bottom-box {
     flex-direction: column;
     gap: var(--spacing-sm);
   }

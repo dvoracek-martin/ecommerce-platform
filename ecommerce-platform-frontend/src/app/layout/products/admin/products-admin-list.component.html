@@ -88,32 +88,35 @@
           </div>
 
           <p class="product-description">{{ product.translatedDescription }}</p>
-
-          <div class="tags-badges" *ngIf="product.responseTagDTOS?.length">
-            <div class="tags-container" *ngIf="product.responseTagDTOS?.length">
-              <app-tag-badge
-                *ngFor="let tag of product.responseTagDTOS"
-                [tag]="tag"
-                (tagClicked)="onTagClick($event)">
-              </app-tag-badge>
-            </div>
-          </div>
         </div>
       </div>
 
-      <div class="product-actions">
-        <div class="price-section">
-          <span class="price-label">{{ 'PRODUCTS.PRICE' | translate }}:</span>
-          <span class="price">{{ product.price | swissCurrency }}</span>
+      <div class="bottom-box">
+        <div class="tags-section" *ngIf="product.responseTagDTOS?.length">
+          <div class="tags-container">
+            <app-tag-badge
+              *ngFor="let tag of product.responseTagDTOS"
+              [tag]="tag"
+              (tagClicked)="onTagClick($event)">
+            </app-tag-badge>
+          </div>
         </div>
-        <button
-          (click)="$event.stopPropagation(); openDeleteDialog(product.id)"
-          class="btn-delete"
-          mat-icon-button
-          [matTooltip]="'COMMON.DELETE' | translate"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
+        <div class="bottom-box">
+          <div class="product-actions">
+            <div class="price-section">
+              <span class="price-label">{{ 'PRODUCTS.PRICE' | translate }}:</span>
+              <span class="price">{{ product.price | swissCurrency }}</span>
+            </div>
+            <button
+              (click)="$event.stopPropagation(); openDeleteDialog(product.id)"
+              class="btn-delete"
+              mat-icon-button
+              [matTooltip]="'COMMON.DELETE' | translate"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

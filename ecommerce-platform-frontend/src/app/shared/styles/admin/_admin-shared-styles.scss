@@ -249,6 +249,19 @@
   }
 }
 
+.bottom-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-top: auto;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--divider-color);
+}
+
+.tags-section {
+  margin-bottom: var(--spacing-sm);
+}
+
 // Tab Styling
 .locale-tabs {
   ::ng-deep .mat-mdc-tab-header {

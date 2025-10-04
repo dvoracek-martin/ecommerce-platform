@@ -131,12 +131,10 @@
   margin: 0 0 var(--spacing-md) 0;
 }
 
-/* Tags - Matching Design System */
 .tags-container {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
-  margin-top: auto;
 }
 
 /* Product Actions */
@@ -144,9 +142,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--divider-color);
-  margin-top: var(--spacing-md);
 
   .price-section {
     display: flex;
@@ -172,7 +167,7 @@
 
     &:hover {
       color: #c0392b;
-      background: rgba(231, 76, 60, 0.1);
+      background: var(--logout-btn-bg);
       transform: scale(1.1);
     }
   }
