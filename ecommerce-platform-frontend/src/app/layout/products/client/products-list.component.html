@@ -132,72 +132,21 @@
     [class.products-list]="viewMode === 'list'"
     class="products-view">
 
-    <div
-      (click)="goToProduct(product)"
-      *ngFor="let product of displayedProducts; let productIndex = index; trackBy: trackById"
-      class="product-card"
-      [class.list-view]="viewMode === 'list'">
+    <div (click)="goToProduct(product)"
+         *ngFor="let product of displayedProducts; let productIndex = index; trackBy: trackById"
+         class="product-card"
+         [class.list-view]="viewMode === 'list'">
 
       <!-- Media Section -->
-      <div class="product-media">
-        <ng-container *ngIf="product.media?.length; else noMedia">
-          <div class="product-image-container">
-            <!-- Carousel Slides -->
-            <div class="carousel-slides"
-                 [style.transform]="'translateX(' + (-activeSlideIndices[productIndex] * 100) + '%)'">
-              <div *ngFor="let media of product.media; let i = index" class="slide">
-                <img *ngIf="media.contentType?.startsWith('image/')"
-                     [alt]="product.translatedName"
-                     [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                     class="product-image"/>
-                <video *ngIf="media.contentType?.startsWith('video/')"
-                       [attr.muted]="true"
-                       [muted]="true"
-                       autoplay
-                       class="product-image"
-                       loop
-                       playsinline
-                       preload="metadata">
-                  <source
-                    [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                    [type]="media.contentType"/>
-                </video>
-              </div>
-            </div>
-
-            <!-- Carousel Indicators -->
-            <div *ngIf="product.media.length > 1" class="carousel-indicators">
-              <div
-                *ngFor="let media of product.media; let i = index"
-                (click)="$event.stopPropagation(); setActiveSlide(productIndex, i)"
-                [class.active]="activeSlideIndices[productIndex] === i"
-                class="indicator">
-              </div>
-            </div>
-
-            <!-- Quick Actions Overlay -->
-            <div class="product-actions">
-              <button
-                (click)="$event.stopPropagation(); addToWishlist(product)"
-                class="action-btn wishlist-btn">
-                <mat-icon>favorite_border</mat-icon>
-              </button>
-              <button
-                (click)="$event.stopPropagation(); quickView(product)"
-                class="action-btn quickview-btn">
-                <mat-icon>visibility</mat-icon>
-              </button>
-            </div>
-          </div>
-        </ng-container>
-
-        <ng-template #noMedia>
-          <div class="no-media">
-            <mat-icon>photo</mat-icon>
-            <span>{{ 'PRODUCTS.NO_MEDIA' | translate }}</span>
-          </div>
-        </ng-template>
-      </div>
+      <app-card-gallery
+        [item]="product"
+        [itemIndex]="productIndex"
+        [activeSlideIndex]="activeSlideIndices[productIndex]"
+        [showActions]="true"
+        [aspectRatio]="'4/5'"
+        (slideChange)="setActiveSlide($event.index, $event.slideIndex)"
+        (itemClick)="goToProduct($event)">
+      </app-card-gallery>
 
       <!-- Product Details -->
       <div class="product-details">

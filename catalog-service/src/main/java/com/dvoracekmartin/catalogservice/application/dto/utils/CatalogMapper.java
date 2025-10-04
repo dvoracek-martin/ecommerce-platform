@@ -106,7 +106,9 @@ public interface CatalogMapper {
     @Mapping(target = "products", ignore = true)
     @Mapping(target = "categories", ignore = true)
     @Mapping(target = "mixtures", ignore = true)
-    ResponseTagDTO mapTagToResponseTagDTO(Tag tag);
+    default ResponseTagDTO mapTagToResponseTagDTO(Tag tag){
+        return mapTagToResponseTagDTO(tag, Map.of());
+    }
 
     default ResponseTagDTO mapTagToResponseTagDTO(Tag finalTag, Map<String, LocalizedField> translationMap) {
         return new ResponseTagDTO(

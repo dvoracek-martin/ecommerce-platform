@@ -58,45 +58,27 @@
   <div *ngIf="!isLoading && !error && filteredProducts.length === 0" class="no-products-section">
     <div class="no-products-text">{{ 'PRODUCTS.NO_PRODUCTS' | translate }}</div>
   </div>
-
   <div *ngIf="!isLoading && !error && filteredProducts.length > 0" class="products-grid">
-    <div
-      *ngFor="let product of filteredProducts; let prodIndex = index; trackBy: trackById"
-      class="product-card"
-    >
-      <div (click)="navigateToUpdate(product.id)" class="card-link">
+    <div *ngFor="let product of filteredProducts; let productIndex = index; trackBy: trackById"
+         class="product-card">
+      <div class="card-link">
         <ng-container *ngIf="product.media?.length; else noMedia">
-          <div class="product-image-container">
-            <!-- Carousel Slides -->
-            <div class="carousel-slides"
-                 [style.transform]="'translateX(' + (-activeSlideIndices[prodIndex] * 100) + '%)'">
-              <div *ngFor="let media of product.media; let i = index" class="slide">
-                <img *ngIf="media.contentType?.startsWith('image/')"
-                     [alt]="product.translatedName"
-                     [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                     class="product-image"/>
-                <video *ngIf="media.contentType?.startsWith('video/')"
-                       [attr.muted]="true"
-                       [muted]="true"
-                       autoplay
-                       class="product-image"
-                       loop
-                       playsinline
-                       preload="metadata">
-                  <source
-                    [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                    [type]="media.contentType"/>
-                </video>
-              </div>
-            </div>
-          </div>
+          <!-- Use the Card Gallery Component -->
+          <app-card-gallery
+            [item]="product"
+            [itemIndex]="productIndex"
+            [activeSlideIndex]="activeSlideIndices[productIndex]"
+            [showActions]="false"
+            [aspectRatio]="'4/5'"
+            (slideChange)="setActiveSlide($event.index, $event.slideIndex)"
+            (itemClick)="navigateToUpdate(product.id)">
+          </app-card-gallery>
         </ng-container>
-
         <ng-template #noMedia>
           <div class="no-media">{{ 'PRODUCTS.NO_MEDIA' | translate }}</div>
         </ng-template>
 
-        <div class="product-details">
+        <div class="product-details" (click)="navigateToUpdate(product.id)">
           <div class="product-header">
             <h2 class="product-name">{{ product.translatedName }}</h2>
             <div class="product-status" [class.active]="product.active" [class.inactive]="!product.active">
@@ -107,11 +89,13 @@
 
           <p class="product-description">{{ product.translatedDescription }}</p>
 
-          <div *ngIf="product.responseTagDTOS?.length" class="card-tags">
-            <div class="tags-container">
-              <span *ngFor="let tag of product.responseTagDTOS" class="tag">
-                {{ tag.translatedName }}
-              </span>
+          <div class="tags-badges" *ngIf="product.responseTagDTOS?.length">
+            <div class="tags-container" *ngIf="product.responseTagDTOS?.length">
+              <app-tag-badge
+                *ngFor="let tag of product.responseTagDTOS"
+                [tag]="tag"
+                (tagClicked)="onTagClick($event)">
+              </app-tag-badge>
             </div>
           </div>
         </div>

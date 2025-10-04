@@ -334,13 +334,16 @@ public class CatalogServiceImpl implements CatalogService {
 
     private ResponseProductDTO mapProductToResponseDTO(Product product) {
         List<MediaDTO> mediaDTOs = retrieveMediaForEntity(product.getId().toString(), BucketName.PRODUCTS);
+
         return new ResponseProductDTO(
                 product.getId(),
                 getTranslationMap(createRequestForTranslationGetOrDelete(product.getId(), TranslationObjectsEnum.PRODUCT)),
                 product.getPriority(),
                 product.isActive(),
                 mediaDTOs,
-                product.getTags().stream().map(catalogMapper::mapTagToResponseTagDTO).toList(),
+                product.getTags().stream().map(
+                        tag -> catalogMapper.mapTagToResponseTagDTO(tag, getTranslationMap(createRequestForTranslationGetOrDelete(tag.getId(), TranslationObjectsEnum.TAG)))
+                ).toList(),
                 product.getCategory().getId(),
                 product.getPrice(),
                 product.getWeightGrams(),

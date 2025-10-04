@@ -44,17 +44,6 @@
   &.info { color: var(--primary-color); }
   &.success { color: var(--success-color); }
 
-  .title-icon {
-    font-size: 3rem;
-    background: rgba(0,0,0,0.05);
-    border-radius: 50%;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s;
-  }
-
   .dialog-title {
     margin: 0;
     font-size: var(--font-size-xxl);

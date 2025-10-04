@@ -1,403 +1,82 @@
 .tag-badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: 8px 16px;
-  border-radius: var(--radius-lg);
-  font-size: var(--font-size-sm);
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 11px !important;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   cursor: pointer;
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
+  transition: all 0.15s ease;
   border: 1px solid transparent;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 15px var(--shadow-medium);
-  min-width: 80px;
-  max-width: 200px;
-  text-align: center;
+  box-shadow: 0 1px 4px var(--shadow-medium);
+  min-width: 50px;
+  max-width: 100px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  // Modern gradient background with shine effect
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent
-    );
-    transition: left 0.7s ease;
-    z-index: 1;
-  }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px var(--shadow-medium);
-
-    &::before {
-      left: 100%;
-    }
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 15px var(--shadow-medium);
-  }
+  line-height: 1.2;
 
   // Icon styling
   .tag-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    z-index: 2;
-    position: relative;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-    transition: all var(--transition-normal);
+    font-size: 12px !important;
+    width: 12px !important;
+    height: 12px !important;
+    flex-shrink: 0;
+    line-height: 1;
   }
 
   // Text styling
   .tag-text {
-    z-index: 2;
-    position: relative;
-    font-weight: 700;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    transition: all var(--transition-normal);
+    font-size: 11px !important;
+    font-weight: 600;
     flex: 1;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.2;
+    white-space: nowrap;
   }
 
-  // Hover effects for icon and text
-  &:hover {
+  // Compact variant
+  &.tag-compact {
+    padding: 3px 6px !important;
+    font-size: 10px !important;
+    min-width: 45px;
+    max-width: 90px;
+    border-radius: 6px;
+    gap: 3px;
+
     .tag-icon {
-      transform: scale(1.2) rotate(5deg);
+      font-size: 11px !important;
+      width: 11px !important;
+      height: 11px !important;
     }
 
     .tag-text {
-      letter-spacing: 0.8px;
+      font-size: 10px !important;
     }
   }
 
-  // Color variants with modern gradients
-  &[style*="background: #"] {
-    // Default styling for colored tags
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-
-    .tag-icon, .tag-text {
-      color: white;
-    }
-
-    // Enhanced shadow based on background color
-    box-shadow:
-      0 4px 15px rgba(0, 0, 0, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-  }
-
-  // Specific color enhancements for common tag colors
-  &[style*="background: #3498db"], // Blue
-  &[style*="background: #2980b9"] {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
-  }
-
-  &[style*="background: #2ecc71"], // Green
-  &[style*="background: #27ae60"] {
-    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%) !important;
-  }
-
-  &[style*="background: #e74c3c"], // Red
-  &[style*="background: #c0392b"] {
-    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
-  }
-
-  &[style*="background: #f39c12"], // Orange
-  &[style*="background: #d35400"] {
-    background: linear-gradient(135deg, #f39c12 0%, #d35400 100%) !important;
-  }
-
-  &[style*="background: #9b59b6"], // Purple
-  &[style*="background: #8e44ad"] {
-    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%) !important;
-  }
-
-  &[style*="background: #34495e"], // Dark Blue
-  &[style*="background: #2c3e50"] {
-    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%) !important;
-  }
-
-  &[style*="background: #f1c40f"], // Yellow
-  &[style*="background: #f39c12"] {
-    background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%) !important;
-    color: #2c3e50; // Dark text for better contrast on yellow
-
-    .tag-icon, .tag-text {
-      color: #2c3e50;
-    }
-  }
-
-  // Fallback for tags without specific colors
-  &:not([style*="background: #"]) {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-
-    .tag-icon, .tag-text {
-      color: white;
-    }
-  }
-
-  // Active state for selected tags
-  &.active {
-    transform: scale(1.05);
-    box-shadow:
-      0 6px 20px var(--shadow-medium),
-      0 0 0 2px rgba(255, 255, 255, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.4);
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      border-radius: var(--radius-lg);
-      background: linear-gradient(45deg,
-        rgba(255, 255, 255, 0.8),
-        rgba(255, 255, 255, 0.4),
-        rgba(255, 255, 255, 0.8)
-      );
-      z-index: 0;
-      animation: borderGlow 2s ease-in-out infinite;
-    }
-  }
-
-  // Disabled state
-  &.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-
-    &:hover {
-      transform: none;
-      box-shadow: 0 4px 15px var(--shadow-medium);
-
-      &::before {
-        left: -100%;
-      }
-    }
-  }
-
-  // Size variants
+  // Small variant - balanced size
   &.tag-small {
-    padding: 4px 10px;
-    font-size: var(--font-size-xs);
-    min-width: 60px;
-    max-width: 150px;
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    min-width: 3rem;
+    max-width: 10rem;
+    border-radius: 8px;
+    gap: 4px;
 
     .tag-icon {
-      font-size: 14px;
-      width: 14px;
-      height: 14px;
-    }
-  }
-
-  &.tag-large {
-    padding: 12px 20px;
-    font-size: var(--font-size-base);
-    min-width: 100px;
-    max-width: 250px;
-
-    .tag-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-  }
-
-  // Outline variant
-  &.tag-outline {
-    background: transparent !important;
-    border: 2px solid;
-    box-shadow: none;
-
-    &::before {
-      display: none;
+      font-size: 12px !important;
+      width: 12px !important;
+      height: 12px !important;
     }
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.1) !important;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px var(--shadow-medium);
-    }
-  }
-
-  // Glass morphism variant
-  &.tag-glass {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-
-    .tag-icon, .tag-text {
-      color: white;
-    }
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.2) !important;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-  }
-}
-
-// Border glow animation for active state
-@keyframes borderGlow {
-  0%, 100% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.02);
-  }
-}
-
-// Pulse animation for attention-grabbing tags
-@keyframes tagPulse {
-  0% {
-    box-shadow: 0 4px 15px var(--shadow-medium);
-  }
-  50% {
-    box-shadow: 0 4px 25px var(--shadow-medium), 0 0 20px rgba(255, 255, 255, 0.4);
-  }
-  100% {
-    box-shadow: 0 4px 15px var(--shadow-medium);
-  }
-}
-
-.tag-badge.pulse {
-  animation: tagPulse 2s ease-in-out infinite;
-}
-
-// Stacked tags container
-.tags-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  align-items: center;
-
-  &.tags-stacked {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  &.tags-centered {
-    justify-content: center;
-  }
-
-  &.tags-compact {
-    gap: var(--spacing-xs);
-
-    .tag-badge {
-      margin-bottom: var(--spacing-xs);
-    }
-  }
-}
-
-// Responsive design
-@media (max-width: 768px) {
-  .tag-badge {
-    padding: 6px 12px;
-    font-size: var(--font-size-xs);
-    min-width: 70px;
-    max-width: 150px;
-
-    .tag-icon {
-      font-size: 14px;
-      width: 14px;
-      height: 14px;
-    }
-
-    &.tag-large {
-      padding: 10px 16px;
-      font-size: var(--font-size-sm);
-      min-width: 90px;
-      max-width: 200px;
-    }
-  }
-
-  .tags-container {
-    gap: var(--spacing-xs);
-
-    &.tags-compact {
-      gap: 4px;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .tag-badge {
-    padding: 5px 10px;
-    font-size: 0.65rem;
-    min-width: 60px;
-    max-width: 120px;
-
-    .tag-icon {
-      font-size: 12px;
-      width: 12px;
-      height: 12px;
-    }
-  }
-}
-
-// Dark theme adjustments
-@media (prefers-color-scheme: dark) {
-  .tag-badge {
-    &.tag-outline {
-      &:hover {
-        background: rgba(255, 255, 255, 0.05) !important;
-      }
-    }
-
-    &.tag-glass {
-      background: rgba(0, 0, 0, 0.2) !important;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-
-      &:hover {
-        background: rgba(0, 0, 0, 0.3) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-    }
-  }
-}
-
-// Print styles
-@media print {
-  .tag-badge {
-    box-shadow: none !important;
-    border: 1px solid #ccc !important;
-    background: #f8f8f8 !important;
-    color: #333 !important;
-
-    &::before,
-    &::after {
-      display: none !important;
-    }
-
-    .tag-icon, .tag-text {
-      color: #333 !important;
+    .tag-text {
+      font-size: 11px !important;
     }
   }
 }

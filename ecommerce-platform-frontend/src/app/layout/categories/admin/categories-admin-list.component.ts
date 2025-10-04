@@ -9,6 +9,7 @@ import {FormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TagService} from '../../../services/tag.service';
+import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
 
 @Component({
   selector: 'app-categories-admin-list',
@@ -163,10 +164,18 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
       category.translatedDescription = this.categoryService.getLocalizedDescription(category);
       category.translatedUrl = this.categoryService.getLocalizedUrl(category);
       category.responseTagDTOS.forEach(tag => {
-        this.tagService.getTagById(tag.id).subscribe(responseTagDTO => {
-          tag.translatedName = this.tagService.getLocalizedName(responseTagDTO);
-        });
+          tag.translatedName = this.tagService.getLocalizedName(tag);
+          tag.translatedDescription = this.tagService.getLocalizedDescription(tag);
+          tag.translatedUrl = this.tagService.getLocalizedUrl(tag);
       });
+    });
+  }
+
+  onTagClick(responseTagDTO: ResponseTagDTO): void {
+    console.log(JSON.stringify(responseTagDTO));
+    this.router.navigate(['/products'], {
+      queryParams: {tags: responseTagDTO.translatedUrl}
+    }).then(() => {
     });
   }
 }

@@ -229,13 +229,10 @@
       </div>
     </div>
   </div>
-
   <!-- Loading Overlay -->
   <div *ngIf="isAddingToCart" class="mixture-loading-overlay">
     <div class="mixture-loading-content">
-      <div class="spinner-container">
-        <mat-spinner diameter="60"></mat-spinner>
-      </div>
+      <mat-spinner diameter="60" class="centered-spinner"></mat-spinner>
       <h3>{{ 'MIXTURE.ADDING_TO_CART' | translate }}</h3>
       <p>{{ 'MIXTURE.PLEASE_WAIT' | translate }}</p>
     </div>

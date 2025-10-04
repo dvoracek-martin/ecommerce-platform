@@ -61,63 +61,22 @@
 
   <div *ngIf="!isLoading && !error && filteredCategories.length > 0" class="categories-grid">
     <div
-      *ngFor="let category of filteredCategories; let catIndex = index; trackBy: trackById"
+      *ngFor="let category of filteredCategories; let categoryIndex = index; trackBy: trackById"
       class="category-card"
     >
       <div (click)="navigateToUpdate(category.id)" class="card-link">
         <ng-container *ngIf="category.media?.length; else noMedia">
-          <div class="category-image-container">
-            <!-- Carousel Slides -->
-            <div class="carousel-slides"
-                 [style.transform]="'translateX(' + (-activeSlideIndices[catIndex] * 100) + '%)'">
-              <div *ngFor="let media of category.media; let i = index" class="slide">
-                <img *ngIf="media.contentType?.startsWith('image/')"
-                     [alt]="category.translatedName"
-                     [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                     class="category-image"/>
-                <video *ngIf="media.contentType?.startsWith('video/')"
-                       [attr.muted]="true"
-                       [muted]="true"
-                       autoplay
-                       class="category-image"
-                       loop
-                       playsinline
-                       preload="metadata">
-                  <source
-                    [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                    [type]="media.contentType"/>
-                </video>
-              </div>
-            </div>
-
-            <!-- Carousel Controls -->
-            <div *ngIf="category.media?.length > 1" class="carousel-controls">
-              <button
-                (click)="$event.stopPropagation(); setActiveSlide(catIndex, (activeSlideIndices[catIndex] - 1 + category.media.length) % category.media.length)"
-                class="carousel-btn"
-                mat-icon-button>
-                <mat-icon>chevron_left</mat-icon>
-              </button>
-              <button
-                (click)="$event.stopPropagation(); setActiveSlide(catIndex, (activeSlideIndices[catIndex] + 1) % category.media.length)"
-                class="carousel-btn"
-                mat-icon-button>
-                <mat-icon>chevron_right</mat-icon>
-              </button>
-            </div>
-
-            <!-- Carousel Indicators -->
-            <div *ngIf="category.media?.length > 1" class="carousel-indicators">
-              <button
-                (click)="$event.stopPropagation(); setActiveSlide(catIndex, i)"
-                *ngFor="let media of category.media; let i = index; trackBy: trackByObjectKey"
-                [class.active]="activeSlideIndices[catIndex] === i"
-                class="indicator"
-              ></button>
-            </div>
-          </div>
+          <!-- Use the Card Gallery Component -->
+          <app-card-gallery
+            [item]="category"
+            [itemIndex]="categoryIndex"
+            [activeSlideIndex]="activeSlideIndices[categoryIndex]"
+            [showActions]="false"
+            [aspectRatio]="'4/5'"
+            (slideChange)="setActiveSlide($event.index, $event.slideIndex)"
+            (itemClick)="navigateToUpdate(category.id)">
+          </app-card-gallery>
         </ng-container>
-
         <ng-template #noMedia>
           <div class="no-media">{{ 'CATEGORIES.NO_MEDIA' | translate }}</div>
         </ng-template>
@@ -133,11 +92,13 @@
 
           <p class="category-description">{{ category.translatedDescription }}</p>
 
-          <div *ngIf="category.responseTagDTOS?.length" class="card-tags">
-            <div class="tags-container">
-              <span *ngFor="let tag of category.responseTagDTOS" class="tag">
-                {{ tag.translatedName }}
-              </span>
+          <div class="tags-badges" *ngIf="category.responseTagDTOS?.length">
+            <div class="tags-container" *ngIf="category.responseTagDTOS?.length">
+              <app-tag-badge
+                *ngFor="let tag of category.responseTagDTOS"
+                [tag]="tag"
+                (tagClicked)="onTagClick($event)">
+              </app-tag-badge>
             </div>
           </div>
         </div>

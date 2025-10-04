@@ -116,71 +116,15 @@
 
 
             <!-- Gallery Box -->
-            <div class="gallery-card" *ngIf="product.media?.length">
-              <h3 class="gallery-title">
-                <mat-icon>photo_library</mat-icon>
-                {{ 'PRODUCTS.GALLERY' | translate }}
-              </h3>
-
-              <div class="compact-gallery">
-                <!-- Main Image -->
-                <div class="compact-main-image" (click)="openGallery()">
-                  <div class="carousel-slides" [style.transform]="'translateX(' + (-activeSlideIndex * 100) + '%)'">
-                    <div *ngFor="let media of product.media; let i = index" class="slide">
-                      <img *ngIf="media.contentType?.startsWith('image/')"
-                           [alt]="product.translatedName"
-                           [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                           class="product-image"/>
-                      <video *ngIf="media.contentType?.startsWith('video/')"
-                             [muted]="true"
-                             autoplay
-                             loop
-                             playsinline
-                             preload="metadata"
-                             class="product-image">
-                        <source [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                                [type]="media.contentType"/>
-                      </video>
-                    </div>
-                  </div>
-
-                  <!-- Navigation -->
-                  <div *ngIf="product.media.length > 1" class="compact-nav">
-                    <button class="nav-btn prev" (click)="$event.stopPropagation(); prevSlide()">
-                      <mat-icon>chevron_left</mat-icon>
-                    </button>
-                    <button class="nav-btn next" (click)="$event.stopPropagation(); nextSlide()">
-                      <mat-icon>chevron_right</mat-icon>
-                    </button>
-                  </div>
-
-                  <!-- Gallery Overlay -->
-                  <div class="gallery-overlay" (click)="openGallery(); $event.stopPropagation()">
-                    <mat-icon>zoom_out_map</mat-icon>
-                  </div>
-
-                  <!-- Slide Counter -->
-                  <div class="slide-counter" *ngIf="product.media.length > 1">
-                    {{ activeSlideIndex + 1 }} / {{ product.media.length }}
-                  </div>
-                </div>
-
-                <!-- Thumbnails -->
-                <div class="compact-thumbnails" *ngIf="product.media.length > 1">
-                  <div *ngFor="let media of product.media; let i = index"
-                       class="thumbnail"
-                       [class.active]="i === activeSlideIndex"
-                       (click)="goToSlide(i)">
-                    <img *ngIf="media.contentType?.startsWith('image/')"
-                         [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-                         [alt]="'Thumbnail ' + (i + 1)"/>
-                    <div *ngIf="media.contentType?.startsWith('video/')" class="video-thumbnail">
-                      <mat-icon>play_circle_outline</mat-icon>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <app-compact-gallery
+              *ngIf="product.media?.length"
+              [product]="product"
+              [activeSlideIndex]="activeSlideIndex"
+              (slideChange)="goToSlide($event)"
+              (openGallery)="openGallery()"
+              (prevSlide)="prevSlide()"
+              (nextSlide)="nextSlide()">
+            </app-compact-gallery>
 
             <!-- Back Button -->
             <button (click)="backToList()" mat-stroked-button class="back-btn">
@@ -195,50 +139,12 @@
 </div>
 
 <!-- Full-screen Gallery Modal -->
-<div class="gallery-modal" [class.active]="isGalleryOpen">
-  <div class="gallery-content">
-    <button class="popup-close-btn" (click)="closeGallery()">
-      <mat-icon>close</mat-icon>
-    </button>
-
-    <div class="gallery-main-image">
-      <img *ngIf="product?.media[activeSlideIndex]?.contentType?.startsWith('image/')"
-           [src]="'data:' + product.media[activeSlideIndex].contentType + ';base64,' + product.media[activeSlideIndex].base64Data"
-           [alt]="product.translatedName"
-           class="gallery-image"/>
-      <video *ngIf="product?.media[activeSlideIndex]?.contentType?.startsWith('video/')"
-             [muted]="true"
-             autoplay
-             loop
-             controls
-             class="gallery-image">
-        <source
-          [src]="'data:' + product.media[activeSlideIndex].contentType + ';base64,' + product.media[activeSlideIndex].base64Data"
-          [type]="product.media[activeSlideIndex].contentType"/>
-      </video>
-    </div>
-
-    <div class="gallery-controls">
-      <button class="nav-btn prev" (click)="prevSlide()" *ngIf="product?.media.length > 1">
-        <mat-icon>chevron_left</mat-icon>
-      </button>
-      <button class="nav-btn next" (click)="nextSlide()" *ngIf="product?.media.length > 1">
-        <mat-icon>chevron_right</mat-icon>
-      </button>
-    </div>
-
-    <div class="gallery-thumbnails" *ngIf="product?.media.length > 1">
-      <div *ngFor="let media of product.media; let i = index"
-           class="thumbnail"
-           [class.active]="i === activeSlideIndex"
-           (click)="goToSlide(i)">
-        <img *ngIf="media.contentType?.startsWith('image/')"
-             [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
-             [alt]="'Thumbnail ' + (i + 1)"/>
-        <div *ngIf="media.contentType?.startsWith('video/')" class="video-thumbnail">
-          <mat-icon>play_circle_outline</mat-icon>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<app-fullscreen-gallery
+  [product]="product"
+  [activeSlideIndex]="activeSlideIndex"
+  [isOpen]="isGalleryOpen"
+  (close)="closeGallery()"
+  (slideChange)="goToSlide($event)"
+  (prevSlide)="prevSlide()"
+  (nextSlide)="nextSlide()">
+</app-fullscreen-gallery>

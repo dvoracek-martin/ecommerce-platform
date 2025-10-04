@@ -57,6 +57,9 @@ import {MatNativeDateModule} from '@angular/material/core';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
 import {SwissCurrencyPipe} from './shared/currency-pipe/swiss-currency.pipe';
 import {TagBadgeComponent} from './shared/tag-badge/tag-badge.component';
+import {CompactGalleryComponent} from './shared/galleries/gallery-box/compact-gallery.component';
+import {FullscreenGalleryComponent} from './shared/galleries/full-screen-gallery-modal/full-screen-gallery.component';
+import {CardGalleryComponent} from './shared/galleries/card-gallery/card-gallery.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -131,7 +134,10 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     SwissCurrencyPipe,
     MatChipListbox,
     MatChipOption,
-    TagBadgeComponent
+    TagBadgeComponent,
+    CompactGalleryComponent,
+    FullscreenGalleryComponent,
+    CardGalleryComponent,
   ],
   providers: [
     {

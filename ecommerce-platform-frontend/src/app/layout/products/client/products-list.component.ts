@@ -120,17 +120,20 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     this.initializeCarouselsForDisplayedProducts();
   }
 
-  private initializeCarouselsForDisplayedProducts(): void {
-    // Only initialize carousels for newly added products
+
+  initializeCarouselsForDisplayedProducts(): void {
     const newProductsStartIndex = (this.currentPage - 1) * this.PRODUCTS_PER_PAGE;
 
     for (let i = newProductsStartIndex; i < this.displayedProducts.length; i++) {
       const product = this.displayedProducts[i];
-      const productIndex = i;
-
-      this.activeSlideIndices[productIndex] = 0;
       const mediaCount = product.media?.length || 0;
-      this.startCarousel(productIndex, mediaCount);
+
+      this.activeSlideIndices[i] = 0;
+
+      // Only start carousel if there are multiple valid media items
+      if (mediaCount > 1) {
+        this.startCarousel(i, mediaCount);
+      }
     }
   }
 
@@ -448,7 +451,16 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   // Carousel Methods
   initializeCarousels(): void {
     this.activeSlideIndices = [];
-    this.updateDisplayedProducts();
+    this.displayedProducts.forEach((product, index) => {
+      // Only initialize carousel if there are multiple media items
+      const mediaCount = product.media?.length || 0;
+      this.activeSlideIndices[index] = 0;
+
+      // Only start carousel if there are multiple valid media items
+      if (mediaCount > 1) {
+        this.startCarousel(index, mediaCount);
+      }
+    });
   }
 
   startCarousel(productIndex: number, mediaCount: number): void {

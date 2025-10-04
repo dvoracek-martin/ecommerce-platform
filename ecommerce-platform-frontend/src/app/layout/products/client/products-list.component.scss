@@ -474,34 +474,6 @@
     }
   }
 
-  .carousel-indicators {
-    position: absolute;
-    bottom: var(--spacing-md);
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: var(--spacing-xs);
-    z-index: 3;
-
-    .indicator {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.5);
-      cursor: pointer;
-      transition: all var(--transition-normal);
-
-      &.active {
-        background: white;
-        transform: scale(1.2);
-      }
-
-      &:hover {
-        background: white;
-      }
-    }
-  }
-
   .product-actions {
     position: absolute;
     top: var(--spacing-md);
