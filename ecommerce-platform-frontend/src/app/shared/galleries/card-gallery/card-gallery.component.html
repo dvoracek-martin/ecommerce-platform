@@ -1,0 +1,35 @@
+<div class="card-gallery" [style.aspect-ratio]="aspectRatio" (click)="onItemClick()">
+  <ng-container *ngIf="item.media?.length; else noMedia">
+    <div class="gallery-container">
+      <!-- Carousel Slides -->
+      <div class="carousel-slides"
+           [style.transform]="'translateX(' + (-activeSlideIndex * 100) + '%)'">
+        <div *ngFor="let media of item.media; let i = index" class="slide">
+          <img *ngIf="media.contentType?.startsWith('image/')"
+               [alt]="item.translatedName"
+               [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+               class="gallery-image"/>
+          <video *ngIf="media.contentType?.startsWith('video/')"
+                 [attr.muted]="true"
+                 [muted]="true"
+                 autoplay
+                 class="gallery-image"
+                 loop
+                 playsinline
+                 preload="metadata">
+            <source
+              [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+              [type]="media.contentType"/>
+          </video>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #noMedia>
+    <div class="no-media">
+      <mat-icon>photo</mat-icon>
+      <span>{{ 'COMMON.NO_MEDIA' | translate }}</span>
+    </div>
+  </ng-template>
+</div>

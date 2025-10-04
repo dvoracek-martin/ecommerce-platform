@@ -1,0 +1,50 @@
+<div class="gallery-modal" [class.active]="isOpen">
+  <div class="modal-backdrop" (click)="onBackdropClick($event)"></div>
+  <div class="gallery-content">
+    <!-- Move the close button INSIDE gallery-main-image -->
+    <div class="gallery-main-image">
+      <button class="popup-close-btn" (click)="onClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+
+      <img *ngIf="product?.media[activeSlideIndex]?.contentType?.startsWith('image/')"
+           [src]="'data:' + product.media[activeSlideIndex].contentType + ';base64,' + product.media[activeSlideIndex].base64Data"
+           [alt]="product.translatedName"
+           class="gallery-image"/>
+      <video *ngIf="product?.media[activeSlideIndex]?.contentType?.startsWith('video/')"
+             [muted]="true"
+             autoplay
+             loop
+             controls
+             class="gallery-image">
+        <source
+          [src]="'data:' + product.media[activeSlideIndex].contentType + ';base64,' + product.media[activeSlideIndex].base64Data"
+          [type]="product.media[activeSlideIndex].contentType"/>
+      </video>
+    </div>
+
+    <div class="gallery-controls">
+      <button class="nav-btn prev" (click)="onPrevSlide()" *ngIf="product?.media.length > 1">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button class="nav-btn next" (click)="onNextSlide()" *ngIf="product?.media.length > 1">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+
+    <!-- Thumbnails for now commented out -->
+    <!--    <div class="gallery-thumbnails" *ngIf="product?.media.length > 1">-->
+    <!--      <div *ngFor="let media of product.media; let i = index"-->
+    <!--           class="thumbnail"-->
+    <!--           [class.active]="i === activeSlideIndex"-->
+    <!--           (click)="onGoToSlide(i)">-->
+    <!--        <img *ngIf="media.contentType?.startsWith('image/')"-->
+    <!--             [src]="'data:' + media.contentType + ';base64,' + media.base64Data"-->
+    <!--             [alt]="'Thumbnail ' + (i + 1)"/>-->
+    <!--        <div *ngIf="media.contentType?.startsWith('video/')" class="video-thumbnail">-->
+    <!--          <mat-icon>play_circle_outline</mat-icon>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
+  </div>
+</div>

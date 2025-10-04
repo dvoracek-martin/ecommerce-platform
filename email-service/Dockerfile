@@ -2,7 +2,7 @@ FROM openjdk:21-jdk-slim
 
 WORKDIR /app
 
-COPY target/shipping-service-*.jar app.jar
+COPY target/email-service-*.jar app.jar
 
 EXPOSE 8087
 

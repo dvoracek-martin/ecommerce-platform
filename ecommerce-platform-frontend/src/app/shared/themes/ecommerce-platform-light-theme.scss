@@ -16,24 +16,51 @@
   --success-color: #2ecc71;
   --error-color: #e74c3c;
   --warning-color: #f39c12;
+  --info-color: #3498db;
 
   // Colors - Background
   --background-light: #f9fafb;
   --background-card: #ffffff;
   --background-hover: #f1f3f5;
+  --background-dark: #2c3e50;
 
   // Colors - Text
   --text-primary: #2c3e50;
   --text-secondary: #34495e;
   --text-muted: #6c757d;
   --text-light: #95a5a6;
+  --text-white: #ffffff;
 
   // Colors - UI Elements
   --icon-color: #34495e;
   --border-color: #e0e0e0;
   --divider-color: #e9ecef;
+  --overlay-dark: rgba(0, 0, 0, 0.9);
+  --overlay-light: rgba(0, 0, 0, 0.5);
+  --overlay-white: rgba(255, 255, 255, 0.15);
 
-  // Colors - Shadows
+  // Colors - Gradients
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-text: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+
+  // Colors - Status
+  --status-pending-bg: #ffeaa7;
+  --status-pending-text: #d35400;
+  --status-confirmed-bg: #d6eaf8;
+  --status-confirmed-text: #2874a6;
+  --status-shipped-bg: #d1f2eb;
+  --status-shipped-text: #1e8449;
+  --status-delivered-bg: #d5f5e3;
+  --status-delivered-text: #186a3b;
+  --status-cancelled-bg: #f9ebea;
+  --status-cancelled-text: #c0392b;
+
+  // Colors - Buttons
+  --delete-btn-bg: #e37267;
+  --delete-btn-hover: #c41508;
+  --logout-btn-bg: rgba(231, 76, 60, 0.1);
+
+  // Shadows
   --shadow-light: rgba(0, 0, 0, 0.08);
   --shadow-medium: rgba(0, 0, 0, 0.15);
   --shadow-large: rgba(0, 0, 0, 0.12);
@@ -67,9 +94,7 @@
   --transition-slow: 0.5s ease;
 }
 
-// =============================================
 // BASE STYLES
-// =============================================
 html, body {
   font-family: var(--font-primary);
   font-size: var(--font-size-base);
@@ -101,9 +126,7 @@ a {
   }
 }
 
-// =============================================
 // MATERIAL COMPONENTS OVERRIDES
-// =============================================
 .mat-mdc-dialog-container,
 .mat-mdc-card,
 .mat-mdc-table,
@@ -133,9 +156,7 @@ a {
   }
 }
 
-// =============================================
 // FORM ELEMENTS
-// =============================================
 input, textarea, select, mat-form-field {
   font-family: var(--font-primary);
   font-size: var(--font-size-base);
@@ -152,9 +173,7 @@ input, textarea, select, mat-form-field {
   }
 }
 
-// =============================================
 // BUTTON COMPONENTS
-// =============================================
 .add-to-cart-btn {
   display: inline-flex;
   align-items: center;
@@ -170,7 +189,7 @@ input, textarea, select, mat-form-field {
 
   &-primary {
     background-color: var(--primary-color);
-    color: #fff;
+    color: var(--text-white);
 
     &:hover {
       background-color: var(--primary-hover);
@@ -184,14 +203,12 @@ input, textarea, select, mat-form-field {
 
     &:hover {
       background-color: var(--primary-color);
-      color: #fff;
+      color: var(--text-white);
     }
   }
 }
 
-// =============================================
 // CARD COMPONENTS
-// =============================================
 .card {
   background: var(--background-card);
   border-radius: var(--radius-md);
@@ -200,9 +217,7 @@ input, textarea, select, mat-form-field {
   margin-bottom: var(--spacing-lg);
 }
 
-// =============================================
 // ADMIN COMPONENTS
-// =============================================
 .admin-container {
   padding: 2rem;
   background-color: var(--background-light);
@@ -226,10 +241,10 @@ input, textarea, select, mat-form-field {
   margin-bottom: 40px;
   width: 100%;
   max-width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-primary);
   border-radius: var(--radius-md);
   padding: 0;
-  color: white;
+  color: var(--text-white);
   box-shadow: 0 4px 20px var(--shadow-medium);
   box-sizing: border-box;
 
@@ -250,11 +265,11 @@ input, textarea, select, mat-form-field {
       h1 {
         margin: 0 0 10px 0;
         font-size: var(--font-size-xxl);
-        color: white;
+        color: var(--text-white);
       }
 
       .admin-date {
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--overlay-white);
         font-size: var(--font-size-base);
       }
     }
@@ -273,28 +288,28 @@ input, textarea, select, mat-form-field {
         text-transform: uppercase;
 
         &.status-pending {
-          background-color: #ffeaa7;
-          color: #d35400;
+          background-color: var(--status-pending-bg);
+          color: var(--status-pending-text);
         }
 
         &.status-confirmed {
-          background-color: #d6eaf8;
-          color: #2874a6;
+          background-color: var(--status-confirmed-bg);
+          color: var(--status-confirmed-text);
         }
 
         &.status-shipped {
-          background-color: #d1f2eb;
-          color: #1e8449;
+          background-color: var(--status-shipped-bg);
+          color: var(--status-shipped-text);
         }
 
         &.status-delivered {
-          background-color: #d5f5e3;
-          color: #186a3b;
+          background-color: var(--status-delivered-bg);
+          color: var(--status-delivered-text);
         }
 
         &.status-cancelled {
-          background-color: #f9ebea;
-          color: #c0392b;
+          background-color: var(--status-cancelled-bg);
+          color: var(--status-cancelled-text);
         }
       }
 
@@ -303,7 +318,7 @@ input, textarea, select, mat-form-field {
 
         .total-label {
           font-size: var(--font-size-sm);
-          color: rgba(255, 255, 255, 0.8);
+          color: var(--overlay-white);
           margin-bottom: 5px;
         }
 
@@ -337,7 +352,7 @@ input, textarea, select, mat-form-field {
       border-radius: var(--radius-md);
       font-weight: 600;
       font-size: var(--font-size-base);
-      color: #fff;
+      color: var(--text-white);
       background-color: var(--secondary-color);
       border: none;
       cursor: pointer;
@@ -349,7 +364,7 @@ input, textarea, select, mat-form-field {
 
       mat-icon {
         font-size: 20px;
-        color: white;
+        color: var(--text-white);
       }
 
       &:hover {
@@ -363,8 +378,8 @@ input, textarea, select, mat-form-field {
       border-radius: var(--radius-md);
       font-weight: 600;
       font-size: var(--font-size-base);
-      color: #f9ebea;
-      background-color: #e37267;
+      color: var(--text-white);
+      background-color: var(--delete-btn-bg);
       border: none;
       cursor: pointer;
       box-shadow: 0 4px 12px var(--shadow-medium);
@@ -376,20 +391,18 @@ input, textarea, select, mat-form-field {
 
       mat-icon {
         font-size: 20px;
-        color: white;
+        color: var(--text-white);
       }
 
       &:hover {
-        background-color: #c41508;
+        background-color: var(--delete-btn-hover);
         box-shadow: 0 6px 20px var(--shadow-medium);
       }
     }
   }
 }
 
-// =============================================
 // SEARCH COMPONENTS
-// =============================================
 .admin-search-section {
   display: flex;
   gap: var(--spacing-md);
@@ -402,7 +415,7 @@ input, textarea, select, mat-form-field {
     .admin-search-input-wrapper {
       display: flex;
       align-items: center;
-      background: rgba(255, 255, 255, 0.15);
+      background: var(--overlay-white);
       border-radius: var(--radius-sm);
       padding: var(--spacing-sm) var(--spacing-md);
       transition: background var(--transition-normal), box-shadow var(--transition-normal);
@@ -413,7 +426,7 @@ input, textarea, select, mat-form-field {
       }
 
       .admin-search-icon {
-        color: white;
+        color: var(--text-white);
         margin-right: var(--spacing-sm);
       }
 
@@ -421,12 +434,12 @@ input, textarea, select, mat-form-field {
         flex: 1;
         background: transparent;
         border: none;
-        color: white;
+        color: var(--text-white);
         font-size: var(--font-size-base);
         padding: var(--spacing-sm) 0;
 
         &::placeholder {
-          color: rgba(255, 255, 255, 0.7);
+          color: var(--overlay-white);
         }
 
         &:focus {
@@ -437,9 +450,7 @@ input, textarea, select, mat-form-field {
   }
 }
 
-// =============================================
 // CHECKBOX COMPONENTS
-// =============================================
 @mixin checkbox-wrapper-base($bg-color) {
   display: inline-flex;
   align-items: center;
@@ -491,9 +502,7 @@ input, textarea, select, mat-form-field {
   }
 }
 
-// =============================================
 // TAG COMPONENTS
-// =============================================
 .tags-container {
   display: flex;
   flex-wrap: wrap;
@@ -502,7 +511,7 @@ input, textarea, select, mat-form-field {
 
 .tag {
   background-color: var(--primary-color);
-  color: #fff;
+  color: var(--text-white);
   padding: 6px 12px;
   border-radius: 16px;
   font-size: var(--font-size-xs);
@@ -518,9 +527,7 @@ input, textarea, select, mat-form-field {
   }
 }
 
-// =============================================
 // MODERN USER MENU
-// =============================================
 ::ng-deep .modern-user-menu-panel {
   min-width: 280px;
   border-radius: var(--radius-lg) !important;
@@ -616,7 +623,7 @@ input, textarea, select, mat-form-field {
           }
 
           &:hover {
-            background: rgba(231, 76, 60, 0.1) !important;
+            background: var(--logout-btn-bg) !important;
 
             mat-icon {
               color: var(--error-color);
@@ -628,16 +635,14 @@ input, textarea, select, mat-form-field {
   }
 }
 
-// =============================================
 // GALLERY & MEDIA COMPONENTS
-// =============================================
 .gallery-modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--overlay-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -665,7 +670,7 @@ input, textarea, select, mat-form-field {
       right: 0;
       background: none;
       border: none;
-      color: white;
+      color: var(--text-white);
       font-size: 2rem;
       cursor: pointer;
       z-index: 10;
@@ -697,9 +702,9 @@ input, textarea, select, mat-form-field {
 
       .nav-btn {
         pointer-events: auto;
-        background: rgba(0, 0, 0, 0.5);
+        background: var(--overlay-light);
         border: none;
-        color: white;
+        color: var(--text-white);
         width: 50px;
         height: 50px;
         border-radius: 50%;
@@ -710,7 +715,7 @@ input, textarea, select, mat-form-field {
         margin: 0 20px;
 
         &:hover {
-          background: rgba(0, 0, 0, 0.7);
+          background: var(--overlay-dark);
         }
       }
     }
@@ -750,11 +755,11 @@ input, textarea, select, mat-form-field {
         .video-thumbnail {
           width: 100%;
           height: 100%;
-          background: #34495e;
+          background: var(--text-secondary);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: var(--text-white);
         }
       }
     }
@@ -803,9 +808,9 @@ input, textarea, select, mat-form-field {
 
     .nav-btn {
       pointer-events: auto;
-      background: rgba(0, 0, 0, 0.5);
+      background: var(--overlay-light);
       border: none;
-      color: white;
+      color: var(--text-white);
       width: 40px;
       height: 40px;
       border-radius: 50%;
@@ -815,7 +820,7 @@ input, textarea, select, mat-form-field {
       cursor: pointer;
 
       &:hover {
-        background: rgba(0, 0, 0, 0.7);
+        background: var(--overlay-dark);
       }
     }
   }
@@ -834,8 +839,8 @@ input, textarea, select, mat-form-field {
     position: absolute;
     top: 10px;
     right: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
+    background: var(--overlay-light);
+    color: var(--text-white);
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -848,14 +853,12 @@ input, textarea, select, mat-form-field {
     z-index: 5;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.9);
+      background: var(--overlay-dark);
     }
   }
 }
 
-// =============================================
 // CLIENT SPECIFIC STYLES
-// =============================================
 .add-to-cart-btn {
   width: 100%;
   padding: 12px;
@@ -867,13 +870,14 @@ input, textarea, select, mat-form-field {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  color: var(--text-white);
 
   &:hover {
-    background: #27ae60;
+    background: var(--success-color);
   }
 
   &:disabled {
-    background-color: #bdc3c7;
+    background-color: var(--text-light);
     cursor: not-allowed;
     opacity: 0.7;
   }
@@ -882,7 +886,7 @@ input, textarea, select, mat-form-field {
 .price {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #27ae60;
+  color: var(--success-color);
   text-align: center;
 }
 
@@ -907,22 +911,21 @@ input, textarea, select, mat-form-field {
   100% { background-position: -200% 0; }
 }
 
-
-// ===== GLOBÁLNÍ FIX PRO IKONY V MENU =====
+// GLOBAL FIX FOR MENU ICONS
 .mat-menu-panel {
   .mat-menu-item {
     mat-icon {
-      color: #000000 !important; // Černá barva pro všechny ikony v menu
+      color: var(--text-primary) !important;
     }
   }
 }
 
-// ===== SPECIFICKÉ PRO NAVIGAČNÍ MENU =====
+// NAVIGATION MENU
 .navigation-menu {
   border-radius: 12px;
   overflow: hidden;
   margin-top: 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 30px var(--shadow-light);
 
   .mat-menu-item {
     display: flex;
@@ -930,11 +933,11 @@ input, textarea, select, mat-form-field {
     gap: 12px;
     height: 48px;
     padding: 0 16px;
-    color: #2c3e50;
+    color: var(--text-primary);
     transition: all 0.3s ease;
 
     &:hover {
-      background-color: #f8f9fa;
+      background-color: var(--background-hover);
       transform: translateX(4px);
     }
 

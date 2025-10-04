@@ -665,7 +665,13 @@
     }
   }
 }
+.loading-section .loading-content {
+  width: 100%;
+}
 
+.loading-section mat-progress-bar {
+  width: 100%;
+}
 @media (max-width: 480px) {
   .products-view.products-grid {
     grid-template-columns: 1fr;

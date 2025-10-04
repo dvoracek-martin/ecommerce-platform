@@ -1,0 +1,68 @@
+<div class="gallery-card">
+  <h3 class="gallery-title">
+    <mat-icon>photo_library</mat-icon>
+    {{ 'PRODUCTS.GALLERY' | translate }}
+  </h3>
+
+  <div class="compact-gallery">
+    <!-- Main Image -->
+    <div class="compact-main-image" (click)="onOpenGallery($event)">
+      <div class="carousel-slides" [style.transform]="'translateX(' + (-activeSlideIndex * 100) + '%)'">
+        <div *ngFor="let media of product.media; let i = index" class="slide">
+          <img *ngIf="media.contentType?.startsWith('image/')"
+               [alt]="product.translatedName"
+               [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+               class="product-image"/>
+          <video *ngIf="media.contentType?.startsWith('video/')"
+                 [attr.muted]="true"
+                 [muted]="true"
+                 autoplay
+                 class="product-image"
+                 loop
+                 playsinline
+                 preload="metadata">
+            <source
+              [src]="'data:' + media.contentType + ';base64,' + media.base64Data"
+              [type]="media.contentType"/>
+          </video>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div *ngIf="product.media.length > 1" class="compact-nav">
+        <button class="nav-btn prev" (click)="onPrevSlide($event)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button class="nav-btn next" (click)="onNextSlide($event)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <!-- Gallery Overlay -->
+      <div class="gallery-overlay" (click)="onOpenGallery($event)">
+        <mat-icon>zoom_out_map</mat-icon>
+      </div>
+
+      <!-- Slide Counter -->
+      <!--      <div class="slide-counter" *ngIf="product.media.length > 1">-->
+      <!--        {{ activeSlideIndex + 1 }} / {{ product.media.length }}-->
+      <!--      </div>-->
+    </div>
+
+    <!-- Thumbnails -->
+    <!--    For now commented out-->
+    <!--    <div class="compact-thumbnails" *ngIf="product.media.length > 1">-->
+    <!--      <div *ngFor="let media of product.media; let i = index"-->
+    <!--           class="thumbnail"-->
+    <!--           [class.active]="i === activeSlideIndex"-->
+    <!--           (click)="onGoToSlide(i, $event)">-->
+    <!--        <img *ngIf="media.contentType?.startsWith('image/')"-->
+    <!--             [src]="'data:' + media.contentType + ';base64,' + media.base64Data"-->
+    <!--             [alt]="'Thumbnail ' + (i + 1)"/>-->
+    <!--        <div *ngIf="media.contentType?.startsWith('video/')" class="video-thumbnail">-->
+    <!--          <mat-icon>play_circle_outline</mat-icon>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
+  </div>
+</div>

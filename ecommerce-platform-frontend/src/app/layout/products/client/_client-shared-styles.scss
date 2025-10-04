@@ -1,3 +1,5 @@
+@use '../products-shared-styles' as shared;
+
 /* Client Shared Styles - Common styles for client-facing components */
 
 // Container Layout
@@ -22,7 +24,7 @@
   h1 {
     font-size: var(--font-size-xxl);
     font-weight: 700;
-    background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+    background: var(--gradient-text);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -38,22 +40,9 @@
 
 // Card Styles
 .client-card {
-  background: var(--background-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  transition: all var(--transition-normal);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  @extend .component-card;
   cursor: pointer;
   position: relative;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px var(--shadow-medium);
-    border-color: var(--primary-color);
-  }
 }
 
 // Product Details
@@ -104,32 +93,7 @@
 
 // Action Buttons
 .action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  border: none;
-  background-color: var(--primary-color);
-  color: #fff;
-  font-size: var(--font-size-base);
-  width: 100%;
-
-  &:hover:not(:disabled) {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--shadow-medium);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
+  @extend .primary-button;
 }
 
 // Price Display
@@ -142,28 +106,12 @@
 
 // Loading & Error States
 .loading-section, .error-section, .empty-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xl);
-  text-align: center;
-  background: var(--background-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  margin: var(--spacing-xl) 0;
-
-  .loading-text, .error-text, .empty-text {
-    margin-top: var(--spacing-md);
-    color: var(--text-muted);
-    font-size: var(--font-size-base);
-  }
+  @extend .state-section;
 }
 
 .error-section {
   .error-icon {
-    font-size: 3rem;
-    margin-bottom: var(--spacing-md);
+    @extend .state-icon;
     color: var(--error-color);
   }
 
@@ -174,8 +122,8 @@
 
 .empty-section {
   .empty-icon {
+    @extend .state-icon;
     font-size: 4rem;
-    margin-bottom: var(--spacing-md);
     color: var(--text-muted);
     opacity: 0.5;
   }
@@ -187,30 +135,12 @@
 
 // Grid Layout
 .products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--spacing-lg);
-  padding: var(--spacing-sm);
+  @extend .responsive-grid;
 }
 
 // No Media Placeholder
 .no-media {
-  width: 100%;
-  aspect-ratio: 4/5;
-  background: var(--background-light);
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: var(--font-size-sm);
-  gap: var(--spacing-xs);
-
-  mat-icon {
-    font-size: 2rem;
-    opacity: 0.5;
-  }
+  @extend .media-placeholder;
 }
 
 // Responsive Design
