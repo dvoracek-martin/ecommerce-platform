@@ -852,6 +852,7 @@
 }
 
 /* Order Loading Overlay */
+/* Order Loading Overlay - Fixed Spinner Centering */
 .order-loading-overlay {
   position: fixed;
   top: 0;
@@ -864,25 +865,44 @@
   justify-content: center;
   z-index: 10000;
   backdrop-filter: blur(3px);
-  animation: fadeIn 0.3s ease-out;
 
   .order-loading-content {
-    text-align: center;
     background: var(--background-card);
     padding: var(--spacing-xl);
     border-radius: var(--radius-lg);
     box-shadow: 0 10px 30px var(--shadow-large);
     max-width: 450px;
     width: 90%;
-    border: 1px solid var(--border-color);
+    text-align: center;
 
+    /* Center all content */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-lg);
+
+    /* Spinner container - force centering */
     .spinner-container {
+      width: 100%;
+      display: flex;
       justify-content: center;
-      margin-bottom: var(--spacing-lg);
+      align-items: center;
+      height: 80px; /* Fixed height for consistent spacing */
+
+      /* Target the mat-spinner and force centering */
+      ::ng-deep mat-spinner {
+        display: block !important;
+        margin: 0 auto !important;
+
+        svg {
+          display: block !important;
+          margin: 0 auto !important;
+        }
+      }
     }
 
     h3 {
-      margin: 0 0 var(--spacing-sm) 0;
+      margin: 0;
       color: var(--text-primary);
       font-size: var(--font-size-lg);
       font-weight: 600;

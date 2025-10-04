@@ -1,10 +1,10 @@
-<div class="admin-container">
-  <mat-card class="admin-card">
-    <div class="admin-header-section">
-      <div class="admin-header-content">
-        <div class="admin-title-section">
+<div class="tags-admin-container">
+  <mat-card class="tags-admin-card">
+    <div class="tags-admin-header-section">
+      <div class="tags-admin-header-content">
+        <div class="tags-admin-title-section">
           <h1>{{ 'TAGS.TITLE' | translate }}</h1>
-          <p class="admin-subtitle">{{ 'TAGS.ADMIN_SUBTITLE.UPDATE' | translate }}</p>
+          <p class="tags-admin-subtitle">{{ 'TAGS.ADMIN_SUBTITLE.UPDATE' | translate }}</p>
         </div>
         <button (click)="openDeleteDialog()"
                 class="admin-delete-btn"
@@ -17,13 +17,13 @@
       </div>
     </div>
 
-    <form *ngIf="tagForm" (ngSubmit)="onSave()" [formGroup]="tagForm" class="form-one-column-wrapper" id="tagForm">
-      <div class="form-content full-width-content">
-        <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
+    <form *ngIf="tagForm" (ngSubmit)="onSave()" [formGroup]="tagForm" class="tags-form-one-column-wrapper" id="tagForm">
+      <div class="tags-form-content tags-full-width-content">
+        <mat-progress-bar *ngIf="saving" class="tags-admin-save-progress" mode="indeterminate"></mat-progress-bar>
 
         <!-- BASIC INFO -->
-        <div class="form-section">
-          <h3 class="section-subtitle">
+        <div class="tags-form-section">
+          <h3 class="tags-section-subtitle">
             <mat-icon>info</mat-icon>
             {{ 'TAGS.ADMIN.BASIC_INFO' | translate }}
           </h3>
@@ -32,11 +32,11 @@
           <mat-error *ngIf="usedLocales.length === 0">
             {{ 'CONFIGURATION.SELECT_DEFAULT_LANGUAGE' | translate }}
           </mat-error>
-          <mat-tab-group *ngIf="usedLocales.length > 0" class="locale-tabs">
+          <mat-tab-group *ngIf="usedLocales.length > 0" class="tags-locale-tabs">
             <mat-tab *ngFor="let locale of usedLocales" [label]="locale.translatedName">
-              <div class="tab-content">
-                <div class="form-row">
-                  <mat-form-field appearance="outline" class="form-field full-width">
+              <div class="tags-tab-content">
+                <div class="tags-form-row">
+                  <mat-form-field appearance="outline" class="tags-form-field tags-full-width">
                     <mat-label>{{ 'TAGS.ADMIN.NAME' | translate }}</mat-label>
                     <input matInput
                            [formControlName]="'name_' + locale.languageCode + '_' + locale.regionCode"
@@ -48,8 +48,8 @@
                   </mat-form-field>
                 </div>
 
-                <div class="form-row">
-                  <mat-form-field appearance="outline" class="form-field full-width">
+                <div class="tags-form-row">
+                  <mat-form-field appearance="outline" class="tags-form-field tags-full-width">
                     <mat-label>{{ 'TAGS.ADMIN.DESCRIPTION' | translate }}</mat-label>
                     <textarea matInput
                               rows="4"
@@ -58,8 +58,8 @@
                   </mat-form-field>
                 </div>
 
-                <div class="form-row">
-                  <mat-form-field appearance="outline" class="form-field full-width">
+                <div class="tags-form-row">
+                  <mat-form-field appearance="outline" class="tags-form-field tags-full-width">
                     <mat-label>{{ 'TAGS.URL' | translate }}</mat-label>
                     <input matInput
                            [formControlName]="'url_' + locale.languageCode + '_' + locale.regionCode"
@@ -74,8 +74,8 @@
             </mat-tab>
           </mat-tab-group>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
+          <div class="tags-form-row">
+            <mat-form-field appearance="outline" class="tags-form-field">
               <mat-label>{{ 'TAGS.PRIORITY' | translate }}</mat-label>
               <input formControlName="priority" matInput type="number"
                      [placeholder]="'TAGS.PRIORITY_PLACEHOLDER' | translate" required>
@@ -87,54 +87,54 @@
               </mat-error>
             </mat-form-field>
 
-            <div class="checkbox-group">
-              <mat-checkbox class="admin-active-checkbox-wrapper" formControlName="active">
+            <div class="tags-checkbox-group">
+              <mat-checkbox class="tags-admin-active-checkbox-wrapper" formControlName="active">
                 {{ 'TAGS.ACTIVE' | translate }}
               </mat-checkbox>
             </div>
           </div>
 
           <!-- VISUAL PROPERTIES -->
-          <div class="visual-properties-section">
-            <div class="form-row">
+          <div class="tags-visual-properties-section">
+            <div class="tags-form-row">
               <!-- Color Picker -->
-              <div class="color-picker-field">
-                <label class="field-label">{{ 'TAGS.COLOR' | translate }}</label>
-                <div class="color-picker-container">
-                  <label class="color-picker-wrapper">
-                    <div class="color-preview" [style.background]="tagForm.get('color')?.value || '#3498db'">
-                      <mat-icon class="color-preview-icon">palette</mat-icon>
+              <div class="tags-color-picker-field">
+                <label class="tags-field-label">{{ 'TAGS.COLOR' | translate }}</label>
+                <div class="tags-color-picker-container">
+                  <label class="tags-color-picker-wrapper">
+                    <div class="tags-color-preview" [style.background]="tagForm.get('color')?.value || '#3498db'">
+                      <mat-icon class="tags-color-preview-icon">palette</mat-icon>
                     </div>
                     <input type="color"
                            formControlName="color"
-                           class="color-input"
+                           class="tags-color-input"
                            [value]="tagForm.get('color')?.value || '#3498db'"
                            (input)="onColorChange($event)">
                   </label>
-                  <span class="color-value">{{ tagForm.get('color')?.value || '#3498db' }}</span>
+                  <span class="tags-color-value">{{ tagForm.get('color')?.value || '#3498db' }}</span>
                 </div>
               </div>
 
               <!-- Icon Selector -->
-              <div class="icon-selector-field">
-                <label class="field-label">{{ 'TAGS.ICON' | translate }}</label>
-                <div class="icon-selector-container">
+              <div class="tags-icon-selector-field">
+                <label class="tags-field-label">{{ 'TAGS.ICON' | translate }}</label>
+                <div class="tags-icon-selector-container">
                   <button type="button"
-                          class="icon-selector-trigger"
+                          class="tags-icon-selector-trigger"
                           (click)="openIconSelector()"
-                          [class.has-icon]="tagForm.get('icon')?.value">
+                          [class.tags-has-icon]="tagForm.get('icon')?.value">
                     <span *ngIf="tagForm.get('icon')?.value" class="selected-icon-content">
-                      <mat-icon *ngIf="!isEmoji(tagForm.get('icon')?.value)" class="selected-icon">
+                      <mat-icon *ngIf="!isEmoji(tagForm.get('icon')?.value)" class="tags-selected-icon">
                         {{ tagForm.get('icon')?.value }}
                       </mat-icon>
                       <span *ngIf="isEmoji(tagForm.get('icon')?.value)" class="selected-emoji">
                         {{ tagForm.get('icon')?.value }}
                       </span>
                     </span>
-                    <span *ngIf="!tagForm.get('icon')?.value" class="icon-placeholder">
+                    <span *ngIf="!tagForm.get('icon')?.value" class="tags-icon-placeholder">
                       {{ 'TAGS.SELECT_ICON' | translate }}
                     </span>
-                    <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+                    <mat-icon class="tags-dropdown-icon">arrow_drop_down</mat-icon>
                   </button>
                 </div>
               </div>
@@ -143,14 +143,14 @@
         </div>
 
         <!-- RELATIONS -->
-        <div class="form-section">
-          <h3 class="section-subtitle">
+        <div class="tags-form-section">
+          <h3 class="tags-section-subtitle">
             <mat-icon>category</mat-icon>
             {{ 'TAGS.ADMIN.RELATIONS' | translate }}
           </h3>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field full-width">
+          <div class="tags-form-row">
+            <mat-form-field appearance="outline" class="tags-form-field tags-full-width">
               <mat-label>{{ 'TAGS.ADMIN.CATEGORIES' | translate }}</mat-label>
               <mat-select formControlName="categoryIds" multiple>
                 <mat-option *ngFor="let cat of allCategories" [value]="cat.id">
@@ -160,8 +160,8 @@
             </mat-form-field>
           </div>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field full-width">
+          <div class="tags-form-row">
+            <mat-form-field appearance="outline" class="tags-form-field tags-full-width">
               <mat-label>{{ 'TAGS.ADMIN.PRODUCTS' | translate }}</mat-label>
               <mat-select formControlName="productIds" multiple>
                 <mat-option *ngFor="let prod of allProducts" [value]="prod.id">
@@ -171,8 +171,8 @@
             </mat-form-field>
           </div>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field full-width">
+          <div class="tags-form-row">
+            <mat-form-field appearance="outline" class="tags-form-field tags-full-width">
               <mat-label>{{ 'TAGS.ADMIN.MIXTURES' | translate }}</mat-label>
               <mat-select formControlName="mixtureIds" multiple>
                 <mat-option *ngFor="let mix of allMixtures" [value]="mix.id">
@@ -186,13 +186,13 @@
     </form>
 
     <!-- FLOATING ACTION BAR -->
-    <div class="admin-actions-bar">
-      <div class="admin-action-buttons">
+    <div class="tags-admin-actions-bar">
+      <div class="tags-admin-action-buttons">
         <button (click)="openCancelDialog()"
                 color="warn"
                 mat-stroked-button
                 type="button"
-                class="cancel-btn">
+                class="tags-cancel-btn">
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
@@ -201,7 +201,7 @@
                 form="tagForm"
                 mat-flat-button
                 type="submit"
-                class="save-btn">
+                class="tags-save-btn">
           <mat-icon>save</mat-icon>
           {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
         </button>
@@ -211,18 +211,18 @@
 </div>
 
 <!-- Icon Selector Modal -->
-<div *ngIf="showIconSelector" class="icon-selector-modal" [class.show]="showIconSelector">
-  <div class="modal-backdrop" (click)="closeIconSelector()"></div>
-  <div class="modal-content">
-    <div class="modal-header">
+<div *ngIf="showIconSelector" class="tags-icon-selector-modal" [class.tags-show]="showIconSelector">
+  <div class="tags-modal-backdrop" (click)="closeIconSelector()"></div>
+  <div class="tags-modal-content">
+    <div class="tags-modal-header">
       <h3>{{ 'TAGS.SELECT_ICON' | translate }}</h3>
-      <button class="close-btn" (click)="closeIconSelector()">
+      <button class="tags-close-btn" (click)="closeIconSelector()">
         <mat-icon>close</mat-icon>
       </button>
     </div>
 
-    <div class="search-section">
-      <mat-form-field appearance="outline" class="search-field">
+    <div class="tags-search-section">
+      <mat-form-field appearance="outline" class="tags-search-field">
         <mat-label>{{ 'TAGS.SEARCH_ICONS' | translate }}</mat-label>
         <input matInput
                [(ngModel)]="iconSearchTerm"
@@ -232,45 +232,43 @@
       </mat-form-field>
     </div>
 
-    <!-- ADD THIS MODAL-BODY WRAPPER -->
-    <div class="modal-body">
-      <mat-tab-group (selectedTabChange)="onIconTabChange($event.index)" class="icon-type-tabs">
+    <div class="tags-modal-body">
+      <mat-tab-group (selectedTabChange)="onIconTabChange($event.index)" class="tags-icon-type-tabs">
         <mat-tab label="Material Icons">
-          <div class="icons-grid-container">
-            <div class="icons-grid">
+          <div class="tags-icons-grid-container">
+            <div class="tags-icons-grid">
               <div *ngFor="let icon of filteredIcons"
-                   class="icon-item"
-                   [class.selected]="selectedIcon === icon"
+                   class="tags-icon-item"
+                   [class.tags-selected]="selectedIcon === icon"
                    (click)="selectIcon(icon)">
-                <mat-icon class="icon-display">{{ icon }}</mat-icon>
-                <span class="icon-name">{{ icon }}</span>
+                <mat-icon class="tags-icon-display">{{ icon }}</mat-icon>
+                <span class="tags-icon-name">{{ icon }}</span>
               </div>
             </div>
           </div>
         </mat-tab>
         <mat-tab label="Emojis">
-          <div class="icons-grid-container">
-            <div class="icons-grid emoji-grid">
+          <div class="tags-icons-grid-container">
+            <div class="tags-icons-grid tags-emoji-grid">
               <div *ngFor="let emoji of filteredEmojis"
-                   class="icon-item emoji-item"
-                   [class.selected]="selectedIcon === emoji.emoji"
+                   class="tags-icon-item tags-emoji-item"
+                   [class.tags-selected]="selectedIcon === emoji.emoji"
                    (click)="selectIcon(emoji)">
-                <span class="emoji-display">{{ emoji.emoji }}</span>
-                <span class="icon-name">{{ emoji.description }}</span>
+                <span class="tags-emoji-display">{{ emoji.emoji }}</span>
+                <span class="tags-icon-name">{{ emoji.description }}</span>
               </div>
             </div>
           </div>
         </mat-tab>
       </mat-tab-group>
     </div>
-    <!-- END MODAL-BODY WRAPPER -->
 
     <!-- MODAL ACTIONS -->
-    <div class="modal-actions">
-      <button mat-stroked-button (click)="closeIconSelector()" class="cancel-icon-btn">
+    <div class="tags-modal-actions">
+      <button mat-stroked-button (click)="closeIconSelector()" class="tags-cancel-icon-btn">
         {{ 'COMMON.CANCEL' | translate }}
       </button>
-      <button mat-flat-button color="primary" (click)="confirmIconSelection()" class="confirm-icon-btn">
+      <button mat-flat-button color="primary" (click)="confirmIconSelection()" class="tags-confirm-icon-btn">
         {{ 'COMMON.SELECT' | translate }}
       </button>
     </div>

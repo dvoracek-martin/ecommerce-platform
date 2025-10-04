@@ -146,7 +146,8 @@
         class="cart-preview-panel"
         *ngIf="isCartPreviewOpen"
         (mouseenter)="onCartPreviewMouseEnter()"
-        (mouseleave)="onCartPreviewMouseLeave()">
+        (mouseleave)="onCartPreviewMouseLeave()"
+        [style.width.px]="getCartPreviewWidth()">
 
         <!-- Loading States -->
         <div *ngIf="isLoadingCart" class="loading-section">
@@ -164,127 +165,142 @@
             <div class="cart-preview" [class.translating]="isTranslatingCart">
               <h4>{{ 'CART.SUMMARY' | translate }}</h4>
 
-              <!-- Cart Items -->
-              <div class="cart-item" *ngFor="let item of cart.items">
+              <div
+                class="cart-items-grid"
+                [class.multi-column]="getColumnCount(cart.items) > 1"
+                [style.grid-template-columns]="'repeat(' + getColumnCount(cart.items) + ', 1fr)'"
+                [style.--columns]="getColumnCount(cart.items)"
+                [style.--separator-display]="getColumnCount(cart.items) > 1 ? 'block' : 'none'">
 
-                <!-- Product Items -->
-                <ng-container *ngIf="item.cartItemType === 'PRODUCT' && item.product">
-                  <img
-                    *ngIf="item.product.media?.[0]"
-                    [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
-                    [alt]="getTranslatedItemName(item)"
-                    class="item-image"
-                    (click)="goToProductFromCart(item.product); $event.stopPropagation()"/>
+                <!-- Render columns -->
+                <div
+                  class="cart-column"
+                  *ngFor="let columnIndex of getColumnRanges(cart.items); trackBy: trackByIndex">
 
-                  <div class="item-info">
-                    <div class="item-header">
-                      <span
-                        class="item-name"
-                        (click)="goToProductFromCart(item.product)">
-                        {{ getTranslatedItemName(item) }}
-                      </span>
-                      <span class="item-price">
-                        {{ item.product.price | swissCurrency}}
-                      </span>
-                    </div>
+                  <!-- Render items for this column -->
+                  <div
+                    class="cart-item"
+                    *ngFor="let item of getItemsForColumn(cart.items, columnIndex); trackBy: trackCartItem">
 
-                    <div class="item-controls">
-                      <div class="item-quantity">
-                        <div class="quantity-controls-container">
-                          <div class="quantity-selector" [class.loading]="isItemLoading(item)">
-                            <button
-                              class="quantity-btn decrease"
-                              [disabled]="isItemLoading(item) || isTranslatingCart"
-                              (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
-                              <mat-icon>remove</mat-icon>
-                            </button>
-                            <input
-                              type="number"
-                              [value]="item.quantity"
-                              min="0"
-                              (change)="onQuantityChange($event, item)"
-                              (keydown)="$event.stopPropagation()"
-                              class="quantity-input"
-                              [disabled]="isItemLoading(item) || isTranslatingCart">
-                            <button
-                              class="quantity-btn increase"
-                              [disabled]="isItemLoading(item) || isTranslatingCart"
-                              (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
-                              <mat-icon>add</mat-icon>
-                            </button>
+                    <!-- Product Items -->
+                    <ng-container *ngIf="item.cartItemType === 'PRODUCT' && item.product">
+                      <img
+                        *ngIf="item.product.media?.[0]"
+                        [src]="'data:' + item.product.media[0].contentType + ';base64,' + item.product.media[0].base64Data"
+                        [alt]="getTranslatedItemName(item)"
+                        class="item-image"
+                        (click)="goToProductFromCart(item.product); $event.stopPropagation()"/>
+
+                      <div class="item-info">
+                        <div class="item-header">
+            <span
+              class="item-name"
+              [matTooltip]="getTranslatedItemName(item)"
+              (click)="goToProductFromCart(item.product)">
+              {{ getTranslatedItemName(item) }}
+            </span>
+                          <span class="item-price">
+              {{ item.product.price | swissCurrency}}
+            </span>
+                        </div>
+
+                        <div class="item-controls">
+                          <div class="item-quantity">
+                            <div class="quantity-controls-container">
+                              <div class="quantity-selector" [class.loading]="isItemLoading(item)">
+                                <button
+                                  class="quantity-btn decrease"
+                                  [disabled]="isItemLoading(item) || isTranslatingCart"
+                                  (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
+                                  <mat-icon>remove</mat-icon>
+                                </button>
+                                <input
+                                  type="number"
+                                  [value]="item.quantity"
+                                  min="0"
+                                  (change)="onQuantityChange($event, item)"
+                                  (keydown)="$event.stopPropagation()"
+                                  class="quantity-input"
+                                  [disabled]="isItemLoading(item) || isTranslatingCart">
+                                <button
+                                  class="quantity-btn increase"
+                                  [disabled]="isItemLoading(item) || isTranslatingCart"
+                                  (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
+                                  <mat-icon>add</mat-icon>
+                                </button>
+                              </div>
+                            </div>
                           </div>
-                          <div class="quantity-loading" *ngIf="isItemLoading(item)">
-                            <div class="spinner"></div>
+
+                          <div class="item-total">
+                            {{ (item.product?.price || item.mixture?.price || 0) * item.quantity | swissCurrency}}
                           </div>
                         </div>
                       </div>
+                    </ng-container>
 
-                      <div class="item-total">
-                        {{ (item.product?.price || item.mixture?.price || 0) * item.quantity | swissCurrency}}
-                      </div>
-                    </div>
-                  </div>
-                </ng-container>
+                    <!-- Mixture Items -->
+                    <ng-container *ngIf="item.cartItemType === 'MIXTURE' && item.mixture">
+                      <mat-icon class="item-image mixture-icon">science</mat-icon>
+                      <div class="item-info">
+                        <div class="item-header">
+            <span
+              class="item-name"
+              [matTooltip]="getTranslatedItemName(item)">
+              {{ getTranslatedItemName(item) }}
+            </span>
+                          <span class="item-price">
+              {{ item.mixture.price | swissCurrency }}
+            </span>
+                        </div>
 
-                <!-- Mixture Items -->
-                <ng-container *ngIf="item.cartItemType === 'MIXTURE' && item.mixture">
-                  <mat-icon class="item-image mixture-icon">science</mat-icon>
-                  <div class="item-info">
-                    <div class="item-header">
-                      <span class="item-name">{{ getTranslatedItemName(item) }}</span>
-                      <span class="item-price">
-                        {{ item.mixture.price | swissCurrency }}
-                      </span>
-                    </div>
-
-                    <div class="item-controls">
-                      <div class="item-quantity">
-                        <div class="quantity-controls-container">
-                          <div class="quantity-selector" [class.loading]="isItemLoading(item)">
-                            <button
-                              class="quantity-btn decrease"
-                              [disabled]="isItemLoading(item) || isTranslatingCart"
-                              (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
-                              <mat-icon>remove</mat-icon>
-                            </button>
-                            <input
-                              type="number"
-                              [value]="item.quantity"
-                              min="0"
-                              (change)="onQuantityChange($event, item)"
-                              (keydown)="$event.stopPropagation()"
-                              class="quantity-input"
-                              [disabled]="isItemLoading(item) || isTranslatingCart">
-                            <button
-                              class="quantity-btn increase"
-                              [disabled]="isItemLoading(item) || isTranslatingCart"
-                              (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
-                              <mat-icon>add</mat-icon>
-                            </button>
+                        <div class="item-controls">
+                          <div class="item-quantity">
+                            <div class="quantity-controls-container">
+                              <div class="quantity-selector" [class.loading]="isItemLoading(item)">
+                                <button
+                                  class="quantity-btn decrease"
+                                  [disabled]="isItemLoading(item) || isTranslatingCart"
+                                  (click)="updateItemQuantity(item, 'decrease'); $event.stopPropagation()">
+                                  <mat-icon>remove</mat-icon>
+                                </button>
+                                <input
+                                  type="number"
+                                  [value]="item.quantity"
+                                  min="0"
+                                  (change)="onQuantityChange($event, item)"
+                                  (keydown)="$event.stopPropagation()"
+                                  class="quantity-input"
+                                  [disabled]="isItemLoading(item) || isTranslatingCart">
+                                <button
+                                  class="quantity-btn increase"
+                                  [disabled]="isItemLoading(item) || isTranslatingCart"
+                                  (click)="updateItemQuantity(item, 'increase'); $event.stopPropagation()">
+                                  <mat-icon>add</mat-icon>
+                                </button>
+                              </div>
+                            </div>
                           </div>
-                          <div class="quantity-loading" *ngIf="isItemLoading(item)">
-                            <div class="spinner"></div>
+
+                          <div class="item-total">
+                            {{ item.mixture.price * item.quantity | swissCurrency }}
                           </div>
                         </div>
                       </div>
+                    </ng-container>
 
-                      <div class="item-total">
-                        {{ item.mixture.price * item.quantity | swissCurrency }}
-                      </div>
+                    <!-- Item Actions -->
+                    <div class="item-actions">
+                      <button
+                        mat-icon-button
+                        class="btn-remove"
+                        (click)="removeItem(item.itemId); $event.stopPropagation()"
+                        [title]="'CART.REMOVE' | translate"
+                        [disabled]="isTranslatingCart">
+                        <mat-icon>delete_outline</mat-icon>
+                      </button>
                     </div>
                   </div>
-                </ng-container>
-
-                <!-- Item Actions -->
-                <div class="item-actions">
-                  <button
-                    mat-icon-button
-                    class="btn-remove"
-                    (click)="removeItem(item.itemId); $event.stopPropagation()"
-                    [title]="'CART.REMOVE' | translate"
-                    [disabled]="isTranslatingCart">
-                    <mat-icon>delete_outline</mat-icon>
-                  </button>
                 </div>
               </div>
 

@@ -66,6 +66,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private cartSubscription!: Subscription;
   private routerSubscription!: Subscription;
   isTranslatingCart = false;
+  private readonly ITEMS_PER_COLUMN = 5;
+  private readonly COLUMN_WIDTH = 320; // Width of each column in pixels
+  private readonly MIN_PANEL_WIDTH = 350; // Minimum panel width
 
   @ViewChild('cartButton', {read: ElementRef}) cartButtonRef!: ElementRef<HTMLElement>;
 
@@ -245,6 +248,51 @@ export class HeaderComponent implements OnInit, OnDestroy {
       clearTimeout(this.closeUserMenuTimeout);
       this.closeUserMenuTimeout = null;
     }
+  }
+
+  // ===== CART COLUMN METHODS =====
+  getColumnCount(items: CartItem[]): number {
+    if (!items || items.length === 0) return 1;
+    return Math.ceil(items.length / this.ITEMS_PER_COLUMN);
+  }
+
+  // Distribute items evenly across columns
+  getItemsForColumn(items: CartItem[], columnIndex: number): CartItem[] {
+    if (!items || items.length === 0) return [];
+
+    const columnCount = this.getColumnCount(items);
+    const itemsPerColumn = Math.ceil(items.length / columnCount);
+    const startIndex = columnIndex * itemsPerColumn;
+    const endIndex = Math.min(startIndex + itemsPerColumn, items.length);
+
+    return items.slice(startIndex, endIndex);
+  }
+
+  // Get column indices for template
+  getColumnRanges(items: CartItem[]): number[] {
+    if (!items || items.length === 0) return [0];
+
+    const columnCount = this.getColumnCount(items);
+    return Array.from({ length: columnCount }, (_, i) => i);
+  }
+
+  // TrackBy function for columns
+  trackByIndex(index: number): number {
+    return index;
+  }
+
+  // TrackBy function for cart items
+  trackCartItem(index: number, item: CartItem): string {
+    return `${item.itemId}-${item.cartItemType}-${index}`;
+  }
+
+  // Calculate dynamic width based on columns
+  getCartPreviewWidth(): number {
+    const cart = this.cartService.getCurrentCartValue();
+    if (!cart?.items) return this.MIN_PANEL_WIDTH;
+
+    const columnCount = this.getColumnCount(cart.items);
+    return Math.max(this.MIN_PANEL_WIDTH, columnCount * this.COLUMN_WIDTH);
   }
 
   // ===== EXISTING METHODS =====
