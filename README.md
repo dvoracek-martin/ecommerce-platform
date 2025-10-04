@@ -124,7 +124,7 @@ Kafka --> Grafana
 | `customer-service`            | Manages customer data and profiles                                |
 | `order-service`               | Processes customer orders                                         |
 | `payment-service`             | Simulates payment transactions                                    |
-| `shipping-service`            | Handles shipping details                                          |
+| `email-service`            | Handles shipping details                                          |
 | `inventory-service`           | Tracks stock availability                                         |
 | `config-server`               | Externalized, centralized configuration                           |
 | `eureka-server`               | Service registry                                                  |
@@ -222,7 +222,7 @@ ecommerce-platform/
 ├── inventory-service/
 ├── order-service/
 ├── payment-service/
-├── shipping-service/
+├── email-service/
 ├── user-service/
 ├── HELP.md
 └── pom.xml
