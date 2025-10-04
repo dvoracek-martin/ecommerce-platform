@@ -11,6 +11,7 @@ import com.dvoracek.cartservice.domain.model.cart.CartItem;
 import com.dvoracek.cartservice.domain.model.discount.Discount;
 import com.dvoracek.cartservice.domain.model.discount.DiscountType;
 import com.dvoracek.cartservice.domain.repository.DiscountRepository;
+import com.dvoracekmartin.common.dto.cart.CartItemType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,7 +69,8 @@ public class CartServiceImpl implements CartService {
         Cart cart = getOrCreateCart(username, guestId);
 
         Optional<CartItem> existing = cart.getItems().stream()
-                .filter(item -> item.getItemId().equals(newItem.getItemId()))
+                .filter(item -> item.getItemId().equals(newItem.getItemId()) &&
+                        item.getCartItemType() == newItem.getCartItemType())
                 .findFirst();
 
         if (existing.isPresent()) {
@@ -93,15 +95,19 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartDTO updateItemQuantity(String username, String guestId, Long getItemId, int quantity) {
+    public CartDTO updateItemQuantity(String username, String guestId, Long itemId, CartItemType cartItemType, int quantity) {
         Cart cart = getOrCreateCart(username, guestId);
+
         cart.getItems().stream()
-                .filter(item -> item.getItemId().equals(getItemId))
+                .filter(item -> item.getItemId().equals(itemId)
+                        && item.getCartItemType() == cartItemType)
                 .findFirst()
                 .ifPresent(item -> item.setQuantity(quantity));
+
         Cart updatedCart = cartRepository.save(cart);
         return cartMapper.toDto(updatedCart);
     }
+
 
     @Override
     @Transactional

@@ -6,6 +6,7 @@ import com.dvoracek.cartservice.application.dto.discount.ResponseDiscountDTO;
 import com.dvoracek.cartservice.application.dto.discount.DiscountApplicationResultDTO;
 import com.dvoracek.cartservice.domain.model.cart.Cart;
 import com.dvoracek.cartservice.domain.model.cart.CartItem;
+import com.dvoracekmartin.common.dto.cart.CartItemType;
 
 public interface CartService {
     CartDTO getCart(String username, String guestId);
@@ -16,7 +17,7 @@ public interface CartService {
 
     CartDTO removeItem(String username, String guestId, Long getItemId);
 
-    CartDTO updateItemQuantity(String username, String guestId, Long getItemId, int quantity);
+    CartDTO updateItemQuantity(String username, String guestId, Long getItemId, CartItemType cartItemType, int quantity);
 
     CartDTO mergeGuestIntoUser(String username, CartItem[] guestId);
 

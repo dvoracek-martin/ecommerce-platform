@@ -4,6 +4,7 @@ import com.dvoracekmartin.common.dto.cart.CartDTO;
 import com.dvoracek.cartservice.domain.service.CartService;
 import com.dvoracek.cartservice.application.dto.discount.DiscountApplicationResultDTO;
 import com.dvoracek.cartservice.domain.model.cart.CartItem;
+import com.dvoracekmartin.common.dto.cart.CartItemType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -43,8 +44,9 @@ public class CartControllerV1 {
     public ResponseEntity<CartDTO> updateItem(@AuthenticationPrincipal Jwt jwt,
                                               @CookieValue(name = "gcid", required = false) String guestId,
                                               @RequestParam Long itemId,
+                                              @RequestParam CartItemType cartItemType,
                                               @RequestParam int quantity) {
-        return ResponseEntity.ok(cartService.updateItemQuantity(usernameOrNull(jwt), guestId, itemId, quantity));
+        return ResponseEntity.ok(cartService.updateItemQuantity(usernameOrNull(jwt), guestId, itemId, cartItemType, quantity));
     }
 
     @DeleteMapping("/remove/{productId}")
@@ -62,8 +64,8 @@ public class CartControllerV1 {
 
     @PostMapping("/apply-discount")
     public ResponseEntity<DiscountApplicationResultDTO> applyDiscount(@AuthenticationPrincipal Jwt jwt,
-                                           @CookieValue(name = "gcid", required = false) String guestId,
-                                           @RequestBody Map<String, String> request) {
+                                                                      @CookieValue(name = "gcid", required = false) String guestId,
+                                                                      @RequestBody Map<String, String> request) {
         String code = request.get("code");
         DiscountApplicationResultDTO result = cartService.applyDiscount(usernameOrNull(jwt), guestId, code);
 
