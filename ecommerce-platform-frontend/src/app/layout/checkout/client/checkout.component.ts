@@ -161,7 +161,7 @@ export class CheckoutComponent implements OnInit {
     const token = this.authService.token;
 
     if (userId && token) {
-      this.http.get<Customer>(`http://localhost:8080/api/customers/v1/${userId}`, {
+      this.http.get<Customer>(`/api/customers/v1/${userId}`, {
         headers: {'Authorization': `Bearer ${token}`}
       }).subscribe({
         next: (customer: Customer) => {

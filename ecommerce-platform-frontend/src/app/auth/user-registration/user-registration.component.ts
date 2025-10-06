@@ -147,7 +147,7 @@ export class UserRegistrationComponent implements OnInit {
       active: true
     };
 
-    this.http.post('http://localhost:8080/api/users/v1/create', payload).subscribe({
+    this.http.post('/api/users/v1/create', payload).subscribe({
       next: () => {
         this.snackBar.open(
           this.translate.instant('SUCCESS.REGISTRATION_SUCCESS'),

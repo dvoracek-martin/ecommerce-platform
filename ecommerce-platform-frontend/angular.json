@@ -80,10 +80,12 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "ecommerce-platform-frontend:build:production"
+              "buildTarget": "ecommerce-platform-frontend:build:production",
+              "proxyConfig": "proxy.conf.js"
             },
             "development": {
-              "buildTarget": "ecommerce-platform-frontend:build:development"
+              "buildTarget": "ecommerce-platform-frontend:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

@@ -50,8 +50,8 @@ import {HeaderComponent} from './layout/header/header.component';
 import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 import {CustomersAdminDetailComponent} from './layout/customers/admin/customers-admin-detail.component';
 import {
-  ConfigurationAdminComponent
-} from './layout/configuration/admin/configuration-admin/configuration-admin.component';
+  ConfigurationLocalizationAdminComponent
+} from './layout/configuration/admin/configuration-localization-admin/configuration-localization-admin.component';
 import {MatDatepicker, MatDatepickerInput, MatDatepickerToggle} from "@angular/material/datepicker";
 import {MatNativeDateModule} from '@angular/material/core';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
@@ -60,6 +60,14 @@ import {TagBadgeComponent} from './shared/tag-badge/tag-badge.component';
 import {CompactGalleryComponent} from './shared/galleries/gallery-box/compact-gallery.component';
 import {FullscreenGalleryComponent} from './shared/galleries/full-screen-gallery-modal/full-screen-gallery.component';
 import {CardGalleryComponent} from './shared/galleries/card-gallery/card-gallery.component';
+import {
+  EmailsAdminTemplatesComponent
+} from './layout/emails/admin/emails-admin-templates/emails-admin-templates.component';
+import {SafeHtmlPipe} from './shared/safe-html.pipe';
+import {EmailAdminLogsComponent} from './layout/emails/admin/emails-admin-logs/emails-admin-logs.component';
+import {EmailsAdminSendComponent} from './layout/emails/admin/emails-admin-send/emails-admin-send.component';
+import {MatAutocomplete, MatAutocompleteTrigger} from '@angular/material/autocomplete';
+import {EmailResendDialogComponent} from './layout/emails/admin/email-resend-dialog/email-resend-dialog.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -104,7 +112,11 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     ConfirmationDialogComponent,
     CheckoutComponent,
     HeaderComponent,
-    ConfigurationAdminComponent,
+    ConfigurationLocalizationAdminComponent,
+    EmailsAdminTemplatesComponent,
+    EmailAdminLogsComponent,
+    EmailsAdminSendComponent,
+    EmailResendDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -138,6 +150,9 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
     CompactGalleryComponent,
     FullscreenGalleryComponent,
     CardGalleryComponent,
+    SafeHtmlPipe,
+    MatAutocomplete,
+    MatAutocompleteTrigger,
   ],
   providers: [
     {

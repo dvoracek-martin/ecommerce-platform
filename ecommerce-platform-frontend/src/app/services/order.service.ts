@@ -9,7 +9,7 @@ import {UpdateOrderDTO} from '../dto/order/update-order-dto';
   providedIn: 'root'
 })
 export class OrderService {
-  private readonly apiUrl = 'http://localhost:8080/api/orders/v1';
+  private readonly apiUrl = '/api/orders/v1';
   private readonly apiAdminUrl = `${this.apiUrl}/admin`;
 
   constructor(

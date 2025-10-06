@@ -139,7 +139,7 @@ export class ResetPasswordComponent implements OnInit {
       newPassword: this.resetForm.value.newPassword
     };
 
-    this.http.post('http://localhost:8080/api/users/v1/reset-password', payload,
+    this.http.post('/api/users/v1/reset-password', payload,
       { responseType: 'text' }
     ).subscribe({
       next: () => {

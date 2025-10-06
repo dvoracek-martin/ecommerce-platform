@@ -31,7 +31,7 @@ export interface Cart {
 
 @Injectable({providedIn: 'root'})
 export class CartService {
-  private apiUrl = 'http://localhost:8080/api/cart/v1';
+  private apiUrl = '/api/cart/v1';
   private isBrowser: boolean;
   private _cart = new BehaviorSubject<Cart | null>(null);
   readonly cart$ = this._cart.asObservable();

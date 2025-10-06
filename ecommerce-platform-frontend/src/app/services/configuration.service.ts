@@ -10,8 +10,8 @@ import {ResponseLocaleDto} from '../dto/configuration/response-locale-dto';
 })
 export class ConfigurationService {
 
-  private apiUrl = 'http://localhost:8080/api/configuration/v1';
-  private apiAdminUrl = 'http://localhost:8080/api/configuration/v1/admin';
+  private apiUrl = '/api/configuration/v1';
+  private apiAdminUrl = '/api/configuration/v1/admin';
 
   // --- cache for getLastAppSettings ---
   private cachedAppSettings?: RequestAppSettingsDto;

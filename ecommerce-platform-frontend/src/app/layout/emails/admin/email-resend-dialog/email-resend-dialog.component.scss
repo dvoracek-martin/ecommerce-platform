@@ -1,0 +1,230 @@
+@use '../../../../shared/styles/admin/admin-shared-styles';
+
+/* Dark overlay behind dialog */
+::ng-deep .mat-mdc-dialog-backdrop {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Transparent outer dialog container */
+::ng-deep .mat-mdc-dialog-container {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modern floating dialog card */
+.modern-dialog-container {
+  background: var(--background-card);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 600px;
+  padding: var(--spacing-lg);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  box-shadow: 0 16px 40px var(--shadow-medium);
+  font-family: var(--font-primary);
+  overflow: hidden;
+  word-wrap: break-word;
+  word-break: break-word;
+  box-sizing: border-box;
+  animation: fadeIn 0.15s ease-in-out;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Header with icon and title */
+.modern-dialog-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--primary-color);
+
+  .dialog-title {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+/* Dialog body */
+.modern-dialog-body {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  text-align: left;
+}
+
+.email-info {
+  background: var(--background-light);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--border-color);
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--divider-color);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .value {
+      color: var(--text-secondary);
+      text-align: right;
+    }
+  }
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.full-width {
+  width: 100%;
+}
+
+.email-body {
+  textarea {
+    min-height: 150px;
+    resize: vertical;
+    font-family: var(--font-primary);
+    line-height: 1.5;
+  }
+}
+
+/* Dialog actions */
+.modern-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+
+  button {
+    min-width: 120px;
+    font-weight: 600;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+
+    &[color="primary"] {
+      background-color: var(--primary-color);
+      color: #fff;
+
+      &:hover:not(:disabled) {
+        background-color: var(--primary-hover);
+      }
+
+      &:disabled {
+        background-color: var(--text-muted);
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(-10px);}
+  100% { opacity: 1; transform: translateY(0);}
+}
+
+/* Material Overrides */
+::ng-deep .modern-dialog-container {
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+
+  .mat-mdc-form-field-flex {
+    background: var(--background-light);
+  }
+
+  .mat-mdc-select-arrow {
+    color: var(--primary-color);
+  }
+
+  .mat-mdc-option {
+    background: var(--background-card) !important;
+    color: var(--text-primary) !important;
+
+    &:hover:not(.mdc-list-item--disabled) {
+      background: var(--background-hover) !important;
+    }
+
+    &.mat-mdc-option-active {
+      background: var(--background-hover) !important;
+    }
+  }
+
+  .mat-mdc-select-panel {
+    background: var(--background-card) !important;
+    border: 1px solid var(--border-color);
+  }
+}
+
+/* Responsive for small screens */
+@media (max-width: 768px) {
+  .modern-dialog-container {
+    padding: var(--spacing-md);
+    margin: var(--spacing-md);
+  }
+
+  .dialog-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .modern-dialog-actions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .email-info {
+    padding: var(--spacing-sm);
+
+    .info-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-xs);
+
+      .value {
+        text-align: left;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .modern-dialog-container {
+    padding: var(--spacing-sm);
+    margin: var(--spacing-sm);
+  }
+}

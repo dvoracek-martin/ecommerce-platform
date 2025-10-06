@@ -95,7 +95,9 @@ class CatalogControllerV1Test {
                 List.of(dummyMedia()),
                 List.of(dummyCategory()),
                 List.of(dummyProduct()),
-                List.of(dummyMixture())
+                List.of(dummyMixture()),
+                "#fffffff",
+                null
         );
     }
 

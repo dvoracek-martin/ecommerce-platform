@@ -336,7 +336,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     if (!userId || !token) return;
 
-    this.http.get<Customer>(`http://localhost:8080/api/customers/v1/${userId}`, {
+    this.http.get<Customer>(`/api/customers/v1/${userId}`, {
       headers: {'Authorization': `Bearer ${token}`}
     }).subscribe({
       next: (customer: Customer) => {
@@ -379,12 +379,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const token = this.authService.token;
     if (!userId || !token) return;
 
-    this.http.get<Customer>(`http://localhost:8080/api/customers/v1/${userId}`, {
+    this.http.get<Customer>(`/api/customers/v1/${userId}`, {
       headers: {'Authorization': `Bearer ${token}`}
     }).subscribe({
       next: (customer) => {
         const updatedCustomer = {...customer, preferredLanguage: languageCode};
-        this.http.put(`http://localhost:8080/api/customers/v1/${userId}`, updatedCustomer, {
+        this.http.put(`/api/customers/v1/${userId}`, updatedCustomer, {
           headers: {'Authorization': `Bearer ${token}`}
         }).subscribe({
           error: (err) => console.error('Failed to update user language:', err)
@@ -509,8 +509,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isUserMenuOpen = false;
   }
 
-  navigateToAdminConfiguration() {
-    this.router.navigate([`/admin/configuration`]);
+  navigateToAdminLocalizationConfiguration() {
+    this.router.navigate([`/admin/configuration/localization`]);
+    this.isUserMenuOpen = false;
+  }
+
+  navigateToAdminEmailsConfiguration() {
+    this.router.navigate([`/admin/configuration/emails`]);
     this.isUserMenuOpen = false;
   }
 
@@ -680,4 +685,5 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isLanguageMenuOpen(): boolean {
     return false; // This is now handled by Angular Material
   }
+
 }

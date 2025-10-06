@@ -8,7 +8,7 @@ export class SearchService {
   constructor(private http: HttpClient) {
   }
 
-  private apiUrl = 'http://localhost:8080/api/catalog/v1/';
+  private apiUrl = '/api/catalog/v1/';
 
   search(q: string): Observable<SearchResultDTO> {
     return this.http.get<SearchResultDTO>(`${this.apiUrl}search`, {params: {q}});

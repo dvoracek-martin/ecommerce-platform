@@ -8,8 +8,8 @@ import {Customer} from '../dto/customer/customer-dto';
   providedIn: 'root'
 })
 export class CustomerService {
-  private apiUrl = 'http://localhost:8080/api/customers/v1';
-  private apiAdminUrl = 'http://localhost:8080/api/customers/v1/admin';
+  private apiUrl = '/api/customers/v1';
+  private apiAdminUrl = '/api/customers/v1/admin';
   private userLanguageSubject = new BehaviorSubject<string>('en');
   userLanguage$ = this.userLanguageSubject.asObservable();
 

@@ -1,0 +1,78 @@
+/* Configuration Admin Component */
+@use '../../../../shared/styles/admin/admin-shared-styles';
+
+// Component-specific overrides
+.title-icon {
+  margin-right: var(--spacing-sm);
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+// Locale flags for both dropdowns
+.locale-flag {
+  width: 16px;
+  height: 12px;
+  margin-right: var(--spacing-xs);
+  vertical-align: middle;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+}
+
+// Dropdown options alignment
+::ng-deep .mat-select-panel .mat-option {
+  display: flex;
+  align-items: center;
+}
+
+// Selected items in multi-select trigger
+::ng-deep .mat-select-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.selected-locale-item {
+  display: flex;
+  align-items: center;
+  margin-right: var(--spacing-sm);
+}
+
+.selected-locale-item span {
+  white-space: nowrap;
+}
+
+// Date picker styling
+::ng-deep .mat-datepicker-toggle {
+  color: var(--text-muted);
+}
+
+::ng-deep .mat-datepicker-content {
+  background: var(--background-card);
+  color: var(--text-primary);
+
+  .mat-calendar {
+    background: var(--background-card);
+
+    .mat-calendar-body-cell-content {
+      color: var(--text-primary);
+    }
+
+    .mat-calendar-body-selected {
+      background-color: var(--primary-color);
+      color: var(--text-white);
+    }
+  }
+}
+
+// Mobile-specific adjustments
+@media (max-width: 768px) {
+  .selected-locale-item {
+    margin-right: var(--spacing-xs);
+  }
+
+  ::ng-deep .mat-select-trigger {
+    min-height: 56px;
+  }
+}

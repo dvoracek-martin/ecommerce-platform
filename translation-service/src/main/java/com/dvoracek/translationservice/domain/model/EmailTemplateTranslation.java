@@ -18,7 +18,7 @@ public class EmailTemplateTranslation {
     @Column(name = "entity_id", nullable = false)
     private Long entityId;
 
-    @Column(name = "locale", nullable = false, length = 2)
+    @Column(name = "locale", nullable = false, length = 5, columnDefinition = "TEXT")
     private String locale;
 
     @Column(name = "subject", nullable = false, columnDefinition = "TEXT")

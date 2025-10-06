@@ -42,6 +42,22 @@
     "NO_MEDIA": "Keine Medien für diese Kategorie verfügbar",
     "TITLE": "Produktkategorien"
   },
+  "EMAILS": {
+    "ADMIN": {
+      "TITLE": "Email Templates",
+      "SUBTITLE": "Manage and customize email templates for different languages",
+      "SELECT_EMAIL_TYPE": "Select Email Type",
+      "EMAIL_TYPE": "Email Type",
+      "EMAIL_CONTENT": "Email Content",
+      "SUBJECT": "Subject",
+      "SUBJECT_PLACEHOLDER": "Enter email subject...",
+      "BODY": "Body",
+      "BODY_PLACEHOLDER": "Enter email body content...",
+      "PREVIEW": "Preview",
+      "SHOW_PREVIEW": "Show Preview",
+      "LOADED_DATA": "Loaded Data"
+    }
+  },
   "COMMON": {
     "CANCEL": "Abbrechen",
     "CHANGE_PASSWORD": "Passwort ändern",
@@ -119,6 +135,13 @@
     "RESET_PASSWORD": "Passwort zurücksetzen",
     "SEND_RESET_LINK": "Link zum Zurücksetzen senden",
     "TITLE": "Anmelden"
+  },
+  "TYPES": {
+    "REGISTRATION": "Registration Email",
+    "EMAIL_CHANGE_CONFIRMATION": "Email Change Confirmation",
+    "PASSWORD_RESET": "Password Reset",
+    "NEW_ORDER": "New Order Notification",
+    "ORDER_STATUS_UPDATE": "Order Status Update"
   },
   "MENU": {
     "NAVIGATION": {

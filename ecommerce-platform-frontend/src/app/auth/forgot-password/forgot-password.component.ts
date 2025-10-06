@@ -40,7 +40,7 @@ export class ForgotPasswordComponent {
     this.loading = true;
     const email = this.forgotForm.value.email.trim().toLowerCase();
 
-    this.http.post('http://localhost:8080/api/users/v1/forgot-password', { email })
+    this.http.post('/api/users/v1/forgot-password', { email })
       .subscribe({
         next: () => {
           this.showSuccess('SUCCESS.RESET_LINK_SENT');

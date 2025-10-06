@@ -9,14 +9,15 @@ import {ResponseLocaleDto} from '../../../../dto/configuration/response-locale-d
 import {RequestAppSettingsDto} from '../../../../dto/configuration/request-app-settings-dto';
 import {switchMap} from 'rxjs/operators';
 import {LocaleMapperService} from '../../../../services/locale-mapper.service';
+import {ConfirmationDialogComponent} from '../../../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-configuration-admin',
-  templateUrl: './configuration-admin.component.html',
+  templateUrl: './configuration-localization-admin.component.html',
   standalone: false,
-  styleUrls: ['./configuration-admin.component.scss']
+  styleUrls: ['./configuration-localization-admin.component.scss']
 })
-export class ConfigurationAdminComponent implements OnInit, OnDestroy {
+export class ConfigurationLocalizationAdminComponent implements OnInit, OnDestroy {
 
   configurationForm!: FormGroup;
   saving = false;
@@ -35,8 +36,6 @@ export class ConfigurationAdminComponent implements OnInit, OnDestroy {
   ) {
   }
 
-
-// v ngOnInit
   ngOnInit() {
     this.initForm();
     this.loadData();
@@ -74,14 +73,17 @@ export class ConfigurationAdminComponent implements OnInit, OnDestroy {
           if (settings.defaultLocale) {
             const isInUsed = selected.some(u => u.id === settings.defaultLocale.id);
             if (!isInUsed) {
-              // pokud defaultLocale není v usedLocales, nastavíme jako první z usedLocales
+              // if defaultLocale is not in usedLocales, set as first from usedLocales
               this.configurationForm.get('defaultLocale')?.setValue(selected[0] || null);
             }
           }
         },
         error: (err) => {
           console.error('Error loading configuration data:', err);
-          this.snackBar.open('Error loading configuration data', 'Close', {duration: 3000});
+          this.snackBar.open('Error loading configuration data', 'Close', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
         }
       });
   }
@@ -96,63 +98,20 @@ export class ConfigurationAdminComponent implements OnInit, OnDestroy {
       id: [null],
       theme: ['', Validators.required],
       updatedAt: [new Date().toISOString(), Validators.required],
-      usedLocales: [[]],
+      usedLocales: [[], Validators.required],
       defaultLocale: [null, Validators.required],
       currency: ['', Validators.required]
     });
   }
 
-  private loadInUseLocales() {
-    this.configurationService.getInUseLocales()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (locales) => {
-          this.inUseLocales = locales;
-
-          const used: ResponseLocaleDto[] = this.configurationForm.value.usedLocales || [];
-          const selected = this.inUseLocales.filter(locale =>
-            used.some(u => u.id === locale.id)
-          );
-          this.configurationForm.get('usedLocales')?.setValue(selected);
-        },
-        error: (error) => {
-          console.error('Error loading locales:', error);
-          this.snackBar.open('Error loading in use locales', 'Close', {duration: 3000});
-        }
-      });
-  }
-
-  private loadLastAppSettings() {
-    this.configurationService.getLastAppSettings()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (settings) => {
-          this.appSettingsId = settings.id;
-
-          this.configurationForm.patchValue({
-            id: settings.id,
-            theme: settings.theme,
-            updatedAt: settings.updatedAt,
-            usedLocales: settings.usedLocales
-          });
-
-          const selected = this.inUseLocales.filter(locale =>
-            settings.usedLocales.some(u => u.id === locale.id)
-          );
-          this.configurationForm.get('usedLocales')?.setValue(selected);
-        },
-        error: (error) => {
-          console.error('Error loading last app settings:', error);
-          this.snackBar.open('Error loading app settings', 'Close', {duration: 3000});
-        }
-      });
-  }
-
   onSave(): void {
     if (this.configurationForm.invalid) {
       this.configurationForm.markAllAsTouched();
-      this.snackBar.open('Please correct the highlighted fields.', 'Close', {duration: 5000});
-      this.router.navigate(['/`']);
+      this.snackBar.open('Please correct the highlighted fields.', 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
     }
 
     this.saving = true;
@@ -169,21 +128,41 @@ export class ConfigurationAdminComponent implements OnInit, OnDestroy {
           },
           error: (err) => {
             this.saving = false;
-            this.snackBar.open('Error saving settings', 'Close', {duration: 3000});
-            console.error(err);
+            console.error('Update failed:', err);
+            this.snackBar.open('Failed to update settings', 'Close', {
+              duration: 5000,
+              panelClass: ['error-snackbar']
+            });
           }
         });
     } else {
       this.saving = false;
-      this.snackBar.open('No existing settings to update.', 'Close', {duration: 3000});
+      this.snackBar.open('No existing settings to update.', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+    }
+  }
+
+  onCancel(): void {
+    if (this.configurationForm?.dirty) {
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        data: {
+          title: 'COMMON.CANCEL_CONFIRM_TITLE',
+          message: 'COMMON.CANCEL_CONFIRM_MESSAGE',
+          warn: true
+        }
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result)
+          this.router.navigate([`/admin/configuration/emails`]);
+      });
+    } else {
+      this.router.navigate([`/admin/configuration/emails`]);
     }
   }
 
   compareLocales = (a: ResponseLocaleDto, b: ResponseLocaleDto) => a && b ? a.id === b.id : a === b;
-
-  onCancel(): void {
-    this.router.navigate(['/dashboard']);
-  }
 
   translateLocale(locale: ResponseLocaleDto) {
     return this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode);

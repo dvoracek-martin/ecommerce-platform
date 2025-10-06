@@ -93,8 +93,8 @@ services:
     image: mailhog/mailhog
     container_name: mailhog-service
     ports:
-      - "1025:1025"
-      - "7999:8025"
+      - "1025:1025"   # SMTP
+      - "7999:8025"   # Web UI
 
   kafdrop:
     image: obsidiandynamics/kafdrop:latest

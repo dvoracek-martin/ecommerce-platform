@@ -1,0 +1,137 @@
+/* Emails Admin Component - Consistent with Product Edit Design System */
+@use '../../../../shared/styles/admin/admin-shared-styles';
+
+// Component-specific overrides
+.title-icon {
+  margin-right: var(--spacing-sm);
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+// Email Preview Styles
+.email-preview {
+  width: 100%;
+  background: var(--background-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
+.preview-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.preview-subject,
+.preview-body {
+  padding: var(--spacing-md);
+  background: var(--background-card);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--primary-color);
+}
+
+.preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.html-preview {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  min-height: 200px;
+  max-height: 400px;
+  overflow: auto;
+
+  // Basic email styling for HTML preview
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333333;
+
+  // Style common HTML elements in email context
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-sm) 0;
+
+    td {
+      padding: var(--spacing-xs);
+      border: 1px solid #ddd;
+    }
+  }
+
+  p {
+    margin: var(--spacing-sm) 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: var(--spacing-md) 0 var(--spacing-sm) 0;
+    color: #333;
+  }
+
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .email-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+// Info Message
+.info-message {
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  color: var(--info-text);
+}
+
+.timestamp {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: var(--spacing-xs);
+  font-style: italic;
+}
+
+// Textarea specific styling
+::ng-deep .mat-form-field-textarea {
+  .mat-form-field-flex {
+    align-items: flex-start;
+  }
+}
+
+// Mobile-specific adjustments
+@media (max-width: 768px) {
+  .email-preview {
+    padding: var(--spacing-md);
+  }
+
+  .preview-subject,
+  .preview-body {
+    padding: var(--spacing-sm);
+  }
+
+  .html-preview {
+    padding: var(--spacing-sm);
+    max-height: 300px;
+  }
+}

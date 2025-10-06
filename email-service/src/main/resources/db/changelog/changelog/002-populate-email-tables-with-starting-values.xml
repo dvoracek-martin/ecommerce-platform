@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Changeset to insert default email types -->
+    <changeSet id="3-insert-email-types" author="martin">
+        <insert tableName="email">
+            <column name="email_type" value="REGISTRATION"/>
+        </insert>
+        <insert tableName="email">
+            <column name="email_type" value="EMAIL_CHANGE_CONFIRMATION"/>
+        </insert>
+        <insert tableName="email">
+            <column name="email_type" value="PASSWORD_RESET"/>
+        </insert>
+        <insert tableName="email">
+            <column name="email_type" value="NEW_ORDER"/>
+        </insert>
+        <insert tableName="email">
+            <column name="email_type" value="ORDER_STATUS_UPDATE"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

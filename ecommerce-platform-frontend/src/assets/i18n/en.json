@@ -36,6 +36,23 @@
       "TYPE_REQUIRED": "Category type is required",
       "UPLOAD_MEDIA": "Upload Media"
     },
+    "EMAILS": {
+      "PERSONALIZATION_NOTE": "Note: Each recipient will receive a personalized email with their specific information",
+      "ADMIN": {
+        "TITLE": "Email Templates",
+        "SUBTITLE": "Manage and customize email templates for different languages",
+        "SELECT_EMAIL_TYPE": "Select Email Type",
+        "EMAIL_TYPE": "Email Type",
+        "EMAIL_CONTENT": "Email Content",
+        "SUBJECT": "Subject",
+        "SUBJECT_PLACEHOLDER": "Enter email subject...",
+        "BODY": "Body",
+        "BODY_PLACEHOLDER": "Enter email body content...",
+        "PREVIEW": "Preview",
+        "SHOW_PREVIEW": "Show Preview",
+        "LOADED_DATA": "Loaded Data"
+      }
+    },
     "ERROR_LOADING": "Error loading categories: {{error}}",
     "LOADING": "Loading categories...",
     "NO_MEDIA": "No media available for this category",

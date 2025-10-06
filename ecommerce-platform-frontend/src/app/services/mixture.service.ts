@@ -16,8 +16,8 @@ export interface CreateMixtureRequest {
 })
 export class MixtureService {
 
-  private apiUrl = 'http://localhost:8080/api/catalog/v1/mixtures';
-  private adminApiUrl: 'http://localhost:8080/api/catalog/v1/admin/mixtures';
+  private apiUrl = '/api/catalog/v1/mixtures';
+  private adminApiUrl: '/api/catalog/v1/admin/mixtures';
 
   constructor(private http: HttpClient) {
   }

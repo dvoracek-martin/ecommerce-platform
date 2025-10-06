@@ -1,0 +1,279 @@
+<div class="email-send-container">
+  <div class="admin-header-section">
+    <div class="admin-header-content">
+      <div class="admin-title-section">
+        <h1>{{ 'EMAILS.SEND_TITLE' | translate }}</h1>
+        <p class="admin-subtitle">{{ 'EMAILS.SEND_SUBTITLE' | translate }}</p>
+
+        <!-- Template Status Indicator -->
+        <div class="template-status" *ngIf="!isInitializing && !loadError">
+          <mat-icon [class.loaded]="templatesLoaded" [class.empty]="!templatesLoaded">
+            {{ templatesLoaded ? 'check_circle' : 'warning' }}
+          </mat-icon>
+          <span>
+            {{ templatesLoaded ? ('EMAILS.TEMPLATES_LOADED' | translate) : ('EMAILS.NO_TEMPLATES' | translate) }}
+          </span>
+          <button
+            *ngIf="!templatesLoaded"
+            (click)="navigateToTemplates()"
+            class="configure-btn"
+            mat-button>
+            <mat-icon>settings</mat-icon>
+            {{ 'EMAILS.CONFIGURE_TEMPLATES' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button
+          (click)="sendEmail()"
+          [disabled]="!canSendEmail()"
+          class="send-button"
+          mat-raised-button>
+          <mat-icon>send</mat-icon>
+          {{ 'EMAILS.SEND_EMAIL' | translate }}
+        </button>
+        <button
+          (click)="cancel()"
+          class="cancel-button"
+          mat-stroked-button>
+          <mat-icon>arrow_back</mat-icon>
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Initial Loading -->
+  <div *ngIf="isInitializing" class="loading-overlay">
+    <mat-progress-spinner diameter="50" mode="indeterminate"></mat-progress-spinner>
+    <div class="loading-text">{{ 'EMAILS.LOADING_TEMPLATES' | translate }}</div>
+  </div>
+
+  <!-- Load Error State -->
+  <div *ngIf="loadError && !isInitializing" class="error-section">
+    <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
+    <div class="error-text">{{ loadError }}</div>
+    <div class="error-actions">
+      <button
+        (click)="retryLoadTemplates()"
+        color="primary"
+        mat-raised-button>
+        <mat-icon>refresh</mat-icon>
+        {{ 'COMMON.RETRY' | translate }}
+      </button>
+      <button
+        (click)="navigateToTemplates()"
+        color="accent"
+        mat-stroked-button>
+        <mat-icon>settings</mat-icon>
+        {{ 'EMAILS.CONFIGURE_TEMPLATES' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="email-form-container" *ngIf="!isInitializing && !loadError">
+    <!-- Email Type Selection -->
+    <div class="form-section">
+      <div class="section-subtitle">
+        <mat-icon>drafts</mat-icon>
+        <h3>{{ 'EMAILS.EMAIL_TYPE' | translate }}</h3>
+        <span class="template-indicator" *ngIf="selectedEmailType && hasTemplateContent()">
+          <mat-icon class="has-content">check_circle</mat-icon>
+          {{ 'EMAILS.TEMPLATE_LOADED' | translate }}
+        </span>
+        <span class="template-indicator warning" *ngIf="selectedEmailType && !hasTemplateContent()">
+          <mat-icon>warning</mat-icon>
+          {{ 'EMAILS.NO_TEMPLATE_CONTENT' | translate }}
+        </span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <mat-form-field appearance="outline" class="email-type-select">
+            <mat-label>{{ 'EMAILS.SELECT_EMAIL_TYPE' | translate }}</mat-label>
+            <mat-select [(value)]="selectedEmailType" (selectionChange)="onEmailTypeChange()">
+              <mat-option *ngFor="let type of availableEmailTypes" [value]="type">
+                <div class="email-type-option">
+                  <span>{{ getEmailTypeDisplayName(type) }}</span>
+                  <mat-icon
+                    *ngIf="emailTemplates.get(type)?.localizedFields && Object.keys(emailTemplates.get(type)!.localizedFields).length > 0"
+                    class="option-loaded">
+                    check_circle
+                  </mat-icon>
+                </div>
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>arrow_drop_down</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Language Selection -->
+        <div class="form-field">
+          <mat-form-field appearance="outline" class="language-select">
+            <mat-label>{{ 'EMAILS.EMAIL_LANGUAGE' | translate }}</mat-label>
+            <mat-select [(value)]="selectedLanguage" (selectionChange)="onLanguageChange()">
+              <mat-option *ngFor="let locale of usedLocales" [value]="getLocaleString(locale)">
+                {{ getLocaleString(locale) | translate }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>language</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recipient Selection -->
+    <div class="form-section">
+      <div class="section-subtitle">
+        <mat-icon>people</mat-icon>
+        <h3>{{ 'EMAILS.RECIPIENTS' | translate }}</h3>
+      </div>
+
+      <!-- Customer Search -->
+      <div class="form-field full-width">
+        <mat-form-field appearance="outline" class="customer-search">
+          <mat-label>{{ 'EMAILS.SEARCH_CUSTOMERS' | translate }}</mat-label>
+          <input
+            matInput
+            [formControl]="customerSearchControl"
+            [matAutocomplete]="auto"
+            placeholder="{{ 'EMAILS.SEARCH_BY_NAME_EMAIL' | translate }}">
+          <mat-icon matSuffix>search</mat-icon>
+          <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayCustomer">
+            <mat-option
+              *ngFor="let customer of filteredCustomers | async"
+              [value]="customer"
+              (onSelectionChange)="onCustomerSelect(customer)">
+              <div class="customer-option">
+                <div class="customer-info">
+                  <span class="customer-name">{{ customer.firstName }} {{ customer.lastName }}</span>
+                  <span class="customer-email">{{ customer.email }}</span>
+                  <span class="customer-language" *ngIf="customer.preferredLanguageId">
+                    {{ getCustomerLanguage(customer) | translate }}
+                  </span>
+                </div>
+                <mat-icon *ngIf="isCustomerSelected(customer)" class="selected-icon">check_circle</mat-icon>
+              </div>
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+
+      <!-- Selected Recipients -->
+      <div class="selected-recipients" *ngIf="selectedCustomers.length > 0">
+        <h4>{{ 'EMAILS.SELECTED_RECIPIENTS' | translate }} ({{ selectedCustomers.length }})</h4>
+        <div class="recipients-list">
+          <div *ngFor="let customer of selectedCustomers" class="recipient-chip">
+            <div class="recipient-info">
+              <span class="recipient-name">{{ customer.firstName }} {{ customer.lastName }}</span>
+              <span class="recipient-email">{{ customer.email }}</span>
+              <span class="recipient-language" *ngIf="customer.preferredLanguageId">
+                {{ getCustomerLanguage(customer) | translate }}
+              </span>
+            </div>
+            <button
+              (click)="removeCustomer(customer)"
+              class="remove-btn"
+              mat-icon-button>
+              <mat-icon class="remove-icon">close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="recipient-actions">
+          <button
+            (click)="clearSelection()"
+            class="clear-btn"
+            mat-button>
+            <mat-icon>clear_all</mat-icon>
+            {{ 'EMAILS.CLEAR_ALL' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Content -->
+    <div class="form-section" *ngIf="selectedEmailType">
+      <div class="section-subtitle">
+        <mat-icon>email</mat-icon>
+        <h3>{{ 'EMAILS.EMAIL_CONTENT' | translate }}</h3>
+      </div>
+
+      <!-- Subject -->
+      <div class="form-field full-width">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'EMAILS.SUBJECT' | translate }}</mat-label>
+          <input
+            matInput
+            [(ngModel)]="emailSubject"
+            [placeholder]="'EMAILS.SUBJECT_PLACEHOLDER' | translate"
+            maxlength="200">
+          <mat-hint align="end">{{ emailSubject?.length || 0 }}/200</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <!-- Body -->
+      <div class="form-field full-width">
+        <mat-form-field appearance="outline" class="email-body">
+          <mat-label>{{ 'EMAILS.BODY' | translate }}</mat-label>
+          <textarea
+            matInput
+            [(ngModel)]="emailBody"
+            [placeholder]="'EMAILS.BODY_PLACEHOLDER' | translate"
+            rows="8"
+            maxlength="5000">
+          </textarea>
+          <mat-hint align="end">{{ emailBody?.length || 0 }}/5000</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <!-- Template Variables -->
+      <div class="template-variables" *ngIf="availableVariables.length > 0">
+        <h4>{{ 'EMAILS.TEMPLATE_VARIABLES' | translate }}</h4>
+        <p class="variables-description">{{ 'EMAILS.VARIABLES_DESCRIPTION' | translate }}</p>
+        <div class="variables-list">
+          <span
+            *ngFor="let variable of availableVariables"
+            (click)="insertVariable(variable)"
+            class="variable-tag">
+            {{ getVariableDisplayName(variable) | translate }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Preview -->
+    <div class="form-section" *ngIf="selectedEmailType && selectedCustomers.length > 0">
+      <div class="section-subtitle">
+        <mat-icon>preview</mat-icon>
+        <h3>{{ 'EMAILS.PREVIEW' | translate }}</h3>
+      </div>
+
+      <div class="preview-container">
+        <div class="preview-header">
+          <strong>{{ 'EMAILS.TO' | translate }}:</strong>
+          <span class="preview-recipients">
+            {{ getRecipientEmailsPreview() }}
+          </span>
+        </div>
+        <div class="preview-subject">
+          <strong>{{ 'EMAILS.SUBJECT' | translate }}:</strong> {{ emailSubject || ('EMAILS.NO_SUBJECT' | translate) }}
+        </div>
+        <div class="preview-body">
+          <div [innerHTML]="getPreviewBody()"></div>
+        </div>
+        <div class="preview-note">
+          <mat-icon>info</mat-icon>
+          <span>{{ 'EMAILS.PERSONALIZATION_NOTE' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sending Loading State -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-progress-spinner diameter="50" mode="indeterminate"></mat-progress-spinner>
+    <div class="loading-text">{{ 'EMAILS.SENDING_EMAILS' | translate }}</div>
+  </div>
+</div>

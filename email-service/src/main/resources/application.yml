@@ -1,3 +1,7 @@
 spring:
   application:
     name: EMAIL-SERVICE
+  config:
+    activate:
+      on-profile: default
+    import: "configserver:http://localhost:8888"

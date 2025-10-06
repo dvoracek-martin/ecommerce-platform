@@ -64,8 +64,7 @@ class CatalogAdminControllerV1Test {
     private ResponseTagDTO dummyTag() {
         return new ResponseTagDTO(
                 1L, Map.of("en", new LocalizedField("name", "desc", "url")), 1, true,
-                List.of(dummyMedia()), List.of(dummyCategory()), List.of(dummyProduct()), List.of(dummyMixture())
-        );
+                List.of(dummyMedia()), List.of(dummyCategory()), List.of(dummyProduct()), List.of(dummyMixture()), "smile", "#fffffff");
     }
 
     @Test

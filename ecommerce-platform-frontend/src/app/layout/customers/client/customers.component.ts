@@ -141,7 +141,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
 
     if (userId && token) {
       const payload = this.createCustomerPayload();
-      this.http.put(`http://localhost:8080/api/customers/v1/${userId}`, payload, {
+      this.http.put(`/api/customers/v1/${userId}`, payload, {
         headers: {'Authorization': `Bearer ${token}`}
       }).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => this.handleSaveSuccess(),
@@ -166,7 +166,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
     if (userId && token) {
       const {currentPassword, newPassword} = passwordGroup.value;
       this.http.put(
-        `http://localhost:8080/api/users/v1/${userId}/password`,
+        `/api/users/v1/${userId}/password`,
         {currentPassword, newPassword},
         {
           headers: {'Authorization': `Bearer ${token}`}

@@ -33,9 +33,14 @@ import {OrdersAdminDetailComponent} from './layout/orders/admin/orders-admin-det
 import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 import {CustomersAdminDetailComponent} from './layout/customers/admin/customers-admin-detail.component';
 import {
-  ConfigurationAdminComponent
-} from './layout/configuration/admin/configuration-admin/configuration-admin.component';
+  ConfigurationLocalizationAdminComponent
+} from './layout/configuration/admin/configuration-localization-admin/configuration-localization-admin.component';
 import {ResetPasswordComponent} from './auth/reset-password/reset-password.component';
+import {
+  EmailsAdminTemplatesComponent
+} from './layout/emails/admin/emails-admin-templates/emails-admin-templates.component';
+import {EmailAdminLogsComponent} from './layout/emails/admin/emails-admin-logs/emails-admin-logs.component';
+import {EmailsAdminSendComponent} from './layout/emails/admin/emails-admin-send/emails-admin-send.component';
 
 const routes: Routes = [
   {path: '', component: WelcomeComponent},
@@ -80,7 +85,10 @@ const routes: Routes = [
       {path: 'tags/create', component: TagsAdminCreateComponent},
       {path: 'orders', component: OrdersAdminListComponent},
       {path: 'orders/detail', component: OrdersAdminDetailComponent},
-      {path: 'configuration', component: ConfigurationAdminComponent},
+      {path: 'configuration/localization', component: ConfigurationLocalizationAdminComponent},
+      {path: 'configuration/emails', component: EmailAdminLogsComponent},
+      {path: 'configuration/emails/send', component: EmailsAdminSendComponent},
+      {path: 'configuration/emails/templates', component: EmailsAdminTemplatesComponent},
     ]
   },
 

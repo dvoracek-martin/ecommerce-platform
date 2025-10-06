@@ -1,0 +1,180 @@
+<div class="email-logs-container">
+  <div class="admin-header-section list-header">
+    <div class="admin-header-content">
+      <div class="admin-title-section">
+        <h1>{{ 'EMAIL_LOGS.TITLE' | translate }}</h1>
+        <p class="admin-subtitle">{{ 'EMAIL_LOGS.ADMIN_SUBTITLE' | translate }}</p>
+      </div>
+
+      <div class="admin-actions">
+        <div class="admin-search-section">
+          <div class="admin-search-container">
+            <div class="admin-search-input-wrapper">
+              <mat-icon class="admin-search-icon">search</mat-icon>
+              <input
+                [formControl]="searchControl"
+                class="admin-search-input"
+                matInput
+                [placeholder]="'EMAIL_LOGS.SEARCH_PLACEHOLDER' | translate">
+              <button
+                (click)="clearSearch()"
+                *ngIf="searchControl.value"
+                class="admin-clear-button"
+                mat-icon-button>
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Email Type Filter -->
+          <div class="admin-search-container">
+            <div class="admin-search-input-wrapper email-type-filter">
+              <mat-icon class="admin-search-icon">email</mat-icon>
+              <select
+                [formControl]="emailTypeControl"
+                class="admin-search-input email-type-select">
+                <option value="">{{ 'EMAIL_LOGS.ALL_TYPES' | translate }}</option>
+                <option *ngFor="let type of emailTypes" [value]="type">{{ type }}</option>
+              </select>
+              <mat-icon class="dropdown-arrow">arrow_drop_down</mat-icon>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-buttons">
+          <button (click)="navigateToSendEmail()" class="admin-action-btn send-email-btn">
+            <mat-icon>send</mat-icon>
+            {{ 'EMAIL_LOGS.SEND_EMAIL' | translate }}
+          </button>
+          <button (click)="navigateToTemplates()" class="admin-action-btn templates-btn">
+            <mat-icon>drafts</mat-icon>
+            {{ 'EMAIL_LOGS.EMAIL_TEMPLATES' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-section">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <div class="loading-text">{{ 'EMAIL_LOGS.LOADING' | translate }}</div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-section">
+    <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
+    <div class="error-text">{{ error }}</div>
+    <button (click)="navigateHome()" color="warn" mat-stroked-button>
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'COMMON.BACK_TO_HOME' | translate }}
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && dataSource.data.length === 0" class="no-logs-section">
+    <mat-icon class="no-logs-icon">email</mat-icon>
+    <p class="no-logs-message">{{ 'EMAIL_LOGS.NO_LOGS' | translate }}</p>
+  </div>
+
+  <!-- Table Section -->
+  <div class="table-section" *ngIf="!isLoading && !error && dataSource.data.length > 0">
+    <div class="table-header">
+      <div class="results-count">
+        {{ 'EMAIL_LOGS.SHOWING' | translate }} {{ dataSource.filteredData.length }} {{ 'EMAIL_LOGS.OF' | translate }} {{ dataSource.data.length }} {{ 'EMAIL_LOGS.EMAILS' | translate }}
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <div class="mat-elevation-z8 table-container">
+        <table mat-table [dataSource]="dataSource" matSort class="email-logs-table">
+
+          <!-- Email Type -->
+          <ng-container matColumnDef="emailType">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="type-header">
+              {{ 'EMAIL_LOGS.TYPE' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let log" class="type-cell">
+              <span class="email-type-badge">{{ log.emailType || '-' }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Recipient -->
+          <ng-container matColumnDef="recipient">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="recipient-header">
+              {{ 'EMAIL_LOGS.RECIPIENT' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let log" class="recipient-cell">
+              <span class="recipient-email">{{ log.recipient || '-' }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Language -->
+          <ng-container matColumnDef="language">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="language-header">
+              {{ 'EMAIL_LOGS.LANGUAGE' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let log" class="language-cell">
+              <span class="language-badge">{{ getLanguageDisplayName(log.language) || '-' }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Sent At -->
+          <ng-container matColumnDef="sentAt">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="sent-at-header">
+              {{ 'EMAIL_LOGS.SENT_AT' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let log" class="sent-at-cell">
+              <span class="sent-at-time">{{ log.sentAt | date:'medium' }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="actions-header">
+              {{ 'EMAIL_LOGS.ACTIONS' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let log" class="actions-cell">
+              <div class="action-buttons">
+                <button
+                  mat-icon-button
+                  (click)="viewEmailDetails(log)"
+                  [matTooltip]="'EMAIL_LOGS.VIEW_DETAILS' | translate"
+                  class="action-btn view-btn">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  (click)="resendEmail(log)"
+                  [matTooltip]="'EMAIL_LOGS.RESEND' | translate"
+                  class="action-btn resend-btn">
+                  <mat-icon>refresh</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  (click)="openResendDialog(log)"
+                  [matTooltip]="'EMAIL_LOGS.RESEND_WITH_CHANGES' | translate"
+                  class="action-btn edit-resend-btn">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Header and Row Definitions -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+
+      <!-- Paginator -->
+      <mat-paginator
+        [pageSizeOptions]="[20, 50, 100]"
+        showFirstLastButtons
+        pageSize="20"
+        [length]="dataSource.filteredData.length"
+        class="email-logs-paginator">
+      </mat-paginator>
+    </div>
+  </div>
+</div>

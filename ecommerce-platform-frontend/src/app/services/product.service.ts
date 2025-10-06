@@ -10,8 +10,8 @@ import {LocaleMapperService} from './locale-mapper.service';
   providedIn: 'root',
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:8080/api/catalog/v1'; // Adjust your API endpoint
-  private apiAdminUrl = 'http://localhost:8080/api/catalog/v1/admin';
+  private apiUrl = '/api/catalog/v1'; // Adjust your API endpoint
+  private apiAdminUrl = '/api/catalog/v1/admin';
 
   constructor(private http: HttpClient,
               private localeMapperService: LocaleMapperService,
