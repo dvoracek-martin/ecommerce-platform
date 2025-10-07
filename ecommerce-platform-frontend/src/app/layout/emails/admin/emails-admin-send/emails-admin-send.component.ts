@@ -1,10 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormControl } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { forkJoin, Observable, of, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, startWith, switchMap, takeUntil, catchError } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { trigger, state, style, transition, animate } from '@angular/animations';
+
 import { Customer } from '../../../../dto/customer/customer-dto';
 import { ResponseLocaleDto } from '../../../../dto/configuration/response-locale-dto';
 import { CustomerService } from '../../../../services/customer.service';
@@ -12,8 +14,8 @@ import { EmailService } from '../../../../services/email.service';
 import { ConfigurationService } from '../../../../services/configuration.service';
 import { LocaleMapperService } from '../../../../services/locale-mapper.service';
 import { EmailObjectsEnum } from '../../../../dto/email/email-objects-enum';
-import {EmailSendDTO} from '../../../../dto/email/email-send-dto';
-import {EmailGetOrDeleteEvent} from '../../../../dto/email/email-get-or-delete-event';
+import { EmailSendDTO } from '../../../../dto/email/email-send-dto';
+import { EmailGetOrDeleteEvent } from '../../../../dto/email/email-get-or-delete-event';
 
 interface EmailTemplateContent {
   subject: string;
@@ -38,15 +40,40 @@ interface ProcessedEmail {
   templateUrl: './emails-admin-send.component.html',
   styleUrls: ['./emails-admin-send.component.scss'],
   standalone: false,
+  animations: [
+    trigger('previewToggle', [
+      state('hidden', style({
+        height: '0px',
+        opacity: 0,
+        overflow: 'hidden'
+      })),
+      state('visible', style({
+        height: '*',
+        opacity: 1,
+        overflow: 'visible'
+      })),
+      transition('hidden <=> visible', [
+        animate('400ms ease-in-out')
+      ])
+    ])
+  ]
 })
 export class EmailsAdminSendComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  // Form Management
+  emailForm!: FormGroup;
+  showPreview = false;
 
   // Email Configuration
   selectedEmailType: EmailObjectsEnum | null = null;
   selectedLanguage: string = '';
   emailSubject: string = '';
   emailBody: string = '';
+
+  // Form Controls
+  subjectControl = new FormControl('', [Validators.required]);
+  bodyControl = new FormControl('', [Validators.required]);
 
   // Customer Selection
   customerSearchControl = new FormControl();
@@ -66,6 +93,7 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
   templatesLoaded = false;
 
   constructor(
+    private fb: FormBuilder,
     private router: Router,
     private customerService: CustomerService,
     private emailService: EmailService,
@@ -84,6 +112,7 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.initForm();
     this.loadInitialData();
   }
 
@@ -92,7 +121,13 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  loadInitialData(): void {
+  private initForm(): void {
+    this.emailForm = this.fb.group({
+      showPreview: [false]
+    });
+  }
+
+  private loadInitialData(): void {
     this.isInitializing = true;
     this.loadError = null;
 
@@ -103,7 +138,10 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: ({ settings, customers }) => {
-        this.usedLocales = settings.usedLocales || [];
+        this.usedLocales = (settings.usedLocales || []).map(locale => ({
+          ...locale,
+          translatedName: this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode)
+        }));
         this.allCustomers = customers;
 
         // Set default language to current user's language or first available
@@ -284,10 +322,6 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
     return this.selectedCustomers.some(c => c.id === customer.id);
   }
 
-  selectAllCustomers(): void {
-    this.selectedCustomers = [...this.allCustomers];
-  }
-
   clearSelection(): void {
     this.selectedCustomers = [];
   }
@@ -304,6 +338,8 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
     if (!this.selectedEmailType || !this.selectedLanguage) {
       this.emailSubject = '';
       this.emailBody = '';
+      this.subjectControl.setValue('');
+      this.bodyControl.setValue('');
       return;
     }
 
@@ -312,10 +348,14 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
       const localizedContent = template.localizedFields[this.selectedLanguage];
       this.emailSubject = localizedContent.subject || '';
       this.emailBody = localizedContent.body || '';
+      this.subjectControl.setValue(this.emailSubject);
+      this.bodyControl.setValue(this.emailBody);
     } else {
       // No content for selected language, clear the fields
       this.emailSubject = '';
       this.emailBody = '';
+      this.subjectControl.setValue('');
+      this.bodyControl.setValue('');
 
       // Show warning if we have the template but not for this language
       if (template && Object.keys(template.localizedFields).length > 0) {
@@ -340,11 +380,6 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
     return displayNames.get(type) || type.toString();
   }
 
-  getLocaleDisplayName(locale: string): string {
-    // This will now use i18n translation
-    return locale;
-  }
-
   getLocaleString(locale: ResponseLocaleDto): string {
     return `${locale.languageCode}_${locale.regionCode}`;
   }
@@ -367,6 +402,7 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
 
     // Simple insertion at the end - you could enhance this to insert at cursor position
     this.emailBody = currentBody + (currentBody ? ' ' : '') + variableText;
+    this.bodyControl.setValue(this.emailBody);
   }
 
   getPreviewBody(): string {
@@ -384,11 +420,17 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
       .replace(/\n/g, '<br>');
   }
 
+  onPreviewToggle(): void {
+    this.showPreview = this.emailForm.get('showPreview')?.value;
+  }
+
   canSendEmail(): boolean {
     return this.selectedEmailType !== null &&
       this.selectedCustomers.length > 0 &&
       this.emailSubject.trim() !== '' &&
       this.emailBody.trim() !== '' &&
+      this.subjectControl.valid &&
+      this.bodyControl.valid &&
       !this.isLoading;
   }
 
@@ -432,7 +474,6 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
       firstName: customer.firstName || '',
       lastName: customer.lastName || '',
       email: customer.email || ''
-
     };
 
     // Add type-specific variables with default values
@@ -551,19 +592,10 @@ export class EmailsAdminSendComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getCustomerPreferredLanguage(customer: Customer): string {
-    // Map customer's preferredLanguageId to locale string
-    if (customer.preferredLanguageId) {
-      const locale = this.usedLocales.find(l => l.id === customer.preferredLanguageId);
-      return locale ? this.getLocaleString(locale) : this.selectedLanguage;
-    }
-    return this.selectedLanguage;
-  }
-
   getCustomerLanguage(customer: Customer): string {
     if (customer.preferredLanguageId) {
       const locale = this.usedLocales.find(l => l.id === customer.preferredLanguageId);
-      return locale ? this.getLocaleDisplayName(this.getLocaleString(locale)) : 'Unknown';
+      return locale ? locale.translatedName : 'Unknown';
     }
     return 'Default';
   }

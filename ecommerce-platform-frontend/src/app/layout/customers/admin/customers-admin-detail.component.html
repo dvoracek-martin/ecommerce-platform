@@ -470,12 +470,6 @@
 
       <!-- Orders Table -->
       <div class="table-section" *ngIf="!isOrdersLoading && !ordersError && ordersDataSource.data.length > 0">
-        <div class="table-header">
-          <div class="results-count">
-            {{ 'ORDERS.SHOWING' | translate }} {{ ordersDataSource.filteredData.length }} {{ 'ORDERS.OF' | translate }} {{ ordersDataSource.data.length }} {{ 'ORDERS.ORDERS' | translate }}
-          </div>
-        </div>
-
         <div class="table-wrapper">
           <div class="mat-elevation-z8 table-container">
             <table mat-table [dataSource]="ordersDataSource" matSort class="orders-table">

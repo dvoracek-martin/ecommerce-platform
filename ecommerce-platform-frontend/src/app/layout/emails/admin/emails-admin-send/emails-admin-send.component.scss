@@ -1,5 +1,3 @@
-@use '../../../../shared/styles/admin/admin-shared-styles';
-
 .email-send-container {
   font-family: var(--font-primary);
   color: var(--text-primary);
@@ -9,127 +7,131 @@
   flex-direction: column;
   gap: var(--spacing-xl);
   padding: var(--spacing-xl);
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+}
+
+/* Content Card */
+.form-content-container {
+  background: var(--background-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: 0 4px 15px var(--shadow-light);
+  border: 1px solid var(--border-color);
   position: relative;
 }
 
-/* Template Status */
-.template-status {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-sm);
-  padding: var(--spacing-sm);
+/* Form Sections */
+.form-section {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
   background: var(--background-light);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
 
-  mat-icon {
-    &.loaded {
-      color: var(--success-color);
-    }
-    &.empty {
-      color: var(--warning-color);
-    }
-  }
-
-  .configure-btn {
-    margin-left: auto;
-    color: var(--primary-color);
-  }
-}
-
-.header-actions {
-  display: flex;
-  gap: var(--spacing-md);
-  align-items: center;
-
-  .send-button {
-    background: var(--success-color);
-    color: white;
-    padding: var(--spacing-md) var(--spacing-lg);
-    font-weight: 600;
-
-    &:hover:not(:disabled) {
-      background: #27ae60;
-      transform: translateY(-2px);
-    }
-
-    &:disabled {
-      background: var(--text-muted);
-      cursor: not-allowed;
-    }
-  }
-
-  .cancel-button {
-    color: var(--text-muted);
-    border-color: var(--text-muted);
-
-    &:hover {
-      background: var(--background-hover);
-    }
-  }
-}
-
-.email-form-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-}
-
-.form-section {
-  background: var(--background-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  transition: all var(--transition-normal);
-
-  &:hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 4px 15px var(--shadow-light);
-  }
-}
-
-.section-subtitle {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
-
-  h3 {
-    margin: 0;
-    font-size: var(--font-size-lg);
-    color: var(--text-primary);
-  }
-
-  .template-indicator {
+  .section-header {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
-    font-size: var(--font-size-sm);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    background: var(--background-light);
+    gap: var(--spacing-sm);
+    color: var(--text-primary);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--primary-color);
 
-    &.warning {
-      color: var(--warning-color);
-      background: rgba(243, 156, 18, 0.1);
+    mat-icon {
+      color: var(--primary-color);
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
     }
 
-    .has-content {
-      color: var(--success-color);
+    .template-indicator {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      font-size: var(--font-size-sm);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      margin-left: auto;
+
+      &.success {
+        color: var(--success-color);
+        background: rgba(46, 204, 113, 0.1);
+        border: 1px solid rgba(46, 204, 113, 0.2);
+      }
+
+      &.warning {
+        color: var(--warning-color);
+        background: rgba(243, 156, 18, 0.1);
+        border: 1px solid rgba(243, 156, 18, 0.2);
+      }
+
+      .has-content {
+        color: var(--success-color);
+      }
     }
   }
 }
 
 .form-row {
-  display: flex;
-  gap: var(--spacing-lg);
   margin-bottom: var(--spacing-lg);
+}
 
-  .form-field {
-    flex: 1;
+.form-field {
+  width: 100%;
+}
+
+/* Checkbox Row */
+.checkboxes-row {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Section Subtitle */
+.section-subtitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+
+  h4 {
+    margin: 0;
+    font-size: var(--font-size-base);
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .recipients-count {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+}
+
+/* Material Form Fields Override */
+::ng-deep .mat-mdc-form-field {
+  width: 100%;
+
+  .mat-mdc-form-field-flex {
+    background: var(--background-card);
+  }
+
+  .mat-mdc-form-field-outline {
+    color: var(--border-color);
+  }
+
+  .mat-mdc-form-field-outline-thick {
+    color: var(--primary-color);
   }
 }
 
@@ -147,14 +149,6 @@
 }
 
 /* Customer Search Styles */
-.customer-search {
-  width: 100%;
-
-  ::ng-deep .mat-mdc-form-field-flex {
-    background: var(--background-light);
-  }
-}
-
 .customer-option {
   display: flex;
   justify-content: space-between;
@@ -198,13 +192,6 @@
   margin-top: var(--spacing-lg);
   padding-top: var(--spacing-md);
   border-top: 1px solid var(--divider-color);
-
-  h4 {
-    margin: 0 0 var(--spacing-md) 0;
-    font-size: var(--font-size-base);
-    color: var(--text-primary);
-    font-weight: 600;
-  }
 }
 
 .recipients-list {
@@ -255,24 +242,23 @@
   }
 
   .remove-btn {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     color: var(--error-color);
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all var(--transition-normal);
 
     .remove-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
     }
 
     &:hover {
       background: var(--logout-btn-bg);
+      transform: scale(1.1);
     }
   }
 }
@@ -284,6 +270,7 @@
 
   .clear-btn {
     color: var(--error-color);
+    font-weight: 500;
 
     &:hover {
       background: var(--logout-btn-bg);
@@ -310,7 +297,7 @@
 /* Template Variables */
 .template-variables {
   margin-top: var(--spacing-lg);
-  padding: var(--spacing-md);
+  padding: var(--spacing-lg);
   background: var(--background-light);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
@@ -351,99 +338,174 @@
     background: var(--tertiary-color);
     color: white;
     transform: translateY(-1px);
+    box-shadow: 0 2px 8px var(--shadow-medium);
   }
 }
 
-/* Email Preview */
-.preview-container {
+/* Email Preview Styles */
+.animated-form-content {
+  margin-top: var(--spacing-lg);
+}
+
+.email-preview {
+  width: 100%;
   background: var(--background-light);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
-  font-family: var(--font-primary);
-
-  .preview-header,
-  .preview-subject {
-    margin-bottom: var(--spacing-md);
-    padding-bottom: var(--spacing-sm);
-    border-bottom: 1px solid var(--divider-color);
-
-    strong {
-      color: var(--text-primary);
-      margin-right: var(--spacing-sm);
-    }
-  }
-
-  .preview-recipients {
-    color: var(--primary-color);
-    font-weight: 500;
-  }
-
-  .preview-body {
-    line-height: 1.6;
-    color: var(--text-secondary);
-    white-space: pre-wrap;
-    max-height: 300px;
-    overflow-y: auto;
-    padding: var(--spacing-sm);
-    background: white;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-color);
-
-    /* Style variables in preview */
-    .variable {
-      background: rgba(155, 89, 182, 0.1);
-      color: var(--tertiary-color);
-      padding: 2px 4px;
-      border-radius: 3px;
-      font-family: monospace;
-      font-size: 0.9em;
-    }
-  }
-
-  .preview-note {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-md);
-    padding: var(--spacing-sm);
-    background: rgba(52, 152, 219, 0.1);
-    border-radius: var(--radius-sm);
-    color: var(--primary-color);
-    font-size: var(--font-size-sm);
-
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-  }
+  margin-top: var(--spacing-md);
 }
 
-/* Loading Overlay */
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
+.preview-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  border-radius: var(--radius-lg);
+  gap: var(--spacing-md);
+}
 
-  .loading-text {
-    margin-top: var(--spacing-md);
-    color: var(--text-muted);
-    font-weight: 500;
+.preview-header,
+.preview-subject,
+.preview-body {
+  padding: var(--spacing-md);
+  background: var(--background-card);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--primary-color);
+}
+
+.preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.preview-recipients {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.html-preview {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  min-height: 200px;
+  max-height: 400px;
+  overflow: auto;
+
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333333;
+
+  .variable {
+    background: rgba(155, 89, 182, 0.1);
+    color: var(--tertiary-color);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-sm) 0;
+
+    td {
+      padding: var(--spacing-xs);
+      border: 1px solid #ddd;
+    }
+  }
+
+  p {
+    margin: var(--spacing-sm) 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: var(--spacing-md) 0 var(--spacing-sm) 0;
+    color: #333;
+  }
+
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .email-container {
+    max-width: 600px;
+    margin: 0 auto;
   }
 }
 
-/* Error Section */
-.error-section {
+.preview-note {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: rgba(52, 152, 219, 0.1);
+  border-radius: var(--radius-sm);
+  color: var(--primary-color);
+  font-size: var(--font-size-sm);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Admin Actions Bar - Matching Email Templates Style */
+.admin-actions-bar {
+  position: sticky;
+  bottom: 0;
+  background: var(--background-card);
+  border-top: 1px solid var(--border-color);
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg) 0 0 0;
+}
+
+.admin-action-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+
+  .cancel-btn,
+  .save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: var(--font-size-base);
+    min-width: 140px;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* Loading & Error States - Matching Email Templates Style */
+.loading-section, .error-section {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -455,27 +517,57 @@
   box-shadow: 0 4px 15px var(--shadow-light);
   margin: var(--spacing-xl) 0;
 
+  .loading-text, .error-text {
+    margin-top: var(--spacing-md);
+    color: var(--text-muted);
+    font-size: var(--font-size-base);
+  }
+}
+
+.error-section {
   .error-icon {
     font-size: 3rem;
     margin-bottom: var(--spacing-md);
     color: var(--error-color);
   }
 
-  .error-text {
-    margin-bottom: var(--spacing-lg);
-    color: var(--text-muted);
-    font-size: var(--font-size-base);
-  }
-
   .error-actions {
     display: flex;
     gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
     flex-wrap: wrap;
     justify-content: center;
   }
 }
 
-/* Material Overrides - Fixed Dropdown Styling */
+/* Action Buttons */
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: 50%;
+  transition: all var(--transition-normal);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  &:hover {
+    background-color: var(--background-hover);
+    transform: scale(1.1);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Material Overrides */
 ::ng-deep .email-type-select,
 ::ng-deep .customer-search,
 ::ng-deep .language-select {
@@ -509,38 +601,63 @@
     background: var(--background-card) !important;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
+    box-shadow: 0 4px 15px var(--shadow-light);
   }
 }
 
-/* Responsive Design */
+/* Responsive Design - Matching Email Templates Breakpoints */
 @media (max-width: 768px) {
   .email-send-container {
     padding: var(--spacing-md);
     gap: var(--spacing-lg);
   }
 
-  .header-actions {
-    flex-direction: column;
-    width: 100%;
+  .admin-header-section {
+    padding: var(--spacing-lg);
 
-    button {
-      width: 100%;
+    .admin-header-content {
+      flex-direction: column;
+      gap: var(--spacing-md);
+
+      .admin-title-section {
+        min-width: auto;
+      }
     }
+  }
+
+  .form-content-container {
+    padding: var(--spacing-lg);
   }
 
   .form-section {
     padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
   }
 
-  .form-row {
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-
-  .section-subtitle {
+  .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-sm);
+
+    .template-indicator {
+      margin-left: 0;
+      align-self: flex-start;
+    }
+  }
+
+  .admin-actions-bar {
+    position: relative;
+  }
+
+  .admin-action-buttons {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+
+    .cancel-btn,
+    .save-btn {
+      width: 100%;
+      justify-content: center;
+    }
   }
 
   .recipients-list {
@@ -562,6 +679,21 @@
   .error-actions {
     flex-direction: column;
   }
+
+  .email-preview {
+    padding: var(--spacing-md);
+  }
+
+  .preview-header,
+  .preview-subject,
+  .preview-body {
+    padding: var(--spacing-sm);
+  }
+
+  .html-preview {
+    padding: var(--spacing-sm);
+    max-height: 300px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -569,7 +701,156 @@
     padding: var(--spacing-md) var(--spacing-sm);
   }
 
+  .admin-header-section {
+    padding: var(--spacing-md);
+
+    .admin-header-content .admin-title-section h1 {
+      font-size: var(--font-size-xl);
+    }
+  }
+
+  .form-content-container {
+    padding: var(--spacing-md);
+  }
+
+  .admin-action-buttons {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
   .preview-container {
     padding: var(--spacing-md);
+  }
+
+  .form-section {
+    padding: var(--spacing-md);
+  }
+}
+
+::ng-deep .mat-mdc-tooltip {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-sm);
+  background: var(--text-primary);
+
+  .mdc-tooltip__surface {
+    background: var(--text-primary);
+    color: white;
+  }
+}
+
+/* Configure Template Button */
+.configure-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  color: var(--text-white);
+  background-color: var(--tertiary-color);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+
+  &:hover {
+    background-color: #8e44ad;
+    transform: translateY(-1px);
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+/* ========== Floating Admin Actions Bar ========== */
+.admin-actions-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  z-index: 100;
+  padding: var(--spacing-md) var(--spacing-xl);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.3s ease;
+}
+
+/* Keeps the content visible above the fixed bar */
+.email-send-container {
+  padding-bottom: 120px;
+}
+
+/* ========== Buttons Container ========== */
+.admin-action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  max-width: 1400px;
+}
+
+/* ========== Buttons ========== */
+.cancel-btn,
+.save-btn {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 8px;
+  padding: 0.75rem 1.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* Cancel button */
+.cancel-btn {
+  background: #e5e7eb; /* light gray */
+  color: #374151; /* dark gray text */
+}
+
+.cancel-btn:hover {
+  background: #d1d5db;
+}
+
+/* Save button */
+.save-btn {
+  background: #2563eb; /* blue-600 */
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+}
+
+.save-btn:hover {
+  background: #1d4ed8; /* blue-700 */
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.5);
+}
+
+.save-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 6px rgba(37, 99, 235, 0.4);
+}
+
+/* ========== Responsive Design ========== */
+@media (max-width: 768px) {
+  .admin-actions-bar {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .admin-action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .cancel-btn,
+  .save-btn {
+    width: 100%;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
+import {Component, OnInit, ViewChild, OnDestroy, AfterViewInit, ViewEncapsulation} from '@angular/core';
 import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
@@ -17,7 +17,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   selector: 'app-email-admin-logs',
   templateUrl: './emails-admin-logs.component.html',
   standalone: false,
-  styleUrls: ['./emails-admin-logs.component.scss']
+  styleUrls: ['./emails-admin-logs.component.scss'],
+  encapsulation: ViewEncapsulation.None, // Add this line
 })
 export class EmailAdminLogsComponent implements OnInit, AfterViewInit, OnDestroy {
   dataSource = new MatTableDataSource<ResponseEmailLogDTO>([]);

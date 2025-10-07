@@ -1,118 +1,130 @@
-<div class="admin-container">
-  <mat-card class="admin-card">
-    <div class="admin-header-section">
-      <div class="admin-header-content">
-        <div class="admin-title-section">
-          <h1>
-            <mat-icon class="title-icon">settings</mat-icon>
-            {{ 'CONFIGURATION.TITLE' | translate }}
-          </h1>
-          <p class="admin-subtitle">{{ 'CONFIGURATION.ADMIN_SUBTITLE.UPDATE' | translate }}</p>
-        </div>
+<div class="configuration-container">
+  <div class="admin-header-section list-header">
+    <div class="admin-header-content">
+      <div class="admin-title-section">
+        <h1>
+          <mat-icon class="title-icon">settings</mat-icon>
+          {{ 'CONFIGURATION.TITLE' | translate }}
+        </h1>
+        <p class="admin-subtitle">{{ 'CONFIGURATION.ADMIN_SUBTITLE.UPDATE' | translate }}</p>
       </div>
     </div>
+  </div>
 
-    <form (ngSubmit)="onSave()" [formGroup]="configurationForm" class="form-one-column-wrapper" id="configurationForm">
+  <div class="admin-content-card">
+    <form (ngSubmit)="onSave()" [formGroup]="configurationForm" id="configurationForm">
       <div class="form-content">
         <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
 
         <!-- BASIC SETTINGS -->
         <div class="form-section">
-          <h3 class="section-subtitle">
+          <div class="section-header">
             <mat-icon>settings</mat-icon>
-            {{ 'CONFIGURATION.BASIC_SETTINGS' | translate }}
-          </h3>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'CONFIGURATION.THEME' | translate }}</mat-label>
-              <input formControlName="theme" matInput required>
-              <mat-error *ngIf="configurationForm.get('theme')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
+            <h3>{{ 'CONFIGURATION.BASIC_SETTINGS' | translate }}</h3>
           </div>
 
           <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'CONFIGURATION.UPDATED_AT' | translate }}</mat-label>
-              <input matInput [matDatepicker]="picker" formControlName="updatedAt">
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+            <div class="form-field">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CONFIGURATION.THEME' | translate }}</mat-label>
+                <input formControlName="theme" matInput required>
+                <mat-error *ngIf="configurationForm.get('theme')?.hasError('required')">
+                  {{ 'VALIDATION.REQUIRED' | translate }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-field">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CONFIGURATION.UPDATED_AT' | translate }}</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="updatedAt">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </div>
           </div>
 
           <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'CONFIGURATION.CURRENCY' | translate }}</mat-label>
-              <input matInput formControlName="currency" required>
-              <mat-error *ngIf="configurationForm.get('currency')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
-          </div>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'CONFIGURATION.DEFAULT_LANGUAGE' | translate }}</mat-label>
-              <mat-select
-                formControlName="defaultLocale"
-                required
-                [compareWith]="compareLocales">
+            <div class="form-field">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CONFIGURATION.CURRENCY' | translate }}</mat-label>
+                <input matInput formControlName="currency" required>
+                <mat-error *ngIf="configurationForm.get('currency')?.hasError('required')">
+                  {{ 'VALIDATION.REQUIRED' | translate }}
+                </mat-error>
+              </mat-form-field>
+            </div>
 
-                <!-- Show selected language with flag -->
-                <mat-select-trigger>
-                  <ng-container *ngIf="configurationForm.get('defaultLocale')?.value">
-                    <img
-                      [src]="'assets/flags/' + configurationForm.get('defaultLocale')?.value.regionCode.toLowerCase() + '.svg'"
-                      class="locale-flag"
-                      alt="flag">
-                    {{ translateLocale(configurationForm.get('defaultLocale')?.value) }}
-                  </ng-container>
-                </mat-select-trigger>
+            <div class="form-field">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CONFIGURATION.DEFAULT_LANGUAGE' | translate }}</mat-label>
+                <mat-select
+                  formControlName="defaultLocale"
+                  required
+                  [compareWith]="compareLocales">
 
-                <!-- Options -->
-                <mat-option *ngFor="let locale of configurationForm.get('usedLocales')?.value" [value]="locale">
-                  <img [src]="'assets/flags/' + locale.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
-                  {{ translateLocale(locale) }}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="configurationForm.get('defaultLocale')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
+                  <!-- Show selected language with flag -->
+                  <mat-select-trigger>
+                    <ng-container *ngIf="configurationForm.get('defaultLocale')?.value">
+                      <img
+                        [src]="'assets/flags/' + configurationForm.get('defaultLocale')?.value.regionCode.toLowerCase() + '.svg'"
+                        class="locale-flag"
+                        alt="flag">
+                      {{ translateLocale(configurationForm.get('defaultLocale')?.value) }}
+                    </ng-container>
+                  </mat-select-trigger>
+
+                  <!-- Options -->
+                  <mat-option *ngFor="let locale of configurationForm.get('usedLocales')?.value" [value]="locale">
+                    <img [src]="'assets/flags/' + locale.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
+                    {{ translateLocale(locale) }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="configurationForm.get('defaultLocale')?.hasError('required')">
+                  {{ 'VALIDATION.REQUIRED' | translate }}
+                </mat-error>
+              </mat-form-field>
+            </div>
           </div>
         </div>
 
         <!-- AVAILABLE LOCALES -->
         <div class="form-section">
-          <h3 class="section-subtitle">
+          <div class="section-header">
             <mat-icon>language</mat-icon>
-            {{ 'CONFIGURATION.AVAILABLE_LOCALES' | translate }}
-          </h3>
-          <mat-form-field appearance="outline" class="form-field full-width">
-            <mat-label>{{ 'CONFIGURATION.SELECT_LOCALES' | translate }}</mat-label>
-            <mat-select formControlName="usedLocales" multiple>
+            <h3>{{ 'CONFIGURATION.AVAILABLE_LOCALES' | translate }}</h3>
+          </div>
 
-              <!-- Show selected languages with flags -->
-              <mat-select-trigger>
-                <ng-container *ngFor="let locale of configurationForm.get('usedLocales')?.value; let last = last">
-                  <div class="selected-locale-item">
-                    <img
-                      [src]="'assets/flags/' + locale.regionCode.toLowerCase() + '.svg'"
-                      class="locale-flag"
-                      alt="flag">
-                    <span>{{ translateLocale(locale) }}</span>
-                  </div>
-                </ng-container>
-              </mat-select-trigger>
+          <div class="form-row">
+            <div class="form-field full-width">
+              <mat-form-field appearance="outline" class="form-field full-width">
+                <mat-label>{{ 'CONFIGURATION.SELECT_LOCALES' | translate }}</mat-label>
+                <mat-select formControlName="usedLocales" multiple>
 
-              <!-- Options -->
-              <mat-option *ngFor="let locale of inUseLocales" [value]="locale">
-                <img [src]="'assets/flags/' + locale.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
-                {{ translateLocale(locale) }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+                  <!-- Show selected languages with flags -->
+                  <mat-select-trigger>
+                    <div class="selected-locales-container">
+                      <ng-container *ngFor="let locale of configurationForm.get('usedLocales')?.value; let last = last">
+                        <div class="selected-locale-item">
+                          <img
+                            [src]="'assets/flags/' + locale.regionCode.toLowerCase() + '.svg'"
+                            class="locale-flag"
+                            alt="flag">
+                          <span>{{ translateLocale(locale) }}</span>
+                        </div>
+                      </ng-container>
+                    </div>
+                  </mat-select-trigger>
+
+                  <!-- Options -->
+                  <mat-option *ngFor="let locale of inUseLocales" [value]="locale">
+                    <img [src]="'assets/flags/' + locale.regionCode.toLowerCase() + '.svg'" class="locale-flag" alt="flag">
+                    {{ translateLocale(locale) }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
         </div>
       </div>
     </form>
@@ -128,7 +140,7 @@
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
-        <button [disabled]="!configurationForm.valid || saving"
+        <button [disabled]="!configurationForm.valid || saving || !configurationForm.dirty"
                 color="primary"
                 form="configurationForm"
                 mat-flat-button
@@ -139,5 +151,5 @@
         </button>
       </div>
     </div>
-  </mat-card>
+  </div>
 </div>

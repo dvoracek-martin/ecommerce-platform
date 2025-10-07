@@ -72,12 +72,6 @@
 
   <!-- Table Section -->
   <div class="table-section" *ngIf="!isLoading && !error && dataSource.data.length > 0">
-    <div class="table-header">
-      <div class="results-count">
-        {{ 'CUSTOMERS.SHOWING' | translate }} {{ dataSource.filteredData.length }} {{ 'CUSTOMERS.OF' | translate }} {{ dataSource.data.length }} {{ 'CUSTOMERS.CUSTOMERS' | translate }}
-      </div>
-    </div>
-
     <div class="table-wrapper">
       <div class="mat-elevation-z8 table-container">
         <table mat-table [dataSource]="dataSource" matSort class="customers-table">

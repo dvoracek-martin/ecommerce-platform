@@ -40,7 +40,8 @@
   --overlay-white: rgba(255, 255, 255, 0.15);
 
   // Colors - Gradients
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-primary:  linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  --gradient-secondary:  linear-gradient(135deg, var(--primary-color) 0%, var(--tertiary-color) 100%);
   --gradient-text: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
 
   // Colors - Status
@@ -400,6 +401,84 @@ input, textarea, select, mat-form-field {
       }
     }
   }
+}
+
+/* Action Bar */
+.admin-actions-bar {
+  display: flex;
+  justify-content: center; /* Changed from flex-end to center */
+  padding-top: var(--spacing-xl);
+  margin-top: var(--spacing-xl);
+  border-top: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.admin-action-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  justify-content: center; /* Added to ensure center alignment */
+}
+
+.cancel-btn,
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--shadow-medium);
+  transition: all var(--transition-normal);
+  min-width: 120px;
+  justify-content: center;
+
+  &:hover:not([disabled]) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--shadow-medium);
+  }
+
+  &[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 8px var(--shadow-light);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.save-btn {
+  background-color: var(--success-color);
+  color: var(--text-white);
+
+  &:hover:not([disabled]) {
+    background-color: #27ae60;
+  }
+}
+
+.cancel-btn {
+  background-color: transparent;
+  color: var(--error-color);
+  border: 2px solid var(--error-color);
+
+  &:hover:not([disabled]) {
+    background-color: var(--error-color);
+    color: var(--text-white);
+  }
+}
+
+/* Progress Bar */
+.admin-save-progress {
+  margin-bottom: var(--spacing-lg);
+  border-radius: var(--radius-sm);
 }
 
 // SEARCH COMPONENTS

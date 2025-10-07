@@ -47,7 +47,6 @@ import {ProductsAdminListComponent} from './layout/products/admin/products-admin
 import {ProductsDetailComponent} from './layout/products/client/products-detail.component';
 import {MatChip, MatChipListbox, MatChipOption, MatChipSet} from '@angular/material/chips';
 import {HeaderComponent} from './layout/header/header.component';
-import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 import {CustomersAdminDetailComponent} from './layout/customers/admin/customers-admin-detail.component';
 import {
   ConfigurationLocalizationAdminComponent
@@ -68,6 +67,7 @@ import {EmailAdminLogsComponent} from './layout/emails/admin/emails-admin-logs/e
 import {EmailsAdminSendComponent} from './layout/emails/admin/emails-admin-send/emails-admin-send.component';
 import {MatAutocomplete, MatAutocompleteTrigger} from '@angular/material/autocomplete';
 import {EmailResendDialogComponent} from './layout/emails/admin/email-resend-dialog/email-resend-dialog.component';
+import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,

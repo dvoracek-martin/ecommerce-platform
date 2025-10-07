@@ -1,28 +1,24 @@
-<div class="admin-container">
-  <mat-card class="admin-card">
-    <div class="admin-header-section">
-      <div class="admin-header-content">
-        <div class="admin-title-section">
-          <h1>
-            <mat-icon class="title-icon">email</mat-icon>
-            {{ 'EMAILS.ADMIN.TITLE' | translate }}
-          </h1>
-          <p class="admin-subtitle">{{ 'EMAILS.ADMIN.SUBTITLE' | translate }}</p>
-        </div>
+<div class="email-admin-container">
+  <div class="admin-header-section list-header">
+    <div class="admin-header-content">
+      <div class="admin-title-section">
+        <h1>{{ 'EMAILS.ADMIN.TITLE' | translate }}</h1>
+        <p class="admin-subtitle">{{ 'EMAILS.ADMIN.SUBTITLE' | translate }}</p>
       </div>
     </div>
+  </div>
 
-    <form *ngIf="emailForm" (ngSubmit)="onSave()" [formGroup]="emailForm" class="form-one-column-wrapper" id="emailForm">
+  <div class="admin-content-card">
+    <form *ngIf="emailForm" (ngSubmit)="onSave()" [formGroup]="emailForm" id="emailForm">
       <div class="form-content">
         <mat-progress-bar *ngIf="saving" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
 
-        <!-- Email Type Selection -->
+        <!-- Email Type -->
         <div class="form-section">
-          <h3 class="section-subtitle">
+          <div class="section-header">
             <mat-icon>drafts</mat-icon>
-            {{ 'EMAILS.ADMIN.SELECT_EMAIL_TYPE' | translate }}
-          </h3>
-
+            <h3>{{ 'EMAILS.ADMIN.SELECT_EMAIL_TYPE' | translate }}</h3>
+          </div>
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>{{ 'EMAILS.ADMIN.EMAIL_TYPE' | translate }}</mat-label>
@@ -38,14 +34,16 @@
           </div>
         </div>
 
-        <!-- Email Content - Tabs for Locales -->
-        <div class="form-section" *ngIf="emailForm.get('emailType')?.value">
-          <h3 class="section-subtitle">
-            <mat-icon>create</mat-icon>
-            {{ 'EMAILS.ADMIN.EMAIL_CONTENT' | translate }}
-          </h3>
+        <!-- Show/Hide Animated Email Content -->
 
-          <mat-error *ngIf="usedLocales.length === 0">
+        <div class="form-section" *ngIf="emailForm.get('emailType')?.value">
+          <div class="section-header">
+            <mat-icon>create</mat-icon>
+            <h3>{{ 'EMAILS.ADMIN.EMAIL_CONTENT' | translate }}</h3>
+          </div>
+
+          <mat-error *ngIf="usedLocales.length === 0" class="error-message">
+            <mat-icon>error_outline</mat-icon>
             {{ 'CONFIGURATION.SELECT_DEFAULT_LANGUAGE' | translate }}
           </mat-error>
 
@@ -80,20 +78,20 @@
                     </mat-error>
                   </mat-form-field>
                 </div>
-
-                <!-- Email Preview -->
-                <div class="form-row" *ngIf="showPreview">
-                  <div class="email-preview">
-                    <h4>{{ 'EMAILS.ADMIN.PREVIEW' | translate }}</h4>
-                    <div class="preview-content">
-                      <div class="preview-subject">
-                        <strong>{{ 'EMAILS.ADMIN.SUBJECT' | translate }}:</strong>
-                        {{ emailForm.get('name_' + locale.languageCode + '_' + locale.regionCode)?.value }}
-                      </div>
-                      <div class="preview-body">
-                        <strong>{{ 'EMAILS.ADMIN.BODY' | translate }}:</strong>
-                        <div class="html-preview"
-                             [innerHTML]="emailForm.get('description_' + locale.languageCode + '_' + locale.regionCode)?.value | safeHtml">
+                <div [@previewToggle]="showPreview ? 'visible' : 'hidden'" class="animated-form-content">
+                  <div class="form-row">
+                    <div class="email-preview">
+                      <h4>{{ 'EMAILS.ADMIN.PREVIEW' | translate }}</h4>
+                      <div class="preview-content">
+                        <div class="preview-subject">
+                          <strong>{{ 'EMAILS.ADMIN.SUBJECT' | translate }}:</strong>
+                          {{ emailForm.get('name_' + locale.languageCode + '_' + locale.regionCode)?.value }}
+                        </div>
+                        <div class="preview-body">
+                          <strong>{{ 'EMAILS.ADMIN.BODY' | translate }}:</strong>
+                          <div class="html-preview"
+                               [innerHTML]="emailForm.get('description_' + locale.languageCode + '_' + locale.regionCode)?.value | safeHtml">
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -102,20 +100,18 @@
               </div>
             </mat-tab>
           </mat-tab-group>
+        </div>
 
-          <!-- Preview Toggle -->
-          <div class="form-row checkboxes-row">
-            <div class="checkbox-group">
-              <mat-checkbox formControlName="showPreview" (change)="onPreviewToggle()">
-                {{ 'EMAILS.ADMIN.SHOW_PREVIEW' | translate }}
-              </mat-checkbox>
-            </div>
+        <!-- Preview Toggle -->
+        <div class="form-row checkboxes-row">
+          <div class="checkbox-group">
+            <mat-checkbox formControlName="showPreview" (change)="onPreviewToggle()">
+              {{ 'EMAILS.ADMIN.SHOW_PREVIEW' | translate }}
+            </mat-checkbox>
           </div>
         </div>
       </div>
     </form>
-
-    <!-- Action Bar -->
     <div class="admin-actions-bar">
       <div class="admin-action-buttons">
         <button (click)="openCancelDialog()"
@@ -126,7 +122,7 @@
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
-        <button [disabled]="!emailForm.valid || saving || !emailForm.get('emailType')?.value"
+        <button [disabled]="!emailForm || emailForm.invalid || saving || !emailForm.get('emailType')?.value"
                 color="primary"
                 form="emailForm"
                 mat-flat-button
@@ -137,5 +133,6 @@
         </button>
       </div>
     </div>
-  </mat-card>
+  </div>
 </div>
+
