@@ -11,16 +11,22 @@
             <column name="email_type" value="REGISTRATION"/>
         </insert>
         <insert tableName="email">
-            <column name="email_type" value="EMAIL_CHANGE_CONFIRMATION"/>
+            <column name="email_type" value="EMAIL_PASSWORD_CHANGE_CONFIRMATION"/>
         </insert>
         <insert tableName="email">
             <column name="email_type" value="PASSWORD_RESET"/>
         </insert>
         <insert tableName="email">
-            <column name="email_type" value="NEW_ORDER"/>
+            <column name="email_type" value="ORDER_CONFIRMATION"/>
         </insert>
         <insert tableName="email">
             <column name="email_type" value="ORDER_STATUS_UPDATE"/>
+        </insert>
+        <insert tableName="email">
+            <column name="email_type" value="NEWSLETTER"/>
+        </insert>
+        <insert tableName="email">
+            <column name="email_type" value="CUSTOM"/>
         </insert>
     </changeSet>
 

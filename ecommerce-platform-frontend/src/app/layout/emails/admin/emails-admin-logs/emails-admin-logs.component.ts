@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,8 +19,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   standalone: false,
   styleUrls: ['./emails-admin-logs.component.scss']
 })
-export class EmailAdminLogsComponent implements OnInit, OnDestroy {
-  dataSource = new MatTableDataSource<ResponseEmailLogDTO>();
+export class EmailAdminLogsComponent implements OnInit, AfterViewInit, OnDestroy {
+  dataSource = new MatTableDataSource<ResponseEmailLogDTO>([]);
   displayedColumns: string[] = ['emailType', 'recipient', 'language', 'sentAt', 'actions'];
 
   private readonly destroy$ = new Subject<void>();
@@ -31,8 +31,27 @@ export class EmailAdminLogsComponent implements OnInit, OnDestroy {
   isLoading = true;
   error: string | null = null;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  private _paginator: MatPaginator | null = null;
+  private _sort: MatSort | null = null;
+
+  @ViewChild(MatPaginator) set paginator(p: MatPaginator | null) {
+    this._paginator = p;
+    this.dataSource.paginator = p ?? undefined;
+    if (p) {
+      this.applyFilter();
+    }
+  }
+
+  // <<-- ZDE je klíčová úprava: po přiřazení sortu vynutíme refresh dat, aby se data znovu seřadila
+  @ViewChild(MatSort) set matSort(s: MatSort | null) {
+    this._sort = s;
+    this.dataSource.sort = s ?? undefined;
+    if (s) {
+      // trigger re-evaluation (filtrování + řazení)
+      this.dataSource.data = this.dataSource.data.slice();
+    }
+  }
+  // -->> končí klíčová úprava
 
   constructor(
     private router: Router,
@@ -43,24 +62,102 @@ export class EmailAdminLogsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadEmailLogs();
     this.setupSearchFilter();
+
+    // nastavíme sorting accessor hned (funguje nezávisle na instanci MatSort)
+    this.dataSource.sortingDataAccessor = (data: ResponseEmailLogDTO, sortHeaderId: string) => {
+      const val = (data as any)[sortHeaderId];
+      if (val == null || val === undefined) {
+        return '';
+      }
+
+      if (sortHeaderId === 'sentAt') {
+        if (val instanceof Date) {
+          return val.getTime();
+        }
+        if (typeof val === 'number') {
+          return val;
+        }
+        const parsed = Date.parse(String(val));
+        return isNaN(parsed) ? String(val).toLowerCase() : parsed;
+      }
+
+      return String(val).toLowerCase();
+    };
+
+    this.loadEmailLogs();
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    // nic zásadního zde (settery ViewChild udělaly práci)
+    this.applyFilter();
+  }
 
-    // Configure sorting
-    this.dataSource.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case 'emailType': return item.emailType?.toLowerCase() || '';
-        case 'recipient': return item.recipient?.toLowerCase() || '';
-        case 'language': return item.language?.toLowerCase() || '';
-        case 'sentAt': return new Date(item.sentAt).getTime();
-        default: return (item as any)[property];
+  private setupSearchFilter(): void {
+    this.dataSource.filterPredicate = this.createFilterPredicate();
+
+    const apply = () => this.applyFilter();
+
+    this.searchControl.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(apply);
+
+    this.emailTypeControl.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(apply);
+  }
+
+  private createFilterPredicate() {
+    return (data: ResponseEmailLogDTO, filter: string): boolean => {
+      if (!filter) {
+        return true;
       }
+
+      const parts = filter.split('::');
+      const searchStr = (parts[0] || '').trim().toLowerCase();
+      const emailTypeFilter = (parts[1] || '').trim().toLowerCase();
+
+      if (emailTypeFilter) {
+        const itemType = (data.emailType || '').toString().toLowerCase();
+        if (itemType !== emailTypeFilter) {
+          return false;
+        }
+      }
+
+      if (!searchStr) {
+        return true;
+      }
+
+      const combined = Object.keys(data)
+        .map(k => {
+          const v = (data as any)[k];
+          if (v === null || v === undefined) return '';
+          if (typeof v === 'object') {
+            try {
+              return JSON.stringify(v);
+            } catch {
+              return String(v);
+            }
+          }
+          return String(v);
+        })
+        .join(' ')
+        .toLowerCase();
+
+      return combined.includes(searchStr);
     };
+  }
+
+  private applyFilter(): void {
+    const search = (this.searchControl.value || '').toString().trim().toLowerCase();
+    const emailType = (this.emailTypeControl.value || '').toString().trim().toLowerCase();
+    const filterValue = `${search}::${emailType}`;
+
+    this.dataSource.filter = filterValue;
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   loadEmailLogs(): void {
@@ -69,7 +166,8 @@ export class EmailAdminLogsComponent implements OnInit, OnDestroy {
 
     this.emailService.getAllEmailLogs().subscribe({
       next: (logs) => {
-        this.dataSource.data = logs;
+        this.dataSource.data = logs || [];
+        this.applyFilter();
         this.isLoading = false;
       },
       error: (err) => {
@@ -78,66 +176,35 @@ export class EmailAdminLogsComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setupSearchFilter(): void {
-    // General search
-    this.searchControl.valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-      .subscribe(value => {
-        this.applyFilter();
-      });
+  getTranslatedLanguage(languageCode: string): string {
+    if (!languageCode) return '-';
 
-    // Email type filter
-    this.emailTypeControl.valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-      .subscribe(() => {
-        this.applyFilter();
-      });
+    const upperCaseCode = languageCode.toUpperCase();
+    const translationKey = `LOCALES.${upperCaseCode}`;
+    const translated = this.translateService.instant(translationKey);
+
+    return translated !== translationKey ?
+      translated :
+      languageCode.charAt(0).toUpperCase() + languageCode.slice(1).toLowerCase();
   }
 
-  private applyFilter(): void {
-    const searchValue = (this.searchControl.value || '').trim().toLowerCase();
-    const emailTypeValue = this.emailTypeControl.value || '';
-
-    this.dataSource.filterPredicate = (data: ResponseEmailLogDTO, filter: string) => {
-      const filterObject = JSON.parse(filter);
-      const searchStr = filterObject.search;
-      const emailType = filterObject.emailType;
-
-      // Apply email type filter
-      if (emailType && data.emailType !== emailType) {
-        return false;
-      }
-
-      // Apply search filter
-      if (!searchStr) return true;
-
-      return (
-        (data.emailType || '').toLowerCase().includes(searchStr) ||
-        (data.recipient || '').toLowerCase().includes(searchStr) ||
-        (data.language || '').toLowerCase().includes(searchStr) ||
-        (data.subject || '').toLowerCase().includes(searchStr)
-      );
-    };
-
-    this.dataSource.filter = JSON.stringify({
-      search: searchValue,
-      emailType: emailTypeValue
-    });
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+  getDisplayedRange(): string {
+    if (!this._paginator || this.dataSource.filteredData.length === 0) {
+      return '0-0';
     }
+
+    const startIndex = this._paginator.pageIndex * this._paginator.pageSize;
+    const endIndex = Math.min(
+      startIndex + this._paginator.pageSize,
+      this.dataSource.filteredData.length
+    );
+
+    return `${startIndex + 1}-${endIndex}`;
   }
 
   viewEmailDetails(log: ResponseEmailLogDTO): void {
-    const dialogRef = this.dialog.open(EmailResendDialogComponent, {
-      width: '600px',
+    this.dialog.open(EmailResendDialogComponent, {
+      width: '900px',
       data: {
         emailLog: log,
         mode: 'view'
@@ -148,24 +215,30 @@ export class EmailAdminLogsComponent implements OnInit, OnDestroy {
   resendEmail(log: ResponseEmailLogDTO): void {
     this.emailService.quickResend(log).subscribe({
       next: () => {
-        this.snackBar.open('Email resent successfully', 'Close', {
-          duration: 3000
-        });
-        this.loadEmailLogs(); // Refresh to show new log entry
+        this.snackBar.open(
+          this.translateService.instant('EMAIL_LOGS.RESEND_SUCCESS'),
+          'Close',
+          { duration: 3000 }
+        );
+        this.loadEmailLogs();
       },
       error: (error) => {
         console.error('Failed to resend email:', error);
-        this.snackBar.open('Failed to resend email', 'Close', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+        this.snackBar.open(
+          this.translateService.instant('EMAIL_LOGS.RESEND_ERROR'),
+          'Close',
+          {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          }
+        );
       }
     });
   }
 
   openResendDialog(log: ResponseEmailLogDTO): void {
     const dialogRef = this.dialog.open(EmailResendDialogComponent, {
-      width: '600px',
+      width: '900px',
       data: {
         emailLog: log,
         mode: 'resend'
@@ -174,7 +247,7 @@ export class EmailAdminLogsComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'resend') {
-        this.loadEmailLogs(); // Refresh the list
+        this.loadEmailLogs();
       }
     });
   }
@@ -197,24 +270,8 @@ export class EmailAdminLogsComponent implements OnInit, OnDestroy {
     this.applyFilter();
   }
 
-  getLanguageDisplayName(language: string): string {
-    const languageMap: { [key: string]: string } = {
-      'en_US': 'English',
-      'cs_CZ': 'Czech',
-      'sk_SK': 'Slovak',
-      'de_DE': 'German',
-      'fr_FR': 'French',
-      'en': 'English',
-      'cs': 'Czech',
-      'sk': 'Slovak',
-      'de': 'German',
-      'fr': 'French'
-    };
-    return languageMap[language] || language;
-  }
-
   private handleError(error: any): void {
-    this.error = error.message || 'Failed to load email logs.';
+    this.error = this.translateService.instant('EMAIL_LOGS.LOAD_ERROR') || 'Failed to load email logs.';
     this.isLoading = false;
     console.error('Error in email logs component:', error);
     this.dataSource.data = [];
