@@ -1,165 +1,246 @@
 <div class="email-resend-overlay" (click)="close()">
   <div class="email-resend-container" (click)="$event.stopPropagation()">
     <!-- Close Button -->
-    <button (click)="close()" class="close-btn" mat-icon-button>
+    <button (click)="close()" class="close-btn" mat-icon-button [class.centered-close]="isViewMode()">
       <mat-icon>close</mat-icon>
     </button>
 
     <!-- Header -->
-    <div class="dialog-header">
-      <div class="header-content">
-        <mat-icon class="header-icon">email</mat-icon>
-        <h2 class="dialog-title">
-          {{ isViewMode() ? ('EMAIL_LOGS.VIEW_DETAILS' | translate) : ('EMAIL_LOGS.RESEND_WITH_CHANGES' | translate) }}
-        </h2>
+    <div class="admin-header-section">
+      <div class="admin-header-content">
+        <div class="admin-title-section">
+          <h1>{{ isViewMode() ? ('EMAIL_LOGS.VIEW_DETAILS' | translate) : ('EMAIL_LOGS.RESEND_WITH_CHANGES' | translate) }}</h1>
+
+          <!-- Status Indicator -->
+          <div class="template-status" *ngIf="!isViewMode()">
+            <span class="template-indicator info" *ngIf="availableVariables.length > 0">
+              <mat-icon>info</mat-icon>
+              {{ 'EMAILS.VARIABLES_AVAILABLE' | translate }}
+            </span>
+          </div>
+        </div>
       </div>
+    </div>
+
+    <!-- Initial Loading -->
+    <div *ngIf="isInitializing" class="loading-section">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <div class="loading-text">{{ 'COMMON.LOADING' | translate }}</div>
     </div>
 
     <!-- Content -->
-    <div class="dialog-content" [class.scrollable]="showPreviewControl.value">
-      <!-- Email Information -->
-      <div class="email-info-section">
-        <h3 class="section-title">{{ 'EMAIL_LOGS.EMAIL_INFORMATION' | translate }}</h3>
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="info-label">{{ 'EMAIL_LOGS.RECIPIENT' | translate }}:</span>
-            <span class="info-value">{{ data.emailLog.recipient }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">{{ 'EMAIL_LOGS.TYPE' | translate }}:</span>
-            <span class="info-value">{{ data.emailLog.emailType }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">{{ 'EMAIL_LOGS.ORIGINAL_LANGUAGE' | translate }}:</span>
-            <span class="info-value">{{ getOriginalLanguage() }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">{{ 'EMAIL_LOGS.SENT_AT' | translate }}:</span>
-            <span class="info-value">{{ data.emailLog.sentAt | date:'medium' }}</span>
-          </div>
-        </div>
-      </div>
+    <div class="form-content-container" *ngIf="!isInitializing">
+      <div class="scrollable-content">
+        <form *ngIf="emailForm" [formGroup]="emailForm">
+          <div class="form-content">
+            <mat-progress-bar *ngIf="isResending" class="admin-save-progress" mode="indeterminate"></mat-progress-bar>
 
-      <!-- Email Editing Form -->
-      <div class="form-section" *ngIf="!isViewMode()">
-        <h3 class="section-title">{{ 'EMAIL_LOGS.EDIT_CONTENT' | translate }}</h3>
+            <!-- Email Information -->
+            <div class="form-section">
+              <div class="section-header">
+                <mat-icon>info</mat-icon>
+                <h3>{{ 'EMAIL_LOGS.EMAIL_INFORMATION' | translate }}</h3>
+              </div>
 
-        <!-- Language Selection -->
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'EMAIL_LOGS.EMAIL_LANGUAGE' | translate }}</mat-label>
-            <mat-select [formControl]="languageControl">
-              <mat-option *ngFor="let lang of availableLanguages" [value]="lang">
-                {{ getLanguageDisplayName(lang) }}
-              </mat-option>
-            </mat-select>
-            <mat-icon matSuffix>language</mat-icon>
-            <mat-hint>{{ 'EMAIL_LOGS.CHOOSE_LANGUAGE_HINT' | translate }}</mat-hint>
-          </mat-form-field>
-        </div>
-
-        <!-- Subject -->
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'EMAIL_LOGS.EMAIL_SUBJECT' | translate }}</mat-label>
-            <input matInput [formControl]="subjectControl" maxlength="200" [placeholder]="'EMAIL_LOGS.SUBJECT_PLACEHOLDER' | translate">
-            <mat-hint align="end">{{ subjectLength }}/200</mat-hint>
-            <mat-error *ngIf="subjectControl.hasError('required')">
-              {{ 'EMAIL_LOGS.SUBJECT_REQUIRED' | translate }}
-            </mat-error>
-          </mat-form-field>
-        </div>
-
-        <!-- Template Variables -->
-        <div class="variables-section" *ngIf="availableVariables.length > 0">
-          <h4 class="variables-title">{{ 'EMAIL_LOGS.AVAILABLE_VARIABLES' | translate }}</h4>
-          <p class="variables-description">
-            {{ 'EMAIL_LOGS.VARIABLES_DESCRIPTION' | translate }}
-          </p>
-          <div class="variables-grid">
-            <button
-              *ngFor="let variable of availableVariables"
-              (click)="insertVariable(variable)"
-              class="variable-button"
-              type="button">
-              {{ getVariableDisplayName(variable) }}
-              <span class="variable-syntax">{{ '{{' + variable + '}}' }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Email Body -->
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width email-body-field">
-            <mat-label>{{ 'EMAIL_LOGS.EMAIL_BODY' | translate }}</mat-label>
-            <textarea
-              matInput
-              [formControl]="bodyControl"
-              rows="12"
-              maxlength="5000"
-              [placeholder]="'EMAIL_LOGS.BODY_PLACEHOLDER' | translate">
-            </textarea>
-            <mat-hint align="end">{{ bodyLength }}/5000</mat-hint>
-            <mat-error *ngIf="bodyControl.hasError('required')">
-              {{ 'EMAIL_LOGS.BODY_REQUIRED' | translate }}
-            </mat-error>
-          </mat-form-field>
-        </div>
-      </div>
-
-      <!-- Email Preview Toggle & Section -->
-      <div class="preview-section" *ngIf="!isViewMode()">
-        <div class="preview-toggle">
-          <mat-checkbox [formControl]="showPreviewControl" color="primary">
-            <span class="toggle-label">{{ 'EMAIL_LOGS.SHOW_PREVIEW' | translate }}</span>
-          </mat-checkbox>
-        </div>
-
-        <div class="preview-container" *ngIf="showPreviewControl.value && body">
-          <div class="preview-header">
-            <div class="preview-field">
-              <strong>{{ 'EMAIL_LOGS.TO' | translate }}:</strong>
-              <span class="preview-value">{{ data.emailLog.recipient }}</span>
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">{{ 'EMAIL_LOGS.RECIPIENT' | translate }}:</span>
+                  <span class="info-value">{{ data.emailLog.recipient }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">{{ 'EMAIL_LOGS.TYPE' | translate }}:</span>
+                  <span class="info-value">{{ data.emailLog.emailType }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">{{ 'EMAIL_LOGS.ORIGINAL_LANGUAGE' | translate }}:</span>
+                  <span class="info-value">{{ getOriginalLanguageDisplayName() }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">{{ 'EMAIL_LOGS.SENT_AT' | translate }}:</span>
+                  <span class="info-value">{{ data.emailLog.sentAt | date:'medium' }}</span>
+                </div>
+              </div>
             </div>
-            <div class="preview-field">
-              <strong>{{ 'EMAIL_LOGS.LANGUAGE' | translate }}:</strong>
-              <span class="preview-value">{{ getLanguageDisplayName(language) }}</span>
+
+            <!-- Email Content Section -->
+            <div class="form-section" *ngIf="!isViewMode()">
+              <div class="section-header">
+                <mat-icon>drafts</mat-icon>
+                <h3>{{ 'EMAILS.EMAIL_CONTENT' | translate }}</h3>
+              </div>
+
+              <!-- Language Selection -->
+              <div class="form-row">
+                <div class="form-field">
+                  <mat-form-field appearance="outline" class="language-select">
+                    <mat-label>{{ 'EMAILS.EMAIL_LANGUAGE' | translate }}</mat-label>
+                    <mat-select [formControl]="languageControl">
+                      <mat-option *ngFor="let locale of usedLocales" [value]="getLocaleString(locale)">
+                        {{ locale.translatedName }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matSuffix>language</mat-icon>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Subject -->
+              <div class="form-field full-width">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'EMAILS.SUBJECT' | translate }}</mat-label>
+                  <input
+                    matInput
+                    [formControl]="subjectControl"
+                    [placeholder]="'EMAILS.SUBJECT_PLACEHOLDER' | translate"
+                    maxlength="200">
+                  <mat-hint align="end">{{ subjectLength }}/200</mat-hint>
+                  <mat-error *ngIf="subjectControl.hasError('required')">
+                    {{ 'VALIDATION.REQUIRED' | translate }}
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <!-- Template Variables -->
+              <div class="template-variables" *ngIf="availableVariables.length > 0">
+                <h4>{{ 'EMAILS.TEMPLATE_VARIABLES' | translate }}</h4>
+                <p class="variables-description">{{ 'EMAILS.VARIABLES_DESCRIPTION' | translate }}</p>
+                <div class="variables-list">
+                  <span
+                    *ngFor="let variable of availableVariables"
+                    (click)="insertVariable(variable)"
+                    class="variable-tag">
+                    {{ getVariableDisplayName(variable) | translate }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Body -->
+              <div class="form-field full-width">
+                <mat-form-field appearance="outline" class="email-body">
+                  <mat-label>{{ 'EMAILS.BODY' | translate }}</mat-label>
+                  <textarea
+                    matInput
+                    [formControl]="bodyControl"
+                    [placeholder]="'EMAILS.BODY_PLACEHOLDER' | translate"
+                    rows="12"
+                    maxlength="5000">
+                  </textarea>
+                  <mat-hint align="end">{{ bodyLength }}/5000</mat-hint>
+                  <mat-error *ngIf="bodyControl.hasError('required')">
+                    {{ 'VALIDATION.REQUIRED' | translate }}
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <!-- Preview Toggle -->
+              <div class="form-row checkboxes-row">
+                <div class="checkbox-group">
+                  <mat-checkbox formControlName="showPreview" (change)="onPreviewToggle()">
+                    {{ 'EMAILS.ADMIN.SHOW_PREVIEW' | translate }}
+                  </mat-checkbox>
+                </div>
+              </div>
+
+              <!-- Email Preview -->
+              <div [@previewToggle]="showPreview ? 'visible' : 'hidden'" class="animated-form-content">
+                <div class="form-row">
+                  <div class="email-preview">
+                    <h4>{{ 'EMAILS.PREVIEW' | translate }}</h4>
+                    <div class="preview-content">
+                      <div class="preview-header">
+                        <strong>{{ 'EMAILS.TO' | translate }}:</strong>
+                        <span class="preview-recipients">{{ data.emailLog.recipient }}</span>
+                      </div>
+                      <div class="preview-subject">
+                        <strong>{{ 'EMAILS.SUBJECT' | translate }}:</strong>
+                        {{ subject || ('EMAILS.NO_SUBJECT' | translate) }}
+                      </div>
+                      <div class="preview-body">
+                        <strong>{{ 'EMAILS.BODY' | translate }}:</strong>
+                        <div class="html-preview" [innerHTML]="getPreviewBody() | safeHtml"></div>
+                      </div>
+                      <div class="preview-note">
+                        <mat-icon>info</mat-icon>
+                        <span>{{ 'EMAILS.PERSONALIZATION_NOTE' | translate }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- View Mode Content Display -->
+            <div class="form-section" *ngIf="isViewMode()">
+              <div class="section-header">
+                <mat-icon>visibility</mat-icon>
+                <h3>{{ 'EMAIL_LOGS.EMAIL_CONTENT' | translate }}</h3>
+              </div>
+
+              <!-- Read-only Subject -->
+              <div class="readonly-field">
+                <label class="readonly-label">{{ 'EMAILS.SUBJECT' | translate }}</label>
+                <div class="readonly-value">{{ data.emailLog.subject || ('EMAILS.NO_SUBJECT' | translate) }}</div>
+              </div>
+
+              <!-- Read-only Body -->
+              <div class="readonly-field">
+                <label class="readonly-label">{{ 'EMAILS.BODY' | translate }}</label>
+                <div class="readonly-value email-body-content">
+                  <div class="html-preview" [innerHTML]="getOriginalBodyForDisplay() | safeHtml"></div>
+                </div>
+              </div>
+
+              <!-- View Mode Message -->
+              <div class="view-mode-message">
+                <mat-icon>info</mat-icon>
+                <span>{{ 'EMAIL_LOGS.VIEW_MODE_MESSAGE' | translate }}</span>
+              </div>
             </div>
           </div>
-          <div class="preview-field">
-            <strong>{{ 'EMAIL_LOGS.SUBJECT' | translate }}:</strong>
-            <span class="preview-value">{{ subject || ('EMAIL_LOGS.NO_SUBJECT' | translate) }}</span>
-          </div>
-          <div class="preview-body">
-            <strong>{{ 'EMAIL_LOGS.BODY' | translate }}:</strong>
-            <div class="preview-content" [innerHTML]="getPreviewBody()"></div>
-          </div>
+        </form>
+      </div>
+
+      <!-- Floating Action Buttons -->
+      <div class="admin-actions-bar" *ngIf="!isViewMode()">
+        <div class="admin-action-buttons">
+          <button (click)="close()"
+                  color="warn"
+                  mat-stroked-button
+                  type="button"
+                  class="cancel-btn">
+            <mat-icon>close</mat-icon>
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button *ngIf="!isViewMode()"
+                  [disabled]="!canResend() || isResending"
+                  color="primary"
+                  (click)="resendEmail()"
+                  mat-flat-button
+                  type="button"
+                  class="save-btn">
+            <mat-icon>send</mat-icon>
+            {{ isResending ? ('EMAILS.SENDING' | translate) : ('EMAIL_LOGS.RESEND_EMAIL' | translate) }}
+          </button>
         </div>
       </div>
 
-      <!-- View Mode Message -->
-      <div class="view-mode-message" *ngIf="isViewMode()">
-        <mat-icon>info</mat-icon>
-        <span>{{ 'EMAIL_LOGS.VIEW_MODE_MESSAGE' | translate }}</span>
+      <!-- Centered Close Button for View Mode -->
+      <div class="view-mode-actions" *ngIf="isViewMode()">
+        <button (click)="close()"
+                color="primary"
+                mat-flat-button
+                type="button"
+                class="centered-close-btn">
+          <mat-icon>close</mat-icon>
+          {{ 'COMMON.CLOSE' | translate }}
+        </button>
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="dialog-actions">
-      <button mat-stroked-button (click)="close()" type="button" class="cancel-button">
-        <mat-icon>close</mat-icon>
-        {{ isViewMode() ? ('COMMON.CLOSE' | translate) : ('COMMON.CANCEL' | translate) }}
-      </button>
-      <button
-        *ngIf="!isViewMode()"
-        mat-flat-button
-        color="primary"
-        (click)="resendEmail()"
-        [disabled]="!canResend()"
-        class="resend-button">
-        <mat-icon>send</mat-icon>
-        {{ 'EMAIL_LOGS.RESEND_EMAIL' | translate }}
-      </button>
+    <!-- Sending Loading State -->
+    <div *ngIf="isResending" class="loading-section">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <div class="loading-text">{{ 'EMAILS.SENDING_EMAILS' | translate }}</div>
     </div>
   </div>
 </div>

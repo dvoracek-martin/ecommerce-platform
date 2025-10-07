@@ -101,6 +101,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public List<ResponseEmailLogDTO> getResponseEmailLogEntries() {
         return emailLogRepository.findAll().stream()
+                .sorted((e1, e2) -> e2.getSentAt().compareTo(e1.getSentAt()))
                 .map(emailLogMapper::mapEmailLogToResponseEmailLogDTO)
                 .toList();
     }
@@ -116,7 +117,7 @@ public class EmailServiceImpl implements EmailService {
                 helper.addTo(recipient);
 
                 mailSender.send(message);
-                emailLogRepository.save(new EmailLog(null, emailSendDTO.getEmailType(), recipient, LocalDateTime.now(), emailSendDTO.getSubject(), emailSendDTO.getBody(), emailSendDTO.getLanguage()));
+                emailLogRepository.save(new EmailLog(null, emailSendDTO.getEmailType(), recipient, LocalDateTime.now(), emailSendDTO.getBody(), emailSendDTO.getSubject(), emailSendDTO.getLanguage()));
             } catch (Exception e) {
                 throw new RuntimeException("Failed to send email", e);
             }

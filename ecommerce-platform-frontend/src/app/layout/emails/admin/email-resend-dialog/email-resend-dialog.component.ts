@@ -1,28 +1,51 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { trigger, state, style, transition, animate } from '@angular/animations';
+
 import { EmailService } from '../../../../services/email.service';
-import { ResponseEmailLogDTO } from '../../../../dto/email/response-email-log-dto';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfigurationService } from '../../../../services/configuration.service';
+import { LocaleMapperService } from '../../../../services/locale-mapper.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { ResponseEmailLogDTO } from '../../../../dto/email/response-email-log-dto';
 import { ResponseLocaleDto } from '../../../../dto/configuration/response-locale-dto';
+import { EmailSendDTO } from '../../../../dto/email/email-send-dto';
 
 @Component({
   selector: 'app-email-resend-dialog',
   templateUrl: './email-resend-dialog.component.html',
   styleUrls: ['./email-resend-dialog.component.scss'],
-  standalone: false
+  standalone: false,
+  animations: [
+    trigger('previewToggle', [
+      state('hidden', style({
+        height: '0px',
+        opacity: 0,
+        overflow: 'hidden'
+      })),
+      state('visible', style({
+        height: '*',
+        opacity: 1,
+        overflow: 'visible'
+      })),
+      transition('hidden <=> visible', [
+        animate('400ms ease-in-out')
+      ])
+    ])
+  ]
 })
 export class EmailResendDialogComponent implements OnInit {
-  // Define form controls with explicit typing
+  emailForm: FormGroup;
   subjectControl: FormControl;
   bodyControl: FormControl;
   languageControl: FormControl;
-  showPreviewControl: FormControl; // New control for preview toggle
-  emailForm: FormGroup;
+  showPreviewControl: FormControl;
 
   isResending = false;
-  availableLanguages: string[] = [];
+  isInitializing = true;
+  showPreview = false;
+
   usedLocales: ResponseLocaleDto[] = [];
   availableVariables: string[] = [];
 
@@ -34,31 +57,36 @@ export class EmailResendDialogComponent implements OnInit {
     private dialogRef: MatDialogRef<EmailResendDialogComponent>,
     private emailService: EmailService,
     private configurationService: ConfigurationService,
-    private snackBar: MatSnackBar
+    private localeMapperService: LocaleMapperService,
+    private snackBar: MatSnackBar,
+    private fb: FormBuilder
   ) {
-    // Initialize form controls - make them ENABLED for resend mode
-    const isViewMode = data.mode === 'view';
+    this.initializeForm();
+  }
 
+  private initializeForm(): void {
+    const isViewMode = this.data.mode === 'view';
+
+    // FIXED: Correctly map subject to subject and body to body
     this.subjectControl = new FormControl(
-      { value: data.emailLog.subject || '', disabled: isViewMode },
+      { value: this.data.emailLog.subject || '', disabled: isViewMode },
       [Validators.required, Validators.maxLength(200)]
     );
 
     this.bodyControl = new FormControl(
-      { value: data.emailLog.body || '', disabled: isViewMode },
+      { value: this.data.emailLog.body || '', disabled: isViewMode },
       [Validators.required, Validators.maxLength(5000)]
     );
 
     this.languageControl = new FormControl(
-      { value: data.emailLog.language || 'en_US', disabled: isViewMode },
+      { value: this.data.emailLog.language || 'en_US', disabled: isViewMode },
       [Validators.required]
     );
 
-    // Initialize preview toggle - default to false to avoid scrollbar initially
     this.showPreviewControl = new FormControl(false);
 
-    // Initialize form group
-    this.emailForm = new FormGroup({
+    // Initialize form group with correct mappings
+    this.emailForm = this.fb.group({
       subject: this.subjectControl,
       body: this.bodyControl,
       language: this.languageControl,
@@ -66,38 +94,42 @@ export class EmailResendDialogComponent implements OnInit {
     });
   }
 
-  // ... rest of the component methods remain the same
   ngOnInit(): void {
-    this.loadAvailableLanguages();
-    this.setAvailableVariables();
+    this.loadInitialData();
   }
 
-  private loadAvailableLanguages(): void {
+  private loadInitialData(): void {
     this.configurationService.getLastAppSettings().subscribe({
       next: (settings) => {
-        this.usedLocales = settings.usedLocales || [];
-        this.availableLanguages = this.usedLocales.map(locale =>
-          `${locale.languageCode}_${locale.regionCode}`
-        );
+        this.usedLocales = (settings.usedLocales || []).map(locale => ({
+          ...locale,
+          translatedName: this.localeMapperService.mapLocale(locale.languageCode, locale.regionCode)
+        }));
 
-        // If current language is not in available languages, add it
-        if (this.data.emailLog.language && !this.availableLanguages.includes(this.data.emailLog.language)) {
-          this.availableLanguages.push(this.data.emailLog.language);
+        // Set default language if current one is not available
+        const currentLanguage = this.languageControl.value;
+        if (!this.usedLocales.some(locale => this.getLocaleString(locale) === currentLanguage)) {
+          const defaultLocale = this.usedLocales[0];
+          if (defaultLocale) {
+            this.languageControl.setValue(this.getLocaleString(defaultLocale));
+          }
         }
 
-        // Sort languages for better UX
-        this.availableLanguages.sort();
+        this.setAvailableVariables();
+        this.isInitializing = false;
       },
       error: (error) => {
-        console.error('Failed to load languages:', error);
-        // Fallback to common languages
-        this.availableLanguages = ['en_US', 'cs_CZ', 'sk_SK', 'de_DE', 'fr_FR', 'en', 'cs', 'sk', 'de', 'fr'];
+        console.error('Failed to load initial data:', error);
+        this.isInitializing = false;
+        this.snackBar.open('Failed to load configuration data', 'Close', {
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
 
   private setAvailableVariables(): void {
-    // Set variables based on email type
     const variableMap: { [key: string]: string[] } = {
       'REGISTRATION': ['firstName', 'lastName', 'email'],
       'PASSWORD_RESET': ['firstName', 'resetLink'],
@@ -109,31 +141,26 @@ export class EmailResendDialogComponent implements OnInit {
     this.availableVariables = variableMap[this.data.emailLog.emailType] || ['firstName', 'lastName', 'email'];
   }
 
-  getLanguageDisplayName(language: string): string {
-    const languageMap: { [key: string]: string } = {
-      'en_US': 'English (US)',
-      'cs_CZ': 'Czech (CZ)',
-      'sk_SK': 'Slovak (SK)',
-      'de_DE': 'German (DE)',
-      'fr_FR': 'French (FR)',
-      'en': 'English',
-      'cs': 'Czech',
-      'sk': 'Slovak',
-      'de': 'German',
-      'fr': 'French'
-    };
-    return languageMap[language] || language;
+  getLocaleString(locale: ResponseLocaleDto): string {
+    return `${locale.languageCode}_${locale.regionCode}`;
+  }
+
+  getOriginalLanguageDisplayName(): string {
+    const locale = this.usedLocales.find(l =>
+      this.getLocaleString(l) === this.data.emailLog.language
+    );
+    return locale ? locale.translatedName : this.data.emailLog.language;
   }
 
   getVariableDisplayName(variable: string): string {
     const variableNames: { [key: string]: string } = {
-      'firstName': 'First Name',
-      'lastName': 'Last Name',
-      'email': 'Email',
-      'resetLink': 'Reset Link',
-      'orderNumber': 'Order Number',
-      'orderDate': 'Order Date',
-      'totalAmount': 'Total Amount'
+      'firstName': 'EMAILS.VARIABLES.FIRST_NAME',
+      'lastName': 'EMAILS.VARIABLES.LAST_NAME',
+      'email': 'EMAILS.VARIABLES.EMAIL',
+      'resetLink': 'EMAILS.VARIABLES.RESET_LINK',
+      'orderNumber': 'EMAILS.VARIABLES.ORDER_NUMBER',
+      'orderDate': 'EMAILS.VARIABLES.ORDER_DATE',
+      'totalAmount': 'EMAILS.VARIABLES.TOTAL_AMOUNT'
     };
     return variableNames[variable] || variable;
   }
@@ -144,7 +171,7 @@ export class EmailResendDialogComponent implements OnInit {
     const variableText = `{{${variable}}}`;
     const currentBody = this.bodyControl.value || '';
 
-    // Get textarea element
+    // Get textarea element for cursor position insertion
     const textarea = document.querySelector('textarea[formControlName="body"]') as HTMLTextAreaElement;
 
     if (textarea && document.activeElement === textarea) {
@@ -168,31 +195,42 @@ export class EmailResendDialogComponent implements OnInit {
   getPreviewBody(): string {
     const body = this.bodyControl.value || '';
 
-    // Replace variables with sample values for preview
+    // Replace variables with sample values for preview (same as reference component)
     return body
       .replace(/{{firstName}}/g, '<span class="variable">[Customer First Name]</span>')
       .replace(/{{lastName}}/g, '<span class="variable">[Customer Last Name]</span>')
       .replace(/{{email}}/g, '<span class="variable">[Customer Email]</span>')
-      .replace(/{{resetLink}}/g, '<span class="variable">[Password Reset Link]</span>')
-      .replace(/{{orderNumber}}/g, '<span class="variable">[Order #12345]</span>')
-      .replace(/{{orderDate}}/g, '<span class="variable">[January 1, 2024]</span>')
-      .replace(/{{totalAmount}}/g, '<span class="variable">[$99.99]</span>')
+      .replace(/{{resetLink}}/g, '<span class="variable">[Reset Link]</span>')
+      .replace(/{{orderNumber}}/g, '<span class="variable">[Order Number]</span>')
+      .replace(/{{orderDate}}/g, '<span class="variable">[Order Date]</span>')
+      .replace(/{{totalAmount}}/g, '<span class="variable">[Total Amount]</span>')
       .replace(/\n/g, '<br>');
   }
 
+  getOriginalBodyForDisplay(): string {
+    const body = this.data.emailLog.body || '';
+    return body.replace(/\n/g, '<br>');
+  }
+
+  onPreviewToggle(): void {
+    this.showPreview = this.showPreviewControl.value;
+  }
+
   resendEmail(): void {
-    if (this.isViewMode() || !this.emailForm.valid) return;
+    if (this.isViewMode() || !this.canResend()) return;
 
     this.isResending = true;
 
-    const formValue = this.emailForm.value;
+    const emailSendData: EmailSendDTO = {
+      emailType: this.data.emailLog.emailType,
+      subject: this.subjectControl.value,
+      body: this.bodyControl.value,
+      recipients: [this.data.emailLog.recipient],
+      language: this.languageControl.value
+      // customerIds is optional and not available in ResponseEmailLogDTO, so we omit it
+    };
 
-    this.emailService.resendEmail(
-      this.data.emailLog,
-      formValue.subject,
-      formValue.body,
-      formValue.language
-    ).subscribe({
+    this.emailService.sendEmail(emailSendData).subscribe({
       next: () => {
         this.snackBar.open('Email resent successfully', 'Close', {
           duration: 3000
@@ -201,11 +239,21 @@ export class EmailResendDialogComponent implements OnInit {
       },
       error: (error) => {
         console.error('Failed to resend email:', error);
-        this.snackBar.open('Failed to resend email', 'Close', {
+        this.isResending = false;
+
+        let errorMessage = 'Failed to resend email';
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.status === 0) {
+          errorMessage = 'Unable to connect to server. Please check your connection.';
+        } else if (error.status >= 500) {
+          errorMessage = 'Server error occurred while sending email. Please try again later.';
+        }
+
+        this.snackBar.open(errorMessage, 'Close', {
           duration: 5000,
           panelClass: ['error-snackbar']
         });
-        this.isResending = false;
       }
     });
   }
@@ -222,10 +270,6 @@ export class EmailResendDialogComponent implements OnInit {
     return !this.isViewMode() &&
       this.emailForm.valid &&
       !this.isResending;
-  }
-
-  getOriginalLanguage(): string {
-    return this.getLanguageDisplayName(this.data.emailLog.language);
   }
 
   // Helper methods to safely access form values
