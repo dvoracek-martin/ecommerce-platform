@@ -1,0 +1,60 @@
+<div class="activation-container">
+  <div *ngIf="isLoading" class="loading-section">
+    <mat-spinner></mat-spinner>
+    <p>{{ 'ACTIVATION.LOADING' | translate }}</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="activation-content">
+    <!-- Success State -->
+    <div *ngIf="activationSuccess && !isActivating" class="success-section">
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      <h2>{{ 'ACTIVATION.SUCCESS_TITLE' | translate }}</h2>
+      <p>{{ 'ACTIVATION.SUCCESS_MESSAGE' | translate }}</p>
+
+      <div class="action-buttons">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="openAuthPopup()"
+          class="login-btn">
+          {{ 'ACTIVATION.GO_TO_LOGIN' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Activation in Progress -->
+    <div *ngIf="isActivating" class="activating-section">
+      <mat-spinner></mat-spinner>
+      <p>{{ 'ACTIVATION.ACTIVATING' | translate }}</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="activationError && !isActivating" class="error-section">
+      <mat-icon class="error-icon">error</mat-icon>
+      <h2>{{ 'ACTIVATION.ERROR_TITLE' | translate }}</h2>
+      <p>{{ errorMessage }}</p>
+
+      <div class="action-buttons">
+        <button
+          mat-button
+          (click)="navigateToHome()"
+          class="home-btn">
+          {{ 'ACTIVATION.GO_HOME' | translate }}
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="navigateToLogin()"
+          class="login-btn">
+          {{ 'COMMON.BACK_TO_LOGIN' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Popup -->
+  <app-auth-popup
+    *ngIf="isPopupOpen"
+    (closePopup)="closeAuthPopup()">
+  </app-auth-popup>
+</div>
