@@ -68,6 +68,7 @@ import {EmailsAdminSendComponent} from './layout/emails/admin/emails-admin-send/
 import {MatAutocomplete, MatAutocompleteTrigger} from '@angular/material/autocomplete';
 import {EmailResendDialogComponent} from './layout/emails/admin/email-resend-dialog/email-resend-dialog.component';
 import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
+import {ActivateAccountComponent} from './auth/activate-account/activate-account.component';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -78,6 +79,7 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
 @NgModule({
   declarations: [
     AppComponent,
+    ActivateAccountComponent,
     WelcomeComponent,
     UserRegistrationComponent,
     UserLoginComponent,

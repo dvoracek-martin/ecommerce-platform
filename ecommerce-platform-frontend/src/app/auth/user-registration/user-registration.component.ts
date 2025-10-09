@@ -20,12 +20,14 @@ interface PasswordStrength {
 })
 export class UserRegistrationComponent implements OnInit {
   @Output() registerSuccess = new EventEmitter<void>();
+  @Output() goHome = new EventEmitter<void>(); // Add this new event
   registrationForm: FormGroup;
   saving = false;
   hidePassword = true;
   hideConfirmPassword = true;
-  passwordStrength: PasswordStrength = { score: 0, text: '', class: '' };
+  passwordStrength: PasswordStrength = {score: 0, text: '', class: ''};
   isPasswordStrong = false;
+  registrationComplete = false;
 
   constructor(
     private fb: FormBuilder,
@@ -34,7 +36,8 @@ export class UserRegistrationComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private translate: TranslateService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.registrationForm = this.fb.group({
@@ -45,12 +48,11 @@ export class UserRegistrationComponent implements OnInit {
       ]],
       password: ['', [
         Validators.required,
-        Validators.minLength(6) // More friendly minimum length
+        Validators.minLength(6)
       ]],
       confirmPassword: ['', Validators.required]
     }, {validators: this.passwordMatchValidator()});
 
-    // Check password strength on every change
     this.registrationForm.get('password')?.valueChanges.subscribe(() => {
       this.checkPasswordStrength();
     });
@@ -60,24 +62,20 @@ export class UserRegistrationComponent implements OnInit {
     const password = this.registrationForm.get('password')?.value;
 
     if (!password) {
-      this.passwordStrength = { score: 0, text: '', class: '' };
+      this.passwordStrength = {score: 0, text: '', class: ''};
       this.isPasswordStrong = false;
       return;
     }
 
     let score = 0;
 
-    // More friendly scoring system
-    if (password.length >= 6) score++; // Basic length
-    if (password.length >= 8) score++; // Good length
-    if (password.length >= 12) score++; // Great length
+    if (password.length >= 6) score++;
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
 
-    // Simple complexity checks (bonus points)
-    if (/[A-Z]/.test(password)) score++; // Uppercase letters
-    if (/[0-9]/.test(password)) score++; // Numbers
-    if (/[^A-Za-z0-9]/.test(password)) score++; // Special characters
-
-    // Determine strength level - More user-friendly approach
     if (score <= 1) {
       this.passwordStrength = {
         score,
@@ -149,12 +147,16 @@ export class UserRegistrationComponent implements OnInit {
 
     this.http.post('/api/users/v1/create', payload).subscribe({
       next: () => {
+        this.saving = false;
+        this.registrationComplete = true;
+        this.authService.setRegistrationComplete(true);
+        this.registerSuccess.emit();
+
         this.snackBar.open(
           this.translate.instant('SUCCESS.REGISTRATION_SUCCESS'),
           this.translate.instant('COMMON.CLOSE'),
-          {duration: 5000}
+          {duration: 30000}
         );
-        this.authenticateUserAfterRegistration();
       },
       error: (err) => {
         this.snackBar.open(
@@ -175,37 +177,8 @@ export class UserRegistrationComponent implements OnInit {
     };
   }
 
-  private authenticateUserAfterRegistration(): void {
-    const username = this.registrationForm.get('email')?.value.trim().toLowerCase();
-    const password = this.registrationForm.get('password')?.value;
-
-    const body = new URLSearchParams();
-    body.set('grant_type', 'password');
-    body.set('client_id', 'ecommerce-platform-client');
-    body.set('username', username);
-    body.set('password', password);
-
-    this.http.post(
-      'http://localhost:9090/realms/ecommerce-platform/protocol/openid-connect/token',
-      body.toString(),
-      {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}
-    ).subscribe({
-      next: (response: any) => {
-        this.authService.storeToken(response);
-        this.registerSuccess.emit();
-        this.router.navigate(['/customer']);
-        this.registrationForm.reset();
-        this.saving = false;
-      },
-      error: (err) => {
-        this.snackBar.open(
-          this.translate.instant('ERRORS.LOGIN_FAILED') + (err.error?.message || err.statusText),
-          this.translate.instant('COMMON.CLOSE'),
-          {duration: 5000}
-        );
-        this.saving = false;
-        this.router.navigate(['/']);
-      }
-    });
+  navigateToHome(): void {
+    this.goHome.emit();
+    this.router.navigate(['/']);
   }
 }

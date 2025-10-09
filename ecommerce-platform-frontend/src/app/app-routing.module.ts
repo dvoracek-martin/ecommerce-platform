@@ -41,11 +41,13 @@ import {
 } from './layout/emails/admin/emails-admin-templates/emails-admin-templates.component';
 import {EmailAdminLogsComponent} from './layout/emails/admin/emails-admin-logs/emails-admin-logs.component';
 import {EmailsAdminSendComponent} from './layout/emails/admin/emails-admin-send/emails-admin-send.component';
+import {ActivateAccountComponent} from './auth/activate-account/activate-account.component';
 
 const routes: Routes = [
   {path: '', component: WelcomeComponent},
   {path: 'register', component: UserRegistrationComponent},
   {path: 'reset-password', component: ResetPasswordComponent},
+  {path: 'activate', component: ActivateAccountComponent},
   {path: 'unauthorized', component: UnauthorizedComponent},
   {path: 'categories', component: CategoriesComponent},
   {path: 'mixtures', component: MixturesComponent},

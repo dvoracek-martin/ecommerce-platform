@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/v1/reset-password").permitAll()
                         .requestMatchers("/api/users/v1/create").permitAll()
                         .requestMatchers("/api/users/v1/login").permitAll()
+                        .requestMatchers("/api/users/v1/activate").permitAll() // ← ADD THIS LINE
                         .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated()
                 )

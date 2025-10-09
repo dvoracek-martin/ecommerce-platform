@@ -2,6 +2,7 @@ package com.dvoracekmartin.userservice.web.controller.v1;
 
 import com.dvoracekmartin.userservice.application.dto.*;
 import com.dvoracekmartin.userservice.application.service.UserService;
+import com.dvoracekmartin.userservice.domain.utils.ActivationException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,21 @@ public class UserControllerV1 {
         log.info("Creating new user");
         ResponseUserDTO response = userService.createUser(createUserDTO);
         return ResponseEntity.status(response.statusCode()).body(response);
+    }
+
+    @GetMapping("/activate")
+    public ResponseEntity<String> activateUser(@RequestParam String token) {
+        log.info("Activating user with token (truncated): {}...", token.substring(0, 6));
+        try {
+            String result = userService.activateUser(token);
+            return ResponseEntity.ok().body(result);
+        } catch (ActivationException e) {
+            log.warn("Activation failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error during activation for token: {}", token.substring(0, 6), e);
+            return ResponseEntity.internalServerError().body("An unexpected error occurred during activation");
+        }
     }
 
     @PutMapping("/{userId}")

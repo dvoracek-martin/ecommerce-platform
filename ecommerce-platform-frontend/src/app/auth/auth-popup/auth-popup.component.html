@@ -10,10 +10,9 @@
       <div class="auth-header">
         <h2>{{ 'LOGIN.FORGOT_PASSWORD_TITLE' | translate }}</h2>
       </div>
-      <!-- ADD (cancel) EVENT BINDING HERE -->
       <app-forgot-password
         (close)="closeForgotPassword()"
-        (cancel)="switchToLogin()"> <!-- This was missing! -->
+        (cancel)="switchToLogin()">
       </app-forgot-password>
     </ng-container>
 
@@ -32,7 +31,6 @@
           <button (click)="openForgotPassword()" class="auth-link" mat-button>
             {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
           </button>
-<!--          <div class="auth-divider"></div>-->
           <button (click)="switchToRegister($event)" class="auth-link primary" mat-button>
             {{ 'AUTH.REGISTER' | translate }}
           </button>
@@ -46,9 +44,13 @@
           <p class="auth-subtitle">{{ 'USER_REGISTRATION.SUBTITLE' | translate }}</p>
         </div>
 
-        <app-user-registration (registerSuccess)="onSuccess()"></app-user-registration>
+        <app-user-registration
+          (registerSuccess)="onRegisterSuccess()"
+          (goHome)="closePopup.emit()"> <!-- This closes the popup when go home is clicked -->
+        </app-user-registration>
 
-        <div class="auth-links">
+        <!-- Only show the "switch to login" link if registration is NOT complete -->
+        <div *ngIf="!isRegistrationComplete" class="auth-links">
           <button (click)="switchToLogin($event)" class="auth-link primary" mat-button>
             {{ 'AUTH.LOGIN' | translate }}
           </button>

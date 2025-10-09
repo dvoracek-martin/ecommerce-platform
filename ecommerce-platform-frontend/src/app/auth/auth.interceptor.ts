@@ -10,12 +10,13 @@ export class AuthInterceptor implements HttpInterceptor {
   private configurationApiUrl = '/api/configuration/';
   private usersApiUrl = '/api/users/';
   private catalogApiUrl = '/api/catalog/';
+  private activationUrl = '/activate';
 
   constructor(private authService: AuthService) {
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Zajistí, že URL vždy začíná jen od /api/...
+
     const url = req.url.replace(/^https?:\/\/[^\/]+/, '');
 
     // ==============================
@@ -31,6 +32,7 @@ export class AuthInterceptor implements HttpInterceptor {
     // Public USER endpoints
     // ==============================
     if (url.includes(this.usersApiUrl + this.apiVersion + '/forgot-password')
+      || url.includes(this.usersApiUrl + this.apiVersion + '/activate')
       || url.includes(this.usersApiUrl + this.apiVersion + '/create')
       || url.includes(this.usersApiUrl + this.apiVersion + '/reset-password')) {
       return next.handle(req);
@@ -58,7 +60,6 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(authReq);
     }
 
-    // Pokud není token, pustíme request bez úprav
     return next.handle(req);
   }
 }

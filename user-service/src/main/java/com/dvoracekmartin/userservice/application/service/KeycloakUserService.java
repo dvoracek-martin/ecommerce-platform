@@ -38,9 +38,9 @@ public class KeycloakUserService implements UserAuthenticationService{
     @Value("${keycloak.server.url}")
     private String serverUrl;
 
-    private static UserRepresentation toUserRepresentation(CreateUserDTO dto) {
+    private static UserRepresentation toUserRepresentation(CreateUserDTO dto, boolean enabled) {
         UserRepresentation user = new UserRepresentation();
-        user.setEnabled(true);
+        user.setEnabled(enabled);
         user.setUsername(dto.username());
         user.setFirstName(dto.username());
         user.setLastName(dto.username());
@@ -96,6 +96,7 @@ public class KeycloakUserService implements UserAuthenticationService{
         }
     }
 
+    @Override
     public void addOrRevokeUserAccess(String userId, boolean assign) {
         try {
             log.debug("{} role '{}' for user: {}", assign ? "Assigning" : "Revoking", USER_CLIENT_ROLE, userId);
@@ -124,16 +125,19 @@ public class KeycloakUserService implements UserAuthenticationService{
         }
     }
 
-    public Response createUser(CreateUserDTO dto) {
+    @Override
+    public Response createUser(CreateUserDTO dto, boolean enabled) {
         try {
-            log.debug("Creating user: {}", dto.username());
+            log.debug("Creating user: {} with enabled: {}", dto.username(), enabled);
             RealmResource realmResource = buildKeycloakClient().realm(realm);
-            Response response = realmResource.users().create(toUserRepresentation(dto));
+            Response response = realmResource.users().create(toUserRepresentation(dto, enabled));
 
             if (response.getStatus() == Response.Status.CREATED.getStatusCode()) {
                 String userId = parseUserIdFromLocation(response.getHeaderString("Location"));
                 log.info("User created: {}", userId);
-                assignUserClientRole(realmResource, userId);
+                if (enabled) {
+                    assignUserClientRole(realmResource, userId);
+                }
             }
             return response;
         } catch (Exception ex) {
@@ -142,6 +146,34 @@ public class KeycloakUserService implements UserAuthenticationService{
         }
     }
 
+    @Override
+    public Response activateUser(String userId) {
+        try {
+            log.debug("Activating user: {}", userId);
+            RealmResource realmResource = buildKeycloakClient().realm(realm);
+            UserRepresentation user = realmResource.users().get(userId).toRepresentation();
+
+            // Enable the user account
+            user.setEnabled(true);
+
+            // Set email verified to true
+            user.setEmailVerified(true);
+
+            // Update the user in Keycloak
+            realmResource.users().get(userId).update(user);
+
+            // Assign the user client role upon activation
+            assignUserClientRole(realmResource, userId);
+
+            log.info("User activated successfully: {}", userId);
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (Exception ex) {
+            log.error("Activation failed: {}", userId, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Override
     public Response updateUser(String userId, UpdateUserDTO dto) {
         try {
             log.debug("Updating user: {}", userId);
@@ -153,6 +185,7 @@ public class KeycloakUserService implements UserAuthenticationService{
         }
     }
 
+    @Override
     public Response deleteUser(String userId) {
         try {
             log.info("Deleting user: {}", userId);
@@ -164,6 +197,7 @@ public class KeycloakUserService implements UserAuthenticationService{
         }
     }
 
+    @Override
     public String getUserIdByUsername(String username) {
         try {
             log.debug("Fetching ID for: {}", username);
@@ -174,6 +208,7 @@ public class KeycloakUserService implements UserAuthenticationService{
         }
     }
 
+    @Override
     public Response updateUserPassword(String userId, UpdateUserPasswordDTO dto) {
         try {
             log.debug("Updating password: {}", userId);
@@ -195,6 +230,7 @@ public class KeycloakUserService implements UserAuthenticationService{
         }
     }
 
+    @Override
     public Response resetPassword(String userId, String newPassword) {
         try {
             log.info("Resetting password: {}", userId);
@@ -243,6 +279,7 @@ public class KeycloakUserService implements UserAuthenticationService{
                 .build();
     }
 
+    @Override
     public void updateUserEmail(UpdateUserDTO updateUserDTO) {
         try {
             log.debug("Updating user by username/email: {}", updateUserDTO.username());

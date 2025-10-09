@@ -1,5 +1,24 @@
 <div class="registration-container">
-  <form (ngSubmit)="onSubmit()" [formGroup]="registrationForm" class="registration-form">
+  <!-- Success Message after Registration -->
+  <div *ngIf="registrationComplete" class="registration-success">
+    <div class="success-content">
+      <mat-icon class="success-icon">mark_email_read</mat-icon>
+      <h2 class="success-title">{{ 'USER_REGISTRATION.ACTIVATION_EMAIL_SENT' | translate }}</h2>
+      <p class="success-message">{{ 'USER_REGISTRATION.CHECK_EMAIL_FOR_ACTIVATION' | translate }}</p>
+      <div class="success-actions">
+        <button
+          class="btn-outline"
+          (click)="navigateToHome()"
+          mat-stroked-button>
+          <mat-icon>home</mat-icon>
+          {{ 'USER_REGISTRATION.GO_TO_HOME' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registration Form (hidden after success) -->
+  <form *ngIf="!registrationComplete" (ngSubmit)="onSubmit()" [formGroup]="registrationForm" class="registration-form">
     <!-- Email Field -->
     <mat-form-field appearance="outline" class="form-field-minimal">
       <mat-label>{{ 'USER_REGISTRATION.EMAIL' | translate }}</mat-label>
@@ -41,7 +60,7 @@
       </mat-error>
     </mat-form-field>
 
-    <!-- Password Strength Indicator - Shows immediately -->
+    <!-- Password Strength Indicator -->
     <div class="password-strength" *ngIf="registrationForm.get('password')?.value">
       <div class="strength-bars">
         <div class="strength-bar" [class]="getStrengthClass(1)"></div>
@@ -72,7 +91,7 @@
       <mat-error *ngIf="registrationForm.get('confirmPassword')?.hasError('required')">
         {{ 'USER_REGISTRATION.PASSWORD_REQUIRED' | translate }}
       </mat-error>
-      <mat-error *ngIf="registrationForm.hasError('mismatch') && registrationForm.get('confirmPassword')?.touched">
+      <mat-error *ngIf="registrationForm.hasError('mismatch') && registrationForm.get('confirmPassword')?.dirty">
         {{ 'USER_REGISTRATION.PASSWORDS_MISMATCH' | translate }}
       </mat-error>
     </mat-form-field>
@@ -84,7 +103,6 @@
       mat-raised-button
       type="submit">
       <div class="btn-content">
-<!--        <div class="spinner-small" *ngIf="saving"></div>-->
         <mat-icon *ngIf="!saving" class="btn-icon">how_to_reg</mat-icon>
         <span class="btn-text">
           {{ saving ? ('COMMON.SAVING' | translate) : ('USER_REGISTRATION.REGISTER' | translate) }}

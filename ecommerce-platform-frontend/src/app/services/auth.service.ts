@@ -1,13 +1,13 @@
 // src/app/services/auth.service.ts
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { BehaviorSubject, of, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import { isPlatformBrowser } from '@angular/common';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { HttpClient } from '@angular/common/http';
-import { jwtDecode } from 'jwt-decode';
+import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
+import {BehaviorSubject, of, throwError} from 'rxjs';
+import {catchError, tap} from 'rxjs/operators';
+import {isPlatformBrowser} from '@angular/common';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {HttpClient} from '@angular/common/http';
+import {jwtDecode} from 'jwt-decode';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class AuthService {
   private accessTokenKey = 'access_token';
   private refreshTokenKey = 'refresh_token';
@@ -15,6 +15,7 @@ export class AuthService {
   private refreshTimeout: any;
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   private currentUserSubject = new BehaviorSubject<{ username: string; email: string } | null>(null);
+  private _setRegistrationComplete: boolean;
 
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   currentUser$ = this.currentUserSubject.asObservable();
@@ -44,15 +45,15 @@ export class AuthService {
     body.set('password', password);
 
     return this.http.post(this.keycloakTokenUrl, body.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
     }).pipe(
       tap((response: any) => {
         this.storeToken(response);
-        this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
+        this.snackBar.open('Login successful!', 'Close', {duration: 3000});
       }),
       catchError((err) => {
         const errorMessage = err.error?.error_description || err.statusText;
-        this.snackBar.open(`Login failed: ${errorMessage}`, 'Close', { duration: 5000 });
+        this.snackBar.open(`Login failed: ${errorMessage}`, 'Close', {duration: 5000});
         return throwError(() => err);
       })
     );
@@ -108,7 +109,7 @@ export class AuthService {
       localStorage.removeItem(this.tokenExpirationKey);
       clearTimeout(this.refreshTimeout);
       this.currentUserSubject.next(null);
-      this.snackBar.open('Logout successful!', 'Close', { duration: 5000 });
+      this.snackBar.open('Logout successful!', 'Close', {duration: 5000});
     }
     this.isAuthenticatedSubject.next(false);
   }
@@ -152,7 +153,7 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId) && this.isTokenValid()) {
       const username = this.getUsername();
       const email = this.getEmail();
-      this.currentUserSubject.next({ username, email });
+      this.currentUserSubject.next({username, email});
     } else {
       this.currentUserSubject.next(null);
     }
@@ -187,14 +188,24 @@ export class AuthService {
     body.set('refresh_token', refreshToken);
 
     return this.http.post(this.keycloakTokenUrl, body.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
     }).pipe(
       tap(response => this.storeToken(response)),
       catchError(error => {
-        this.snackBar.open('Session expired. Please login again.', 'Close', { duration: 5000 });
+        this.snackBar.open('Session expired. Please login again.', 'Close', {duration: 5000});
         this.logout();
         return throwError(() => error);
       })
     );
+  }
+
+  setRegistrationComplete(isRegistrationComplete: boolean) {
+    console.log(this._setRegistrationComplete);
+    this._setRegistrationComplete = isRegistrationComplete;
+  }
+
+  isRegistrationComplete() {
+    console.log(this._setRegistrationComplete);
+    return this._setRegistrationComplete;
   }
 }

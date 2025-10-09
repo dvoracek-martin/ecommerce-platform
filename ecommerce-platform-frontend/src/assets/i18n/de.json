@@ -1,4 +1,20 @@
 {
+  "ACTIVATION": {
+    "PROCESSING": "Aktivierung wird verarbeitet",
+    "PLEASE_WAIT": "Bitte warten Sie, während wir Ihr Konto aktivieren...",
+    "ACTIVATING_ACCOUNT": "Ihr Konto wird aktiviert",
+    "DO_NOT_CLOSE": "Bitte schließen Sie dieses Fenster nicht",
+    "SUCCESS": "Konto erfolgreich aktiviert!",
+    "SUCCESS_TITLE": "Aktivierung erfolgreich!",
+    "SUCCESS_MESSAGE": "Ihr Konto wurde erfolgreich aktiviert. Sie können sich jetzt anmelden und unsere Dienste nutzen.",
+    "ERROR_TITLE": "Aktivierung fehlgeschlagen",
+    "TOKEN_INVALID_OR_EXPIRED": "Der Aktivierungslink ist ungültig oder abgelaufen.",
+    "USER_NOT_FOUND": "Benutzerkonto nicht gefunden.",
+    "GENERIC_ERROR": "Bei der Aktivierung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "INVALID_TOKEN": "Ungültiger Aktivierungstoken.",
+    "GO_TO_LOGIN": "Zum Login",
+    "GO_TO_HOME": "Zur Startseite"
+  },
   "APP": {
     "TITLE": "E-Commerce Plattform"
   },

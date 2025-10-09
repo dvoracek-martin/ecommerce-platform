@@ -1,4 +1,21 @@
 {
+  "ACTIVATION": {
+    "TOKEN_ALREADY_USED": "This activation link has already been used. Your account is already active. You can now log in.",
+    "PROCESSING": "Processing Activation",
+    "PLEASE_WAIT": "Please wait while we activate your account...",
+    "ACTIVATING_ACCOUNT": "Activating Your Account",
+    "DO_NOT_CLOSE": "Please do not close this window",
+    "SUCCESS": "Account activated successfully!",
+    "SUCCESS_TITLE": "Activation Successful!",
+    "SUCCESS_MESSAGE": "Your account has been successfully activated. You can now log in and start using our services.",
+    "ERROR_TITLE": "Activation Failed",
+    "TOKEN_INVALID_OR_EXPIRED": "The activation link is invalid or has expired.",
+    "USER_NOT_FOUND": "User account not found.",
+    "GENERIC_ERROR": "An error occurred during activation. Please try again.",
+    "INVALID_TOKEN": "Invalid activation token.",
+    "GO_TO_LOGIN": "Go to Login",
+    "GO_TO_HOME": "Go to Homepage"
+  },
   "APP": {
     "TITLE": "E-Commerce Platform"
   },
@@ -296,6 +313,10 @@
     "TITLE": "Product Tags"
   },
   "USER_REGISTRATION": {
+    "ACTIVATION_EMAIL_SENT": "Activation Email Sent!",
+    "CHECK_EMAIL_FOR_ACTIVATION": "We've sent an activation link to your email address. Please check your inbox and click the link to activate your account before logging in.",
+    "GO_TO_LOGIN": "Go to Login",
+    "GO_TO_HOME": "Go to Homepage",
     "CONFIRM_PASSWORD": "Confirm Password",
     "EMAIL": "Email",
     "EMAIL_INVALID": "Invalid email format",

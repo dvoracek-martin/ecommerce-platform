@@ -6,8 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { Subject } from 'rxjs';
 import { CustomerService } from '../../services/customer.service';
-import { HeaderComponent } from '../../layout/header/header.component';
-import {Router} from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-login',
@@ -29,7 +28,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private authService: AuthService,
     private cartService: CartService,
-    private headerComponent: HeaderComponent,
     private customerService: CustomerService,
     private router: Router
   ) {
@@ -52,6 +50,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.loginForm.invalid) {
       this.snackBar.open('Please fix validation errors.', 'Close', { duration: 5000 });
+      return; // Added return to prevent execution when invalid
     }
 
     this.loading = true;
@@ -60,7 +59,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     this.authService.login(email, password).subscribe({
       next: () => {
         this.handleLoginSuccess(rememberMe, email);
-        window.location.reload();
+        // Removed window.location.reload() - we'll handle state updates properly
       },
       error: (err) => this.handleLoginError(err)
     });
@@ -81,8 +80,13 @@ export class UserLoginComponent implements OnInit, OnDestroy {
       error: () => console.log('Cart merge failed')
     });
 
-    this.headerComponent.ngOnInit();
     this.loading = false;
+
+    // Navigate to home or refresh the page to update auth state
+    this.router.navigate(['/']).then(() => {
+      // Optional: force a reload if the navigation doesn't update the state
+      window.location.reload();
+    });
   }
 
   private handleLoginError(err: any): void {
@@ -101,8 +105,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   }
 
   onClose(): void {
-    // Handle close logic - this could navigate back, close a modal, etc.
-    this.router.navigate(['/']); // Example: navigate to home
-    // or this.dialogRef.close(); if it's in a dialog
+    this.router.navigate(['/']);
   }
 }
