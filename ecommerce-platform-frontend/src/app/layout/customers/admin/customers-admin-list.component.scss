@@ -1,338 +1,91 @@
-/* Customers Component - Consistent with Design System */
+@use '../../../shared/styles/admin/admin-shared-styles';
+
+/* Customers Container */
 .customers-container {
-  font-family: var(--font-primary);
-  color: var(--text-primary);
-  background-color: var(--background-light);
+  max-width: 1400px;
+  margin: 0 auto;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
   padding: var(--spacing-xl);
-  max-width: 1400px;
-  margin: 0 auto;
 }
 
-/* Admin Header Section - Matching Design System */
+/* Admin Header Section */
 .admin-header-section {
-  margin-bottom: var(--spacing-xl);
-  width: 100%;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  color: white;
-  box-shadow: 0 4px 20px var(--shadow-medium);
-  box-sizing: border-box;
-
-  .admin-header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: var(--spacing-lg);
-
-    .admin-title-section {
-      flex: 1;
-      min-width: 300px;
-
-      h1 {
-        margin: 0 0 var(--spacing-sm) 0;
-        font-size: var(--font-size-xxl);
-        font-weight: 700;
-        color: white;
-        background: none;
-        -webkit-text-fill-color: white;
-      }
-
-      .admin-subtitle {
-        margin: 0;
-        font-size: var(--font-size-base);
-        color: rgba(255, 255, 255, 0.9);
-        opacity: 0.9;
-      }
-    }
-
-    .admin-search-section {
-      display: flex;
-      gap: var(--spacing-md);
-      align-items: center;
-      flex-wrap: wrap;
-
-      .admin-search-container {
-        position: relative;
-        min-width: 280px;
-
-        .admin-search-input-wrapper {
-          display: flex;
-          align-items: center;
-          background: rgba(255, 255, 255, 0.15);
-          border-radius: var(--radius-md);
-          padding: var(--spacing-sm) var(--spacing-md);
-          transition: all var(--transition-normal);
-
-          &:hover, &:focus-within {
-            background: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
-          }
-
-          .admin-search-icon {
-            color: white;
-            margin-right: var(--spacing-sm);
-          }
-
-          .admin-search-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: var(--font-size-base);
-            padding: var(--spacing-sm) 0;
-
-            &::placeholder {
-              color: rgba(255, 255, 255, 0.7);
-            }
-
-            &:focus {
-              outline: none;
-            }
-          }
-
-          .admin-clear-button {
-            color: rgba(255, 255, 255, 0.7);
-            width: 24px;
-            height: 24px;
-
-            &:hover {
-              color: white;
-              background: rgba(255, 255, 255, 0.1);
-            }
-          }
-        }
-      }
-    }
-  }
+  @extend .list-header;
 }
 
-/* Loading & Error States */
-.loading-section, .error-section, .no-customers-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xl);
-  text-align: center;
-  background: var(--background-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  margin: var(--spacing-xl) 0;
-
-  .loading-text, .error-text, .no-customers-message {
-    margin-top: var(--spacing-md);
-    color: var(--text-muted);
-    font-size: var(--font-size-base);
-  }
+/* Loading / Error / No Customers Sections */
+.loading-section {
+  @extend .loading-section;
 }
 
 .error-section {
-  .error-icon {
-    font-size: 3rem;
-    margin-bottom: var(--spacing-md);
-    color: var(--error-color);
-  }
-
-  button {
-    margin-top: var(--spacing-md);
-  }
+  @extend .error-section;
 }
 
 .no-customers-section {
-  .no-customers-icon {
-    font-size: 4rem;
-    margin-bottom: var(--spacing-md);
-    color: var(--text-muted);
-    opacity: 0.5;
-  }
+  @extend .no-data-section;
 }
 
-/* Table Section */
-.table-section {
-  width: 100%;
-}
-
-.table-wrapper {
-  width: 100%;
-  border-radius: var(--radius-lg);
-}
-
-.table-header {
+/* Customers Table Wrapper */
+.customers-table-wrapper {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-lg);
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-  width: 100%;
+  flex-direction: column;
+  gap: var(--spacing-lg);
 }
 
-.results-count {
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-/* Table Container */
-.table-container {
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+/* Customers Table Card (similar to tags-grid / tag-card) */
+.customers-card {
   background: var(--background-card);
   border: 1px solid var(--border-color);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  width: 100%;
-}
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  position: relative;
 
-.customers-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-
-  /* Header Row */
-  .mat-header-row {
-    background: var(--background-light);
-    color: var(--text-primary);
-    font-weight: 600;
-    height: 60px;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px var(--shadow-medium);
+    border-color: var(--primary-color);
   }
 
-  .mat-header-cell {
-    padding: var(--spacing-md);
-    text-align: left;
-    white-space: nowrap;
-    color: var(--text-primary);
-    font-weight: 600;
-    font-size: var(--font-size-sm);
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  /* Data Rows */
-  .mat-row {
-    background: var(--background-card);
-    transition: all var(--transition-normal);
-    border-bottom: 1px solid var(--divider-color);
-    position: relative;
-
-    &:hover {
-      background: var(--background-hover);
-    }
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    /* Inactive Row Styling */
-    &.inactive-row {
-      background: linear-gradient(
-          90deg,
-          var(--error-color) 0%,
-          var(--error-color) 25%,
-          var(--background-light) 25%,
-          var(--background-light) 100%
-      );
-      position: relative;
-
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 25%;
-        height: 100%;
-        background: var(--error-color);
-        z-index: 1;
-      }
-
-      .mat-cell {
-        position: relative;
-        z-index: 2;
-        background: transparent;
-      }
-
-      &:hover {
-        background: linear-gradient(
-            90deg,
-            var(--error-color) 0%,
-            var(--error-color) 25%,
-            var(--background-hover) 25%,
-            var(--background-hover) 100%
-        );
-      }
-    }
-  }
-
-  .mat-cell {
-    color: var(--text-secondary);
-    padding: var(--spacing-md);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-bottom: 1px solid var(--divider-color);
-    font-weight: 500;
-    vertical-align: top;
-    background: transparent;
-  }
-
-  /* Specific Cell Styling */
-  .customer-cell .customer-info {
+  .card-link {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+}
 
-    .customer-name {
-      font-weight: 600;
-      color: var(--text-primary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xs);
+/* Customer Header / Info */
+.customer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
 
-      .inactive-indicator {
-        color: var(--error-color);
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-      }
-    }
-
-    .customer-id {
-      font-size: var(--font-size-xs);
-      color: var(--text-muted);
-      font-family: var(--font-secondary);
-    }
+  .customer-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .email-cell .email-address {
-    color: var(--primary-color);
+  .customer-status {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
     font-weight: 500;
-  }
-
-  .language-cell .language-badge {
-    background: rgba(155, 89, 182, 0.1);
-    color: var(--tertiary-color);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    text-transform: uppercase;
-    display: inline-block;
-  }
-
-  .status-cell .status-badge {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    text-transform: uppercase;
-    display: inline-block;
+    white-space: nowrap;
 
     &.active {
       background: rgba(46, 204, 113, 0.1);
@@ -346,391 +99,43 @@
   }
 }
 
-/* Actions Column */
-.actions-header {
-  text-align: center;
-}
-
-.actions-cell {
-  text-align: center;
-}
-
-.action-buttons {
+/* Customer Actions */
+.customer-actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   gap: var(--spacing-xs);
-}
 
-.action-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--spacing-xs);
-  border-radius: 50%;
-  transition: all var(--transition-normal);
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-
-  &:hover {
-    background-color: var(--background-hover);
-    transform: scale(1.1);
-  }
-
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-}
-
-.view-btn {
-  color: var(--primary-color);
-
-  &:hover {
-    background: var(--primary-color);
-    color: white;
-  }
-}
-
-/* Paginator - Matching Orders List Style */
-.customers-paginator {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: var(--background-card);
-  border-top: 1px solid var(--border-color);
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  padding: var(--spacing-lg);
-  height: 80px;
-  width: 100%;
-
-  ::ng-deep .mat-mdc-paginator {
-    background: transparent;
-    font-family: var(--font-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-  }
-
-  ::ng-deep .mat-mdc-paginator-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-md);
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-  ::ng-deep .mat-mdc-paginator-page-size {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    color: var(--text-muted);
-    font-size: var(--font-size-sm);
-
-    .mat-mdc-paginator-page-size-label {
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .mat-mdc-paginator-page-size-select {
-      margin: 0;
-
-      .mat-mdc-form-field {
-        width: 80px;
-
-        .mat-mdc-form-field-flex {
-          background: var(--background-light);
-          border-radius: var(--radius-md);
-          padding: 0 var(--spacing-sm);
-        }
-
-        .mat-mdc-select-value {
-          color: var(--text-primary);
-          font-weight: 500;
-        }
-
-        .mat-mdc-select-arrow {
-          color: var(--primary-color);
-        }
-      }
-    }
-  }
-
-  ::ng-deep .mat-mdc-paginator-range-label {
-    color: var(--text-muted);
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-    margin: 0 var(--spacing-md);
-  }
-
-  /* Navigation Buttons */
-  ::ng-deep .mat-mdc-paginator-navigation {
-    display: flex;
-    gap: var(--spacing-sm);
-  }
-
-  ::ng-deep .mat-mdc-paginator-navigation-button {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(255, 255, 255, 0.95);
-    color: var(--text-primary);
-    cursor: pointer;
+  .btn-delete {
+    color: var(--error-color);
     transition: all var(--transition-normal);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 15px var(--shadow-medium);
-    margin: 0;
-    position: relative;
 
-    .mat-mdc-paginator-icon {
-      fill: currentColor;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    &:hover:not([disabled]) {
-      background: var(--primary-color);
-      color: white;
-      transform: scale(1.1);
-      box-shadow: 0 6px 20px var(--shadow-medium);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: 0 2px 8px var(--shadow-light);
-    }
-  }
-
-  /* Page Number Buttons */
-  ::ng-deep .mat-mdc-paginator-range-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-  }
-
-  ::ng-deep .mat-mdc-paginator-range-actions .mat-mdc-icon-button {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: transparent;
-    color: var(--text-muted);
-    transition: all var(--transition-normal);
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-
-    .mdc-button__label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    &:hover:not([disabled]) {
-      background: var(--primary-color);
-      color: white;
-      transform: scale(1.05);
-    }
-
-    &[aria-current="true"] {
-      background: var(--primary-color);
-      color: white;
+    &:hover {
+      color: #c0392b;
+      background: rgba(231, 76, 60, 0.1);
       transform: scale(1.1);
     }
   }
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-  .customers-container {
-    padding: var(--spacing-lg);
-  }
-
-  .admin-header-section {
-    .admin-header-content {
-      .admin-search-section {
-        flex-direction: column;
-        align-items: stretch;
-
-        .admin-search-container {
-          min-width: auto;
-        }
-      }
-    }
-  }
-
-  .customers-paginator {
-    ::ng-deep .mat-mdc-paginator-container {
-      flex-direction: column;
-      gap: var(--spacing-md);
-    }
-
-    ::ng-deep .mat-mdc-paginator-range-actions {
-      order: -1;
-    }
-  }
-}
-
 @media (max-width: 768px) {
   .customers-container {
     padding: var(--spacing-md);
     gap: var(--spacing-lg);
   }
 
-  .admin-header-section {
-    padding: var(--spacing-lg);
-
-    .admin-header-content {
-      flex-direction: column;
-      gap: var(--spacing-md);
-
-      .admin-title-section {
-        min-width: auto;
-      }
-
-      .admin-search-section {
-        width: 100%;
-
-        .admin-search-container {
-          min-width: 100%;
-        }
-      }
-    }
+  .customers-card {
+    padding: var(--spacing-md);
   }
 
-  .table-header {
+  .customer-header {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .customers-table {
-    .mat-header-cell,
-    .mat-cell {
-      padding: var(--spacing-sm);
-      font-size: var(--font-size-xs);
-    }
-
-    .mat-row.inactive-row {
-      background: linear-gradient(
-          90deg,
-          var(--error-color) 0%,
-          var(--error-color) 15%,
-          var(--background-light) 15%,
-          var(--background-light) 100%
-      );
-
-      &::before {
-        width: 15%;
-      }
-    }
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
-
-  .customers-paginator {
-    padding: var(--spacing-md);
-    height: auto;
-    min-height: 80px;
-
-    ::ng-deep .mat-mdc-paginator-navigation-button {
-      width: 40px;
-      height: 40px;
-
-      .mat-mdc-paginator-icon {
-        width: 20px;
-        height: 20px;
-      }
-    }
-
-    ::ng-deep .mat-mdc-paginator-range-actions .mat-mdc-icon-button {
-      width: 32px;
-      height: 32px;
-    }
   }
 }
 
 @media (max-width: 480px) {
-  .customers-container {
-    padding: var(--spacing-md) var(--spacing-sm);
-  }
-
-  .admin-header-section {
-    padding: var(--spacing-md);
-
-    h1 {
-      font-size: var(--font-size-xl);
-    }
-  }
-
-  .customers-paginator {
-    ::ng-deep .mat-mdc-paginator-container {
-      gap: var(--spacing-sm);
-    }
-
-    ::ng-deep .mat-mdc-paginator-navigation-button {
-      width: 36px;
-      height: 36px;
-
-      .mat-mdc-paginator-icon {
-        width: 18px;
-        height: 18px;
-      }
-    }
-
-    ::ng-deep .mat-mdc-paginator-range-actions .mat-mdc-icon-button {
-      width: 28px;
-      height: 28px;
-      font-size: var(--font-size-xs);
-    }
-  }
-}
-
-/* Material Overrides for Better Readability */
-::ng-deep .customers-table .mat-sort-header-arrow {
-  color: var(--primary-color);
-}
-
-::ng-deep .customers-table .mat-sort-header-sorted .mat-sort-header-arrow {
-  color: var(--primary-color);
-}
-
-/* Tooltip Styling */
-::ng-deep .mat-mdc-tooltip {
-  font-family: var(--font-primary);
-  font-size: var(--font-size-sm);
-  background: var(--text-primary);
-
-  .mdc-tooltip__surface {
-    background: var(--text-primary);
-    color: white;
+  .customers-card {
+    padding: var(--spacing-sm);
   }
 }

@@ -1,4 +1,9 @@
-.customer-container {
+@use 'customers-admin-shared';
+
+/* ==============================
+   Customers Container
+=============================== */
+.customers-container {
   font-family: var(--font-primary);
   color: var(--text-primary);
   background-color: var(--background-light);
@@ -15,979 +20,146 @@
    Header Section
 =============================== */
 .admin-header-section {
-  margin-bottom: var(--spacing-xl);
-  width: 100%;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  color: white;
-  box-shadow: 0 4px 20px var(--shadow-medium);
-  box-sizing: border-box;
-
-  .admin-header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: var(--spacing-lg);
-
-    .admin-title-section {
-      flex: 1;
-      min-width: 300px;
-
-      h1 {
-        margin: 0 0 var(--spacing-sm) 0;
-        font-size: var(--font-size-xxl);
-        font-weight: 700;
-        color: white;
-      }
-
-      .customer-id {
-        font-size: var(--font-size-base);
-        color: rgba(255, 255, 255, 0.9);
-        opacity: 0.9;
-        font-family: var(--font-secondary);
-      }
-    }
-
-    .admin-status-section {
-      .mat-mdc-chip {
-        font-weight: 600;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        position: relative;
-        overflow: hidden;
-
-        /* Modern gradient backgrounds */
-        &[color="primary"] {
-          background: linear-gradient(135deg, var(--success-color) 0%, var(--success-color) 100%) !important;
-          color: white !important;
-          box-shadow: 0 4px 15px rgba(var(--success-color-rgb), 0.3);
-
-          /* Add subtle shine effect */
-          &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.3),
-                transparent
-            );
-            transition: left 0.5s ease;
-          }
-
-          &:hover::before {
-            left: 100%;
-          }
-        }
-
-        &[color="warn"] {
-          background: linear-gradient(135deg, var(--error-color) 0%, var(--error-color) 100%) !important;
-          color: white !important;
-          box-shadow: 0 4px 15px rgba(var(--error-color-rgb), 0.3);
-
-          /* Add subtle shine effect */
-          &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.3),
-                transparent
-            );
-            transition: left 0.5s ease;
-          }
-
-          &:hover::before {
-            left: 100%;
-          }
-        }
-      }
-    }
-  }
+  @extend .list-header;
 }
 
 /* ==============================
-   Loading & Error States
+   Loading / Error / No Customers States
 =============================== */
-.loading-section, .error-section, .no-orders-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xl);
-  text-align: center;
-  background: var(--background-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  margin: var(--spacing-xl) 0;
-
-  .loading-text, .error-text, .no-orders-message {
-    margin-top: var(--spacing-md);
-    color: var(--text-muted);
-    font-size: var(--font-size-base);
-  }
-}
-
-.error-section {
-  .error-icon {
-    font-size: 3rem;
-    margin-bottom: var(--spacing-md);
-    color: var(--error-color);
-  }
-
-  button {
-    margin-top: var(--spacing-md);
-  }
-}
-
-.no-orders-section {
-  .no-orders-icon {
-    font-size: 4rem;
-    margin-bottom: var(--spacing-md);
-    color: var(--text-muted);
-    opacity: 0.5;
-  }
+.loading-section,
+.error-section,
+.no-customers-section {
+  @extend .loading-section;
+  @extend .error-section;
+  @extend .no-data-section;
 }
 
 /* ==============================
-   Main Layout
+   Customers Grid (like tags-grid)
 =============================== */
-.customer-layout-wrapper {
-  display: flex;
-  gap: var(--spacing-xl);
-  align-items: flex-start;
-  width: 100%;
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-  }
-}
-
-.customer-main-content-wrapper {
-  flex: 1;
-  min-width: 0; // Prevents flex item from overflowing
-}
-
-.customer-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-}
-
-/* ==============================
-   Form Sections
-=============================== */
-.customer-items-section {
-  background: var(--background-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  padding: var(--spacing-xl);
-  border: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl); /* This creates space between forms */
-}
-
-.order-info-section {
-  background: var(--background-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  padding: var(--spacing-xl);
-  border: 1px solid var(--border-color);
-
-  .section-header {
-    margin-bottom: var(--spacing-lg);
-
-    h2 {
-      margin: 0 0 var(--spacing-xs) 0;
-      font-size: var(--font-size-xl);
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .admin-subtitle {
-      margin: 0;
-      font-size: var(--font-size-base);
-      color: var(--text-muted);
-    }
-  }
-}
-
-/* ==============================
-   Forms
-=============================== */
-.form-one-column-wrapper {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-content {
-  display: flex;
-  flex-direction: column;
+.customers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: var(--spacing-lg);
+  padding: var(--spacing-sm);
 }
 
-.form-section {
-  padding: var(--spacing-lg);
-  background: var(--background-light);
-  border-radius: var(--radius-md);
+/* ==============================
+   Customer Card (like tag-card)
+=============================== */
+.customer-card {
+  background: var(--background-card);
   border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  height: 620px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 
-  .section-subtitle {
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px var(--shadow-medium);
+    border-color: var(--primary-color);
+  }
+
+  .card-link {
     display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+/* ==============================
+   Customer Header & Status
+=============================== */
+.customer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+
+  .customer-name {
     font-size: var(--font-size-lg);
-    color: var(--text-primary);
-    margin: 0 0 var(--spacing-lg) 0;
     font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .customer-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    white-space: nowrap;
+
+    &.active {
+      background: rgba(46, 204, 113, 0.1);
+      color: var(--success-color);
+    }
+
+    &.inactive {
+      background: rgba(231, 76, 60, 0.1);
+      color: var(--error-color);
+    }
 
     mat-icon {
-      color: var(--primary-color);
+      font-size: 16px;
     }
   }
 }
 
 /* ==============================
-   Centered Checkbox Sections
+   Customer Details / Relations
 =============================== */
-.form-section:has(.admin-active-checkbox-wrapper),
-.form-section:has(mat-checkbox:not(.admin-active-checkbox-wrapper)) {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-
-  .form-row {
-    justify-content: center;
-    margin-bottom: 0;
-    width: 100%;
-
-    mat-checkbox {
-      padding: var(--spacing-sm) var(--spacing-lg);
-      background: rgba(var(--primary-color-rgb), 0.05);
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(var(--primary-color-rgb), 0.1);
-
-      ::ng-deep .mdc-label {
-        font-weight: 600;
-        color: var(--text-primary);
-      }
-    }
-
-    .admin-active-checkbox-wrapper {
-      ::ng-deep .mdc-label {
-        font-weight: 600;
-      }
-    }
-  }
-}
-
-/* ==============================
-   Password Form Specific Styling
-=============================== */
-.form-one-column-wrapper:has(#passwordForm) {
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-lg);
-  border-top: 1px solid var(--divider-color);
-
-  .form-content {
-    gap: var(--spacing-lg);
-  }
-
-  .form-section {
-    padding: var(--spacing-lg);
-    background: var(--background-light);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-
-    .section-subtitle {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-      font-size: var(--font-size-lg);
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-lg) 0;
-      font-weight: 600;
-
-      mat-icon {
-        color: var(--accent-color);
-      }
-    }
-  }
-}
-
-.form-row {
-  display: flex;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: var(--spacing-sm);
-  }
-}
-
-.form-field {
+.customer-details {
   flex: 1;
-
-  &.full-width {
-    flex: 1 1 100%;
-  }
-}
-
-/* ==============================
-   Progress Bar
-=============================== */
-.admin-save-progress {
-  position: static;
-  display: block;
-  width: 100%;
-  margin-bottom: var(--spacing-md);
-  height: 3px;
-  border-radius: 2px;
-}
-
-/* ==============================
-   Language Selector
-=============================== */
-.locale-flag {
-  width: 1.2em;
-  height: 1.2em;
-  border-radius: 2px;
-  margin-right: var(--spacing-sm);
-  vertical-align: middle;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.locale-flag-small {
-  width: 1em;
-  height: 1em;
-  border-radius: 2px;
-  margin-right: var(--spacing-xs);
-  vertical-align: middle;
-}
-
-.locale-option {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--spacing-sm);
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ==============================
-   Orders Table
+   Customer Actions
 =============================== */
-.table-section {
-  width: 100%;
-}
-
-.table-header {
+.customer-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-lg);
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-  width: 100%;
-}
-
-.results-count {
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-.table-wrapper {
-  width: 100%;
-  border-radius: var(--radius-lg);
-}
-
-.table-container {
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--background-card);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  width: 100%;
-}
-
-.orders-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-
-  /* Header Row */
-  .mat-header-row {
-    background: var(--background-light);
-    color: var(--text-primary);
-    font-weight: 600;
-    height: 60px;
-  }
-
-  .mat-header-cell {
-    padding: var(--spacing-md);
-    text-align: left;
-    white-space: nowrap;
-    color: var(--text-primary);
-    font-weight: 600;
-    font-size: var(--font-size-sm);
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  /* Data Rows */
-  .mat-row {
-    background: var(--background-card);
-    transition: all var(--transition-normal);
-    border-bottom: 1px solid var(--divider-color);
-
-    &:hover {
-      background: var(--background-hover);
-    }
-
-    &:last-child {
-      border-bottom: none;
-    }
-  }
-
-  .mat-cell {
-    color: var(--text-secondary);
-    padding: var(--spacing-md);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-bottom: 1px solid var(--divider-color);
-    font-weight: 500;
-    vertical-align: middle;
-  }
-
-  /* Specific Cell Styling */
-  .invoice-cell .invoice-id {
-    font-family: var(--font-secondary);
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .date-cell {
-    color: var(--text-muted);
-    font-size: var(--font-size-xs);
-  }
-
-  .total-cell .total-amount {
-    font-weight: 600;
-    color: var(--success-color);
-    font-family: var(--font-secondary);
-  }
-}
-
-/* ==============================
-   Fixed Size Order Status Badges (20 characters)
-=============================== */
-.status-badge {
-  padding: 8px 12px;
-  border-radius: var(--radius-lg);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 10rem;
-  max-width: 10rem;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: all var(--transition-normal);
-  border: 1px solid transparent;
-
-  /* Status-specific styles using the better colors from admin design */
-  &.status-created {
-    background: rgba(52, 152, 219, 0.1);
-    color: var(--primary-color);
-    border-color: rgba(52, 152, 219, 0.2);
-  }
-
-  &.status-pending {
-    background: rgba(243, 156, 18, 0.1);
-    color: var(--warning-color);
-    border-color: rgba(243, 156, 18, 0.2);
-  }
-
-  &.status-confirmed {
-    background: rgba(41, 128, 185, 0.1);
-    color: #2874a6;
-    border-color: rgba(41, 128, 185, 0.2);
-  }
-
-  &.status-processing {
-    background: rgba(46, 204, 113, 0.1);
-    color: var(--success-color);
-    border-color: rgba(46, 204, 113, 0.2);
-  }
-
-  &.status-shipped {
-    background: rgba(155, 89, 182, 0.1);
-    color: var(--tertiary-color);
-    border-color: rgba(155, 89, 182, 0.2);
-  }
-
-  &.status-delivered {
-    background: rgba(39, 174, 96, 0.1);
-    color: #186a3b;
-    border-color: rgba(39, 174, 96, 0.2);
-  }
-
-  &.status-finished {
-    background: rgba(30, 132, 73, 0.1);
-    color: #145a32;
-    border-color: rgba(30, 132, 73, 0.2);
-  }
-
-  &.status-rejected {
-    background: rgba(231, 76, 60, 0.1);
-    color: var(--error-color);
-    border-color: rgba(231, 76, 60, 0.2);
-  }
-
-  &.status-cancelled {
-    background: rgba(192, 57, 43, 0.1);
-    color: #922b21;
-    border-color: rgba(192, 57, 43, 0.2);
-  }
-
-  &.status-unknown {
-    background: rgba(189, 195, 199, 0.1);
-    color: #7f8c8d;
-    border-color: rgba(189, 195, 199, 0.2);
-  }
-
-  /* Hover effects */
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-}
-
-/* ==============================
-   Customer Status Badge in Summary
-=============================== */
-.customer-summary {
-  .summary-item:last-child {
-    .summary-value {
-      display: inline-flex;
-      align-items: center;
-
-      &::before {
-        content: '';
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        margin-right: 8px;
-        animation: pulse 2s infinite;
-      }
-
-      /* Active customer */
-      &:contains('Active')::before {
-        background: var(--success-color);
-        box-shadow: 0 0 0 rgba(var(--success-color-rgb), 0.4);
-      }
-
-      /* Inactive customer */
-      &:contains('Inactive')::before {
-        background: var(--error-color);
-        box-shadow: 0 0 0 rgba(var(--error-color-rgb), 0.4);
-      }
-    }
-  }
-}
-
-/* Pulse animation for status indicators */
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(var(--success-color-rgb), 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 6px rgba(var(--success-color-rgb), 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(var(--success-color-rgb), 0);
-  }
-}
-
-/* ==============================
-   Enhanced Material Chip Styles
-=============================== */
-::ng-deep {
-  .mat-mdc-chip {
-    transition: all var(--transition-normal) !important;
-
-    &:hover {
-      transform: translateY(-1px);
-    }
-  }
-}
-/* ==============================
-   Actions Column
-=============================== */
-.actions-header {
-  text-align: center;
-}
-
-.actions-cell {
-  text-align: center;
-}
-
-.action-buttons {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing-xs);
-}
-
-.action-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--spacing-xs);
-  border-radius: 50%;
-  transition: all var(--transition-normal);
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-
-  &:hover {
-    background-color: var(--background-hover);
-    transform: scale(1.1);
-  }
-
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-}
-
-.view-btn {
-  color: var(--primary-color);
-
-  &:hover {
-    background: var(--primary-color);
-    color: white;
-  }
-}
-
-.download-btn {
-  color: var(--success-color);
-
-  &:hover {
-    background: var(--success-color);
-    color: white;
-  }
-}
-
-/* ==============================
-   Sidebar Actions
-=============================== */
-.order-summary {
-  width: 350px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-
-  @media (max-width: 1024px) {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-}
-
-.summary-card {
-  background: var(--background-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  padding: var(--spacing-xl);
-  border: 1px solid var(--border-color);
-
-  h3 {
-    margin: 0 0 var(--spacing-lg) 0;
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    color: var(--text-primary);
-    border-bottom: 2px solid var(--primary-color);
-    padding-bottom: var(--spacing-sm);
-  }
-}
-
-.action-button-group {
-  margin-bottom: var(--spacing-md);
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  button {
-    width: 100%;
-    height: 50px;
-    font-size: var(--font-size-base);
-    font-weight: 600;
-    border-radius: var(--radius-md);
-
-    &[disabled] {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-
-  .save-button {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
-    color: white;
-    box-shadow: 0 4px 15px var(--shadow-medium);
-
-    &:hover:not([disabled]) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px var(--shadow-medium);
-    }
-  }
-
-  .password-button {
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-
-    &:hover:not([disabled]) {
-      background: var(--accent-color);
-      color: white;
-    }
-  }
-}
-
-.back-button-container {
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
   border-top: 1px solid var(--divider-color);
+  margin-top: var(--spacing-md);
+  flex-shrink: 0;
 
-  .back-button {
-    width: 100%;
-    color: var(--text-muted);
-    border-color: var(--border-color);
+  .action-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+  }
+
+  .btn-delete {
+    color: var(--error-color);
+    transition: all var(--transition-normal);
 
     &:hover {
-      background: var(--background-hover);
-      color: var(--text-primary);
-    }
-  }
-}
-
-/* ==============================
-   Customer Summary
-=============================== */
-.customer-summary {
-  .summary-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-
-  .summary-item {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    padding: var(--spacing-sm) 0;
-
-    &:not(:last-child) {
-      border-bottom: 1px solid var(--divider-color);
-    }
-
-    mat-icon {
-      color: var(--primary-color);
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-
-    .summary-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .summary-label {
-      font-size: var(--font-size-sm);
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .summary-value {
-      font-size: var(--font-size-base);
-      color: var(--text-primary);
-      font-weight: 600;
-    }
-  }
-}
-
-/* ==============================
-   Responsive Badge Styles
-=============================== */
-@media (max-width: 768px) {
-  .status-badge {
-    padding: 6px 10px;
-    font-size: 0.65rem;
-    min-width: 100px;
-    max-width: 100px;
-  }
-
-  .admin-status-section .mat-mdc-chip {
-    font-size: var(--font-size-sm);
-  }
-}
-/* ==============================
-   Full Width Orders Container
-=============================== */
-.full-width-orders-container {
-  margin-left: calc(-1 * var(--spacing-xl));
-  margin-right: calc(-1 * var(--spacing-xl));
-  width: calc(100% + 2 * var(--spacing-xl));
-
-  .order-info-section {
-    border-radius: 0;
-    margin: 0;
-    padding-left: var(--spacing-xl);
-    padding-right: var(--spacing-xl);
-
-    .table-container {
-      border-radius: 0;
-      margin: 0;
-      width: 100%;
-
-      .orders-table {
-        width: 100%;
-        table-layout: auto;
-
-        .mat-header-cell,
-        .mat-cell {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-
-          // Ensure all columns have enough space
-          &:nth-child(1) { min-width: 120px; } /* Invoice ID */
-          &:nth-child(2) { min-width: 180px; } /* Order Date */
-          &:nth-child(3) { min-width: 150px; } /* Shipping Method */
-          &:nth-child(4) { min-width: 150px; } /* Payment Method */
-          &:nth-child(5) { min-width: 120px; } /* Total */
-          &:nth-child(6) { min-width: 120px; } /* Status */
-          &:nth-child(7) { min-width: 100px; } /* Actions */
-        }
-      }
-    }
-  }
-
-  @media (max-width: 768px) {
-    margin-left: calc(-1 * var(--spacing-md));
-    margin-right: calc(-1 * var(--spacing-md));
-    width: calc(100% + 2 * var(--spacing-md));
-
-    .order-info-section {
-      padding-left: var(--spacing-md);
-      padding-right: var(--spacing-md);
-
-      .orders-table {
-        .mat-header-cell,
-        .mat-cell {
-          padding: var(--spacing-sm);
-          font-size: var(--font-size-xs);
-
-          // Adjust column widths for smaller screens
-          &:nth-child(1) { min-width: 100px; }
-          &:nth-child(2) { min-width: 140px; }
-          &:nth-child(3) { min-width: 120px; }
-          &:nth-child(4) { min-width: 120px; }
-          &:nth-child(5) { min-width: 100px; }
-          &:nth-child(6) { min-width: 100px; }
-          &:nth-child(7) { min-width: 80px; }
-        }
-      }
-    }
-  }
-
-  @media (max-width: 480px) {
-    margin-left: calc(-1 * var(--spacing-sm));
-    margin-right: calc(-1 * var(--spacing-sm));
-    width: calc(100% + 2 * var(--spacing-sm));
-
-    .order-info-section {
-      padding-left: var(--spacing-sm);
-      padding-right: var(--spacing-sm);
-    }
-  }
-}
-
-/* ==============================
-   Material Overrides
-=============================== */
-::ng-deep {
-  .mat-mdc-form-field {
-    width: 100%;
-  }
-
-  .mat-mdc-text-field-wrapper {
-    background: var(--background-card) !important;
-  }
-
-  .mat-mdc-form-field-subscript-wrapper {
-    display: none;
-  }
-
-  .mat-mdc-progress-bar {
-    .mdc-linear-progress__buffer {
-      background-color: rgba(255, 255, 255, 0.2) !important;
-    }
-  }
-
-  // Enhanced Checkbox Styling
-  .admin-active-checkbox-wrapper,
-  .billing-checkbox {
-    .mdc-form-field {
-      align-items: center;
-    }
-
-    .mdc-label {
-      font-size: var(--font-size-base);
-      line-height: 1.4;
-    }
-
-    .mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background {
-      border-color: var(--primary-color);
-      background-color: var(--primary-color);
-    }
-  }
-
-  // Paginator styling to match customers list
-  .mat-mdc-paginator {
-    background: transparent !important;
-    border-top: 1px solid var(--border-color);
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-
-    .mat-mdc-paginator-container {
-      justify-content: center;
-      padding: var(--spacing-md);
+      color: #c0392b;
+      background: rgba(231, 76, 60, 0.1);
+      transform: scale(1.1);
     }
   }
 }
@@ -996,111 +168,33 @@
    Responsive Design
 =============================== */
 @media (max-width: 768px) {
-  .customer-container {
+  .customers-container {
     padding: var(--spacing-md);
     gap: var(--spacing-lg);
   }
 
-  .admin-header-section {
-    padding: var(--spacing-lg);
-
-    .admin-header-content {
-      flex-direction: column;
-      gap: var(--spacing-md);
-
-      .admin-title-section {
-        min-width: auto;
-      }
-    }
+  .customers-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-md);
   }
 
-  .customer-items-section,
-  .order-info-section {
-    padding: var(--spacing-lg);
-  }
-
-  .form-section {
+  .customer-card {
+    height: 360px;
     padding: var(--spacing-md);
   }
 
-  .orders-table {
-    .mat-header-cell,
-    .mat-cell {
-      padding: var(--spacing-sm);
-      font-size: var(--font-size-xs);
-    }
-  }
-
-  .action-buttons {
+  .customer-header {
     flex-direction: column;
-    gap: var(--spacing-xs);
-  }
-
-  .summary-card {
-    padding: var(--spacing-lg);
+    align-items: flex-start;
   }
 }
 
 @media (max-width: 480px) {
-  .customer-container {
-    padding: var(--spacing-md) var(--spacing-sm);
+  .customers-grid {
+    grid-template-columns: 1fr;
   }
 
-  .admin-header-section {
-    padding: var(--spacing-md);
-
-    h1 {
-      font-size: var(--font-size-xl);
-    }
+  .customer-card {
+    height: 340px;
   }
-
-  .form-section .section-subtitle {
-    font-size: var(--font-size-base);
-  }
-
-  .status-badge {
-    font-size: 0.65rem;
-    padding: 4px 8px;
-    min-width: 90px;
-    max-width: 90px;
-  }
-}
-
-/* ==============================
-   Animation Enhancements
-=============================== */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.customer-items-section,
-.order-info-section,
-.summary-card {
-  animation: slideIn 0.5s ease-out;
-}
-
-/* ==============================
-   Utility Classes
-=============================== */
-.text-muted {
-  color: var(--text-muted);
-}
-
-.text-center {
-  text-align: center;
-}
-
-.mb-0 {
-  margin-bottom: 0 !important;
-}
-
-.mt-0 {
-  margin-top: 0 !important;
 }
