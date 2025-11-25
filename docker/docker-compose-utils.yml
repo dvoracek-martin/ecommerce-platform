@@ -23,7 +23,7 @@ services:
       - "9300:9300"
 
   postgres-keycloak:
-    image: postgres:18
+    image: postgres:latest
     container_name: keycloak-postgres-db-service
     environment:
       POSTGRES_DB: keycloak
@@ -32,7 +32,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - keycloak_postgres_data:/var/lib/postgresql
+      - keycloak_postgres_data:/var/lib/postgresql/data
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.2
@@ -63,26 +63,40 @@ services:
     image: apache/kafka:3.8.1
     container_name: kafka-service
     environment:
-      KAFKA_KRAFT_MODE: "true"
-      KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:29092
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_NUM_PARTITIONS: 1
-    ports:
-      - "9092:9092"
-      - "29092:29092"
-      - "9093:9093"
+      # Enable KRaft mode (no Zookeeper)
+      - KAFKA_KRAFT_MODE=true
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
 
-    volumes:
-      - kafka_data:/var/lib/kafka/data
+      # Listener configurations
+      - KAFKA_LISTENERS=INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka:9092,EXTERNAL://localhost:29092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+
+      # Set the controller listener names correctly
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER  # Add this line to refer to the controller listener
+
+      # Set the listener names and broker settings
+      - KAFKA_LISTENER_NAME_INNER=INTERNAL
+      - KAFKA_LISTENER_NAME_OUTER=EXTERNAL
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_LISTENER_PORT=9092  # Port for internal listener
+
+      # Auto-create topics and partition settings
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_NUM_PARTITIONS=1
+
+      # Allow plaintext listeners
+      - ALLOW_PLAINTEXT_LISTENER=yes
+
+    ports:
+      - "9092:9092"    # Internal Kafka communication port
+      - "29092:29092"  # External port for external connections
     networks:
       - kafka-network
+    volumes:
+      - kafka_data:/var/lib/kafka/data
 
   redis:
     image: redis:latest
@@ -121,7 +135,7 @@ services:
     environment:
       MINIO_ROOT_USER: your_access_key
       MINIO_ROOT_PASSWORD: your_secret_key
-    command: [ "server", "/data", "--console-address", ":9001" ]
+    command: ["server", "/data", "--console-address", ":9001"]
 
   prometheus:
     image: prom/prometheus
