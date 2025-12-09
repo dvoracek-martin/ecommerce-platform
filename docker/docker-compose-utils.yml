@@ -31,8 +31,9 @@ services:
       POSTGRES_PASSWORD: keycloak
     ports:
       - "5432:5432"
+    # změna mountu pro Postgres 18+
     volumes:
-      - keycloak_postgres_data:/var/lib/postgresql/data
+      - keycloak_postgres_data:/var/lib/postgresql
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.2
@@ -63,36 +64,24 @@ services:
     image: apache/kafka:3.8.1
     container_name: kafka-service
     environment:
-      # Enable KRaft mode (no Zookeeper)
       - KAFKA_KRAFT_MODE=true
       - KAFKA_NODE_ID=1
       - KAFKA_PROCESS_ROLES=broker,controller
       - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
-
-      # Listener configurations
       - KAFKA_LISTENERS=INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093
       - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka:9092,EXTERNAL://localhost:29092
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
-
-      # Set the controller listener names correctly
-      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER  # Add this line to refer to the controller listener
-
-      # Set the listener names and broker settings
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_LISTENER_NAME_INNER=INTERNAL
       - KAFKA_LISTENER_NAME_OUTER=EXTERNAL
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
-      - KAFKA_LISTENER_PORT=9092  # Port for internal listener
-
-      # Auto-create topics and partition settings
+      - KAFKA_LISTENER_PORT=9092
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_NUM_PARTITIONS=1
-
-      # Allow plaintext listeners
       - ALLOW_PLAINTEXT_LISTENER=yes
-
     ports:
-      - "9092:9092"    # Internal Kafka communication port
-      - "29092:29092"  # External port for external connections
+      - "9092:9092"
+      - "29092:29092"
     networks:
       - kafka-network
     volumes:
@@ -108,8 +97,8 @@ services:
     image: mailhog/mailhog
     container_name: mailhog-service
     ports:
-      - "1025:1025"   # SMTP
-      - "7999:8025"   # Web UI
+      - "1025:1025"
+      - "7999:8025"
 
   kafdrop:
     image: obsidiandynamics/kafdrop:latest
@@ -129,7 +118,7 @@ services:
     container_name: minio-service
     ports:
       - "1000:9000"
-      - "1001:9001" # MinIO Console
+      - "1001:9001"
     volumes:
       - ./data:/data
     environment:
