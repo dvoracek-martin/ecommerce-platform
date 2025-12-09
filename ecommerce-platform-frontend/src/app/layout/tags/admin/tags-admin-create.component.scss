@@ -1,7 +1,213 @@
-@use 'tags-admin-shared';
+@use '../src/app/layout/tags/admin/tags-admin-shared';
+@use '../../../shared/styles/admin/admin-shared-styles';
 
-.tags-admin-header-section .tags-admin-header-content {
+// --- ZÁKLADNÍ FORMULÁŘOVÉ PRVKY (MIGROVÁNO POMOCÍ @extend) ---
+
+.form-one-column-wrapper {
+  @extend .form-one-column-wrapper;
+}
+
+.full-width-content {
+  @extend .full-width-content;
+}
+
+.form-content {
+  @extend .form-content;
+}
+
+.admin-save-progress {
+  @extend .admin-save-progress;
+}
+
+.form-section {
+  @extend .form-section;
+}
+
+.section-subtitle {
+  @extend .section-subtitle;
+}
+
+.form-row {
+  @extend .form-row;
+}
+
+.form-field {
+  @extend .form-field;
+}
+
+.full-width {
+  @extend .full-width;
+}
+
+.checkbox-group {
+  @extend .checkbox-group;
+}
+
+.locale-tabs {
+  @extend .locale-tabs;
+}
+
+.tab-content {
+  @extend .tab-content;
+}
+
+.admin-actions-bar {
+  @extend .admin-actions-bar;
+}
+
+.admin-action-buttons {
+  @extend .admin-action-buttons;
+}
+
+.cancel-btn {
+  @extend .cancel-btn;
+}
+
+.save-btn {
+  @extend .save-btn;
+}
+
+// --- HLAVIČKA (MIGROVÁNO) ---
+.admin-header-section .admin-header-content {
   justify-content: flex-start;
+}
+
+// --- VISUAL PROPERTIES GROUP (Původní tags-visual-properties-section) ---
+.visual-properties-group {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--background-light);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.field-label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+// --- COLOR PICKER (Korekce stylů) ---
+.color-picker-field {
+  flex: 1;
+}
+
+.color-picker-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+}
+
+.color-picker-wrapper {
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  line-height: 0; // Pomáhá s vertikálním zarovnáním
+}
+
+.color-preview {
+  $preview-size: 36px; // Zmenšená velikost pro kompaktní vzhled
+
+  width: $preview-size;
+  height: $preview-size;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  border: 3px solid var(--border-color);
+  box-shadow: 0 2px 8px var(--shadow-light);
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px var(--shadow-medium);
+  }
+
+  .color-preview-icon {
+    color: white;
+    font-size: 18px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  }
+}
+
+.color-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.color-value {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  background: var(--background-card);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  min-width: 80px;
+  text-align: center;
+}
+
+// --- ICON SELECTOR ---
+.icon-selector-field {
+  flex: 1;
+}
+
+.icon-selector-container {
+  padding: var(--spacing-sm) 0;
+}
+
+.icon-selector-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--background-light);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: var(--background-hover);
+  }
+
+  &.has-icon {
+    background: var(--background-card);
+  }
+
+  .selected-icon {
+    color: var(--primary-color);
+    font-size: 24px;
+    margin-right: var(--spacing-sm);
+  }
+
+  .icon-placeholder {
+    color: var(--text-muted);
+  }
+
+  .dropdown-icon {
+    color: var(--text-muted);
+    transition: transform var(--transition-normal);
+  }
+
+  &:hover .dropdown-icon {
+    transform: translateY(2px);
+  }
 }
 
 .selected-icon-content,
@@ -9,4 +215,331 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+}
+
+// --- ICON SELECTOR MODAL (Třídy ponechány tags- kvůli izolaci) ---
+.tags-icon-selector-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+
+  &.tags-show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .tags-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  .tags-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 90%;
+    max-width: 800px;
+    height: 80vh;
+    max-height: 80vh;
+    background: var(--background-card);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px var(--shadow-large);
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition-normal);
+    overflow: hidden;
+  }
+
+  &.tags-show .tags-modal-content {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .tags-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+
+    h3 {
+      margin: 0;
+      font-size: var(--font-size-lg);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .tags-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: var(--spacing-xs);
+      border-radius: 50%;
+      transition: all var(--transition-normal);
+
+      &:hover {
+        background: var(--background-hover);
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  .tags-search-section {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+
+    .tags-search-field {
+      width: 100%;
+
+      ::ng-deep .mat-mdc-form-field-wrapper {
+        background: var(--background-light);
+        border-radius: var(--radius-md);
+      }
+    }
+  }
+
+  .tags-modal-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .tags-icon-type-tabs {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+
+    ::ng-deep .mat-mdc-tab-header {
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    ::ng-deep .mat-mdc-tab-labels {
+      background: var(--background-light);
+      padding: var(--spacing-xs);
+    }
+
+    ::ng-deep .mat-mdc-tab {
+      min-width: 140px;
+
+      &.mdc-tab--active {
+        background: var(--primary-color);
+
+        ::ng-deep .mdc-tab__text-label {
+          color: white !important;
+        }
+      }
+    }
+
+    ::ng-deep .mat-mdc-tab-body-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+  }
+
+  .tags-icons-grid-container {
+    flex: 1;
+    padding: 0 var(--spacing-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .tags-icons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: var(--spacing-md);
+    overflow-y: auto;
+    padding: var(--spacing-md) 0;
+    flex: 1;
+    min-height: 0;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    &.tags-emoji-grid {
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+  }
+
+  .tags-icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-md);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    background: var(--background-light);
+    position: relative;
+
+    &:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow-light);
+    }
+
+    &.tags-selected {
+      border-color: var(--primary-color);
+      background: rgba(52, 152, 219, 0.1);
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px var(--shadow-light);
+
+      &::after {
+        content: 'check';
+        font-family: 'Material Icons';
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: var(--primary-color);
+        color: white;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    .tags-icon-display {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: var(--primary-color);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .tags-emoji-display {
+      font-size: 32px;
+      line-height: 1;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .tags-icon-name {
+      font-size: var(--font-size-xs);
+      color: var(--text-muted);
+      text-align: center;
+      word-break: break-word;
+      max-width: 100%;
+    }
+
+    &.tags-emoji-item {
+      .tags-icon-name {
+        font-size: 10px;
+        line-height: 1.2;
+      }
+    }
+  }
+
+  .tags-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    background: var(--background-light);
+    flex-shrink: 0;
+    margin-top: auto;
+
+    .tags-cancel-icon-btn {
+      border-color: var(--border-color);
+      color: var(--text-muted);
+
+      &:hover {
+        background: var(--background-hover);
+      }
+    }
+
+    .tags-confirm-icon-btn {
+      background: var(--primary-color);
+      color: white;
+
+      &:hover:not(:disabled) {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px var(--shadow-medium);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// --- RESPONSIVE ÚPRAVY ---
+@media (max-width: 768px) {
+  .visual-properties-group {
+    margin-bottom: var(--spacing-md);
+  }
+
+  // Na mobilu se prvky v color-picker-container zarovnají pod sebe
+  .color-picker-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+
+  .checkbox-group {
+    min-height: auto;
+    padding: var(--spacing-sm) 0;
+    justify-content: flex-start;
+  }
+
+  .tags-icon-selector-modal .tags-modal-content {
+    width: 95%;
+    height: 90vh;
+    max-height: 90vh;
+  }
+
+  .tags-icons-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .tags-icon-item {
+    padding: var(--spacing-sm);
+
+    .tags-icon-display {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .tags-emoji-display {
+      font-size: 24px;
+    }
+  }
 }

@@ -37,7 +37,9 @@ export class ActivateAccountComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.setRegistrationComplete(false);
-    this.verifyTokenAndActivate();
+    if (this.isBrowser) {
+      this.verifyTokenAndActivate();
+    }
   }
 
   private verifyTokenAndActivate(): void {

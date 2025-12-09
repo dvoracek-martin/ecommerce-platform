@@ -13,10 +13,10 @@
 
       <div class="action-buttons">
         <button
-          mat-raised-button
-          color="primary"
-          (click)="openAuthPopup()"
-          class="login-btn">
+          class="btn-outline"
+          mat-stroked-button
+          (click)="openAuthPopup()">
+          <mat-icon>login</mat-icon>
           {{ 'ACTIVATION.GO_TO_LOGIN' | translate }}
         </button>
       </div>

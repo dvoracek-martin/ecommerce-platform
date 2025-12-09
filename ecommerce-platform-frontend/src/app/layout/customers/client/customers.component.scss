@@ -1,4 +1,3 @@
-/* Customer Edit Component - Consistent with Design System */
 .admin-container {
   padding: var(--spacing-xl);
   background-color: var(--background-light);
@@ -14,25 +13,32 @@
   border-radius: var(--radius-lg);
   box-shadow: 0 4px 15px var(--shadow-light);
   border: 1px solid var(--border-color);
-  position: relative;
-  padding-bottom: 100px;
+
+  /* PŮVODNÍ position: relative BYLO ZDE, NYNÍ ODSTRANĚNO */
+  padding-bottom: var(--spacing-xl); /* Standardní padding, již ne 100px */
   overflow: hidden;
 }
 
-/* Header Section - Matching Design System */
 .admin-header-section {
   padding: var(--spacing-xl);
   background: linear-gradient(135deg, var(--background-card) 0%, var(--background-light) 100%);
   border-bottom: 1px solid var(--border-color);
 
+  .admin-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
   h1 {
     font-size: var(--font-size-xxl);
     font-weight: 700;
-    background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+    margin: 0 0 var(--spacing-xs) 0;
+    background: var(--gradient-text);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin: 0 0 var(--spacing-xs) 0;
+    color: var(--text-primary);
   }
 
   .admin-subtitle {
@@ -42,8 +48,9 @@
   }
 }
 
-/* Form Layout */
-.form-and-media-wrapper {
+.form-one-column-wrapper {
+  display: flex;
+  flex-direction: column;
   padding: var(--spacing-xl);
 }
 
@@ -53,21 +60,12 @@
   gap: var(--spacing-xl);
 }
 
-/* Progress Bar */
-.admin-save-progress {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  border-radius: var(--radius-sm);
-}
-
-/* Form Sections */
 .form-section {
   background: var(--background-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
-  transition: all var(--transition-normal);
+  transition: all 0.3s ease;
 
   &:hover {
     border-color: var(--primary-color);
@@ -86,13 +84,9 @@
 
   mat-icon {
     color: var(--primary-color);
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
   }
 }
 
-/* Form Rows & Fields */
 .form-row {
   display: flex;
   gap: var(--spacing-lg);
@@ -103,198 +97,111 @@
   }
 }
 
-.password-button-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-lg);
-}
-
 .form-field {
   flex: 1;
 
   &.full-width {
     width: 100%;
   }
-
-  /* Material Form Field Overrides */
-  ::ng-deep .mat-mdc-form-field {
-    width: 100%;
-  }
-
-  ::ng-deep .mat-mdc-text-field-wrapper {
-    background: var(--background-light);
-    border-radius: var(--radius-md);
-  }
-
-  ::ng-deep .mat-mdc-form-field-outline {
-    color: var(--border-color);
-  }
-
-  ::ng-deep .mat-mdc-form-field-flex:hover .mat-mdc-form-field-outline {
-    color: var(--primary-color);
-  }
-
-  ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-form-field-outline {
-    color: var(--primary-color);
-  }
-
-  ::ng-deep .mat-mdc-input-element {
-    color: var(--text-primary);
-    font-family: var(--font-primary);
-  }
-
-  ::ng-deep .mat-mdc-form-field-label {
-    color: var(--text-muted);
-  }
-
-  ::ng-deep .mat-mdc-select-value {
-    color: var(--text-primary);
-  }
 }
 
-/* Checkbox Group */
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  padding: var(--spacing-xs) 0;
-
-  ::ng-deep .mat-mdc-checkbox {
-    .mdc-form-field {
-      color: var(--text-primary);
-    }
-
-    .mdc-checkbox__background {
-      border-color: var(--border-color);
-    }
-
-    &.mat-mdc-checkbox-checked .mdc-checkbox__background {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-  }
-}
-
-/* Language Flags */
 .locale-flag {
   width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  margin-right: var(--spacing-sm);
+  height: 15px;
+  margin-right: 8px;
   vertical-align: middle;
+  object-fit: cover;
+  border-radius: 2px;
 }
 
-/* Password Strength Indicator */
-.password-strength {
-  margin-top: var(--spacing-md);
+.admin-save-progress {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   margin-bottom: var(--spacing-lg);
-
-  .strength-bar {
-    display: flex;
-    gap: 4px;
-    margin-bottom: var(--spacing-xs);
-
-    .strength-segment {
-      height: 6px;
-      flex: 1;
-      background: var(--background-hover);
-      border-radius: var(--radius-sm);
-      transition: all var(--transition-normal);
-
-      &.very-weak { background: var(--error-color); }
-      &.weak { background: #ff6b6b; }
-      &.fair { background: var(--warning-color); }
-      &.good { background: #51cf66; }
-      &.strong { background: var(--success-color); }
-    }
-  }
-
-  .strength-text {
-    font-size: var(--font-size-sm);
-    font-weight: 600;
-    text-align: center;
-
-    &.very-weak { color: var(--error-color); }
-    &.weak { color: #ff6b6b; }
-    &.fair { color: var(--warning-color); }
-    &.good { color: #51cf66; }
-    &.strong { color: var(--success-color); }
-  }
+  border-radius: var(--radius-sm);
 }
 
-/* Password Toggle Button */
-.password-toggle {
-  color: var(--text-muted);
-  transition: all var(--transition-normal);
-
-  &:hover {
-    color: var(--primary-color);
-    background: rgba(52, 152, 219, 0.1);
-  }
-}
-
-/* Floating Action Bar */
+/* FIX PRO CELOSTRÁNKOVÝ FLOATING BAR */
 .admin-actions-bar {
-  position: fixed;
+  position: fixed; /* Fixace k viewportu, NE ke kartě */
   bottom: 0;
   left: 0;
-  right: 0;
+  right: 0; /* Zajišťuje plnou šířku */
+  width: 100%;
   background: var(--background-card);
-  padding: var(--spacing-lg) var(--spacing-xl);
   border-top: 1px solid var(--border-color);
-  display: flex;
-  justify-content: center;
+  padding: var(--spacing-md) 0; /* Horizontální padding je přesunut na wrapper */
   z-index: 100;
-  box-shadow: 0 -2px 10px var(--shadow-light);
-  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+}
+
+/* NOVÝ WRAPPER PRO ZAROVNÁNÍ OBSAHU DO STŘEDU A OMEZENÍ ŠÍŘKY */
+.admin-action-buttons-wrapper {
+  max-width: 1000px; /* Stejná šířka jako karta admin-card */
+  width: 100%;
+  margin: 0 auto; /* Vycentrování na stránce */
+  padding: 0 var(--spacing-xl); /* Přidání vnitřního paddingu na kraje */
+  display: flex;
+  justify-content: center; /* Zarovnání tlačítek uprostřed */
 }
 
 .admin-action-buttons {
   display: flex;
+  gap: var(--spacing-md);
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 600px;
-  gap: var(--spacing-lg);
+}
 
-  .cancel-btn {
-    flex: 0 0 auto;
-    padding: var(--spacing-md) var(--spacing-lg);
-    border-color: var(--error-color);
-    color: var(--error-color);
+.cancel-btn,
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  min-width: 120px;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--shadow-medium);
+  transition: all 0.3s ease;
 
-    &:hover {
-      background: rgba(231, 76, 60, 0.1);
-    }
+  &:hover:not([disabled]) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--shadow-medium);
   }
 
-  .save-btn {
-    flex: 1;
-    height: 50px;
-    font-size: var(--font-size-base);
-    font-weight: 600;
-    background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
-    color: white;
-    transition: all var(--transition-normal);
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
 
-    &:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px var(--shadow-medium);
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
+  &.mat-mdc-button, &.mat-mdc-unelevated-button, &.mat-mdc-outlined-button {
+    border-radius: var(--radius-md) !important;
+    padding: var(--spacing-md) var(--spacing-lg) !important;
+    height: auto !important;
+    line-height: 1.2 !important;
   }
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .admin-card {
-    max-width: 100%;
+.save-btn.mat-mdc-unelevated-button {
+  background-color: var(--success-color) !important;
+  color: var(--text-white) !important;
+
+  &:hover:not([disabled]) {
+    background-color: #27ae60 !important;
+  }
+}
+
+.cancel-btn.mat-mdc-outlined-button {
+  border-color: var(--error-color) !important;
+  color: var(--error-color) !important;
+  background-color: transparent !important;
+
+  &:hover:not([disabled]) {
+    background-color: var(--error-color) !important;
+    color: var(--text-white) !important;
+    border-color: var(--error-color) !important;
   }
 }
 
@@ -303,20 +210,8 @@
     padding: var(--spacing-md);
   }
 
-  .admin-card {
-    padding-bottom: 120px;
-  }
-
-  .admin-header-section {
-    padding: var(--spacing-lg);
-
-    h1 {
-      font-size: var(--font-size-xl);
-    }
-  }
-
-  .form-and-media-wrapper {
-    padding: var(--spacing-md);
+  .admin-action-buttons-wrapper {
+    padding: 0 var(--spacing-md);
   }
 
   .form-row {
@@ -330,30 +225,11 @@
 
   .admin-action-buttons {
     flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-md);
+    width: 100%;
 
-    .cancel-btn, .save-btn {
+    button {
       width: 100%;
       margin: 0 !important;
     }
   }
-}
-
-@media (max-width: 480px) {
-  .form-section {
-    padding: var(--spacing-md);
-  }
-
-  .locale-flag {
-    width: 16px;
-    height: 16px;
-    margin-right: var(--spacing-xs);
-  }
-}
-
-.form-one-column-wrapper {
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem 2rem;
 }

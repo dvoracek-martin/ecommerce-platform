@@ -97,6 +97,30 @@
   padding: var(--spacing-xl);
 }
 
+.media-preview-container {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f5f5;
+}
+
+.media-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+video.media-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .form-one-column-wrapper {
   display: flex;
   flex-direction: column;
