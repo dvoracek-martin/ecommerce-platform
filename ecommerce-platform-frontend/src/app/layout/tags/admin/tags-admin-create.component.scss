@@ -1,7 +1,6 @@
-@use '../src/app/layout/tags/admin/tags-admin-shared';
+@use './tags-admin-shared';
 @use '../../../shared/styles/admin/admin-shared-styles';
 
-// --- ZÁKLADNÍ FORMULÁŘOVÉ PRVKY (MIGROVÁNO POMOCÍ @extend) ---
 
 .form-one-column-wrapper {
   @extend .form-one-column-wrapper;

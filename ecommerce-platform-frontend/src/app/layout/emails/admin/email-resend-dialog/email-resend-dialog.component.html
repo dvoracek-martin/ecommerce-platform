@@ -69,21 +69,6 @@
                 <h3>{{ 'EMAILS.EMAIL_CONTENT' | translate }}</h3>
               </div>
 
-              <!-- Language Selection -->
-              <div class="form-row">
-                <div class="form-field">
-                  <mat-form-field appearance="outline" class="language-select">
-                    <mat-label>{{ 'EMAILS.EMAIL_LANGUAGE' | translate }}</mat-label>
-                    <mat-select [formControl]="languageControl">
-                      <mat-option *ngFor="let locale of usedLocales" [value]="getLocaleString(locale)">
-                        {{ locale.translatedName }}
-                      </mat-option>
-                    </mat-select>
-                    <mat-icon matSuffix>language</mat-icon>
-                  </mat-form-field>
-                </div>
-              </div>
-
               <!-- Subject -->
               <div class="form-field full-width">
                 <mat-form-field appearance="outline">

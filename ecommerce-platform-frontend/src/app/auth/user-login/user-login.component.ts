@@ -90,7 +90,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   }
 
   private handleLoginError(err: any): void {
-    this.snackBar.open('Login failed. Please check your credentials.', 'Close', { duration: 5000 });
+    this.snackBar.open('Login failed. Incorrect e-mail or password.', 'Close', { duration: 5000 });
     this.loading = false;
   }
 

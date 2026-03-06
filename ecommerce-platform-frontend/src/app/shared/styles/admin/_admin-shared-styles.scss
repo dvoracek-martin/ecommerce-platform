@@ -273,6 +273,52 @@ video.media-preview {
   }
 }
 
+
+.admin-active-checkbox-wrapper {
+  --checkbox-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--background-light);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-weight: 500;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: var(--background-hover);
+  }
+
+  ::ng-deep .mdc-checkbox__background {
+    border-radius: var(--radius-xs) !important; // hranatý checkbox
+    width: var(--checkbox-size) !important;
+    height: var(--checkbox-size) !important;
+    border: 2px solid var(--border-color) !important;
+    transition: all var(--transition-normal);
+  }
+
+  ::ng-deep .mdc-checkbox--selected .mdc-checkbox__background {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+  }
+
+  &:hover ::ng-deep .mdc-checkbox--selected .mdc-checkbox__background {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+  }
+
+  ::ng-deep .mdc-checkbox__checkmark {
+    color: white !important;
+  }
+
+  ::ng-deep .mdc-checkbox:focus-within .mdc-checkbox__background {
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+  }
+}
+
 .bottom-box {
   display: flex;
   flex-direction: column;
