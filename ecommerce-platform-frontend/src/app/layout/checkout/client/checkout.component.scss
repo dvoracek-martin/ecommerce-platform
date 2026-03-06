@@ -117,10 +117,12 @@
   align-items: flex-start;
   width: 100%;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .checkout-main-content-wrapper {
   flex: 1;
+  width: 100%;
   max-width: 900px;
   display: flex;
   flex-direction: column;
@@ -951,5 +953,73 @@
       align-items: flex-start;
       gap: var(--spacing-sm);
     }
+  }
+
+  // Reserve space only on the review step where sticky actions are rendered
+  .checkout-step-review {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .checkout-step-review {
+    .checkout-sticky-actions {
+      position: sticky;
+      bottom: 0;
+      top: auto;
+      z-index: 50;
+
+      margin-top: var(--spacing-lg);
+      padding: var(--spacing-md);
+      padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom));
+
+      background: var(--background-card);
+      border-top: 1px solid var(--border-color);
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.08);
+
+      .admin-action-buttons {
+        gap: var(--spacing-sm);
+      }
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .checkout-layout-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .checkout-main-content-wrapper {
+    max-width: none;
+  }
+
+  .checkout-card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-progress {
+    .progress-steps {
+      justify-content: flex-start;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: var(--spacing-sm);
+
+      .step {
+        scroll-snap-align: start;
+      }
+    }
+  }
+
+  .checkout-step-review {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom));
+  }
+}
+
+.checkout-step {
+  .admin-actions-bar {
+    margin-top: var(--spacing-xl);
+    padding-top: 0;
+    border-top: none;
   }
 }

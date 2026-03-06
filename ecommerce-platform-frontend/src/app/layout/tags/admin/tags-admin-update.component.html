@@ -186,22 +186,20 @@
     </form>
 
     <!-- FLOATING ACTION BAR -->
-    <div class="tags-admin-actions-bar">
-      <div class="tags-admin-action-buttons">
+    <div class="admin-actions-bar">
+      <div class="admin-action-buttons">
         <button (click)="openCancelDialog()"
-                color="warn"
                 mat-stroked-button
                 type="button"
-                class="tags-cancel-btn">
+                class="cancel-btn">
           <mat-icon>close</mat-icon>
           {{ 'COMMON.CANCEL' | translate }}
         </button>
         <button [disabled]="!tagForm || tagForm.invalid || saving || !tagForm.dirty"
-                color="primary"
                 form="tagForm"
                 mat-flat-button
                 type="submit"
-                class="tags-save-btn">
+                class="save-btn">
           <mat-icon>save</mat-icon>
           {{ saving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
         </button>

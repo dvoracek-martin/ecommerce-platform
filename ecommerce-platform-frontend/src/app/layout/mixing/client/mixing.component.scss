@@ -222,7 +222,7 @@
 /* Fixed Products Grid - Always 3 columns with consistent sizing */
 .products-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Always 3 columns */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--spacing-lg);
   padding: 0 var(--spacing-sm);
   width: 100%;

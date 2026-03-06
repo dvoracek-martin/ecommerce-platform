@@ -55,7 +55,8 @@
   transition: all var(--transition-normal);
   display: flex;
   flex-direction: column;
-  height: 620px;
+  height: auto;
+  min-height: 360px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -179,7 +180,7 @@
   }
 
   .customer-card {
-    height: 360px;
+    min-height: 320px;
     padding: var(--spacing-md);
   }
 
@@ -195,6 +196,6 @@
   }
 
   .customer-card {
-    height: 340px;
+    min-height: 300px;
   }
 }

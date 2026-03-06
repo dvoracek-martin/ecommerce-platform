@@ -194,15 +194,6 @@
           <mat-label>{{ 'ORDER_DETAIL.TRACKING_NUMBER' | translate }}</mat-label>
           <input matInput [(ngModel)]="trackingNumber" [placeholder]="'ORDER_DETAIL.TRACKING_PLACEHOLDER' | translate">
         </mat-form-field>
-
-        <button (click)="saveOrderChanges()"
-                color="primary"
-                mat-flat-button
-                class="save-btn"
-                [disabled]="!selectedStatus">
-          <mat-icon>save</mat-icon>
-          {{ 'ORDER_DETAIL.SAVE_CHANGES' | translate }}
-        </button>
       </div>
 
       <!-- Invoice Generation Section -->
@@ -250,6 +241,19 @@
           {{ 'COMMON.BACK_TO_ORDERS' | translate }}
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Shared Responsive Admin Action Bar -->
+  <div class="admin-actions-bar">
+    <div class="admin-action-buttons">
+      <button (click)="saveOrderChanges()"
+              mat-flat-button
+              class="save-btn"
+              [disabled]="!selectedStatus">
+        <mat-icon>save</mat-icon>
+        {{ 'ORDER_DETAIL.SAVE_CHANGES' | translate }}
+      </button>
     </div>
   </div>
 </div>

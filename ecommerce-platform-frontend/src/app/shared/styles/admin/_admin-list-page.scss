@@ -142,6 +142,40 @@
   }
 }
 
+/* Responsive table helpers */
+.admin-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-lg);
+
+  /* Subtle hint on touch devices */
+  scrollbar-width: thin;
+
+  table {
+    width: 100%;
+    min-width: 720px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-table-scroll {
+    border-radius: var(--radius-md);
+
+    table {
+      min-width: 640px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-table-scroll {
+    table {
+      min-width: 520px;
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .admin-list-container {
     padding: var(--spacing-md);
@@ -164,4 +198,3 @@
     padding: var(--spacing-sm);
   }
 }
-

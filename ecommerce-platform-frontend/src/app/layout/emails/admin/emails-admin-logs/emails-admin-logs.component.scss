@@ -90,180 +90,31 @@
   display: flex;
   gap: var(--spacing-md);
   align-items: center;
+  flex-wrap: wrap;
 
   .admin-search-container {
-    .admin-search-input-wrapper {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: var(--radius-md);
-      padding: 0 var(--spacing-md);
-      height: 48px;
-      display: flex;
-      align-items: center;
-      border: 1px solid transparent;
-      transition: all var(--transition-normal);
-      min-width: 300px;
-
-      &:focus-within {
-        border-color: rgba(255, 255, 255, 0.3);
-        background: rgba(255, 255, 255, 0.15);
-      }
-
-      .admin-search-input {
-        background: transparent;
-        border: none;
-        color: var(--text-white);
-        font-size: var(--font-size-base);
-        flex: 1;
-        height: 100%;
-        outline: none;
-
-        &::placeholder { color: rgba(255, 255, 255, 0.7); }
-      }
-
-      .admin-search-icon { color: var(--text-white); opacity: 0.7; margin-right: var(--spacing-sm); }
-      .admin-clear-button {
-        color: var(--text-white);
-        opacity: 0.7;
-        &:hover { opacity: 1; background: rgba(255, 255, 255, 0.1); }
-      }
-    }
+    min-width: 0;
   }
 }
-.email-logs-paginator-wrapper {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-top: var(--spacing-md);
 
-  .email-logs-paginator {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: var(--background-card);
-    border-top: 1px solid var(--border-color);
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-    padding: var(--spacing-lg);
+@media (max-width: 768px) {
+  .header-buttons {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .admin-search-section {
     width: 100%;
-    height: 80px;
 
-    ::ng-deep .mat-mdc-paginator {
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .admin-search-container {
       width: 100%;
-    }
 
-    ::ng-deep .mat-mdc-paginator-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: var(--spacing-md);
-      width: 100%;
-      flex-wrap: wrap;
-    }
-
-    ::ng-deep .mat-mdc-paginator-page-size {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-      color: var(--text-muted);
-
-      .mat-mdc-paginator-page-size-label {
-        color: var(--text-muted);
+      .admin-search-input-wrapper {
+        min-width: 0;
+        width: 100%;
       }
-
-      .mat-mdc-paginator-page-size-select {
-        margin: 0;
-        .mat-mdc-form-field {
-          width: 80px;
-          .mat-mdc-form-field-flex {
-            background: var(--background-light);
-            border-radius: var(--radius-md);
-            padding: 0 var(--spacing-sm);
-          }
-          .mat-mdc-select-value {
-            color: var(--text-primary);
-          }
-          .mat-mdc-select-arrow {
-            color: var(--primary-color);
-          }
-        }
-      }
-    }
-
-    ::ng-deep .mat-mdc-paginator-range-label {
-      color: var(--text-muted);
-      margin: 0 var(--spacing-md);
-    }
-
-    ::ng-deep .mat-mdc-paginator-navigation {
-      display: flex;
-      gap: var(--spacing-sm);
-    }
-
-    ::ng-deep .mat-mdc-paginator-navigation-button {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.95);
-      color: var(--text-primary);
-      transition: all var(--transition-normal);
-
-      &:hover:not([disabled]) {
-        background: var(--primary-color);
-        color: white;
-      }
-
-      &:disabled {
-        opacity: 0.5;
-      }
-
-      .mat-mdc-paginator-icon {
-        width: 24px;
-        height: 24px;
-      }
-    }
-
-    ::ng-deep .mat-mdc-paginator-range-actions {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xs);
     }
   }
-}
-
-
-/* Loading / Error / No Logs */
-.loading-section, .error-section, .no-logs-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xl);
-  text-align: center;
-  background: var(--background-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  margin: var(--spacing-xl) 0;
-
-  .loading-text, .error-text, .no-logs-message {
-    margin-top: var(--spacing-md);
-    color: var(--text-muted);
-    font-size: var(--font-size-base);
-  }
-}
-
-.error-section {
-  .error-icon { font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--error-color); }
-  button { margin-top: var(--spacing-md); }
-}
-
-.no-logs-section {
-  .no-logs-icon { font-size: 4rem; margin-bottom: var(--spacing-md); color: var(--text-muted); opacity: 0.5; }
 }
 
 /* Table Section */

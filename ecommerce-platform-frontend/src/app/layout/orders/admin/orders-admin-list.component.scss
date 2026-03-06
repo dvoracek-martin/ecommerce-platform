@@ -183,14 +183,12 @@
 /* Table Container - Full Width */
 .table-container {
   border-radius: var(--radius-lg);
-  overflow: hidden;
   background: var(--background-card);
   border: 1px solid var(--border-color);
   box-shadow: 0 4px 15px var(--shadow-light);
   width: 100%;
-  /* Ensure table fits container without scrolling */
   display: block;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .orders-table {
@@ -629,6 +627,29 @@
 }
 
 @media (max-width: 768px) {
+  .orders-container {
+    padding: var(--spacing-md);
+  }
+
+  .admin-header-section {
+    padding: var(--spacing-lg);
+
+    .admin-header-content {
+      .admin-title-section {
+        min-width: 0;
+      }
+
+      .admin-search-section {
+        width: 100%;
+
+        .admin-search-container {
+          min-width: 0;
+          width: 100%;
+        }
+      }
+    }
+  }
+
   .orders-paginator {
     padding: var(--spacing-md);
     height: auto;
@@ -648,6 +669,10 @@
       width: 32px;
       height: 32px;
     }
+  }
+
+  .table-container {
+    overflow: hidden;
   }
 }
 

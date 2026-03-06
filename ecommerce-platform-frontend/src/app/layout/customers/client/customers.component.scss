@@ -80,48 +80,18 @@ h1 {
   border-radius: var(--radius-sm);
 }
 
-/* FIX PRO CELOSTRÁNKOVÝ FLOATING BAR */
 .admin-actions-bar {
-  position: fixed; /* Fixace k viewportu, NE ke kartě */
-  bottom: 0;
-  left: 0;
-  right: 0; /* Zajišťuje plnou šířku */
-  width: 100%;
-  background: var(--background-card);
-  border-top: 1px solid var(--border-color);
-  padding: var(--spacing-md) 0; /* Horizontální padding je přesunut na wrapper */
-  z-index: 100;
-  box-sizing: border-box;
-}
-
-/* NOVÝ WRAPPER PRO ZAROVNÁNÍ OBSAHU DO STŘEDU A OMEZENÍ ŠÍŘKY */
-.admin-action-buttons-wrapper {
-  max-width: 1000px; /* Stejná šířka jako karta admin-card */
-  width: 100%;
-  margin: 0 auto; /* Vycentrování na stránce */
-  padding: 0 var(--spacing-xl); /* Přidání vnitřního paddingu na kraje */
-  display: flex;
-  justify-content: center; /* Zarovnání tlačítek uprostřed */
+  @extend .admin-actions-bar;
 }
 
 .admin-action-buttons {
-  display: flex;
-  gap: var(--spacing-md);
-  align-items: center;
+  @extend .admin-action-buttons;
 }
 
 /* Cancel/Save button styling is standardized globally via .cancel-btn/.save-btn */
 
 @media (max-width: 768px) {
   .admin-container {
-    padding: var(--spacing-md);
-  }
-
-  .admin-action-buttons-wrapper {
-    padding: 0 var(--spacing-md);
-  }
-
-  .admin-actions-bar {
     padding: var(--spacing-md);
   }
 

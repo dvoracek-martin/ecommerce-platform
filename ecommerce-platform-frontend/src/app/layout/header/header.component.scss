@@ -131,18 +131,21 @@
 }
 
 // ===== NAVIGATION MENU PANEL =====
+// Navigation menu panel
 .navigation-menu-panel {
   position: absolute;
   top: 100%;
   left: 0;
   z-index: 1001;
-  width: 280px;
+  width: clamp(220px, 90vw, 320px);
+  max-width: calc(100vw - 2 * var(--spacing-md));
   margin-top: 15px;
   border-radius: 16px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
   background: #ffffff;
   border: 1px solid #e9ecef;
   overflow: hidden;
+  box-sizing: border-box;
 
   .modern-menu-section.navigation-section {
     padding: 8px 0;
@@ -234,6 +237,14 @@
         }
       }
     }
+  }
+}
+
+@media (max-width: 480px) {
+  .navigation-menu-panel {
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 10px;
   }
 }
 
@@ -417,14 +428,15 @@
   top: 100%;
   right: 0;
   z-index: 1001;
-  min-width: 350px; // Minimum width for single column
-  max-width: 1200px; // Very wide maximum for many columns
+  min-width: clamp(280px, 90vw, 350px);
+  max-width: min(1200px, calc(100vw - 2 * var(--spacing-md)));
   margin-top: 15px;
   padding: 1.5rem;
   border-radius: 16px;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
   background: #ffffff;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 
   .cart-preview {
     h4 {
@@ -684,18 +696,8 @@
 // Responsive design
 @media (max-width: 768px) {
   .cart-preview-panel {
-    min-width: 300px;
-    max-width: 90vw;
-    right: -20px;
-
-    // Force single column on mobile
-    .cart-items-grid {
-      grid-template-columns: 1fr !important;
-
-      &.multi-column::before {
-        display: none !important;
-      }
-    }
+    left: var(--spacing-md);
+    right: var(--spacing-md);
   }
 }
 
@@ -808,13 +810,15 @@
     top: 100%;
     right: 0;
     z-index: 1001;
-    width: 280px;
+    width: clamp(220px, 90vw, 320px);
     margin-top: 15px;
     border-radius: 16px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
     background: #ffffff;
     border: 1px solid #e9ecef;
     overflow: hidden;
+    box-sizing: border-box;
+    max-width: calc(100vw - 2 * var(--spacing-md));
 
     .modern-menu-section {
       padding: 8px 0;
@@ -958,33 +962,36 @@
   }
 
   .navigation-menu-panel {
-    width: 250px;
+    width: clamp(220px, 90vw, 320px);
   }
 
   .cart-preview-panel {
-    width: 350px;
-    right: -50px;
+    left: var(--spacing-md);
+    right: var(--spacing-md);
   }
 
   .user-menu-panel {
-    width: 250px;
-    right: -20px;
+    width: clamp(220px, 90vw, 320px);
+    right: 0;
   }
 }
 
 @media (max-width: 480px) {
   .navigation-menu-panel {
-    width: 220px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .cart-preview-panel {
-    width: 300px;
-    right: -80px;
+    left: var(--spacing-md);
+    right: var(--spacing-md);
+    transform: none;
   }
 
   .user-menu-panel {
-    width: 220px;
-    right: -40px;
+    left: var(--spacing-md);
+    right: var(--spacing-md);
+    transform: none;
   }
 }
 // Cart columns layout

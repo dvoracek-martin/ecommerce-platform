@@ -365,31 +365,28 @@
         <h3>{{ 'CUSTOMER.ACTIONS' | translate }}</h3>
 
         <!-- Save Changes Button -->
-        <div class="action-button-group">
-          <button
-            [disabled]="(customerForm.invalid || (!customerForm.dirty && !languageChanged) || saving)"
-            color="primary"
-            form="customerForm"
-            mat-flat-button
-            type="submit"
-            class="save-btn">
-            <mat-icon>save</mat-icon>
-            {{ saving ? ('COMMON.SAVING' | translate) : ('ORDER_DETAIL.SAVE_CHANGES' | translate) }}
-          </button>
-        </div>
+        <div class="admin-actions-bar">
+          <div class="admin-action-buttons">
+            <button
+              [disabled]="(customerForm.invalid || (!customerForm.dirty && !languageChanged) || saving)"
+              form="customerForm"
+              mat-flat-button
+              type="submit"
+              class="save-btn">
+              <mat-icon>save</mat-icon>
+              {{ saving ? ('COMMON.SAVING' | translate) : ('ORDER_DETAIL.SAVE_CHANGES' | translate) }}
+            </button>
 
-        <!-- Change Password Button -->
-        <div class="action-button-group">
-          <button
-            (click)="onChangePassword(passwordFormDirective)"
-            [disabled]="passwordForm.get('passwordChange')?.invalid || !passwordForm.get('passwordChange')?.dirty || savingPassword"
-            color="accent"
-            mat-stroked-button
-            type="button"
-            class="save-btn">
-            <mat-icon>lock_open</mat-icon>
-            {{ savingPassword ? ('COMMON.SAVING' | translate) : ('COMMON.CHANGE_PASSWORD' | translate) }}
-          </button>
+            <button
+              (click)="onChangePassword(passwordFormDirective)"
+              [disabled]="passwordForm.get('passwordChange')?.invalid || !passwordForm.get('passwordChange')?.dirty || savingPassword"
+              mat-stroked-button
+              type="button"
+              class="save-btn">
+              <mat-icon>lock_open</mat-icon>
+              {{ savingPassword ? ('COMMON.SAVING' | translate) : ('COMMON.CHANGE_PASSWORD' | translate) }}
+            </button>
+          </div>
         </div>
 
         <!-- Back Button -->

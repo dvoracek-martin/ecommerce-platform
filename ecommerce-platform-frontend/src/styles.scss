@@ -103,53 +103,12 @@ html, body {
 /* FORM AND MEDIA LAYOUT */
 .form-and-media-wrapper {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr minmax(240px, 320px);
   gap: 2rem;
   padding: 24px;
 }
 
-/* FLOATING ACTION BAR */
-.admin-actions-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  padding: 1rem 2rem;
-  border-top: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: center;
-  z-index: 100;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.admin-action-buttons {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10rem;
-  width: 100%;
-  max-width: 600px;
-}
-
-.admin-action-buttons button:nth-child(2) {
-  flex-grow: 1;
-  height: 50px;
-  font-size: 1.1rem;
-  margin: 0;
-}
-
-.admin-action-buttons button:nth-child(1) {
-  order: 1;
-}
-
-.admin-action-buttons button:nth-child(2) {
-  order: 2;
-}
-
-.admin-action-buttons button:nth-child(3) {
-  order: 3;
-}
+/* Admin action bar styles live in shared admin styles. */
 
 /* PROGRESS BAR */
 .admin-save-progress {
@@ -194,33 +153,52 @@ html, body {
     gap: 1rem;
   }
 
-  .admin-actions-bar {
-    padding: 1rem;
-  }
+  /* Admin action bar responsiveness is handled in shared admin styles. */
+}
 
-  .admin-action-buttons {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-
-  .admin-action-buttons button {
-    width: 100%;
-    margin: 0 !important;
-  }
-
-  .admin-action-buttons button:nth-child(1) {
-    order: 1;
-  }
-
-  .admin-action-buttons button:nth-child(2) {
-    order: 2;
-  }
-
-  .admin-action-buttons button:nth-child(3) {
-    order: 3;
+@media (max-width: 1024px) {
+  .form-and-media-wrapper {
+    grid-template-columns: 1fr;
   }
 }
+
+/* RESPONSIVE DIALOG BASELINE (Material) */
+.cdk-overlay-pane {
+  max-width: calc(100vw - 2 * var(--spacing-md)) !important;
+}
+
+.mat-mdc-dialog-container {
+  max-width: calc(100vw - 2 * var(--spacing-md)) !important;
+  max-height: calc(100vh - 2 * var(--spacing-md)) !important;
+}
+
+.mat-mdc-dialog-surface {
+  max-width: calc(100vw - 2 * var(--spacing-md)) !important;
+  max-height: calc(100vh - 2 * var(--spacing-md)) !important;
+  overflow: hidden;
+}
+
+.mat-mdc-dialog-content {
+  max-height: calc(100vh - 240px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 480px) {
+  .cdk-overlay-pane {
+    max-width: calc(100vw - 2 * var(--spacing-sm)) !important;
+  }
+
+  .mat-mdc-dialog-container {
+    max-width: calc(100vw - 2 * var(--spacing-sm)) !important;
+    max-height: calc(100vh - 2 * var(--spacing-sm)) !important;
+  }
+
+  .mat-mdc-dialog-content {
+    max-height: calc(100vh - 200px);
+  }
+}
+
 // Global reset password dialog styles
 .reset-password-dialog {
   .mat-dialog-container {
