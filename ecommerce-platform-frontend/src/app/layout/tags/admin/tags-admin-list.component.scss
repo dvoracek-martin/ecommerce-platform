@@ -1,66 +1,53 @@
 @use '../../../shared/styles/admin/admin-shared-styles';
+@use '../../../shared/styles/admin/admin-list-page';
 
 .tags-container {
-  font-family: var(--font-primary);
-  color: var(--text-primary);
-  background-color: var(--background-light);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-  padding: var(--spacing-xl);
-  max-width: 1400px;
-  margin: 0 auto;
+  @extend .admin-list-container;
 }
 
 .admin-header-section {
-  @extend .list-header;
+  @extend .admin-list-header;
 }
 
 .loading-section {
-  @extend .loading-section;
+  @extend .admin-loading-section;
 }
 
 .error-section {
-  @extend .error-section;
+  @extend .admin-error-section;
 }
 
 .no-tags-section {
-  @extend .no-data-section;
+  @extend .admin-no-data-section;
 }
 
 .tags-grid {
-  display: grid;
+  // tags uses a slightly wider card grid than the default
+  @extend .admin-grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: var(--spacing-lg);
-  padding: var(--spacing-sm);
 }
 
 .tag-card {
-  background: var(--background-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  transition: all var(--transition-normal);
-  display: flex;
-  flex-direction: column;
+  @extend .admin-list-card;
   height: 620px;
-  cursor: pointer;
-  position: relative;
   overflow: hidden;
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px var(--shadow-medium);
-    border-color: var(--primary-color);
+  .card-link {
+    @extend .admin-card-link;
+  }
+}
+
+.tag-header {
+  @extend .admin-item-header;
+  margin-bottom: var(--spacing-xs);
+  flex-shrink: 0;
+
+  .tag-name {
+    @extend .admin-item-title;
   }
 
-  .card-link {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    text-decoration: none;
-    color: inherit;
+  .tag-status {
+    @extend .admin-item-status;
   }
 }
 
@@ -122,50 +109,6 @@
   gap: var(--spacing-sm);
   min-height: 0;
   overflow: hidden;
-}
-
-.tag-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
-  flex-shrink: 0;
-
-  .tag-name {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1.3;
-    margin: 0;
-    flex: 1;
-  }
-
-  .tag-status {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-xs);
-    font-weight: 500;
-    white-space: nowrap;
-    flex-shrink: 0;
-
-    &.active {
-      background: rgba(46, 204, 113, 0.1);
-      color: var(--success-color);
-    }
-
-    &.inactive {
-      background: rgba(231, 76, 60, 0.1);
-      color: var(--error-color);
-    }
-
-    mat-icon {
-      font-size: 16px;
-    }
-  }
 }
 
 .tag-description {

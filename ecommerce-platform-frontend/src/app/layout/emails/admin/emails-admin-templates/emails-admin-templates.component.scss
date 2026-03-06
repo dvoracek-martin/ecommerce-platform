@@ -1,17 +1,16 @@
-  @use '../../../../shared/styles/admin/admin-shared-styles';
+@use '../../../../shared/styles/admin/admin-shared-styles';
 
-  .email-admin-container {
-    font-family: var(--font-primary);
-    color: var(--text-primary);
-    background-color: var(--background-light);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xl);
-    padding: var(--spacing-xl);
-    max-width: 1400px;
-    margin: 0 auto;
-  }
+.email-admin-container {
+  font-family: var(--font-primary);
+  color: var(--text-primary);
+  background-color: var(--background-light);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-xl);
+  max-width: 1400px;
+  margin: 0 auto;
 
   /* Header Section - Matching Email Logs Style */
   .admin-header-section {
@@ -268,8 +267,6 @@
 
       .cancel-btn,
       .save-btn {
-        flex: 1;
-        min-width: auto;
         width: 100%;
       }
     }
@@ -332,3 +329,4 @@
       align-items: flex-start;
     }
   }
+}

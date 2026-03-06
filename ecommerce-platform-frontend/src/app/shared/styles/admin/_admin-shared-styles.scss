@@ -293,7 +293,7 @@ video.media-preview {
   }
 
   ::ng-deep .mdc-checkbox__background {
-    border-radius: var(--radius-xs) !important; // hranatý checkbox
+    border-radius: var(--radius-xs) !important; // square checkbox
     width: var(--checkbox-size) !important;
     height: var(--checkbox-size) !important;
     border: 2px solid var(--border-color) !important;
@@ -382,6 +382,11 @@ video.media-preview {
   width: 100%;
 }
 
+/* Backward-compatible alias (many templates use admin-actions-bar) */
+.admin-actions-bar {
+  @extend .admin-action-bar;
+}
+
 .admin-action-buttons {
   display: flex;
   gap: var(--spacing-md);
@@ -421,6 +426,17 @@ video.media-preview {
     font-size: 20px;
     width: 20px;
     height: 20px;
+  }
+
+  /* Ensure Material button hosts respect our sizing */
+  &.mat-mdc-button,
+  &.mat-mdc-unelevated-button,
+  &.mat-mdc-outlined-button,
+  &.mat-mdc-raised-button,
+  &.mat-mdc-stroked-button {
+    border-radius: var(--radius-md) !important;
+    height: auto !important;
+    line-height: 1.2 !important;
   }
 }
 

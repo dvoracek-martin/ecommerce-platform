@@ -58,14 +58,6 @@
   @extend .admin-action-buttons;
 }
 
-.cancel-btn {
-  @extend .cancel-btn;
-}
-
-.save-btn {
-  @extend .save-btn;
-}
-
 // --- HLAVIČKA (MIGROVÁNO) ---
 .admin-header-section .admin-header-content {
   justify-content: flex-start;
@@ -469,40 +461,17 @@
     flex-shrink: 0;
     margin-top: auto;
 
-    .tags-cancel-icon-btn {
-      border-color: var(--border-color);
-      color: var(--text-muted);
-
-      &:hover {
-        background: var(--background-hover);
-      }
-    }
-
-    .tags-confirm-icon-btn {
-      background: var(--primary-color);
-      color: white;
-
-      &:hover:not(:disabled) {
-        background: var(--primary-hover);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px var(--shadow-medium);
-      }
-
-      &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-    }
+    /* Modal action buttons use standardized .cancel-btn/.save-btn */
   }
 }
 
-// --- RESPONSIVE ÚPRAVY ---
+// --- RESPONSIVE ---
 @media (max-width: 768px) {
   .visual-properties-group {
     margin-bottom: var(--spacing-md);
   }
 
-  // Na mobilu se prvky v color-picker-container zarovnají pod sebe
+  // Stack color picker controls on mobile
   .color-picker-container {
     flex-direction: column;
     align-items: flex-start;

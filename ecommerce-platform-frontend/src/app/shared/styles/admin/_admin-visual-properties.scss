@@ -1,0 +1,231 @@
+/*
+  Admin Visual Properties (shared)
+
+  Shared admin styles for "visual properties" form sections.
+  This consolidates repeated blocks (field label, color picker preview, icon selector trigger,
+  and the icon selector modal styles).
+
+  This file is meant to be imported by feature admin shared partials, which can then either:
+  - use these base classnames directly, or
+  - provide feature-prefixed aliases via @extend.
+*/
+
+@use './admin-shared-styles';
+
+// Visual Properties Section
+.admin-visual-properties-section {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--background-light);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.admin-field-label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+// Color Picker
+.admin-color-picker-field {
+  flex: 1;
+}
+
+.admin-color-picker-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+}
+
+.admin-color-picker-wrapper {
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.admin-color-preview {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  border: 3px solid var(--border-color);
+  box-shadow: 0 2px 8px var(--shadow-light);
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px var(--shadow-medium);
+  }
+
+  .admin-color-preview-icon {
+    color: white;
+    font-size: 24px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  }
+}
+
+.admin-color-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.admin-color-value {
+  font-family: var(--font-mono), monospace;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  background: var(--background-card);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  min-width: 80px;
+  text-align: center;
+}
+
+// Icon Selector
+.admin-icon-selector-field {
+  flex: 1;
+}
+
+.admin-icon-selector-container {
+  padding: var(--spacing-sm) 0;
+}
+
+.admin-icon-selector-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--background-light);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-family: var(--font-primary), sans-serif;
+  font-size: var(--font-size-base);
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: var(--background-hover);
+  }
+
+  &.admin-has-icon {
+    background: var(--background-card);
+  }
+
+  .admin-selected-icon {
+    color: var(--primary-color);
+    font-size: 24px;
+    margin-right: var(--spacing-sm);
+  }
+
+  .admin-icon-placeholder {
+    color: var(--text-muted);
+  }
+
+  .admin-dropdown-icon {
+    color: var(--text-muted);
+    transition: transform var(--transition-normal);
+  }
+
+  &:hover .admin-dropdown-icon {
+    transform: translateY(2px);
+  }
+}
+
+// Icon Selector Modal
+.admin-icon-selector-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+
+  &.admin-show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .admin-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  .admin-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 90%;
+    max-width: 800px;
+    height: 80vh;
+    max-height: 80vh;
+    background: var(--background-card);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px var(--shadow-large);
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition-normal);
+    overflow: hidden;
+  }
+
+  &.admin-show .admin-modal-content {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .admin-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--background-light);
+
+    h2 {
+      margin: 0;
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+
+      &:hover {
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  .admin-modal-body {
+    flex: 1;
+    overflow: auto;
+    padding: var(--spacing-lg);
+  }
+}

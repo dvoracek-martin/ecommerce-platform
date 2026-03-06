@@ -1,70 +1,53 @@
+@use '../../../shared/styles/client/client-admin-card-page';
+@use '../../../shared/styles/admin/admin-form-page';
+
 .admin-container {
-  padding: var(--spacing-xl);
-  background-color: var(--background-light);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
+  @extend .client-admin-container;
 }
 
 .admin-card {
-  width: 100%;
+  @extend .client-admin-card;
   max-width: 1000px;
-  background: var(--background-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  border: 1px solid var(--border-color);
-
-  /* PŮVODNÍ position: relative BYLO ZDE, NYNÍ ODSTRANĚNO */
-  padding-bottom: var(--spacing-xl); /* Standardní padding, již ne 100px */
-  overflow: hidden;
+  padding-bottom: var(--spacing-xl);
 }
 
 .admin-header-section {
-  padding: var(--spacing-xl);
-  background: linear-gradient(135deg, var(--background-card) 0%, var(--background-light) 100%);
-  border-bottom: 1px solid var(--border-color);
+  @extend .client-admin-header-section;
+}
 
-  .admin-header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
+.admin-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
 
-  h1 {
-    font-size: var(--font-size-xxl);
-    font-weight: 700;
-    margin: 0 0 var(--spacing-xs) 0;
-    background: var(--gradient-text);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    color: var(--text-primary);
-  }
+h1 {
+  font-size: var(--font-size-xxl);
+  font-weight: 700;
+  margin: 0 0 var(--spacing-xs) 0;
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: var(--text-primary);
+}
 
-  .admin-subtitle {
-    color: var(--text-muted);
-    font-size: var(--font-size-sm);
-    margin: 0;
-  }
+.admin-subtitle {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0;
 }
 
 .form-one-column-wrapper {
-  display: flex;
-  flex-direction: column;
-  padding: var(--spacing-xl);
+  @extend .admin-form-one-column-wrapper;
 }
 
 .form-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
+  @extend .admin-form-content;
 }
 
 .form-section {
-  background: var(--background-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
+  @extend .admin-form-section;
   transition: all 0.3s ease;
 
   &:hover {
@@ -74,48 +57,23 @@
 }
 
 .section-subtitle {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  font-size: var(--font-size-lg);
-  color: var(--text-primary);
-  margin: 0 0 var(--spacing-lg) 0;
-  font-weight: 600;
-
-  mat-icon {
-    color: var(--primary-color);
-  }
+  @extend .admin-section-subtitle;
 }
 
 .form-row {
-  display: flex;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
-
-  &:last-child {
-    margin-bottom: 0;
-  }
+  @extend .admin-form-row;
 }
 
 .form-field {
-  flex: 1;
-
-  &.full-width {
-    width: 100%;
-  }
+  @extend .admin-form-field;
 }
 
 .locale-flag {
-  width: 20px;
-  height: 15px;
-  margin-right: 8px;
-  vertical-align: middle;
-  object-fit: cover;
-  border-radius: 2px;
+  @extend .admin-locale-flag;
 }
 
 .admin-save-progress {
-  position: sticky;
+  @extend .admin-save-progress-sticky;
   top: 0;
   z-index: 10;
   margin-bottom: var(--spacing-lg);
@@ -152,58 +110,7 @@
   align-items: center;
 }
 
-.cancel-btn,
-.save-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  min-width: 120px;
-  font-weight: 600;
-  font-size: var(--font-size-base);
-  cursor: pointer;
-  box-shadow: 0 4px 12px var(--shadow-medium);
-  transition: all 0.3s ease;
-
-  &:hover:not([disabled]) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px var(--shadow-medium);
-  }
-
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-
-  &.mat-mdc-button, &.mat-mdc-unelevated-button, &.mat-mdc-outlined-button {
-    border-radius: var(--radius-md) !important;
-    padding: var(--spacing-md) var(--spacing-lg) !important;
-    height: auto !important;
-    line-height: 1.2 !important;
-  }
-}
-
-.save-btn.mat-mdc-unelevated-button {
-  background-color: var(--success-color) !important;
-  color: var(--text-white) !important;
-
-  &:hover:not([disabled]) {
-    background-color: #27ae60 !important;
-  }
-}
-
-.cancel-btn.mat-mdc-outlined-button {
-  border-color: var(--error-color) !important;
-  color: var(--error-color) !important;
-  background-color: transparent !important;
-
-  &:hover:not([disabled]) {
-    background-color: var(--error-color) !important;
-    color: var(--text-white) !important;
-    border-color: var(--error-color) !important;
-  }
-}
+/* Cancel/Save button styling is standardized globally via .cancel-btn/.save-btn */
 
 @media (max-width: 768px) {
   .admin-container {
@@ -212,11 +119,6 @@
 
   .admin-action-buttons-wrapper {
     padding: 0 var(--spacing-md);
-  }
-
-  .form-row {
-    flex-direction: column;
-    gap: var(--spacing-md);
   }
 
   .admin-actions-bar {

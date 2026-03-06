@@ -1,11 +1,14 @@
+@use '../../../shared/styles/client/client-page';
+
 /* A minimalist, refined design for the categories component */
 :host {
+  // keep existing typography/colors, but inherit the common page spacing/min-height
+  @extend .client-page-container;
   font-family: 'Poppins', sans-serif;
   color: #2c3e50;
   display: block;
   padding: 40px 20px;
   background-color: #f4f6f9;
-  min-height: 100vh;
 }
 
 .categories-container {

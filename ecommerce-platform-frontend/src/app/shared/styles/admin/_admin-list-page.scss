@@ -1,0 +1,167 @@
+/*
+  Admin List Page (shared)
+
+  Common list-page primitives used across multiple admin pages (products, categories, tags, customers, etc.).
+  Feature list pages can either:
+    - use these base selectors directly, or
+    - alias to feature-prefixed selectors using @extend.
+*/
+
+@use './admin-shared-styles';
+
+.admin-list-container {
+  font-family: var(--font-primary), sans-serif;
+  color: var(--text-primary);
+  background-color: var(--background-light);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-list-header {
+  @extend .list-header;
+}
+
+.admin-loading-section {
+  @extend .loading-section;
+}
+
+.admin-error-section {
+  @extend .error-section;
+}
+
+.admin-no-data-section {
+  @extend .no-data-section;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  padding: var(--spacing-sm);
+}
+
+.admin-card-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.admin-list-card {
+  background: var(--background-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px var(--shadow-medium);
+    border-color: var(--primary-color);
+  }
+}
+
+.admin-no-media {
+  width: 100%;
+  aspect-ratio: 4/5;
+  background: var(--background-light);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  gap: var(--spacing-xs);
+
+  mat-icon {
+    font-size: 2rem;
+    opacity: 0.5;
+  }
+}
+
+.admin-item-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.admin-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.admin-item-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+  margin: 0;
+  flex: 1;
+}
+
+.admin-item-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  white-space: nowrap;
+
+  &.active {
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--success-color);
+  }
+
+  &.inactive {
+    background: rgba(231, 76, 60, 0.1);
+    color: var(--error-color);
+  }
+
+  mat-icon {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-list-container {
+    padding: var(--spacing-md);
+    gap: var(--spacing-lg);
+  }
+
+  .admin-list-card {
+    padding: var(--spacing-md);
+  }
+
+  .admin-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-list-card {
+    padding: var(--spacing-sm);
+  }
+}
+

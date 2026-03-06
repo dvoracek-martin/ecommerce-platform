@@ -1,21 +1,21 @@
 @use '../../../../shared/styles/admin/admin-shared-styles';
+@use '../../../../shared/styles/admin/admin-list-page';
 
 .email-logs-container {
-  font-family: var(--font-primary);
-  color: var(--text-primary);
-  background-color: var(--background-light);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-  padding: var(--spacing-xl);
-  max-width: 1400px;
-  margin: 0 auto;
+  @extend .admin-list-container;
+}
+
+.admin-header-section {
+  @extend .admin-list-header;
+}
+
+/* Keep specific gradient variant applied to list-header */
+.admin-header-section.list-header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
 }
 
 /* Header Section */
 .admin-header-section.list-header {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
   color: var(--text-white);
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);

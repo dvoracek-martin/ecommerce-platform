@@ -1,0 +1,25 @@
+/*
+  Client pages that intentionally reuse the admin "card page" layout.
+
+  Several client pages (cart, client orders, customer profile) copy/paste admin container/card/header.
+  This file centralizes those primitives so the visual stays identical while removing duplication.
+*/
+
+@use '../admin/admin-shared-styles';
+
+.client-admin-container {
+  @extend .admin-container;
+}
+
+.client-admin-card {
+  @extend .admin-card;
+}
+
+.client-admin-header-section {
+  @extend .admin-header-section;
+}
+
+.client-admin-actions {
+  @extend .admin-actions;
+}
+

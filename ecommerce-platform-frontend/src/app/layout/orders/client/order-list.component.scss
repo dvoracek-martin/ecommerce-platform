@@ -1,118 +1,16 @@
 /* Client Orders Component - Consistent with Admin Design System */
+@use '../../../shared/styles/client/client-admin-card-page';
+
 .admin-container {
-  padding: var(--spacing-xl);
-  background-color: var(--background-light);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
+  @extend .client-admin-container;
 }
 
 .admin-card {
-  width: 100%;
-  max-width: 1400px;
-  background: var(--background-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  border: 1px solid var(--border-color);
-  position: relative;
-  padding-bottom: 100px;
-  overflow: hidden;
+  @extend .client-admin-card;
 }
 
-/* Header Section - Matching Admin Design */
 .admin-header-section {
-  padding: var(--spacing-xl);
-  background: linear-gradient(135deg, var(--background-card) 0%, var(--background-light) 100%);
-  border-bottom: 1px solid var(--border-color);
-
-  .admin-header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: var(--spacing-lg);
-
-    .admin-title-section {
-      flex: 1;
-      min-width: 300px;
-
-      h1 {
-        font-size: var(--font-size-xxl);
-        font-weight: 700;
-        background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin: 0 0 var(--spacing-xs) 0;
-      }
-
-      .admin-subtitle {
-        color: var(--text-muted);
-        font-size: var(--font-size-sm);
-        margin: 0;
-      }
-    }
-
-    .admin-search-section {
-      display: flex;
-      gap: var(--spacing-md);
-      align-items: center;
-      flex-wrap: wrap;
-
-      .admin-search-container {
-        position: relative;
-        min-width: 280px;
-
-        .admin-search-input-wrapper {
-          display: flex;
-          align-items: center;
-          background: var(--background-light);
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius-md);
-          padding: var(--spacing-sm) var(--spacing-md);
-          transition: all var(--transition-normal);
-
-          &:hover, &:focus-within {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-          }
-
-          .admin-search-icon {
-            color: var(--text-muted);
-            margin-right: var(--spacing-sm);
-          }
-
-          .admin-search-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: var(--font-size-base);
-            padding: var(--spacing-sm) 0;
-
-            &::placeholder {
-              color: var(--text-muted);
-            }
-
-            &:focus {
-              outline: none;
-            }
-          }
-
-          .admin-clear-button {
-            color: var(--text-muted);
-            width: 24px;
-            height: 24px;
-
-            &:hover {
-              color: var(--error-color);
-              background: rgba(231, 76, 60, 0.1);
-            }
-          }
-        }
-      }
-    }
-  }
+  @extend .client-admin-header-section;
 }
 
 /* Loading & Error States */
@@ -611,10 +509,6 @@
 }
 
 @media (max-width: 768px) {
-  .admin-container {
-    padding: var(--spacing-md);
-  }
-
   .admin-card {
     padding-bottom: 120px;
   }

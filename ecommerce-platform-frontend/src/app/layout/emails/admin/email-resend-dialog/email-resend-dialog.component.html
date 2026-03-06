@@ -196,15 +196,14 @@
             <mat-icon>close</mat-icon>
             {{ 'COMMON.CANCEL' | translate }}
           </button>
-          <button *ngIf="!isViewMode()"
-                  [disabled]="!canResend() || isResending"
+          <button (click)="resendEmail()"
                   color="primary"
-                  (click)="resendEmail()"
                   mat-flat-button
                   type="button"
-                  class="save-btn">
-            <mat-icon>send</mat-icon>
-            {{ isResending ? ('EMAILS.SENDING' | translate) : ('EMAIL_LOGS.RESEND_EMAIL' | translate) }}
+                  class="save-btn"
+                  [disabled]="!canResend()">
+            <mat-icon>save</mat-icon>
+            {{ isResending ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
           </button>
         </div>
       </div>

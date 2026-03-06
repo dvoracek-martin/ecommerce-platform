@@ -1,26 +1,18 @@
 /* Client Order Detail Component - Consistent with Admin Design System */
+@use '../../../shared/styles/client/client-admin-card-page';
+
 .admin-container {
-  padding: var(--spacing-xl);
-  background-color: var(--background-light);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
+  @extend .client-admin-container;
 }
 
 .admin-card {
-  width: 100%;
-  max-width: 1400px;
-  background: var(--background-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  border: 1px solid var(--border-color);
-  position: relative;
-  padding-bottom: 100px;
-  overflow: hidden;
+  @extend .client-admin-card;
 }
 
-/* Header Section - Matching Admin Design */
+/* Header Section - Matching Admin Design (inherits base structure, keeps custom gradient) */
 .admin-header-section {
+  @extend .client-admin-header-section;
+
   padding: var(--spacing-xl);
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
   border-bottom: 1px solid var(--border-color);

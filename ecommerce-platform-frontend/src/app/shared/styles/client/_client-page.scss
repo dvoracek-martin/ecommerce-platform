@@ -1,0 +1,52 @@
+/*
+  Client Page (shared)
+
+  Base layout primitives for client-facing pages.
+  Keep selectors generic; feature pages should alias via @extend.
+*/
+
+@use '../component-shared-styles';
+
+.client-page-container {
+  font-family: var(--font-primary), sans-serif;
+  color: var(--text-primary);
+  background-color: var(--background-light);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.client-page-wrapper {
+  font-family: var(--font-primary), sans-serif;
+  color: var(--text-primary);
+  background-color: var(--background-light);
+  min-height: 100vh;
+  display: flex;
+  padding: var(--spacing-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.client-surface-card {
+  background: var(--background-card);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 15px var(--shadow-light);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .client-page-container {
+    padding: var(--spacing-md);
+    gap: var(--spacing-lg);
+  }
+
+  .client-page-wrapper {
+    padding: var(--spacing-md);
+  }
+}
+

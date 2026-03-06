@@ -1,37 +1,10 @@
 /* Checkout Component - Redesigned from Scratch */
+@use '../../../shared/styles/client/client-page';
+
 .checkout-container {
-  font-family: var(--font-primary);
-  color: var(--text-primary);
-  background-color: var(--background-light);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  @extend .client-page-container;
   align-items: center;
-  padding: var(--spacing-xl);
-}
-
-.checkout-content-wrapper {
-  width: 100%;
-  max-width: 1200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.checkout-header {
-  margin-bottom: var(--spacing-xl);
-  text-align: center;
-  width: 100%;
-
-  h1 {
-    font-size: var(--font-size-xxl);
-    font-weight: 700;
-    background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0;
-  }
+  max-width: none;
 }
 
 /* Button Styles */
