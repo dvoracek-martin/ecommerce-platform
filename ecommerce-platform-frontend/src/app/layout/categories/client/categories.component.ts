@@ -1,4 +1,5 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, Inject, OnDestroy, OnInit, PLATFORM_ID} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 import {CategoryService} from '../../../services/category.service';
 import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 
@@ -15,7 +16,10 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   activeSlideIndices: number[] = [];
   private intervals: any[] = [];
 
-  constructor(private categoryService: CategoryService) {
+  constructor(
+    private categoryService: CategoryService,
+    @Inject(PLATFORM_ID) private platformId: Object,
+  ) {
   }
 
   ngOnInit(): void {
@@ -49,6 +53,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   }
 
   startCarousel(catIndex: number, mediaCount: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (mediaCount <= 1) return;
     if (this.intervals[catIndex]) clearInterval(this.intervals[catIndex]);
     this.intervals[catIndex] = setInterval(() => {

@@ -1,4 +1,5 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewChild} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {ProductService} from '../../../services/product.service';
 import {MixtureService} from '../../../services/mixture.service';
@@ -60,7 +61,8 @@ export class MixingComponent implements OnInit, OnDestroy {
     private router: Router,
     private snackBar: MatSnackBar,
     private tagService: TagService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
   }
 
@@ -135,6 +137,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   }
 
   startCarousel(productId: number, mediaCount: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (mediaCount <= 1) return;
     this.intervals[productId] = setInterval(() => {
       this.nextSlide(productId, mediaCount);
@@ -375,7 +378,8 @@ export class MixingComponent implements OnInit, OnDestroy {
 
 // Fallback for browsers that don't support smooth scrolling
   scrollToTopFallback(): void {
-    const scrollDuration = 500; // Duration in milliseconds
+    if (!isPlatformBrowser(this.platformId)) return;
+    const scrollDuration = 500;
     const scrollStep = -window.scrollY / (scrollDuration / 15);
 
     const scrollInterval = setInterval(() => {
@@ -412,10 +416,8 @@ export class MixingComponent implements OnInit, OnDestroy {
     product.translatedName = this.productService.getLocalizedName(product);
     product.translatedDescription = this.productService.getLocalizedDescription(product);
     product.translatedUrl = this.productService.getLocalizedUrl(product);
-    product.responseTagDTOS.forEach(tag => {
-      this.tagService.getTagById(tag.id).subscribe(responseTagDTO => {
-        tag.translatedName = this.tagService.getLocalizedName(responseTagDTO);
-      });
+    product.responseTagDTOS?.forEach(tag => {
+      tag.translatedName = this.tagService.getLocalizedName(tag);
     });
   }
 }

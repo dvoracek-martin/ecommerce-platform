@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, Input, Output, EventEmitter, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import {BaseUpdateOrResponseDTO} from '../../../dto/base/base-update-or-response.dto';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MatIcon} from '@angular/material/icon';
@@ -20,11 +21,13 @@ export class CardGalleryComponent<T extends BaseUpdateOrResponseDTO> implements 
   @Input() itemIndex!: number;
   @Input() activeSlideIndex: number = 0;
   @Input() showActions: boolean = true;
-  @Input() aspectRatio: string = '4/5'; // Default aspect ratio for products
+  @Input() aspectRatio: string = '4/5';
   @Output() slideChange = new EventEmitter<{index: number, slideIndex: number}>();
   @Output() itemClick = new EventEmitter<T>();
 
   private interval: any;
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit(): void {
     this.startCarousel();
@@ -35,6 +38,7 @@ export class CardGalleryComponent<T extends BaseUpdateOrResponseDTO> implements 
   }
 
   startCarousel(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (!this.item?.media || this.item.media.length <= 1) return;
     if (this.interval) clearInterval(this.interval);
 

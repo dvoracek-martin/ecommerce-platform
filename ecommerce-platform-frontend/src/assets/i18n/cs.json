@@ -291,5 +291,22 @@
     "TITLE": "E‑mailové logy",
     "TYPE": "Typ",
     "VIEW_DETAILS": "Zobrazit detail"
+  },
+  "EMAILS": {
+    "PERSONALIZATION_NOTE": "Pozn e1mka: Ka fd fd p f8 edjemce obdr f8 ed personalizovan fd e-mail se sv fdmi konkr e9tn edmi informacemi",
+    "ADMIN": {
+      "TITLE": "E-mailov e9 61ablony",
+      "SUBTITLE": "Spravujte a p59izp6fsobujte e-mailov e9 61ablony pro r6fzn e9 jazyky",
+      "SELECT_EMAIL_TYPE": "Vyberte typ e-mailu",
+      "EMAIL_TYPE": "Typ e-mailu",
+      "EMAIL_CONTENT": "Obsah e-mailu",
+      "SUBJECT": "P59edm1bt",
+      "SUBJECT_PLACEHOLDER": "Zadejte p59edm1bt e-mailu...",
+      "BODY": "Text",
+      "BODY_PLACEHOLDER": "Zadejte obsah e-mailu...",
+      "PREVIEW": "N e1hled",
+      "SHOW_PREVIEW": "Zobrazit n e1hled",
+      "LOADED_DATA": "Na0dten e1 data"
+    }
   }
 }

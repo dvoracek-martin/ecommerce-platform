@@ -152,26 +152,11 @@
   "MENU": {
     "NAVIGATION": {
       "TITLE": "Navigation",
-      "HOME": "Accueil",
-      "PRODUCTS": "Produits",
-      "MIXTURES": "Mélanges",
-      "SALES": "Promotions",
-      "ABOUT_US": "À propos",
-      "MIXING": "Mélange",
       "CONTACT": "Contact"
     },
     "ADMIN": {
       "TITLE": "Admin",
-      "CATEGORIES": "Catégories",
-      "CUSTOMERS": "Clients",
-      "MIXTURES": "Mélanges",
-      "ORDERS": "Commandes",
-      "PRODUCTS": "Produits",
-      "TAGS": "Tags",
-      "CONFIGURATION": {
-        "EMAILS": "E-mails",
-        "LOCALIZATION": "Localisation"
-      }
+      "TAGS": "Tags"
     },
     "CLIENT": {
       "TITLE": "Compte",
@@ -246,63 +231,29 @@
     "TOTAL": "Total"
   },
   "TAGS": {
-    "LOAD_ERROR": "Impossible de charger les tags.",
     "TOOLTIP": {
-      "BIO": "Certifié biologique et respectueux de l'environnement.",
-      "GLUTEN_FREE": "Adapté aux régimes sans gluten.",
-      "NATURAL": "Contient uniquement des ingrédients naturels.",
-      "ORGANIC": "Fabriqué avec des ingrédients 100% bio.",
-      "PREMIUM": "Produit premium de haute qualité.",
-      "SUSTAINABLE": "Produit avec des pratiques durables.",
-      "SWISS": "Fabriqué en Suisse.",
       "VEGAN": "100% vegan."
     }
   },
-  "PRODUCTS": {
-    "CATEGORY": "Catégorie",
-    "LOAD_FAILED": "Impossible de charger le produit.",
-    "NOT_FOUND": "Produit introuvable.",
-    "ADMIN": {
-      "CREATE_FAILED": "Impossible de créer le produit.",
-      "CREATE_SUCCESS": "Produit créé avec succès !",
-      "DELETE_SUCCESS": "Produit supprimé avec succès.",
-      "LOAD_FAILED": "Impossible de charger les produits.",
-      "UPDATE_FAILED": "Impossible de mettre à jour le produit.",
-      "UPDATE_SUCCESS": "Produit mis à jour !"
-    },
-    "CATEGORIES": "Catégories",
-    "CLEAR_ALL": "Tout effacer",
-    "CLEAR_FILTERS": "Effacer les filtres",
-    "FILTERS": "Filtres",
-    "NO_PRODUCTS_FOUND": "Aucun produit trouvé.",
-    "SEARCH_PLACEHOLDER": "Rechercher des produits...",
-    "SORT_NAME_ASC": "Nom (A–Z)",
-    "SORT_NAME_DESC": "Nom (Z–A)",
-    "SORT_NEWEST": "Les plus récents",
-    "SORT_PRICE_ASC": "Prix (croissant)",
-    "SORT_PRICE_DESC": "Prix (décroissant)",
-    "SUBTITLE": "Parcourez notre catalogue de produits.",
-    "TRY_ADJUSTING_FILTERS": "Essayez d'ajuster votre recherche ou vos filtres."
-  },
   "EMAIL_LOGS": {
     "ACTIONS": "Actions",
-    "ADMIN_SUBTITLE": "Consulter et renvoyer les e-mails envoyés.",
-    "EMAIL_INFORMATION": "Informations sur l'e-mail",
-    "EMAIL_TEMPLATES": "Modèles d'e-mails",
-    "LANGUAGE": "Langue",
-    "LOAD_ERROR": "Impossible de charger les journaux d'e-mails.",
-    "LOADING": "Chargement des journaux d'e-mails...",
-    "NO_LOGS": "Aucun journal d'e-mail trouvé.",
-    "RECIPIENT": "Destinataire",
-    "RESEND": "Renvoyer",
-    "RESEND_ERROR": "Impossible de renvoyer l'e-mail.",
-    "RESEND_SUCCESS": "E-mail renvoyé.",
-    "RESEND_WITH_CHANGES": "Renvoyer avec modifications",
-    "SEARCH_PLACEHOLDER": "Rechercher dans les journaux...",
-    "SEND_EMAIL": "Envoyer un e-mail",
-    "SENT_AT": "Envoyé le",
-    "TITLE": "Journaux d'e-mails",
-    "TYPE": "Type",
-    "VIEW_DETAILS": "Voir les détails"
+    "TYPE": "Type"
+  },
+  "EMAILS": {
+    "PERSONALIZATION_NOTE": "Note : Chaque destinataire recevra un e-mail personnalisé avec ses informations spécifiques",
+    "ADMIN": {
+      "TITLE": "Modèles d'e-mails",
+      "SUBTITLE": "Gérer et personnaliser les modèles d'e-mails pour différentes langues",
+      "SELECT_EMAIL_TYPE": "Sélectionner le type d'e-mail",
+      "EMAIL_TYPE": "Type d'e-mail",
+      "EMAIL_CONTENT": "Contenu de l'e-mail",
+      "SUBJECT": "Objet",
+      "SUBJECT_PLACEHOLDER": "Saisissez l'objet de l'e-mail...",
+      "BODY": "Corps",
+      "BODY_PLACEHOLDER": "Saisissez le contenu de l'e-mail...",
+      "PREVIEW": "Aperçu",
+      "SHOW_PREVIEW": "Afficher l'aperçu",
+      "LOADED_DATA": "Données chargées"
+    }
   }
 }

@@ -8,8 +8,21 @@
   })
   export class LocaleMapperService {
 
+    private static readonly LOCALE_STORAGE_KEY = 'currentLocale';
     private currentLocale: string = '';
-    constructor(private translate: TranslateService) {}
+
+    constructor(private translate: TranslateService) {
+      // Restore locale synchronously from localStorage so it is available
+      // immediately — before any async HTTP call (loadAppSettings) resolves.
+      // This prevents a race condition where components translate content
+      // using an empty locale and get blank strings / wrong language.
+      if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem(LocaleMapperService.LOCALE_STORAGE_KEY);
+        if (stored) {
+          this.currentLocale = stored;
+        }
+      }
+    }
 
     public mapLocale(languageCode: string, regionCode: string): string {
       const key = `${languageCode.toUpperCase()}_${regionCode.toUpperCase()}`;
@@ -31,7 +44,10 @@
       return this.currentLocale;
     }
 
-    public setCurrentLocale(locale: string):  void{
+    public setCurrentLocale(locale: string): void {
       this.currentLocale = locale;
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(LocaleMapperService.LOCALE_STORAGE_KEY, locale);
+      }
     }
   }

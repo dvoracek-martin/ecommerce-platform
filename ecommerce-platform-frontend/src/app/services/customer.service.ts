@@ -10,7 +10,7 @@ import {Customer} from '../dto/customer/customer-dto';
 export class CustomerService {
   private apiUrl = '/api/customers/v1';
   private apiAdminUrl = '/api/customers/v1/admin';
-  private userLanguageSubject = new BehaviorSubject<string>('en');
+  private userLanguageSubject = new BehaviorSubject<string>('');
   userLanguage$ = this.userLanguageSubject.asObservable();
 
   constructor(

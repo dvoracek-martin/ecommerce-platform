@@ -1,5 +1,6 @@
 // src/app/components/categories-admin-list/categories-admin-list.component.ts
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, Inject, OnDestroy, OnInit, PLATFORM_ID} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
@@ -35,6 +36,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private tagService: TagService,
     private translate: TranslateService,
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
   }
 
@@ -99,6 +101,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
   }
 
   startCarousel(catIndex: number, mediaCount: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (mediaCount <= 1) return;
     if (this.intervals[catIndex]) clearInterval(this.intervals[catIndex]);
     this.intervals[catIndex] = setInterval(() => {

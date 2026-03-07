@@ -147,6 +147,23 @@
     "TYPE": "Tipo",
     "VIEW_DETAILS": "Ver detalles"
   },
+  "EMAILS": {
+    "PERSONALIZATION_NOTE": "Nota: Cada destinatario recibirá un correo personalizado con su información específica",
+    "ADMIN": {
+      "TITLE": "Plantillas de correo",
+      "SUBTITLE": "Administra y personaliza plantillas de correo para diferentes idiomas",
+      "SELECT_EMAIL_TYPE": "Seleccionar tipo de correo",
+      "EMAIL_TYPE": "Tipo de correo",
+      "EMAIL_CONTENT": "Contenido del correo",
+      "SUBJECT": "Asunto",
+      "SUBJECT_PLACEHOLDER": "Ingresa el asunto del correo...",
+      "BODY": "Cuerpo",
+      "BODY_PLACEHOLDER": "Ingresa el contenido del correo...",
+      "PREVIEW": "Vista previa",
+      "SHOW_PREVIEW": "Mostrar vista previa",
+      "LOADED_DATA": "Datos cargados"
+    }
+  },
   "ERRORS": {
     "FIX_FORM": "Por favor, corrige los errores del formulario",
     "FORM_VALIDATION": "Falló la validación del formulario",
@@ -182,7 +199,7 @@
       "CONTACT": "Contacto"
     },
     "ADMIN": {
-      "TITLE": "Admin",
+      "TITLE": "Administración",
       "CATEGORIES": "Categorías",
       "CUSTOMERS": "Clientes",
       "MIXTURES": "Mezclas",

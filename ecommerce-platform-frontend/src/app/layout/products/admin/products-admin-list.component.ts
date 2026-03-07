@@ -1,4 +1,5 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, Inject, OnDestroy, OnInit, PLATFORM_ID} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfirmationDialogComponent} from '../../../shared/confirmation-dialog/confirmation-dialog.component';
@@ -35,6 +36,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private translate: TranslateService,
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
   }
 
@@ -101,6 +103,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
   }
 
   startCarousel(productIndex: number, mediaCount: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (mediaCount <= 1) return;
     if (this.intervals[productIndex]) clearInterval(this.intervals[productIndex]);
     this.intervals[productIndex] = setInterval(() => {

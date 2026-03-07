@@ -1,4 +1,5 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewChild} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ResponseProductDTO} from '../../../dto/product/response-product-dto';
 import {ProductService} from '../../../services/product.service';
@@ -61,7 +62,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private tagService: TagService,
     private categoryService: CategoryService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
   }
 
@@ -519,6 +521,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   }
 
   startCarousel(productIndex: number, mediaCount: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (mediaCount <= 1) return;
     if (this.intervals[productIndex]) clearInterval(this.intervals[productIndex]);
     this.intervals[productIndex] = setInterval(() => {
@@ -590,12 +593,10 @@ export class ProductsListComponent implements OnInit, OnDestroy {
       product.translatedName = this.productService.getLocalizedName(product);
       product.translatedDescription = this.productService.getLocalizedDescription(product);
       product.translatedUrl = this.productService.getLocalizedUrl(product);
-      product.responseTagDTOS.forEach(tag => {
-        this.tagService.getTagById(tag.id).subscribe(responseTagDTO => {
-          tag.translatedName = this.tagService.getLocalizedName(responseTagDTO);
-          tag.translatedDescription = this.tagService.getLocalizedDescription(responseTagDTO);
-          tag.translatedUrl = this.tagService.getLocalizedUrl(responseTagDTO);
-        });
+      product.responseTagDTOS?.forEach(tag => {
+        tag.translatedName = this.tagService.getLocalizedName(tag);
+        tag.translatedDescription = this.tagService.getLocalizedDescription(tag);
+        tag.translatedUrl = this.tagService.getLocalizedUrl(tag);
       });
     });
   }

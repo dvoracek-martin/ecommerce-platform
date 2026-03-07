@@ -1,4 +1,5 @@
-import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProductService} from '../../../services/product.service';
 import {CartService} from '../../../services/cart.service';
@@ -26,6 +27,8 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   private interval: any;
   private routeSub!: Subscription;
   private categoryName: string = 'Category';
+  private lastLoadedProductId: number | null = null;
+  private slugCorrected = false;
 
   // Tag icons + i18n tooltip keys
   private tagConfig: { [key: string]: { icon: string, tooltipKey: string } } = {
@@ -47,6 +50,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     private tagService: TagService,
     private categoryService: CategoryService,
     private translate: TranslateService,
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
   }
 
@@ -54,30 +58,44 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     this.routeSub = this.route.paramMap.pipe(
       switchMap(params => {
         const productId = params.get('id');
-        this.loading = true;
+
         if (!productId) {
           this.error = this.translate.instant('PRODUCTS.NOT_FOUND');
           this.loading = false;
           return new Promise<ResponseProductDTO | null>(resolve => resolve(null));
         }
-        return this.productService.getProductById(+productId);
+
+        const numericId = +productId;
+
+        // If the product is already loaded and only the slug changed, skip the API call.
+        // This prevents the infinite loop: translate → slug mismatch → navigate → paramMap emits → re-fetch → repeat.
+        if (this.lastLoadedProductId === numericId && this.product) {
+          return new Promise<ResponseProductDTO>(resolve => resolve(this.product!));
+        }
+
+        this.loading = true;
+        return this.productService.getProductById(numericId);
       })
     ).subscribe({
       next: (data) => {
-        this.product = data;
-        this.loading = false;
-        this.translateProduct();
-        this.translateTags();
-        this.loadCategoryName();
-        // Slug for SEO
-        const slugParam = this.route.snapshot.paramMap.get('slug');
-        const correctSlug = this.product ? this.slugify(this.product.translatedName) : '';
-        if (slugParam !== correctSlug) {
-          this.router.navigate([`/products/${this.product?.id}/${correctSlug}`], {replaceUrl: true});
-        }
+        if (!data) return;
 
-        if (this.interval) clearInterval(this.interval);
-        this.startCarousel();
+        const isNewProduct = this.lastLoadedProductId !== data.id;
+        this.product = data;
+        this.lastLoadedProductId = data.id!;
+        this.loading = false;
+
+        if (isNewProduct) {
+          this.slugCorrected = false;
+          this.translateProduct();
+          this.loadCategoryName();
+
+          if (this.interval) clearInterval(this.interval);
+          this.startCarousel();
+
+          // Correct the URL slug for SEO (only once per product load)
+          this.updateSlugIfNeeded();
+        }
       },
       error: (err) => {
         this.error = err.message || this.translate.instant('PRODUCTS.LOAD_FAILED');
@@ -85,6 +103,23 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
         this.product = null;
       }
     });
+  }
+
+  private updateSlugIfNeeded(): void {
+    if (this.slugCorrected) return; // already corrected, don't loop
+    if (!this.product?.translatedName) return;
+
+    const correctSlug = this.slugify(this.product.translatedName);
+    if (!correctSlug) return; // never navigate to an empty slug
+
+    const slugParam = this.route.snapshot.paramMap.get('slug');
+    if (slugParam !== correctSlug) {
+      this.slugCorrected = true; // mark so we don't try again
+      this.router.navigate(
+        [`/products/${this.product.id}/${correctSlug}`],
+        { replaceUrl: true }
+      );
+    }
   }
 
   private loadCategoryName(): void {
@@ -126,6 +161,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   }
 
   startCarousel() {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (!this.product?.media || this.product.media.length < 1) return;
     if (this.interval) clearInterval(this.interval);
     this.interval = setInterval(() => this.nextSlide(), 5000);
@@ -202,20 +238,10 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     this.product.translatedName = this.productService.getLocalizedName(this.product);
     this.product.translatedDescription = this.productService.getLocalizedDescription(this.product);
     this.product.translatedUrl = this.productService.getLocalizedUrl(this.product);
-    this.product.responseTagDTOS.forEach(tag => {
-      this.tagService.getTagById(tag.id).subscribe(responseTagDTO => {
-        tag.translatedName = this.tagService.getLocalizedName(responseTagDTO);
-        tag.translatedDescription = this.tagService.getLocalizedDescription(responseTagDTO);
-        tag.translatedUrl = this.tagService.getLocalizedUrl(responseTagDTO);
-      });
-    });
-  }
-
-  private translateTags() {
-    this.product.responseTagDTOS.forEach(tags => {
-      tags.translatedName = this.tagService.getLocalizedName(tags);
-      tags.translatedDescription = this.tagService.getLocalizedDescription(tags);
-      tags.translatedUrl = this.tagService.getLocalizedUrl(tags);
+    this.product.responseTagDTOS?.forEach(tag => {
+      tag.translatedName = this.tagService.getLocalizedName(tag);
+      tag.translatedDescription = this.tagService.getLocalizedDescription(tag);
+      tag.translatedUrl = this.tagService.getLocalizedUrl(tag);
     });
   }
 
