@@ -446,6 +446,18 @@
     "WEIGHT": "Gewicht",
     "WEIGHT_GRAMS": "Gewicht (Gramm)"
   },
+  "ROUTES": {
+    "ABOUT_US": "ueber-uns",
+    "CART": "warenkorb",
+    "CATEGORIES": "kategorien",
+    "CHECKOUT": "kasse",
+    "CONTACT": "kontakt",
+    "MIXING": "mischen",
+    "MIXTURES": "mischungen",
+    "PRODUCTS": "produkte",
+    "REGISTER": "registrieren",
+    "SALES": "angebote"
+  },
   "RESET_PASSWORD": {
     "BUTTON": "Passwort zurücksetzen",
     "ENTER_PASSWORD": "Neues Passwort eingeben",

@@ -321,5 +321,17 @@
       "SWISS": "Hecho en Suiza.",
       "VEGAN": "100% vegano."
     }
+  },
+  "ROUTES": {
+    "ABOUT_US": "sobre-nosotros",
+    "CART": "carrito",
+    "CATEGORIES": "categorias",
+    "CHECKOUT": "caja",
+    "CONTACT": "contacto",
+    "MIXING": "mezcla",
+    "MIXTURES": "mezclas",
+    "PRODUCTS": "productos",
+    "REGISTER": "registro",
+    "SALES": "ofertas"
   }
 }

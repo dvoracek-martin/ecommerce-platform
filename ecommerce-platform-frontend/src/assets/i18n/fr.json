@@ -255,5 +255,17 @@
       "SHOW_PREVIEW": "Afficher l'aperçu",
       "LOADED_DATA": "Données chargées"
     }
+  },
+  "ROUTES": {
+    "ABOUT_US": "a-propos",
+    "CART": "panier",
+    "CATEGORIES": "categories",
+    "CHECKOUT": "caisse",
+    "CONTACT": "contact",
+    "MIXING": "melange",
+    "MIXTURES": "melanges",
+    "PRODUCTS": "produits",
+    "REGISTER": "inscription",
+    "SALES": "promotions"
   }
 }

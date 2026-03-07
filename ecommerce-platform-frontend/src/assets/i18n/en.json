@@ -283,6 +283,18 @@
       "CREATE": "Browse our product catalog."
     }
   },
+  "ROUTES": {
+    "ABOUT_US": "about-us",
+    "CART": "cart",
+    "CATEGORIES": "categories",
+    "CHECKOUT": "checkout",
+    "CONTACT": "contact",
+    "MIXING": "mixing",
+    "MIXTURES": "mixtures",
+    "PRODUCTS": "products",
+    "REGISTER": "register",
+    "SALES": "sales"
+  },
   "RESET_PASSWORD": {
     "BUTTON": "Reset Password",
     "ENTER_PASSWORD": "Enter new password",

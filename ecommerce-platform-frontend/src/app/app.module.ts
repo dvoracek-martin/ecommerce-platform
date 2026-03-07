@@ -69,6 +69,8 @@ import {MatAutocomplete, MatAutocompleteTrigger} from '@angular/material/autocom
 import {EmailResendDialogComponent} from './layout/emails/admin/email-resend-dialog/email-resend-dialog.component';
 import {CustomersAdminListComponent} from './layout/customers/admin/customers-admin-list.component';
 import {ActivateAccountComponent} from './auth/activate-account/activate-account.component';
+import {UrlSerializer} from '@angular/router';
+import {LocalizedUrlSerializer} from './services/localized-url-serializer';
 
 const myTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -162,7 +164,8 @@ const myTooltipDefaults: MatTooltipDefaultOptions = {
       useClass: AuthInterceptor,
       multi: true
     },
-    {provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myTooltipDefaults}
+    {provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myTooltipDefaults},
+    {provide: UrlSerializer, useClass: LocalizedUrlSerializer}
   ],
   bootstrap: [AppComponent]
 })

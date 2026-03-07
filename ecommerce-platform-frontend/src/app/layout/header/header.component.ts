@@ -26,6 +26,7 @@ import {isPlatformBrowser} from '@angular/common';
 import {ProductService} from '../../services/product.service';
 import {CartItemType} from '../../dto/cart/cart-item-type';
 import {MixtureService} from '../../services/mixture.service';
+import {LocalizedRouteService} from '../../services/localized-route.service';
 
 @Component({
   selector: 'app-header',
@@ -89,6 +90,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object,
     private productService: ProductService,
     private mixtureService: MixtureService,
+    public localizedRoute: LocalizedRouteService,
   ) {
     // Initialize the cart item count observable
     this.totalCartItemCount$ = this.cartService.cart$.pipe(

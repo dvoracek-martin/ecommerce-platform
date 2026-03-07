@@ -308,5 +308,17 @@
       "SHOW_PREVIEW": "Zobrazit n e1hled",
       "LOADED_DATA": "Na0dten e1 data"
     }
+  },
+  "ROUTES": {
+    "ABOUT_US": "o-nas",
+    "CART": "kosik",
+    "CATEGORIES": "kategorie",
+    "CHECKOUT": "pokladna",
+    "CONTACT": "kontakt",
+    "MIXING": "michani",
+    "MIXTURES": "smesi",
+    "PRODUCTS": "produkty",
+    "REGISTER": "registrace",
+    "SALES": "akce"
   }
 }
