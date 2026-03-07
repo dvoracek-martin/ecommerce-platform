@@ -7,6 +7,7 @@ import { CartService } from '../../services/cart.service';
 import { Subject } from 'rxjs';
 import { CustomerService } from '../../services/customer.service';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-user-login',
@@ -29,7 +30,8 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private cartService: CartService,
     private customerService: CustomerService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService,
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -49,7 +51,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
-      this.snackBar.open('Please fix validation errors.', 'Close', { duration: 5000 });
+      this.snackBar.open(this.translate.instant('ERRORS.FIX_FORM'), this.translate.instant('COMMON.CLOSE'), { duration: 5000 });
       return; // Added return to prevent execution when invalid
     }
 
@@ -90,7 +92,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   }
 
   private handleLoginError(err: any): void {
-    this.snackBar.open('Login failed. Incorrect e-mail or password.', 'Close', { duration: 5000 });
+    this.snackBar.open(this.translate.instant('ERRORS.LOGIN_FAILED'), this.translate.instant('COMMON.CLOSE'), { duration: 5000 });
     this.loading = false;
   }
 

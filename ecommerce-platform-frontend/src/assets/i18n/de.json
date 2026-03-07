@@ -28,7 +28,49 @@
     "ITEMS": "Artikel",
     "TOTAL": "Gesamtbetrag",
     "VIEW_CART": "Warenkorb anzeigen",
-    "CHECKOUT": "Zur Kasse"
+    "CHECKOUT": "Zur Kasse",
+    "DISCOUNT_ALREADY_APPLIED": "Rabatt ist bereits angewendet.",
+    "DISCOUNT_APPLY_FAILED": "Rabatt konnte nicht angewendet werden.",
+    "DISCOUNT_CODE_REQUIRED": "Bitte Rabattcode eingeben.",
+    "DISCOUNT_REMOVE_FAILED": "Rabatt konnte nicht entfernt werden."
+  },
+  "CATEGORIES": {
+    "ADMIN_SUBTITLE": "Produktkategorien verwalten.",
+    "NO_CATEGORIES": "Keine Kategorien gefunden."
+  },
+  "CONFIGURATION": {
+    "AVAILABLE_LOCALES": "Verfügbare Sprachen",
+    "BASIC_SETTINGS": "Grundeinstellungen",
+    "CURRENCY": "Währung",
+    "DEFAULT_LANGUAGE": "Standardsprache",
+    "SELECT_LOCALES": "Sprachen auswählen",
+    "THEME": "Design",
+    "TITLE": "Konfiguration",
+    "UPDATED_AT": "Aktualisiert am",
+    "ADMIN_SUBTITLE": {
+      "UPDATE": "Lokalisierung und App-Einstellungen aktualisieren."
+    }
+  },
+  "EMAIL_LOGS": {
+    "ACTIONS": "Aktionen",
+    "ADMIN_SUBTITLE": "Versendete E-Mails prüfen und erneut senden.",
+    "EMAIL_INFORMATION": "E-Mail-Informationen",
+    "EMAIL_TEMPLATES": "E-Mail-Vorlagen",
+    "LANGUAGE": "Sprache",
+    "LOAD_ERROR": "E-Mail-Logs konnten nicht geladen werden.",
+    "LOADING": "E-Mail-Logs werden geladen...",
+    "NO_LOGS": "Keine E-Mail-Logs gefunden.",
+    "RECIPIENT": "Empfänger",
+    "RESEND": "Erneut senden",
+    "RESEND_ERROR": "E-Mail konnte nicht erneut gesendet werden.",
+    "RESEND_SUCCESS": "E-Mail wurde erneut gesendet.",
+    "RESEND_WITH_CHANGES": "Mit Änderungen erneut senden",
+    "SEARCH_PLACEHOLDER": "Logs suchen...",
+    "SEND_EMAIL": "E-Mail senden",
+    "SENT_AT": "Gesendet am",
+    "TITLE": "E-Mail-Logs",
+    "TYPE": "Typ",
+    "VIEW_DETAILS": "Details ansehen"
   },
   "PRODUCTS": {
     "LOAD_MORE": "Load More Products",
@@ -36,27 +78,49 @@
     "LOADING": "Loading...",
     "SHOWING": "Showing",
     "OF": "of",
-    "PRODUCTS": "products"
-  },
-  "CATEGORIES": {
+    "PRODUCTS": "products",
+    "CATEGORY": "Kategorie",
+    "LOAD_FAILED": "Produkt konnte nicht geladen werden.",
+    "NOT_FOUND": "Produkt nicht gefunden.",
     "ADMIN": {
       "BASIC_INFO": "Basisinformationen",
       "DESCRIPTION": "Beschreibung",
-      "DESCRIPTION_PLACEHOLDER": "Geben Sie die Kategoriebeschreibung ein",
+      "DESCRIPTION_PLACEHOLDER": "Geben Sie die Produktbeschreibung ein",
       "MEDIA": "Medien-Uploads",
-      "NAME": "Kategoriename",
-      "NAME_PLACEHOLDER": "Geben Sie den Kategorienamen ein",
-      "NAME_REQUIRED": "Der Kategoriename ist erforderlich",
-      "NEW_TITLE": "Neue Kategorie erstellen",
-      "TYPE": "Kategorietyp",
-      "TYPE_PLACEHOLDER": "Geben Sie den Kategorietyp ein",
-      "TYPE_REQUIRED": "Der Kategorietyp ist erforderlich",
-      "UPLOAD_MEDIA": "Medien hochladen"
+      "NAME": "Produktname",
+      "NAME_PLACEHOLDER": "Geben Sie den Produktnamen ein",
+      "NAME_REQUIRED": "Der Produktname ist erforderlich",
+      "NEW_TITLE": "Neues Produkt erstellen",
+      "PRICE": "Preis",
+      "PRICE_PLACEHOLDER": "Geben Sie den Preis ein",
+      "PRICE_REQUIRED": "Der Preis ist erforderlich",
+      "STOCK": "Lagerbestand",
+      "STOCK_PLACEHOLDER": "Geben Sie den Lagerbestand ein",
+      "STOCK_REQUIRED": "Der Lagerbestand ist erforderlich",
+      "SKU": "SKU",
+      "SKU_PLACEHOLDER": "Geben Sie die SKU ein",
+      "SKU_REQUIRED": "Die SKU ist erforderlich",
+      "UPLOAD_MEDIA": "Medien hochladen",
+      "CREATE_FAILED": "Produkt konnte nicht erstellt werden.",
+      "CREATE_SUCCESS": "Produkt erfolgreich erstellt!",
+      "DELETE_SUCCESS": "Produkt erfolgreich gelöscht.",
+      "LOAD_FAILED": "Produkte konnten nicht geladen werden.",
+      "UPDATE_FAILED": "Produkt konnte nicht aktualisiert werden.",
+      "UPDATE_SUCCESS": "Produkt wurde aktualisiert!"
     },
-    "ERROR_LOADING": "Fehler beim Laden der Kategorien: {{error}}",
-    "LOADING": "Kategorien werden geladen...",
-    "NO_MEDIA": "Keine Medien für diese Kategorie verfügbar",
-    "TITLE": "Produktkategorien"
+    "CATEGORIES": "Kategorien",
+    "CLEAR_ALL": "Alles zurücksetzen",
+    "CLEAR_FILTERS": "Filter löschen",
+    "FILTERS": "Filter",
+    "NO_PRODUCTS_FOUND": "Keine Produkte gefunden.",
+    "SEARCH_PLACEHOLDER": "Produkte suchen...",
+    "SORT_NAME_ASC": "Name (A–Z)",
+    "SORT_NAME_DESC": "Name (Z–A)",
+    "SORT_NEWEST": "Neueste",
+    "SORT_PRICE_ASC": "Preis (aufsteigend)",
+    "SORT_PRICE_DESC": "Preis (absteigend)",
+    "SUBTITLE": "Durchsuchen Sie unseren Produktkatalog.",
+    "TRY_ADJUSTING_FILTERS": "Passen Sie Suche oder Filter an."
   },
   "EMAILS": {
     "ADMIN": {
@@ -84,7 +148,9 @@
     "SAVING": "Speichern...",
     "SENDING": "Senden...",
     "YES": "Ja",
-    "BACK_TO_HOME": "Back to Home"
+    "BACK_TO_HOME": "Back to Home",
+    "OK": "OK",
+    "UNCATEGORIZED": "Ohne Kategorie"
   },
   "CUSTOMER": {
     "ADDRESS": "Adresse",
@@ -148,6 +214,7 @@
     "LOGIN": "Anmelden",
     "NO_ACCOUNT": "Sie haben kein Konto?",
     "REMEMBER_PASSWORD": "Passwort speichern?",
+    "REMEMBER_ME": "Angemeldet bleiben",
     "RESET_PASSWORD": "Passwort zurücksetzen",
     "SEND_RESET_LINK": "Link zum Zurücksetzen senden",
     "TITLE": "Anmelden"
@@ -167,22 +234,32 @@
       "MIXTURES": "Mixtures",
       "SALES": "Sales",
       "ABOUT_US": "About Us",
-      "MIXING": "Mixing",
-      "CONTACT": "Contact"
+      "MIXING": "Mischen",
+      "CONTACT": "Kontakt"
     },
     "ADMIN": {
+      "TITLE": "Admin",
       "CATEGORIES": "Kategorien",
       "CUSTOMERS": "Kunden",
       "MIXTURES": "Mischungen",
       "ORDERS": "Bestellungen",
       "PRODUCTS": "Produkte",
-      "TAGS": "Tags"
+      "TAGS": "Tags",
+      "CONFIGURATION": {
+        "EMAILS": "E-Mails",
+        "LOCALIZATION": "Lokalisierung"
+      }
     },
     "CLIENT": {
+      "TITLE": "Konto",
       "ORDERS": "Meine Bestellungen",
       "PROFILE": "Mein Profil"
     },
-    "LOGOUT": "Abmelden"
+    "LOGOUT": "Abmelden",
+    "LOGIN": "Anmelden",
+    "ACCOUNT": {
+      "TITLE": "Konto"
+    }
   },
   "RESET_PASSWORD": {
     "BUTTON": "Passwort zurücksetzen",
@@ -221,7 +298,8 @@
     "MAX_LENGTH": "Maximale Länge beträgt {max} Zeichen",
     "MIN_LENGTH": "Minimale Länge beträgt {min} Zeichen",
     "PATTERN": "Ungültiges Format",
-    "REQUIRED": "Dieses Feld ist erforderlich"
+    "REQUIRED": "Dieses Feld ist erforderlich",
+    "FIX_HIGHLIGHTED_FIELDS": "Bitte korrigieren Sie die markierten Felder."
   },
   "LOCALES": {
     "EN_US": "Amerikanisches Englisch",
@@ -268,5 +346,49 @@
     "BG_BG": "Bulgarisch",
     "HR_HR": "Kroatisch",
     "SR_RS": "Serbisch"
+  },
+  "MIXTURE": {
+    "ADD_PRODUCT": "Produkt hinzufügen",
+    "ADD_TO_CART": "In den Warenkorb",
+    "ADDING_TO_CART": "Wird in den Warenkorb gelegt",
+    "ADDED_TO_CART_SUCCESS": "Mischung wurde zum Warenkorb hinzugefügt.",
+    "ADD_TO_CART_FAILED": "Mischung konnte nicht zum Warenkorb hinzugefügt werden.",
+    "CREATE_FAILED": "Mischung konnte nicht erstellt werden.",
+    "DEFAULT_NAME": "Eigene Mischung",
+    "DEFAULT_NAME_ALT": "Deine Mischung",
+    "LOAD_CATEGORIES_FAILED": "Kategorien konnten nicht geladen werden.",
+    "LOAD_PRODUCTS_FAILED": "Produkte konnten nicht geladen werden.",
+    "NAME_PLACEHOLDER": "Mischungsname eingeben",
+    "NAME_REQUIRED": "Bitte Name eingeben",
+    "NON_PREMIUM_SLOTS_FULL": "Alle Nicht-Premium-Plätze sind belegt.",
+    "ONLY_ONE_PREMIUM_ALLOWED": "Nur ein Premium-Produkt ist erlaubt.",
+    "PLEASE_SET_NAME": "Bitte gib deiner Mischung einen eindeutigen Namen.",
+    "PLEASE_WAIT": "Bitte warten",
+    "SUMMARY": "Übersicht",
+    "TITLE": "Mischen",
+    "TOTAL": "Gesamt"
+  },
+  "DIALOG": {
+    "CANCEL_CHANGES_MESSAGE": "Änderungen verwerfen?",
+    "CANCEL_CHANGES_TITLE": "Änderungen abbrechen",
+    "DELETE_MEDIA_MESSAGE": "Dieses Medium wirklich löschen?",
+    "DELETE_MEDIA_TITLE": "Medium löschen",
+    "DELETE_CATEGORY_MESSAGE": "Diese Kategorie dauerhaft löschen?",
+    "DELETE_CATEGORY_TITLE": "Kategorie löschen",
+    "DELETE_PRODUCT_MESSAGE": "Dieses Produkt dauerhaft löschen?",
+    "DELETE_PRODUCT_TITLE": "Produkt löschen"
+  },
+  "TAGS": {
+    "LOAD_ERROR": "Tags konnten nicht geladen werden.",
+    "TOOLTIP": {
+      "BIO": "Zertifiziert biologisch und umweltfreundlich.",
+      "GLUTEN_FREE": "Geeignet für glutenfreie Ernährung.",
+      "NATURAL": "Enthält nur natürliche Inhaltsstoffe.",
+      "ORGANIC": "Hergestellt aus 100% Bio-Zutaten.",
+      "PREMIUM": "Hochwertiges Premium-Produkt.",
+      "SUSTAINABLE": "Mit nachhaltigen Methoden produziert.",
+      "SWISS": "Hergestellt in der Schweiz.",
+      "VEGAN": "100% vegan."
+    }
   }
 }

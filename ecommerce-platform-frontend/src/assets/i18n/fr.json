@@ -12,7 +12,11 @@
     "ITEMS": "articles",
     "TOTAL": "Total",
     "VIEW_CART": "Voir le panier",
-    "CHECKOUT": "Commander"
+    "CHECKOUT": "Commander",
+    "DISCOUNT_ALREADY_APPLIED": "Une réduction est déjà appliquée.",
+    "DISCOUNT_APPLY_FAILED": "Impossible d'appliquer la réduction.",
+    "DISCOUNT_CODE_REQUIRED": "Veuillez saisir un code de réduction.",
+    "DISCOUNT_REMOVE_FAILED": "Impossible de supprimer la réduction."
   },
   "CATEGORIES": {
     "ADMIN": {
@@ -27,12 +31,20 @@
       "TYPE": "Type de catégorie",
       "TYPE_PLACEHOLDER": "Entrez le type de catégorie",
       "TYPE_REQUIRED": "Le type de catégorie est obligatoire",
-      "UPLOAD_MEDIA": "Télécharger des médias"
+      "UPLOAD_MEDIA": "Télécharger des médias",
+      "CREATE_FAILED": "Impossible de créer la catégorie.",
+      "CREATE_SUCCESS": "Catégorie créée avec succès !",
+      "DELETE_SUCCESS": "Catégorie supprimée avec succès.",
+      "LOAD_FAILED": "Impossible de charger la catégorie.",
+      "UPDATE_FAILED": "Impossible de mettre à jour la catégorie.",
+      "UPDATE_SUCCESS": "Catégorie mise à jour !",
+      "ADMIN_SUBTITLE": "Gérer les catégories de produits."
     },
     "ERROR_LOADING": "Erreur lors du chargement des catégories : {{error}}",
     "LOADING": "Chargement des catégories...",
     "NO_MEDIA": "Aucun média disponible pour cette catégorie",
-    "TITLE": "Catégories de produits"
+    "TITLE": "Catégories de produits",
+    "NO_CATEGORIES": "Aucune catégorie trouvée."
   },
   "COMMON": {
     "CANCEL": "Annuler",
@@ -40,10 +52,25 @@
     "CLOSE": "Fermer",
     "CONFIRM": "Confirmer",
     "NO": "Non",
+    "OK": "OK",
     "SAVE": "Enregistrer les modifications",
     "SAVING": "Enregistrement...",
     "SENDING": "Envoi...",
+    "UNCATEGORIZED": "Sans catégorie",
     "YES": "Oui"
+  },
+  "CONFIGURATION": {
+    "AVAILABLE_LOCALES": "Langues disponibles",
+    "BASIC_SETTINGS": "Paramètres de base",
+    "CURRENCY": "Devise",
+    "DEFAULT_LANGUAGE": "Langue par défaut",
+    "SELECT_LOCALES": "Sélectionner les langues",
+    "THEME": "Thème",
+    "TITLE": "Configuration",
+    "UPDATED_AT": "Mis à jour le",
+    "ADMIN_SUBTITLE": {
+      "UPDATE": "Mettre à jour la localisation et les paramètres de l'application."
+    }
   },
   "CUSTOMER": {
     "ADDRESS": "Adresse",
@@ -89,6 +116,16 @@
     "ZIP_CODE_NUMBERS_ONLY": "Le code postal ne doit contenir que des chiffres",
     "ZIP_CODE_REQUIRED": "Le code postal est obligatoire"
   },
+  "DIALOG": {
+    "CANCEL_CHANGES_MESSAGE": "Ignorer les modifications ?",
+    "CANCEL_CHANGES_TITLE": "Annuler les modifications",
+    "DELETE_MEDIA_MESSAGE": "Supprimer ce média ?",
+    "DELETE_MEDIA_TITLE": "Supprimer le média",
+    "DELETE_CATEGORY_MESSAGE": "Supprimer définitivement cette catégorie ?",
+    "DELETE_CATEGORY_TITLE": "Supprimer la catégorie",
+    "DELETE_PRODUCT_MESSAGE": "Supprimer définitivement ce produit ?",
+    "DELETE_PRODUCT_TITLE": "Supprimer le produit"
+  },
   "ERRORS": {
     "FIX_FORM": "Veuillez corriger les erreurs du formulaire",
     "FORM_VALIDATION": "La validation du formulaire a échoué",
@@ -107,24 +144,45 @@
     "LOGIN": "Se connecter",
     "NO_ACCOUNT": "Vous n'avez pas de compte ?",
     "REMEMBER_PASSWORD": "Se souvenir du mot de passe ?",
+    "REMEMBER_ME": "Se souvenir de moi",
     "RESET_PASSWORD": "Réinitialiser le mot de passe",
     "SEND_RESET_LINK": "Envoyer le lien de réinitialisation",
     "TITLE": "Se connecter"
   },
   "MENU": {
+    "NAVIGATION": {
+      "TITLE": "Navigation",
+      "HOME": "Accueil",
+      "PRODUCTS": "Produits",
+      "MIXTURES": "Mélanges",
+      "SALES": "Promotions",
+      "ABOUT_US": "À propos",
+      "MIXING": "Mélange",
+      "CONTACT": "Contact"
+    },
     "ADMIN": {
+      "TITLE": "Admin",
       "CATEGORIES": "Catégories",
       "CUSTOMERS": "Clients",
       "MIXTURES": "Mélanges",
       "ORDERS": "Commandes",
       "PRODUCTS": "Produits",
-      "TAGS": "Tags"
+      "TAGS": "Tags",
+      "CONFIGURATION": {
+        "EMAILS": "E-mails",
+        "LOCALIZATION": "Localisation"
+      }
     },
     "CLIENT": {
+      "TITLE": "Compte",
       "ORDERS": "Mes commandes",
       "PROFILE": "Mon profil"
     },
-    "LOGOUT": "Se déconnecter"
+    "LOGOUT": "Se déconnecter",
+    "LOGIN": "Se connecter",
+    "ACCOUNT": {
+      "TITLE": "Compte"
+    }
   },
   "RESET_PASSWORD": {
     "BUTTON": "Réinitialiser le mot de passe",
@@ -163,6 +221,88 @@
     "MAX_LENGTH": "La longueur maximale est de {max} caractères",
     "MIN_LENGTH": "La longueur minimale est de {min} caractères",
     "PATTERN": "Format invalide",
-    "REQUIRED": "Ce champ est obligatoire"
+    "REQUIRED": "Ce champ est obligatoire",
+    "FIX_HIGHLIGHTED_FIELDS": "Veuillez corriger les champs surlignés."
+  },
+  "MIXTURE": {
+    "ADD_PRODUCT": "Ajouter un produit",
+    "ADD_TO_CART": "Ajouter au panier",
+    "ADDING_TO_CART": "Ajout au panier",
+    "ADDED_TO_CART_SUCCESS": "Le mélange a été ajouté au panier.",
+    "ADD_TO_CART_FAILED": "Impossible d'ajouter le mélange au panier.",
+    "CREATE_FAILED": "Impossible de créer le mélange.",
+    "DEFAULT_NAME": "Mélange personnalisé",
+    "DEFAULT_NAME_ALT": "Votre mélange",
+    "LOAD_CATEGORIES_FAILED": "Impossible de charger les catégories.",
+    "LOAD_PRODUCTS_FAILED": "Impossible de charger les produits.",
+    "NAME_PLACEHOLDER": "Entrez le nom du mélange",
+    "NAME_REQUIRED": "Veuillez saisir un nom",
+    "NON_PREMIUM_SLOTS_FULL": "Tous les emplacements non premium sont pleins.",
+    "ONLY_ONE_PREMIUM_ALLOWED": "Un seul produit premium est autorisé.",
+    "PLEASE_SET_NAME": "Veuillez donner un nom unique à votre mélange.",
+    "PLEASE_WAIT": "Veuillez patienter",
+    "SUMMARY": "Résumé",
+    "TITLE": "Mélange",
+    "TOTAL": "Total"
+  },
+  "TAGS": {
+    "LOAD_ERROR": "Impossible de charger les tags.",
+    "TOOLTIP": {
+      "BIO": "Certifié biologique et respectueux de l'environnement.",
+      "GLUTEN_FREE": "Adapté aux régimes sans gluten.",
+      "NATURAL": "Contient uniquement des ingrédients naturels.",
+      "ORGANIC": "Fabriqué avec des ingrédients 100% bio.",
+      "PREMIUM": "Produit premium de haute qualité.",
+      "SUSTAINABLE": "Produit avec des pratiques durables.",
+      "SWISS": "Fabriqué en Suisse.",
+      "VEGAN": "100% vegan."
+    }
+  },
+  "PRODUCTS": {
+    "CATEGORY": "Catégorie",
+    "LOAD_FAILED": "Impossible de charger le produit.",
+    "NOT_FOUND": "Produit introuvable.",
+    "ADMIN": {
+      "CREATE_FAILED": "Impossible de créer le produit.",
+      "CREATE_SUCCESS": "Produit créé avec succès !",
+      "DELETE_SUCCESS": "Produit supprimé avec succès.",
+      "LOAD_FAILED": "Impossible de charger les produits.",
+      "UPDATE_FAILED": "Impossible de mettre à jour le produit.",
+      "UPDATE_SUCCESS": "Produit mis à jour !"
+    },
+    "CATEGORIES": "Catégories",
+    "CLEAR_ALL": "Tout effacer",
+    "CLEAR_FILTERS": "Effacer les filtres",
+    "FILTERS": "Filtres",
+    "NO_PRODUCTS_FOUND": "Aucun produit trouvé.",
+    "SEARCH_PLACEHOLDER": "Rechercher des produits...",
+    "SORT_NAME_ASC": "Nom (A–Z)",
+    "SORT_NAME_DESC": "Nom (Z–A)",
+    "SORT_NEWEST": "Les plus récents",
+    "SORT_PRICE_ASC": "Prix (croissant)",
+    "SORT_PRICE_DESC": "Prix (décroissant)",
+    "SUBTITLE": "Parcourez notre catalogue de produits.",
+    "TRY_ADJUSTING_FILTERS": "Essayez d'ajuster votre recherche ou vos filtres."
+  },
+  "EMAIL_LOGS": {
+    "ACTIONS": "Actions",
+    "ADMIN_SUBTITLE": "Consulter et renvoyer les e-mails envoyés.",
+    "EMAIL_INFORMATION": "Informations sur l'e-mail",
+    "EMAIL_TEMPLATES": "Modèles d'e-mails",
+    "LANGUAGE": "Langue",
+    "LOAD_ERROR": "Impossible de charger les journaux d'e-mails.",
+    "LOADING": "Chargement des journaux d'e-mails...",
+    "NO_LOGS": "Aucun journal d'e-mail trouvé.",
+    "RECIPIENT": "Destinataire",
+    "RESEND": "Renvoyer",
+    "RESEND_ERROR": "Impossible de renvoyer l'e-mail.",
+    "RESEND_SUCCESS": "E-mail renvoyé.",
+    "RESEND_WITH_CHANGES": "Renvoyer avec modifications",
+    "SEARCH_PLACEHOLDER": "Rechercher dans les journaux...",
+    "SEND_EMAIL": "Envoyer un e-mail",
+    "SENT_AT": "Envoyé le",
+    "TITLE": "Journaux d'e-mails",
+    "TYPE": "Type",
+    "VIEW_DETAILS": "Voir les détails"
   }
 }

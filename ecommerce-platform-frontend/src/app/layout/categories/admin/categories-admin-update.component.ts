@@ -5,6 +5,7 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Subject, takeUntil} from 'rxjs';
+import {TranslateService} from '@ngx-translate/core';
 
 import {CategoryService} from '../../../services/category.service';
 import {TagService} from '../../../services/tag.service';
@@ -44,6 +45,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
     private tagService: TagService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
+    private translateService: TranslateService,
     private configService: ConfigurationService,
     private localeMapperService: LocaleMapperService,
   ) {
@@ -144,7 +146,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
 
   openMediaDeleteDialog(i: number) {
     this.dialog.open(ConfirmationDialogComponent, {
-      data: {title: 'Delete Media', message: 'Delete this media?', warn: true}
+      data: {title: 'DIALOG.DELETE_MEDIA_TITLE', message: 'DIALOG.DELETE_MEDIA_MESSAGE', warn: true}
     }).afterClosed().subscribe(ok => {
       if (ok) {
         this.mediaControls.removeAt(i);
@@ -163,7 +165,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   onSave() {
     if (!this.categoryForm || this.categoryForm.invalid) {
       this.categoryForm?.markAllAsTouched();
-      this.snackBar.open('Please correct the highlighted fields.', 'Close', {
+      this.snackBar.open(this.translateService.instant('VALIDATION.FIX_HIGHLIGHTED_FIELDS'), this.translateService.instant('COMMON.CLOSE'), {
         duration: 5000,
         panelClass: ['error-snackbar']
       });
@@ -228,12 +230,12 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
 
   openDeleteDialog() {
     this.dialog.open(ConfirmationDialogComponent, {
-      data: {title: 'Delete Category', message: 'Permanently delete?', warn: true}
+      data: {title: 'DIALOG.DELETE_CATEGORY_TITLE', message: 'DIALOG.DELETE_CATEGORY_MESSAGE', warn: true}
     }).afterClosed().subscribe(ok => {
       if (ok) this.categoryService.deleteCategory(this.categoryId)
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
-          this.snackBar.open('Category deleted successfully.', 'Close', {duration: 3000});
+          this.snackBar.open(this.translateService.instant('CATEGORIES.ADMIN.DELETE_SUCCESS'), this.translateService.instant('COMMON.CLOSE'), {duration: 3000});
           this.router.navigate(['/admin/categories']);
         });
     });
@@ -242,7 +244,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   openCancelDialog(): void {
     if (this.categoryForm?.dirty) {
       this.dialog.open(ConfirmationDialogComponent, {
-        data: {title: 'Cancel Update', message: 'Discard changes?', warn: true}
+        data: {title: 'DIALOG.CANCEL_CHANGES_TITLE', message: 'DIALOG.CANCEL_CHANGES_MESSAGE', warn: true}
       }).afterClosed().subscribe(ok => {
         if (ok) {
           this.router.navigate(['/admin/categories']);
@@ -281,7 +283,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
           this.allTags = tags;
           this.translateTags();
         },
-        error: () => this.snackBar.open('Error loading tags', 'Close', {duration: 3000, panelClass: ['error-snackbar']})
+        error: () => this.snackBar.open(this.translateService.instant('TAGS.LOAD_ERROR'), this.translateService.instant('COMMON.CLOSE'), {duration: 3000, panelClass: ['error-snackbar']})
       });
   }
 
@@ -294,7 +296,7 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
           this.category = c;
         },
         error: () => {
-          this.snackBar.open('Error loading category', 'Close', {duration: 3000, panelClass: ['error-snackbar']});
+          this.snackBar.open(this.translateService.instant('CATEGORIES.ADMIN.LOAD_FAILED'), this.translateService.instant('COMMON.CLOSE'), {duration: 3000, panelClass: ['error-snackbar']});
           this.router.navigate(['/admin/categories']);
         }
       });
@@ -351,14 +353,14 @@ export class CategoriesAdminUpdateComponent implements OnInit, OnDestroy {
   private handleSaveSuccess(): void {
     this.saving = false;
     this.categoryForm.markAsPristine();
-    this.snackBar.open('Category updated!', 'Close', {duration: 3000});
+    this.snackBar.open(this.translateService.instant('CATEGORIES.ADMIN.UPDATE_SUCCESS'), this.translateService.instant('COMMON.CLOSE'), {duration: 3000});
     this.router.navigate(['/admin/categories']);
   }
 
   private handleSaveError(err: any): void {
     this.saving = false;
     console.error('Update failed', err);
-    this.snackBar.open('Failed to update category', 'Close', {duration: 5000, panelClass: ['error-snackbar']});
+    this.snackBar.open(this.translateService.instant('CATEGORIES.ADMIN.UPDATE_FAILED'), this.translateService.instant('COMMON.CLOSE'), {duration: 5000, panelClass: ['error-snackbar']});
   }
 
   private translateTags() {

@@ -228,10 +228,16 @@
   width: 100%;
   box-sizing: border-box;
 
+  // If there is only one product card, keep it at a pleasant width instead of stretching full row.
+  grid-auto-columns: 1fr;
+  justify-content: center;
+
   /* Ensure all product cards have the same size */
   .product-card {
     width: 100%;
     min-width: 0; /* Prevent flexbox from stretching */
+    max-width: 340px;
+    justify-self: center;
   }
 }
 

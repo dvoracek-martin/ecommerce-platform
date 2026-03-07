@@ -11,12 +11,13 @@
   </div>
 
   <div class="modern-dialog-actions">
-    <button (click)="onCancel()" color="warn" mat-stroked-button type="button" class="cancel-btn">
+    <button (click)="onCancel()" mat-stroked-button type="button" class="cancel-btn">
       <mat-icon>close</mat-icon>
       {{ 'COMMON.CANCEL' | translate }}
     </button>
-    <button mat-flat-button class="save-btn" (click)="onConfirm()">
-      Confirm
+    <button mat-flat-button type="button" class="save-btn" (click)="onConfirm()">
+      <mat-icon>check</mat-icon>
+      {{ 'COMMON.CONFIRM' | translate }}
     </button>
   </div>
 </div>

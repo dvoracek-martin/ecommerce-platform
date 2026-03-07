@@ -115,7 +115,7 @@
              (blur)="saveName()"
              (keyup.enter)="saveName()"
              class="editable-name"
-             placeholder="Enter mixture name"/>
+             [placeholder]="'MIXTURE.NAME_PLACEHOLDER' | translate"/>
       <button *ngIf="!isEditingName" class="btn-edit" (click)="editName()">
         <mat-icon>edit</mat-icon>
       </button>

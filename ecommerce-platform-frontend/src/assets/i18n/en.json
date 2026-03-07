@@ -34,7 +34,11 @@
     "CHECKOUT": "Checkout",
     "REMOVE_ITEM": "Remove Item",
     "QUANTITY": "Quantity",
-    "CONTINUE_SHOPPING": "Continue Shopping"
+    "CONTINUE_SHOPPING": "Continue Shopping",
+    "DISCOUNT_ALREADY_APPLIED": "Discount already applied.",
+    "DISCOUNT_APPLY_FAILED": "Failed to apply discount.",
+    "DISCOUNT_CODE_REQUIRED": "Please enter a discount code.",
+    "DISCOUNT_REMOVE_FAILED": "Failed to remove discount."
   },
   "CATEGORIES": {
     "ADMIN": {
@@ -51,8 +55,15 @@
       "TYPE": "Category Type",
       "TYPE_PLACEHOLDER": "Enter category type",
       "TYPE_REQUIRED": "Category type is required",
-      "UPLOAD_MEDIA": "Upload Media"
+      "UPLOAD_MEDIA": "Upload Media",
+      "CREATE_FAILED": "Failed to create category.",
+      "CREATE_SUCCESS": "Category created successfully!",
+      "DELETE_SUCCESS": "Category deleted successfully.",
+      "LOAD_FAILED": "Failed to load category.",
+      "UPDATE_FAILED": "Failed to update category.",
+      "UPDATE_SUCCESS": "Category updated!"
     },
+    "ADMIN_SUBTITLE": "Manage product categories.",
     "EMAILS": {
       "PERSONALIZATION_NOTE": "Note: Each recipient will receive a personalized email with their specific information",
       "ADMIN": {
@@ -73,7 +84,8 @@
     "ERROR_LOADING": "Error loading categories: {{error}}",
     "LOADING": "Loading categories...",
     "NO_MEDIA": "No media available for this category",
-    "TITLE": "Product Categories"
+    "TITLE": "Product Categories",
+    "NO_CATEGORIES": "No categories found."
   },
   "COMMON": {
     "CANCEL": "Cancel",
@@ -83,60 +95,29 @@
     "DELETE": "Delete",
     "DRAG_HANDLE": "Drag to reorder",
     "NO": "No",
+    "OK": "OK",
     "SAVE": "Save Changes",
     "SAVING": "Saving...",
     "SENDING": "Sending...",
+    "UNCATEGORIZED": "Uncategorized",
     "YES": "Yes",
     "LOADING": "Loading...",
     "BACK": "Back",
     "BACK_TO_HOME": "Back to Home"
   },
-  "CUSTOMER": {
-    "ADDRESS": "Address",
-    "BASIC_INFO": "Basic Information",
-    "BILLING_ADDRESS": "Billing Address",
-    "CHANGE_PASSWORD": "Change Password",
-    "CITY": "City",
-    "COMPANY_NAME": "Company name",
-    "CONFIRM_NEW_PASSWORD": "Confirm New Password",
-    "COUNTRY": "Country",
-    "CURRENT_PASSWORD": "Current Password",
-    "CURRENT_PASSWORD_REQUIRED": "Current password is required",
-    "EMAIL": "Email",
-    "ENTER_CITY": "Enter city",
-    "ENTER_COMPANY_NAME": "Enter company name",
-    "ENTER_FIRST_NAME": "Enter first name",
-    "ENTER_HOUSE_NUMBER": "Enter house number",
-    "ENTER_LAST_NAME": "Enter last name",
-    "ENTER_PHONE": "Enter phone",
-    "ENTER_STREET": "Enter street",
-    "ENTER_TAX_ID": "Enter tax ID",
-    "ENTER_ZIP_CODE": "Enter ZIP code",
-    "FIRST_NAME": "First Name",
-    "HOUSE_NUMBER": "House Number",
-    "HOUSE_NUMBER_REQUIRED": "House number is required",
-    "INCORRECT_PASSWORD": "Incorrect password",
-    "LAST_NAME": "Last Name",
-    "NEW_PASSWORD": "New Password",
-    "PASSWORD_CHANGE_ERROR": "Password change failed",
-    "PASSWORD_CHANGE_SUCCESS": "Password changed successfully",
-    "PHONE": "Phone",
-    "PHONE_INVALID": "Invalid phone number",
-    "SAVE_ERROR": "Failed to save changes",
-    "SAVE_SUCCESS": "Changes saved successfully",
-    "SAME_BILLING_ADDRESS": "Billing address same as shipping",
-    "SHIPPING_ADDRESS": "Shipping Address",
-    "STREET": "Street",
-    "STREET_REQUIRED": "Street is required",
-    "TAX_ID": "Tax ID",
-    "TAX_ID_INVALID": "Invalid Tax ID",
-    "TITLE": "Customer Details",
-    "ZIP_CODE": "ZIP Code",
-    "ZIP_CODE_NUMBERS_ONLY": "ZIP code must contain numbers only",
-    "ZIP_CODE_REQUIRED": "ZIP code is required"
-  },
   "CONFIGURATION": {
-    "SELECT_DEFAULT_LANGUAGE": "Please select your default language in the settings."
+    "SELECT_DEFAULT_LANGUAGE": "Please select your default language in the settings.",
+    "ADMIN_SUBTITLE": {
+      "UPDATE": "Update localization and app settings."
+    },
+    "AVAILABLE_LOCALES": "Available locales",
+    "BASIC_SETTINGS": "Basic settings",
+    "CURRENCY": "Currency",
+    "DEFAULT_LANGUAGE": "Default language",
+    "SELECT_LOCALES": "Select locales",
+    "THEME": "Theme",
+    "TITLE": "Configuration",
+    "UPDATED_AT": "Updated at"
   },
   "CHECKOUT": {
     "SHIPPING_PAYMENT": "Shipping & Payment",
@@ -163,7 +144,15 @@
     "CONFIRM_DELETE_TITLE": "Confirm Deletion",
     "CONFIRM_DELETE_MESSAGE": "Are you sure you want to remove this item from your cart?",
     "CANCEL": "Cancel",
-    "CONFIRM": "Confirm"
+    "CONFIRM": "Confirm",
+    "CANCEL_CHANGES_MESSAGE": "Discard changes?",
+    "CANCEL_CHANGES_TITLE": "Cancel changes",
+    "DELETE_MEDIA_MESSAGE": "Really delete this media?",
+    "DELETE_MEDIA_TITLE": "Delete media",
+    "DELETE_CATEGORY_MESSAGE": "Permanently delete this category?",
+    "DELETE_CATEGORY_TITLE": "Delete category",
+    "DELETE_PRODUCT_MESSAGE": "Permanently delete this product?",
+    "DELETE_PRODUCT_TITLE": "Delete product"
   },
   "ERRORS": {
     "FIX_FORM": "Please fix form errors",
@@ -184,6 +173,7 @@
     "LOGIN": "Login",
     "NO_ACCOUNT": "Don't have an account?",
     "REMEMBER_PASSWORD": "Remember password?",
+    "REMEMBER_ME": "Remember me",
     "RESET_PASSWORD": "Reset password",
     "SEND_RESET_LINK": "Send reset link",
     "TITLE": "Login",
@@ -196,7 +186,9 @@
       "PRODUCTS": "Products",
       "MIXTURES": "Mixtures",
       "SALES": "Sales",
-      "ABOUT_US": "About Us"
+      "ABOUT_US": "About Us",
+      "CONTACT": "Contact",
+      "MIXING": "Mixing"
     },
     "ADMIN": {
       "CATEGORIES": "Categories",
@@ -206,15 +198,25 @@
       "PRODUCTS": "Products",
       "TAGS": "Tags",
       "DASHBOARD": "Dashboard",
-      "SETTINGS": "Settings"
+      "SETTINGS": "Settings",
+      "TITLE": "Admin",
+      "CONFIGURATION": {
+        "EMAILS": "Emails",
+        "LOCALIZATION": "Localization"
+      }
     },
     "CLIENT": {
       "ORDERS": "My Orders",
       "PROFILE": "My Profile",
       "LOGOUT": "Logout",
-      "WISHLIST": "Wishlist"
+      "WISHLIST": "Wishlist",
+      "TITLE": "Account"
     },
-    "LOGOUT": "Logout"
+    "LOGOUT": "Logout",
+    "LOGIN": "Login",
+    "ACCOUNT": {
+      "TITLE": "Account"
+    }
   },
   "PRODUCTS": {
     "DETAILS": "Product Details",
@@ -235,7 +237,13 @@
       "TITLE": "Products",
       "UPLOAD_MEDIA": "Upload Media",
       "UPDATE_TITLE": "Edit Product",
-      "DELETE_CONFIRMATION": "Are you sure you want to delete this product?"
+      "DELETE_CONFIRMATION": "Are you sure you want to delete this product?",
+      "CREATE_FAILED": "Failed to create product.",
+      "CREATE_SUCCESS": "Product created successfully!",
+      "DELETE_SUCCESS": "Product deleted successfully.",
+      "LOAD_FAILED": "Failed to load products.",
+      "UPDATE_FAILED": "Failed to update product.",
+      "UPDATE_SUCCESS": "Product updated successfully!"
     },
     "ALLERGEN": "Allergen",
     "BOTANICAL_NAME": "Botanical Name",
@@ -262,7 +270,20 @@
     "WEIGHT_GRAMS": "Weight (grams)",
     "IN_STOCK": "In Stock",
     "OUT_OF_STOCK": "Out of Stock",
-    "ADD_TO_CART": "Add to Cart"
+    "ADD_TO_CART": "Add to Cart",
+    "CATEGORIES": "Categories",
+    "CLEAR_ALL": "Clear all",
+    "CLEAR_FILTERS": "Clear filters",
+    "FILTERS": "Filters",
+    "NO_PRODUCTS_FOUND": "No products found.",
+    "SEARCH_PLACEHOLDER": "Search products...",
+    "SORT_NAME_ASC": "Name (A–Z)",
+    "SORT_NAME_DESC": "Name (Z–A)",
+    "SORT_NEWEST": "Newest",
+    "SORT_PRICE_ASC": "Price (low to high)",
+    "SORT_PRICE_DESC": "Price (high to low)",
+    "SUBTITLE": "Browse our product catalog.",
+    "TRY_ADJUSTING_FILTERS": "Try adjusting your search or filters."
   },
   "RESET_PASSWORD": {
     "BUTTON": "Reset Password",
@@ -310,7 +331,18 @@
     "ERROR_LOADING": "Error loading tags: {{error}}",
     "LOADING": "Loading tags...",
     "NO_MEDIA": "No media available for this tag",
-    "TITLE": "Product Tags"
+    "TITLE": "Product Tags",
+    "LOAD_ERROR": "Failed to load tags.",
+    "TOOLTIP": {
+      "BIO": "Certified organic and environmentally friendly product.",
+      "GLUTEN_FREE": "Suitable for gluten-free diets.",
+      "NATURAL": "Contains only natural ingredients.",
+      "ORGANIC": "Made with 100% organic ingredients.",
+      "PREMIUM": "High-quality premium product.",
+      "SUSTAINABLE": "Produced with sustainable practices.",
+      "SWISS": "Made in Switzerland.",
+      "VEGAN": "100% vegan."
+    }
   },
   "USER_REGISTRATION": {
     "ACTIVATION_EMAIL_SENT": "Activation Email Sent!",
@@ -346,7 +378,8 @@
     "MIN_LENGTH": "Minimum length is {{min}} characters",
     "PATTERN": "Invalid format",
     "REQUIRED": "This field is required",
-    "MIN": "Value must be at least"
+    "MIN": "Value must be at least",
+    "FIX_HIGHLIGHTED_FIELDS": "Please correct the highlighted fields."
   },
   "LOCALES": {
     "EN_US": "American English",
@@ -393,5 +426,47 @@
     "BG_BG": "Bulgarian",
     "HR_HR": "Croatian",
     "SR_RS": "Serbian"
+  },
+  "MIXTURE": {
+    "ADD_PRODUCT": "Add product",
+    "ADD_TO_CART": "Add to cart",
+    "ADDING_TO_CART": "Adding to cart",
+    "ADDED_TO_CART_SUCCESS": "Mixture added to cart successfully!",
+    "ADD_TO_CART_FAILED": "Failed to add mixture to cart.",
+    "CREATE_FAILED": "Failed to create mixture.",
+    "DEFAULT_NAME": "Custom Mixture",
+    "DEFAULT_NAME_ALT": "Your Mixture",
+    "NAME_PLACEHOLDER": "Enter mixture name",
+    "NAME_REQUIRED": "Please enter a name",
+    "NON_PREMIUM_SLOTS_FULL": "All non-premium slots are full.",
+    "ONLY_ONE_PREMIUM_ALLOWED": "Only one premium product is allowed.",
+    "PLEASE_SET_NAME": "Please give your mixture a unique name.",
+    "PLEASE_WAIT": "Please wait",
+    "SUMMARY": "Summary",
+    "TITLE": "Mixing",
+    "TOTAL": "Total",
+    "LOAD_CATEGORIES_FAILED": "Failed to load categories.",
+    "LOAD_PRODUCTS_FAILED": "Failed to load products."
+  },
+  "EMAIL_LOGS": {
+    "ACTIONS": "Actions",
+    "ADMIN_SUBTITLE": "Review and resend sent emails.",
+    "EMAIL_INFORMATION": "Email information",
+    "EMAIL_TEMPLATES": "Email templates",
+    "LANGUAGE": "Language",
+    "LOAD_ERROR": "Failed to load email logs.",
+    "LOADING": "Loading email logs...",
+    "NO_LOGS": "No email logs found.",
+    "RECIPIENT": "Recipient",
+    "RESEND": "Resend",
+    "RESEND_ERROR": "Failed to resend email.",
+    "RESEND_SUCCESS": "Email resent.",
+    "RESEND_WITH_CHANGES": "Resend with changes",
+    "SEARCH_PLACEHOLDER": "Search logs...",
+    "SEND_EMAIL": "Send email",
+    "SENT_AT": "Sent at",
+    "TITLE": "Email logs",
+    "TYPE": "Type",
+    "VIEW_DETAILS": "View details"
   }
 }

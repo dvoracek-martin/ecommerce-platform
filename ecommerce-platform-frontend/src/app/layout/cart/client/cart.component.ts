@@ -179,11 +179,10 @@ export class CartComponent implements OnInit, OnDestroy {
     if (itemId === undefined) return;
 
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: '300px',
-      panelClass: 'light-dialog-container',
       data: {
         title: this.translate.instant('DIALOG.CONFIRM_DELETE_TITLE'),
-        message: this.translate.instant('DIALOG.CONFIRM_DELETE_MESSAGE')
+        message: this.translate.instant('DIALOG.CONFIRM_DELETE_MESSAGE'),
+        type: 'warn'
       }
     });
 
@@ -272,12 +271,13 @@ export class CartComponent implements OnInit, OnDestroy {
         },
         error => {
           console.error('Failed to apply discount:', error);
+          this.showSnackbar(this.translate.instant('CART.DISCOUNT_APPLY_FAILED'), 'error');
         }
       );
     } else if (this.isDiscountApplied()) {
-      this.showSnackbar('Discount already applied', 'warning');
+      this.showSnackbar(this.translate.instant('CART.DISCOUNT_ALREADY_APPLIED'), 'warning');
     } else {
-      this.showSnackbar('Please enter a discount code', 'warning');
+      this.showSnackbar(this.translate.instant('CART.DISCOUNT_CODE_REQUIRED'), 'warning');
     }
   }
 
@@ -287,6 +287,7 @@ export class CartComponent implements OnInit, OnDestroy {
       },
       error => {
         console.error('Failed to remove discount:', error);
+        this.showSnackbar(this.translate.instant('CART.DISCOUNT_REMOVE_FAILED'), 'error');
       }
     );
   }
@@ -315,7 +316,7 @@ export class CartComponent implements OnInit, OnDestroy {
     else if (type === 'warning') panelClass = ['warning-snackbar'];
     else if (type === 'info') panelClass = ['info-snackbar'];
 
-    this.snackBar.open(message, 'Close', {
+    this.snackBar.open(message, this.translate.instant('COMMON.CLOSE'), {
       duration: 3000,
       panelClass
     });

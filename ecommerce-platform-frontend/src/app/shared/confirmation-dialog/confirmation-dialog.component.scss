@@ -1,24 +1,9 @@
-/* Dark overlay behind dialog */
-::ng-deep .mat-mdc-dialog-backdrop {
-  background-color: rgba(0, 0, 0, 0.5) !important; // dark semi-transparent overlay
-}
-
-/* Transparent outer dialog container */
-::ng-deep .mat-mdc-dialog-container {
-  background: transparent !important;   // remove default white box
-  box-shadow: none !important;
-  padding: 0 !important;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 /* Modern floating dialog card */
 .modern-dialog-container {
   background: var(--background-card);  // this is the actual card
   border-radius: var(--radius-xl);     // fully rounded
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   padding: var(--spacing-lg);
   text-align: center;
   display: flex;
@@ -66,38 +51,12 @@
   gap: var(--spacing-md);
   margin-top: var(--spacing-md);
 
-  .add-to-cart-btn {
+  .cancel-btn,
+  .save-btn {
     min-width: 120px;
-    font-weight: 600;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--radius-md);
-    transition: all 0.3s ease;
-
-    &-primary {
-      background-color: var(--primary-color);
-      color: #fff;
-      &:hover { background-color: var(--primary-hover); }
-    }
-
-    &-outline {
-      background: none;
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      &:hover {
-        background-color: var(--background-light);
-        color: var(--primary-color);
-      }
-    }
   }
 }
 
-/* Fade-in animation */
-@keyframes fadeIn {
-  0% { opacity: 0; transform: translateY(-10px);}
-  100% { opacity: 1; transform: translateY(0);}
-}
-
-/* Responsive for small screens */
 @media (max-width: 500px) {
   .modern-dialog-container {
     padding: var(--spacing-md);
@@ -109,10 +68,18 @@
 
   .modern-dialog-actions {
     flex-direction: column;
-    gap: var(--spacing-sm);
-  }
+    align-items: stretch;
 
-  .add-to-cart-btn {
-    width: 100%;
+    .cancel-btn,
+    .save-btn {
+      width: 100%;
+      min-width: 0;
+    }
   }
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(-10px);}
+  100% { opacity: 1; transform: translateY(0);}
 }

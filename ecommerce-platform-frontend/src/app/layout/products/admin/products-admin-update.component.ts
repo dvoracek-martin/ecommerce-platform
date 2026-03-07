@@ -5,6 +5,7 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Subject, takeUntil} from 'rxjs';
+import {TranslateService} from '@ngx-translate/core';
 
 import {ProductService} from '../../../services/product.service';
 import {CategoryService} from '../../../services/category.service';
@@ -18,7 +19,6 @@ import {ResponseLocaleDto} from '../../../dto/configuration/response-locale-dto'
 import {ConfigurationService} from '../../../services/configuration.service';
 import {LocaleMapperService} from '../../../services/locale-mapper.service';
 import {LocalizedFieldDTO} from '../../../dto/base/localized-field-dto';
-import {CreateProductDTO} from '../../../dto/product/create-product-dto';
 import {MediaDTO} from '../../../dto/media/media-dto';
 import {UpdateProductDTO} from '../../../dto/product/update-product-dto';
 
@@ -55,6 +55,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private configService: ConfigurationService,
     private localeMapperService: LocaleMapperService,
+    private translateService: TranslateService,
   ) {
   }
 
@@ -172,20 +173,20 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
 
   openMediaDeleteDialog(i: number) {
     const ref = this.dialog.open(ConfirmationDialogComponent, {
-      data: {title: 'Delete Media', message: 'Delete this media?', warn: true}
+      data: {title: 'DIALOG.DELETE_MEDIA_TITLE', message: 'DIALOG.DELETE_MEDIA_MESSAGE', warn: true}
     });
     ref.afterClosed().subscribe(ok => ok && this.removeMedia(i));
   }
 
   openDeleteDialog(): void {
     this.dialog.open(ConfirmationDialogComponent, {
-      data: {title: 'Delete Category', message: 'Permanently delete?', warn: true}
+      data: {title: 'DIALOG.DELETE_PRODUCT_TITLE', message: 'DIALOG.DELETE_PRODUCT_MESSAGE', warn: true}
     }).afterClosed().subscribe(ok => {
       if (ok) this.productService.deleteProduct(this.productId)
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
-          this.snackBar.open('Category deleted successfully.', 'Close', {duration: 3000});
-          this.router.navigate(['/admin/categories']);
+          this.snackBar.open(this.translateService.instant('PRODUCTS.ADMIN.DELETE_SUCCESS'), this.translateService.instant('COMMON.CLOSE'), {duration: 3000});
+          this.router.navigate(['/admin/products']);
         });
     });
   }
@@ -193,7 +194,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   onSave(): void {
     if (!this.productForm || this.productForm.invalid) {
       this.productForm?.markAllAsTouched();
-      this.snackBar.open('Please correct the highlighted fields.', 'Close', {
+      this.snackBar.open(this.translateService.instant('VALIDATION.FIX_HIGHLIGHTED_FIELDS'), this.translateService.instant('COMMON.CLOSE'), {
         duration: 5000,
         panelClass: ['error-snackbar']
       });
@@ -242,7 +243,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
   cancel(): void {
     if (this.productForm?.dirty) {
       this.dialog.open(ConfirmationDialogComponent, {
-        data: {title: 'Cancel Update', message: 'Discard changes?', warn: true}
+        data: {title: 'DIALOG.CANCEL_CHANGES_TITLE', message: 'DIALOG.CANCEL_CHANGES_MESSAGE', warn: true}
       }).afterClosed().subscribe(ok => {
         if (ok) this.router.navigate(['/admin/products']);
       });
@@ -302,7 +303,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading categories:', error);
-          this.snackBar.open('Error loading categories', 'Close', {duration: 3000, panelClass: ['error-snackbar']});
+          this.snackBar.open(this.translateService.instant('CATEGORIES.ADMIN.LOAD_FAILED'), this.translateService.instant('COMMON.CLOSE'), {duration: 3000, panelClass: ['error-snackbar']});
         }
       });
   }
@@ -323,7 +324,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
           this.allTags = tags;
           this.translateTags();
         },
-        error: () => this.snackBar.open('Error loading tags', 'Close', {
+        error: () => this.snackBar.open(this.translateService.instant('TAGS.LOAD_ERROR'), this.translateService.instant('COMMON.CLOSE'), {
           duration: 3000,
           panelClass: ['error-snackbar']
         })
@@ -336,7 +337,7 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
       .subscribe({
         next: p => this.patchForm(p),
         error: () => {
-          this.snackBar.open('Error loading product', 'Close', {
+          this.snackBar.open(this.translateService.instant('PRODUCTS.ADMIN.LOAD_FAILED'), this.translateService.instant('COMMON.CLOSE'), {
             duration: 3000,
             panelClass: ['error-snackbar']
           });
@@ -399,14 +400,14 @@ export class ProductsAdminUpdateComponent implements OnInit, OnDestroy {
 
   private handleSaveSuccess(): void {
     this.saving = false;
-    this.snackBar.open('Product updated successfully!', 'Close', {duration: 3000});
+    this.snackBar.open(this.translateService.instant('PRODUCTS.ADMIN.UPDATE_SUCCESS'), this.translateService.instant('COMMON.CLOSE'), {duration: 3000});
     this.router.navigate(['/admin/products']);
   }
 
   private handleSaveError(err: any): void {
     this.saving = false;
     console.error('Creation failed:', err);
-    this.snackBar.open('Failed to update product', 'Close', {duration: 5000});
+    this.snackBar.open(this.translateService.instant('PRODUCTS.ADMIN.UPDATE_FAILED'), this.translateService.instant('COMMON.CLOSE'), {duration: 5000});
   }
 
   private translateTags() {

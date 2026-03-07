@@ -347,10 +347,10 @@ input, textarea, select, mat-form-field {
 }
 
 .admin-active-checkbox-wrapper {
-  @include checkbox-wrapper-base(var(--quaternary-color));
+  @include checkbox-wrapper-base(var(--quinary-color));
 
   ::ng-deep .mat-checkbox-checked .mat-checkbox-background {
-    background-color: var(--quaternary-color) !important;
+    background-color: var(--quinary-color) !important;
   }
 }
 

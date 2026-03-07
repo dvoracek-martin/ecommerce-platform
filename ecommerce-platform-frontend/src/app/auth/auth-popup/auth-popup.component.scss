@@ -4,28 +4,29 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.42);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(2px);
 }
 
 .auth-popup-container {
   background: var(--background-card);
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg);
   border-radius: var(--radius-xl);
-  width: 100%;
-  max-width: 420px;
+  width: min(520px, calc(100vw - 2 * var(--spacing-md)));
+  max-height: calc(100vh - 2 * var(--spacing-md));
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
   position: relative;
-  box-shadow: 0 20px 60px var(--shadow-large);
-  border: 1px solid var(--border-color);
-  animation: slideIn 0.5s ease-out;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  animation: slideIn 180ms ease-out;
 
   @media (max-width: 480px) {
-    margin: var(--spacing-md);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
   }
 }
 
@@ -35,17 +36,21 @@
   right: var(--spacing-md);
   color: var(--text-muted);
   transition: all var(--transition-fast);
+  border-radius: 999px;
 
   mat-icon {
-    color: black;
+    color: var(--text-muted);
     font-size: 24px;
   }
 
   &:hover {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-    transform: rotate(90deg) scale(1.1);
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-primary);
+    transform: rotate(90deg);
+  }
+
+  &:active {
+    transform: rotate(90deg) scale(0.98);
   }
 }
 
@@ -107,7 +112,7 @@
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: translateY(-10px) scale(0.98);
   }
   to {
     opacity: 1;

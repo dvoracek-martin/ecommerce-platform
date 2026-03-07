@@ -12,13 +12,27 @@
     "ITEMS": "položek",
     "TOTAL": "Celkem",
     "VIEW_CART": "Zobrazit košík",
-    "CHECKOUT": "Přejít k pokladně"
+    "CHECKOUT": "Přejít k pokladně",
+    "DISCOUNT_ALREADY_APPLIED": "Sleva je již uplatněna.",
+    "DISCOUNT_APPLY_FAILED": "Slevu se nepodařilo uplatnit.",
+    "DISCOUNT_CODE_REQUIRED": "Zadejte prosím slevový kód.",
+    "DISCOUNT_REMOVE_FAILED": "Slevu se nepodařilo odebrat."
   },
   "CATEGORIES": {
     "ERROR_LOADING": "Chyba při načítání kategorií: {{error}}",
     "LOADING": "Načítání kategorií...",
     "NO_MEDIA": "Pro tuto kategorii není k dispozici žádné médium",
-    "TITLE": "Kategorie produktů"
+    "TITLE": "Kategorie produktů",
+    "ADMIN": {
+      "CREATE_FAILED": "Kategorii se nepodařilo vytvořit.",
+      "CREATE_SUCCESS": "Kategorie byla úspěšně vytvořena!",
+      "DELETE_SUCCESS": "Kategorie byla úspěšně smazána.",
+      "LOAD_FAILED": "Kategorii se nepodařilo načíst.",
+      "UPDATE_FAILED": "Kategorii se nepodařilo upravit.",
+      "UPDATE_SUCCESS": "Kategorie byla upravena!",
+      "ADMIN_SUBTITLE": "Správa kategorií produktů."
+    },
+    "NO_CATEGORIES": "Nebyly nalezeny žádné kategorie."
   },
   "COMMON": {
     "CANCEL": "Zrušit",
@@ -26,10 +40,25 @@
     "CLOSE": "Zavřít",
     "CONFIRM": "Potvrdit",
     "NO": "Ne",
+    "OK": "OK",
     "SAVE": "Uložit změny",
     "SAVING": "Ukládání...",
     "SENDING": "Odesílání...",
+    "UNCATEGORIZED": "Bez kategorie",
     "YES": "Ano"
+  },
+  "CONFIGURATION": {
+    "AVAILABLE_LOCALES": "Dostupné jazyky",
+    "BASIC_SETTINGS": "Základní nastavení",
+    "CURRENCY": "Měna",
+    "DEFAULT_LANGUAGE": "Výchozí jazyk",
+    "SELECT_LOCALES": "Vyberte jazyky",
+    "THEME": "Motiv",
+    "TITLE": "Nastavení",
+    "UPDATED_AT": "Aktualizováno",
+    "ADMIN_SUBTITLE": {
+      "UPDATE": "Upravte lokalizaci a nastavení aplikace."
+    }
   },
   "CUSTOMER": {
     "ADDRESS": "Adresa",
@@ -93,24 +122,45 @@
     "LOGIN": "Přihlásit se",
     "NO_ACCOUNT": "Nemáte účet?",
     "REMEMBER_PASSWORD": "Zapamatovat si heslo?",
+    "REMEMBER_ME": "Zapamatovat si mě",
     "RESET_PASSWORD": "Obnovit heslo",
     "SEND_RESET_LINK": "Odeslat odkaz pro obnovení",
     "TITLE": "Přihlášení"
   },
   "MENU": {
+    "NAVIGATION": {
+      "TITLE": "Navigace",
+      "HOME": "Domů",
+      "PRODUCTS": "Produkty",
+      "MIXTURES": "Směsi",
+      "SALES": "Akce",
+      "ABOUT_US": "O nás",
+      "MIXING": "Míchání",
+      "CONTACT": "Kontakt"
+    },
     "ADMIN": {
+      "TITLE": "Administrace",
       "CATEGORIES": "Kategorie",
       "CUSTOMERS": "Zákazníci",
       "MIXTURES": "Směsi",
       "ORDERS": "Objednávky",
       "PRODUCTS": "Produkty",
-      "TAGS": "Štítky"
+      "TAGS": "Štítky",
+      "CONFIGURATION": {
+        "EMAILS": "E‑maily",
+        "LOCALIZATION": "Lokalizace"
+      }
     },
     "CLIENT": {
+      "TITLE": "Účet",
       "ORDERS": "Moje objednávky",
       "PROFILE": "Můj profil"
     },
-    "LOGOUT": "Odhlásit se"
+    "LOGOUT": "Odhlásit se",
+    "LOGIN": "Přihlásit se",
+    "ACCOUNT": {
+      "TITLE": "Účet"
+    }
   },
   "RESET_PASSWORD": {
     "BUTTON": "Obnovit heslo",
@@ -149,6 +199,97 @@
     "MAX_LENGTH": "Maximální délka je {max} znaků",
     "MIN_LENGTH": "Minimální délka je {min} znaků",
     "PATTERN": "Neplatný formát",
-    "REQUIRED": "Toto pole je povinné"
+    "REQUIRED": "Toto pole je povinné",
+    "FIX_HIGHLIGHTED_FIELDS": "Opravte prosím zvýrazněná pole."
+  },
+  "MIXTURE": {
+    "ADD_PRODUCT": "Přidat produkt",
+    "ADD_TO_CART": "Přidat do košíku",
+    "ADDING_TO_CART": "Přidávání do košíku",
+    "ADDED_TO_CART_SUCCESS": "Směs byla přidána do košíku.",
+    "ADD_TO_CART_FAILED": "Směs se nepodařilo přidat do košíku.",
+    "CREATE_FAILED": "Směs se nepodařilo vytvořit.",
+    "DEFAULT_NAME": "Vlastní směs",
+    "DEFAULT_NAME_ALT": "Vaše směs",
+    "LOAD_CATEGORIES_FAILED": "Nepodařilo se načíst kategorie.",
+    "LOAD_PRODUCTS_FAILED": "Nepodařilo se načíst produkty.",
+    "NAME_PLACEHOLDER": "Zadejte název směsi",
+    "NAME_REQUIRED": "Zadejte název",
+    "NON_PREMIUM_SLOTS_FULL": "Všechna nepremium místa jsou zaplněna.",
+    "ONLY_ONE_PREMIUM_ALLOWED": "Je povolen pouze jeden prémiový produkt.",
+    "PLEASE_SET_NAME": "Zadejte prosím jedinečný název směsi.",
+    "PLEASE_WAIT": "Počkejte prosím",
+    "SUMMARY": "Souhrn",
+    "TITLE": "Míchání",
+    "TOTAL": "Celkem"
+  },
+  "DIALOG": {
+    "CANCEL_CHANGES_MESSAGE": "Zahodit změny?",
+    "CANCEL_CHANGES_TITLE": "Zrušit změny",
+    "DELETE_MEDIA_MESSAGE": "Opravdu smazat toto médium?",
+    "DELETE_MEDIA_TITLE": "Smazat médium",
+    "DELETE_CATEGORY_MESSAGE": "Smazat tuto kategorii natrvalo?",
+    "DELETE_CATEGORY_TITLE": "Smazat kategorii",
+    "DELETE_PRODUCT_MESSAGE": "Smazat tento produkt natrvalo?",
+    "DELETE_PRODUCT_TITLE": "Smazat produkt"
+  },
+  "TAGS": {
+    "LOAD_ERROR": "Štítky se nepodařilo načíst.",
+    "TOOLTIP": {
+      "BIO": "Certifikovaný bio a šetrný k životnímu prostředí.",
+      "GLUTEN_FREE": "Vhodné pro bezlepkovou dietu.",
+      "NATURAL": "Obsahuje pouze přírodní složky.",
+      "ORGANIC": "Vyrobeno ze 100% bio surovin.",
+      "PREMIUM": "Vysoce kvalitní prémiový produkt.",
+      "SUSTAINABLE": "Vyrobeno udržitelným způsobem.",
+      "SWISS": "Vyrobeno ve Švýcarsku.",
+      "VEGAN": "100% veganské."
+    }
+  },
+  "PRODUCTS": {
+    "CATEGORY": "Kategorie",
+    "LOAD_FAILED": "Produkt se nepodařilo načíst.",
+    "NOT_FOUND": "Produkt nebyl nalezen.",
+    "ADMIN": {
+      "CREATE_FAILED": "Produkt se nepodařilo vytvořit.",
+      "CREATE_SUCCESS": "Produkt byl úspěšně vytvořen!",
+      "DELETE_SUCCESS": "Produkt byl úspěšně smazán.",
+      "LOAD_FAILED": "Produkty se nepodařilo načíst.",
+      "UPDATE_FAILED": "Produkt se nepodařilo upravit.",
+      "UPDATE_SUCCESS": "Produkt byl upraven!"
+    },
+    "CLEAR_ALL": "Vymazat vše",
+    "CLEAR_FILTERS": "Vymazat filtry",
+    "FILTERS": "Filtry",
+    "NO_PRODUCTS_FOUND": "Nebyly nalezeny žádné produkty.",
+    "SEARCH_PLACEHOLDER": "Hledat produkty...",
+    "SORT_NAME_ASC": "Název (A–Z)",
+    "SORT_NAME_DESC": "Název (Z–A)",
+    "SORT_NEWEST": "Nejnovější",
+    "SORT_PRICE_ASC": "Cena (od nejnižší)",
+    "SORT_PRICE_DESC": "Cena (od nejvyšší)",
+    "SUBTITLE": "Procházejte náš katalog produktů.",
+    "TRY_ADJUSTING_FILTERS": "Zkuste upravit hledání nebo filtry."
+  },
+  "EMAIL_LOGS": {
+    "ACTIONS": "Akce",
+    "ADMIN_SUBTITLE": "Přehled a opětovné odeslání e‑mailů.",
+    "EMAIL_INFORMATION": "Informace o e‑mailu",
+    "EMAIL_TEMPLATES": "Šablony e‑mailů",
+    "LANGUAGE": "Jazyk",
+    "LOAD_ERROR": "E‑mailové logy se nepodařilo načíst.",
+    "LOADING": "Načítání e‑mailových logů...",
+    "NO_LOGS": "Nebyly nalezeny žádné e‑mailové logy.",
+    "RECIPIENT": "Příjemce",
+    "RESEND": "Znovu odeslat",
+    "RESEND_ERROR": "E‑mail se nepodařilo znovu odeslat.",
+    "RESEND_SUCCESS": "E‑mail byl znovu odeslán.",
+    "RESEND_WITH_CHANGES": "Znovu odeslat se změnami",
+    "SEARCH_PLACEHOLDER": "Hledat v logu...",
+    "SEND_EMAIL": "Odeslat e‑mail",
+    "SENT_AT": "Odesláno",
+    "TITLE": "E‑mailové logy",
+    "TYPE": "Typ",
+    "VIEW_DETAILS": "Zobrazit detail"
   }
 }

@@ -10,6 +10,7 @@ import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TagService} from '../../../services/tag.service';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-products-admin-list',
@@ -29,10 +30,11 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
 
   constructor(
     private productService: ProductService,
+    private tagService: TagService,
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private tagService: TagService
+    private translate: TranslateService,
   ) {
   }
 
@@ -81,7 +83,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
         this.error = null;
       },
       error: err => {
-        this.error = err.message || 'Failed to load products';
+        this.error = err.message || this.translate.instant('PRODUCTS.ADMIN.LOAD_FAILED');
         this.isLoading = false;
       }
     });
@@ -130,8 +132,8 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
   openDeleteDialog(itemId: number): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
-        title: 'Delete Product',
-        message: 'Are you sure you want to delete this product?'
+        title: 'DIALOG.DELETE_PRODUCT_TITLE',
+        message: 'DIALOG.DELETE_PRODUCT_MESSAGE'
       }
     });
 
@@ -157,7 +159,7 @@ export class ProductsAdminListComponent implements OnInit, OnDestroy {
       next: () => {
         this.products = this.products.filter(p => p.id !== id);
         this.filteredProducts = this.filteredProducts.filter(p => p.id !== id);
-        this.snackBar.open('Product deleted successfully.', 'Close', {duration: 3000});
+        this.snackBar.open(this.translate.instant('PRODUCTS.ADMIN.DELETE_SUCCESS'), this.translate.instant('COMMON.CLOSE'), {duration: 3000});
       },
       error: err => console.error('Delete failed:', err)
     });

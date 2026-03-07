@@ -9,6 +9,7 @@ import {Subscription} from 'rxjs';
 import {TagService} from '../../../services/tag.service';
 import {CategoryService} from '../../../services/category.service';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-products-detail',
@@ -26,40 +27,16 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
   private routeSub!: Subscription;
   private categoryName: string = 'Category';
 
-  // Tag icons and tooltips mapping
-  private tagConfig: { [key: string]: { icon: string, tooltip: string } } = {
-    'bio': {
-      icon: 'eco',
-      tooltip: 'Certified organic and environmentally friendly product'
-    },
-    'organic': {
-      icon: 'spa',
-      tooltip: 'Made with 100% organic ingredients'
-    },
-    'premium': {
-      icon: 'workspace_premium',
-      tooltip: 'High-quality premium product with exceptional standards'
-    },
-    'swiss': {
-      icon: 'flag',
-      tooltip: 'Made in Switzerland with Swiss quality standards'
-    },
-    'natural': {
-      icon: 'nature',
-      tooltip: 'Contains only natural ingredients, no artificial additives'
-    },
-    'vegan': {
-      icon: 'cruelty_free',
-      tooltip: '100% vegan, no animal-derived ingredients'
-    },
-    'gluten-free': {
-      icon: 'health_and_safety',
-      tooltip: 'Suitable for gluten-free diets'
-    },
-    'sustainable': {
-      icon: 'recycling',
-      tooltip: 'Produced with sustainable practices and packaging'
-    }
+  // Tag icons + i18n tooltip keys
+  private tagConfig: { [key: string]: { icon: string, tooltipKey: string } } = {
+    'bio': { icon: 'eco', tooltipKey: 'TAGS.TOOLTIP.BIO' },
+    'organic': { icon: 'spa', tooltipKey: 'TAGS.TOOLTIP.ORGANIC' },
+    'premium': { icon: 'workspace_premium', tooltipKey: 'TAGS.TOOLTIP.PREMIUM' },
+    'swiss': { icon: 'flag', tooltipKey: 'TAGS.TOOLTIP.SWISS' },
+    'natural': { icon: 'nature', tooltipKey: 'TAGS.TOOLTIP.NATURAL' },
+    'vegan': { icon: 'cruelty_free', tooltipKey: 'TAGS.TOOLTIP.VEGAN' },
+    'gluten-free': { icon: 'health_and_safety', tooltipKey: 'TAGS.TOOLTIP.GLUTEN_FREE' },
+    'sustainable': { icon: 'recycling', tooltipKey: 'TAGS.TOOLTIP.SUSTAINABLE' }
   };
 
   constructor(
@@ -68,7 +45,8 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private cartService: CartService,
     private tagService: TagService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private translate: TranslateService,
   ) {
   }
 
@@ -78,7 +56,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
         const productId = params.get('id');
         this.loading = true;
         if (!productId) {
-          this.error = 'Product not found';
+          this.error = this.translate.instant('PRODUCTS.NOT_FOUND');
           this.loading = false;
           return new Promise<ResponseProductDTO | null>(resolve => resolve(null));
         }
@@ -102,7 +80,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
         this.startCarousel();
       },
       error: (err) => {
-        this.error = err.message || 'Failed to load product';
+        this.error = err.message || this.translate.instant('PRODUCTS.LOAD_FAILED');
         this.loading = false;
         this.product = null;
       }
@@ -116,7 +94,7 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
           this.categoryName = this.categoryService.getLocalizedName(category);
         },
         error: () => {
-          this.categoryName = 'Category';
+          this.categoryName = this.translate.instant('PRODUCTS.CATEGORY');
         }
       });
     }
@@ -239,5 +217,11 @@ export class ProductsDetailComponent implements OnInit, OnDestroy {
       tags.translatedDescription = this.tagService.getLocalizedDescription(tags);
       tags.translatedUrl = this.tagService.getLocalizedUrl(tags);
     });
+  }
+
+  getTagTooltip(tagUrlOrName: string): string {
+    const key = (tagUrlOrName || '').toLowerCase();
+    const config = this.tagConfig[key];
+    return config ? this.translate.instant(config.tooltipKey) : '';
   }
 }

@@ -1,18 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CardGalleryComponent } from './card-gallery.component';
+import {BaseUpdateOrResponseDTO} from '../../../dto/base/base-update-or-response.dto';
 
 describe('CardGalleryComponent', () => {
-  let component: CardGalleryComponent;
-  let fixture: ComponentFixture<CardGalleryComponent>;
+  let component: CardGalleryComponent<BaseUpdateOrResponseDTO>;
+  let fixture: ComponentFixture<CardGalleryComponent<BaseUpdateOrResponseDTO>>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CardGalleryComponent]
+      imports: [CardGalleryComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
-    fixture = TestBed.createComponent(CardGalleryComponent);
+    fixture = TestBed.createComponent(CardGalleryComponent<BaseUpdateOrResponseDTO>);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

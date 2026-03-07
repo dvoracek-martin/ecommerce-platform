@@ -199,52 +199,15 @@ html, body {
   }
 }
 
-// Global reset password dialog styles
-.reset-password-dialog {
-  .mat-dialog-container {
-    padding: 0 !important;
-    border-radius: var(--radius-xl) !important;
-    background: var(--background-card) !important;
-    box-shadow: 0 20px 60px var(--shadow-large) !important;
-    border: 1px solid var(--border-color) !important;
-    overflow: hidden !important;
+/* DIALOG LOOK & FEEL (Material) */
+.cdk-overlay-backdrop {
+  background: rgba(0, 0, 0, 0.42) !important;
+  backdrop-filter: blur(2px);
+}
 
-    // Hide scrollbars
-    &::-webkit-scrollbar {
-      display: none !important;
-    }
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-  }
-
-  // Reset password component styles
-  app-reset-password {
-    display: block;
-    width: 100%;
-
-    .reset-password-container {
-      width: 100%;
-      padding: var(--spacing-xl);
-      box-sizing: border-box;
-      background: var(--background-card);
-      color: var(--text-primary);
-    }
-
-    .reset-header h2 {
-      color: var(--text-primary) !important;
-    }
-
-    .mat-form-field-label {
-      color: var(--text-muted) !important;
-    }
-
-    .mat-form-field-outline {
-      color: var(--border-color) !important;
-    }
-
-    .reset-submit-btn {
-      background: var(--primary-color) !important;
-      color: white !important;
-    }
-  }
+.mat-mdc-dialog-surface {
+  border-radius: var(--radius-xl) !important;
+  background: var(--background-card) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18) !important;
 }

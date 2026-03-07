@@ -12,7 +12,11 @@
     "ITEMS": "artículos",
     "TOTAL": "Total",
     "VIEW_CART": "Ver carrito",
-    "CHECKOUT": "Finalizar compra"
+    "CHECKOUT": "Finalizar compra",
+    "DISCOUNT_ALREADY_APPLIED": "El descuento ya está aplicado.",
+    "DISCOUNT_APPLY_FAILED": "No se pudo aplicar el descuento.",
+    "DISCOUNT_CODE_REQUIRED": "Ingresa un código de descuento.",
+    "DISCOUNT_REMOVE_FAILED": "No se pudo eliminar el descuento."
   },
   "CATEGORIES": {
     "ADMIN": {
@@ -27,10 +31,18 @@
       "TYPE": "Tipo de categoría",
       "TYPE_PLACEHOLDER": "Ingresar tipo de categoría",
       "TYPE_REQUIRED": "El tipo de categoría es obligatorio",
-      "UPLOAD_MEDIA": "Subir archivo multimedia"
+      "UPLOAD_MEDIA": "Subir archivo multimedia",
+      "CREATE_FAILED": "No se pudo crear la categoría.",
+      "CREATE_SUCCESS": "¡Categoría creada correctamente!",
+      "DELETE_SUCCESS": "La categoría se eliminó correctamente.",
+      "LOAD_FAILED": "No se pudo cargar la categoría.",
+      "UPDATE_FAILED": "No se pudo actualizar la categoría.",
+      "UPDATE_SUCCESS": "¡Categoría actualizada!"
     },
+    "ADMIN_SUBTITLE": "Gestiona las categorías de productos.",
     "ERROR_LOADING": "Error al cargar las categorías: {{error}}",
     "LOADING": "Cargando categorías...",
+    "NO_CATEGORIES": "No se encontraron categorías.",
     "NO_MEDIA": "No hay multimedia disponible para esta categoría",
     "TITLE": "Categorías de productos"
   },
@@ -40,10 +52,25 @@
     "CLOSE": "Cerrar",
     "CONFIRM": "Confirmar",
     "NO": "No",
+    "OK": "OK",
     "SAVE": "Guardar cambios",
     "SAVING": "Guardando...",
     "SENDING": "Enviando...",
+    "UNCATEGORIZED": "Sin categoría",
     "YES": "Sí"
+  },
+  "CONFIGURATION": {
+    "AVAILABLE_LOCALES": "Idiomas disponibles",
+    "BASIC_SETTINGS": "Configuración básica",
+    "CURRENCY": "Moneda",
+    "DEFAULT_LANGUAGE": "Idioma predeterminado",
+    "SELECT_LOCALES": "Seleccionar idiomas",
+    "THEME": "Tema",
+    "TITLE": "Configuración",
+    "UPDATED_AT": "Actualizado el",
+    "ADMIN_SUBTITLE": {
+      "UPDATE": "Actualiza la localización y la configuración de la app."
+    }
   },
   "CUSTOMER": {
     "ADDRESS": "Dirección",
@@ -89,6 +116,37 @@
     "ZIP_CODE_NUMBERS_ONLY": "El código postal debe contener solo números",
     "ZIP_CODE_REQUIRED": "El código postal es obligatorio"
   },
+  "DIALOG": {
+    "CANCEL_CHANGES_MESSAGE": "¿Descartar cambios?",
+    "CANCEL_CHANGES_TITLE": "Cancelar cambios",
+    "DELETE_MEDIA_MESSAGE": "¿Eliminar este archivo?",
+    "DELETE_MEDIA_TITLE": "Eliminar archivo",
+    "DELETE_CATEGORY_MESSAGE": "¿Eliminar esta categoría permanentemente?",
+    "DELETE_CATEGORY_TITLE": "Eliminar categoría",
+    "DELETE_PRODUCT_MESSAGE": "¿Eliminar este producto permanentemente?",
+    "DELETE_PRODUCT_TITLE": "Eliminar producto"
+  },
+  "EMAIL_LOGS": {
+    "ACTIONS": "Acciones",
+    "ADMIN_SUBTITLE": "Revisa y reenvía correos enviados.",
+    "EMAIL_INFORMATION": "Información del correo",
+    "EMAIL_TEMPLATES": "Plantillas de correo",
+    "LANGUAGE": "Idioma",
+    "LOAD_ERROR": "No se pudieron cargar los registros de correo.",
+    "LOADING": "Cargando registros de correo...",
+    "NO_LOGS": "No se encontraron registros de correo.",
+    "RECIPIENT": "Destinatario",
+    "RESEND": "Reenviar",
+    "RESEND_ERROR": "No se pudo reenviar el correo.",
+    "RESEND_SUCCESS": "Correo reenviado.",
+    "RESEND_WITH_CHANGES": "Reenviar con cambios",
+    "SEARCH_PLACEHOLDER": "Buscar registros...",
+    "SEND_EMAIL": "Enviar correo",
+    "SENT_AT": "Enviado el",
+    "TITLE": "Registros de correo",
+    "TYPE": "Tipo",
+    "VIEW_DETAILS": "Ver detalles"
+  },
   "ERRORS": {
     "FIX_FORM": "Por favor, corrige los errores del formulario",
     "FORM_VALIDATION": "Falló la validación del formulario",
@@ -109,22 +167,69 @@
     "REMEMBER_PASSWORD": "¿Recordar contraseña?",
     "RESET_PASSWORD": "Restablecer contraseña",
     "SEND_RESET_LINK": "Enviar enlace de restablecimiento",
+    "REMEMBER_ME": "Recordarme",
     "TITLE": "Iniciar sesión"
   },
   "MENU": {
+    "NAVIGATION": {
+      "TITLE": "Navegación",
+      "HOME": "Inicio",
+      "PRODUCTS": "Productos",
+      "MIXTURES": "Mezclas",
+      "SALES": "Ofertas",
+      "ABOUT_US": "Sobre nosotros",
+      "MIXING": "Mezclas",
+      "CONTACT": "Contacto"
+    },
     "ADMIN": {
+      "TITLE": "Admin",
       "CATEGORIES": "Categorías",
       "CUSTOMERS": "Clientes",
       "MIXTURES": "Mezclas",
       "ORDERS": "Pedidos",
       "PRODUCTS": "Productos",
-      "TAGS": "Etiquetas"
+      "TAGS": "Etiquetas",
+      "CONFIGURATION": {
+        "EMAILS": "Correos",
+        "LOCALIZATION": "Localización"
+      }
     },
     "CLIENT": {
+      "TITLE": "Cuenta",
       "ORDERS": "Mis pedidos",
       "PROFILE": "Mi perfil"
     },
-    "LOGOUT": "Cerrar sesión"
+    "LOGOUT": "Cerrar sesión",
+    "LOGIN": "Iniciar sesión",
+    "ACCOUNT": {
+      "TITLE": "Cuenta"
+    }
+  },
+  "PRODUCTS": {
+    "CATEGORY": "Categoría",
+    "CATEGORIES": "Categorías",
+    "CLEAR_ALL": "Borrar todo",
+    "CLEAR_FILTERS": "Borrar filtros",
+    "FILTERS": "Filtros",
+    "LOAD_FAILED": "No se pudo cargar el producto.",
+    "NOT_FOUND": "Producto no encontrado.",
+    "NO_PRODUCTS_FOUND": "No se encontraron productos.",
+    "SEARCH_PLACEHOLDER": "Buscar productos...",
+    "SORT_NAME_ASC": "Nombre (A–Z)",
+    "SORT_NAME_DESC": "Nombre (Z–A)",
+    "SORT_NEWEST": "Más nuevos",
+    "SORT_PRICE_ASC": "Precio (de menor a mayor)",
+    "SORT_PRICE_DESC": "Precio (de mayor a menor)",
+    "SUBTITLE": "Explora nuestro catálogo de productos.",
+    "TRY_ADJUSTING_FILTERS": "Intenta ajustar la búsqueda o los filtros.",
+    "ADMIN": {
+      "CREATE_FAILED": "No se pudo crear el producto.",
+      "CREATE_SUCCESS": "¡Producto creado correctamente!",
+      "DELETE_SUCCESS": "El producto se eliminó correctamente.",
+      "LOAD_FAILED": "No se pudieron cargar los productos.",
+      "UPDATE_FAILED": "No se pudo actualizar el producto.",
+      "UPDATE_SUCCESS": "¡Producto actualizado!"
+    }
   },
   "RESET_PASSWORD": {
     "BUTTON": "Restablecer contraseña",
@@ -163,6 +268,41 @@
     "MAX_LENGTH": "La longitud máxima es de {max} caracteres",
     "MIN_LENGTH": "La longitud mínima es de {min} caracteres",
     "PATTERN": "Formato inválido",
-    "REQUIRED": "Este campo es obligatorio"
+    "REQUIRED": "Este campo es obligatorio",
+    "FIX_HIGHLIGHTED_FIELDS": "Corrige los campos resaltados."
+  },
+  "MIXTURE": {
+    "ADD_PRODUCT": "Agregar producto",
+    "ADD_TO_CART": "Agregar al carrito",
+    "ADDING_TO_CART": "Agregando al carrito",
+    "ADDED_TO_CART_SUCCESS": "La mezcla se agregó al carrito.",
+    "ADD_TO_CART_FAILED": "No se pudo agregar la mezcla al carrito.",
+    "CREATE_FAILED": "No se pudo crear la mezcla.",
+    "DEFAULT_NAME": "Mezcla personalizada",
+    "DEFAULT_NAME_ALT": "Tu mezcla",
+    "LOAD_CATEGORIES_FAILED": "No se pudieron cargar las categorías.",
+    "LOAD_PRODUCTS_FAILED": "No se pudieron cargar los productos.",
+    "NAME_PLACEHOLDER": "Ingresar nombre de la mezcla",
+    "NAME_REQUIRED": "Ingrese un nombre",
+    "NON_PREMIUM_SLOTS_FULL": "Todos los espacios no premium están llenos.",
+    "ONLY_ONE_PREMIUM_ALLOWED": "Solo se permite un producto premium.",
+    "PLEASE_SET_NAME": "Asigne un nombre único a su mezcla.",
+    "PLEASE_WAIT": "Por favor espere",
+    "SUMMARY": "Resumen",
+    "TITLE": "Mezcla",
+    "TOTAL": "Total"
+  },
+  "TAGS": {
+    "LOAD_ERROR": "No se pudieron cargar las etiquetas.",
+    "TOOLTIP": {
+      "BIO": "Certificado orgánico y respetuoso con el medio ambiente.",
+      "GLUTEN_FREE": "Apto para dietas sin gluten.",
+      "NATURAL": "Contiene solo ingredientes naturales.",
+      "ORGANIC": "Hecho con ingredientes 100% orgánicos.",
+      "PREMIUM": "Producto premium de alta calidad.",
+      "SUSTAINABLE": "Producido con prácticas sostenibles.",
+      "SWISS": "Hecho en Suiza.",
+      "VEGAN": "100% vegano."
+    }
   }
 }

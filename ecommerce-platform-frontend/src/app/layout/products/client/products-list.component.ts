@@ -8,10 +8,11 @@ import {TagService} from '../../../services/tag.service';
 import {CategoryService} from '../../../services/category.service';
 import {ResponseCategoryDTO} from '../../../dto/category/response-category-dto';
 import {FormControl} from '@angular/forms';
-import {debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, map, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 import {MatChipListbox} from '@angular/material/chips';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-products-list',
@@ -49,6 +50,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   wishlistItems: number[] = [];
   availableTags: any[] = [];
 
+  private initialUrlFiltersApplied = false;
+
   @ViewChild('categoryChipList') categoryChipList!: MatChipListbox;
 
   constructor(
@@ -57,7 +60,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private tagService: TagService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private translateService: TranslateService
   ) {
   }
 
@@ -81,12 +85,13 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         this.filteredProducts = [...this.products];
         this.initializeCarousels();
         this.translateProducts();
-        this.applyUrlFilters(); // Apply URL filters after products are loaded
+        // URL filters are applied via setupRouteParamsListener once products + categories are available
         this.applyFilters();
         this.isLoading = false;
+        this.tryApplyInitialUrlFilters();
       },
       error: (err) => {
-        this.error = err.message || 'Failed to load products';
+        this.error = err.message || this.translateService.instant('PRODUCTS.LOAD_FAILED');
         this.isLoading = false;
       }
     });
@@ -146,6 +151,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
       next: (categories) => {
         this.categories = categories;
         this.translateCategories();
+        this.tryApplyInitialUrlFilters();
       },
       error: (err) => {
         console.error('Failed to load categories:', err);
@@ -182,63 +188,109 @@ export class ProductsListComponent implements OnInit, OnDestroy {
 
   setupRouteParamsListener(): void {
     this.route.queryParams
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(params => {
-        // URL parameters will be processed in applyUrlFilters after data is loaded
-        if (this.products.length > 0) {
-          this.applyUrlFilters();
+      .pipe(
+        takeUntil(this.destroy$),
+        map(params => ({
+          categories: this.parseQueryListParam(params['categories']),
+          tags: this.parseQueryListParam(params['tags'])
+        })),
+        distinctUntilChanged((a, b) =>
+          a.categories.join('|') === b.categories.join('|') && a.tags.join('|') === b.tags.join('|')
+        )
+      )
+      .subscribe(({categories, tags}) => {
+        // apply after data is available
+        if (this.products.length > 0 && this.categories.length > 0) {
+          this.applyUrlFilters(categories, tags);
         }
       });
   }
 
-  applyUrlFilters(): void {
-    this.route.queryParams.subscribe(params => {
-      const categoriesParam = params['categories'];
-      const tagsParam = params['tags'];
+  private tryApplyInitialUrlFilters(): void {
+    if (this.initialUrlFiltersApplied) return;
+    if (this.products.length === 0 || this.categories.length === 0) return;
 
-      // Reset current filters
-      this.selectedCategoryIds = [];
-      this.availableTags.forEach(tag => tag.selected = false);
+    const snapshotParams = this.route.snapshot?.queryParamMap;
+    if (!snapshotParams) return;
 
-      // Apply category filters from URL
-      if (categoriesParam) {
-        this.showFilters = true;
-        const categoryNames = Array.isArray(categoriesParam) ? categoriesParam : [categoriesParam];
-        this.applyCategoryFiltersFromUrl(categoryNames);
-      }
+    const categories = this.parseQueryListParam(snapshotParams.getAll('categories'));
+    const tags = this.parseQueryListParam(snapshotParams.getAll('tags'));
 
-      // Apply tag filters from URL
-      if (tagsParam) {
-        this.showFilters = true;
-        const tagNames = Array.isArray(tagsParam) ? tagsParam : [tagsParam];
-        this.applyTagFiltersFromUrl(tagNames);
-      }
+    if (categories.length === 0 && tags.length === 0) {
+      this.initialUrlFiltersApplied = true;
+      return;
+    }
 
-      // Update chip list if available
-      if (this.categoryChipList) {
-        this.categoryChipList.value = this.selectedCategoryIds;
-      }
-
-      // Apply the filters
-      this.applyFilters();
-    });
+    this.initialUrlFiltersApplied = true;
+    this.applyUrlFilters(categories, tags);
   }
 
-  private applyCategoryFiltersFromUrl(categoryNames: string[]): void {
-    categoryNames.forEach(categoryName => {
-      const category = this.categories.find(cat =>
-        this.normalizeName(cat.translatedName) === this.normalizeName(categoryName)
-      );
+  private parseQueryListParam(value: any): string[] {
+    // Accept arrays (including Angular queryParamMap.getAll())
+    if (!value) return [];
+    const raw = Array.isArray(value) ? value : [value];
+    return raw
+      .flatMap(v => (typeof v === 'string' ? v.split(',') : [String(v)]))
+      .map(v => decodeURIComponent(v))
+      .map(v => v.trim())
+      .filter(Boolean);
+  }
+
+  applyUrlFilters(categorySlugs: string[] = [], tagSlugs: string[] = []): void {
+    // Reset current filters
+    this.selectedCategoryIds = [];
+    this.availableTags.forEach(tag => tag.selected = false);
+
+    // Apply category filters from URL
+    if (categorySlugs.length > 0) {
+      this.showFilters = true;
+      this.applyCategoryFiltersFromUrl(categorySlugs);
+    }
+
+    // Apply tag filters from URL
+    if (tagSlugs.length > 0) {
+      this.showFilters = true;
+      this.applyTagFiltersFromUrl(tagSlugs);
+    }
+
+    // Update chip list if available
+    if (this.categoryChipList) {
+      this.categoryChipList.value = this.selectedCategoryIds;
+    }
+
+    this.applyFilters();
+  }
+
+  private applyCategoryFiltersFromUrl(categorySlugs: string[]): void {
+    categorySlugs.forEach(slug => {
+      const normalized = this.normalizeName(slug);
+
+      const category = this.categories.find(cat => {
+        const translatedUrl = (cat as any).translatedUrl ? this.normalizeName(String((cat as any).translatedUrl)) : null;
+        const translatedName = cat.translatedName ? this.normalizeName(String(cat.translatedName)) : null;
+        const anyLocalizedUrl = cat.localizedFields
+          ? Object.values(cat.localizedFields)
+            .map((lf: any) => lf?.url)
+            .filter(Boolean)
+            .map((u: any) => this.normalizeName(String(u)))
+          : [];
+
+        return translatedUrl === normalized || translatedName === normalized || anyLocalizedUrl.includes(normalized);
+      });
+
       if (category && !this.selectedCategoryIds.includes(category.id)) {
         this.selectedCategoryIds.push(category.id);
       }
     });
   }
 
-  private applyTagFiltersFromUrl(tagNames: string[]): void {
-    tagNames.forEach(tagName => {
+  private applyTagFiltersFromUrl(tagSlugs: string[]): void {
+    tagSlugs.forEach(slug => {
+      const normalized = this.normalizeName(slug);
       const tag = this.availableTags.find(t =>
-        this.normalizeName(t.translatedName) === this.normalizeName(tagName)
+        (t as any).translatedUrl
+          ? this.normalizeName((t as any).translatedUrl) === normalized
+          : this.normalizeName(t.translatedName) === normalized
       );
       if (tag) {
         tag.selected = true;
@@ -257,7 +309,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     if (this.selectedCategoryIds.length > 0) {
       const selectedCategories = this.categories
         .filter(cat => this.selectedCategoryIds.includes(cat.id))
-        .map(cat => this.normalizeName(cat.translatedName));
+        .map(cat => (cat as any).translatedUrl ? (cat as any).translatedUrl : cat.translatedName)
+        .map(v => this.normalizeName(String(v)));
 
       if (selectedCategories.length > 0) {
         queryParams['categories'] = selectedCategories;
@@ -347,7 +400,9 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     // Apply category filter
     if (this.selectedCategoryIds.length > 0) {
       filtered = filtered.filter(product => {
-        return this.selectedCategoryIds.includes(product.categoryId);
+        const categoryId = product.categoryId;
+        if (categoryId == null) return false;
+        return this.selectedCategoryIds.includes(categoryId);
       });
     }
 
@@ -549,6 +604,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     this.categories.forEach(category => {
       category.translatedName = this.categoryService.getLocalizedName(category);
       category.translatedDescription = this.categoryService.getLocalizedDescription(category);
+      (category as any).translatedUrl = this.categoryService.getLocalizedUrl(category);
     });
   }
 

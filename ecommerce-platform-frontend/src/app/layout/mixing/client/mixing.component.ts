@@ -11,6 +11,7 @@ import {CartItemType} from '../../../dto/cart/cart-item-type';
 import {CreateMixtureDTO} from '../../../dto/mixtures/create-mixture-dto';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TagService} from '../../../services/tag.service';
+import {TranslateService} from '@ngx-translate/core';
 
 interface ProductSummary {
   product: ResponseProductDTO;
@@ -37,9 +38,9 @@ export class MixingComponent implements OnInit, OnDestroy {
   mixedProducts: (ResponseProductDTO | null)[] = new Array(9).fill(null);
 
   addingProductId: number | null = null;
-  mixtureName: string = 'Custom Mixture';
+  mixtureName: string = '';
   isEditingName: boolean = false;
-  private readonly defaultMixtureName = 'Custom Mixture';
+  private defaultMixtureName = '';
 
   showInfoPopup: boolean = false;
   selectedProduct: ResponseProductDTO | null = null;
@@ -58,11 +59,14 @@ export class MixingComponent implements OnInit, OnDestroy {
     private categoryService: CategoryService,
     private router: Router,
     private snackBar: MatSnackBar,
-    private tagService: TagService
+    private tagService: TagService,
+    private translate: TranslateService
   ) {
   }
 
   ngOnInit(): void {
+    this.defaultMixtureName = this.translate.instant('MIXTURE.DEFAULT_NAME');
+    this.mixtureName = this.defaultMixtureName;
     this.loadProducts();
   }
 
@@ -91,13 +95,13 @@ export class MixingComponent implements OnInit, OnDestroy {
             this.translateCategories();
           },
           error: (err) => {
-            this.error = err.message || 'Failed to load products';
+            this.error = err.message || this.translate.instant('MIXTURE.LOAD_PRODUCTS_FAILED');
             this.isLoading = false;
           }
         });
       },
       error: (err) => {
-        this.error = err.message || 'Failed to load categories';
+        this.error = err.message || this.translate.instant('MIXTURE.LOAD_CATEGORIES_FAILED');
         this.isLoading = false;
       }
     });
@@ -175,10 +179,10 @@ export class MixingComponent implements OnInit, OnDestroy {
   getAddButtonTooltip(product: ResponseProductDTO): string {
     const isPremiumProduct = product.categoryId === this.premiumCategoryId;
     if (isPremiumProduct) {
-      return this.mixedProducts[4] !== null ? 'Only one premium product allowed in the grid.' : '';
+      return this.mixedProducts[4] !== null ? this.translate.instant('MIXTURE.ONLY_ONE_PREMIUM_ALLOWED') : '';
     } else {
       const nonPremiumSlotsFull = this.mixedProducts.filter((item, index) => item !== null && index !== 4).length >= 8;
-      return nonPremiumSlotsFull ? 'All non-premium slots are full.' : '';
+      return nonPremiumSlotsFull ? this.translate.instant('MIXTURE.NON_PREMIUM_SLOTS_FULL') : '';
     }
   }
 
@@ -220,7 +224,7 @@ export class MixingComponent implements OnInit, OnDestroy {
 
     this.mixedProducts.forEach(product => {
       if (!product) return;
-      const categoryName = categoryMap.get(product.categoryId) || 'Uncategorized';
+      const categoryName = categoryMap.get(product.categoryId) || this.translate.instant('COMMON.UNCATEGORIZED');
       if (!groupedProducts[categoryName]) groupedProducts[categoryName] = [];
       const existing = groupedProducts[categoryName].find(p => p.product.id === product.id);
       if (existing) {
@@ -253,7 +257,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   isDefaultName(): boolean {
     return this.mixtureName === this.defaultMixtureName ||
       this.mixtureName.trim() === '' ||
-      this.mixtureName === 'Your Mixture';
+      this.mixtureName === this.translate.instant('MIXTURE.DEFAULT_NAME_ALT');
   }
 
   /** PRODUCT INFO POPUP */
@@ -291,13 +295,12 @@ export class MixingComponent implements OnInit, OnDestroy {
   }
 
   addMixtureToCart(): void {
-    // Check if name is default
     if (this.isDefaultName()) {
-      this.snackBar.open('Please give your mixture a unique name', 'OK', {
+      this.snackBar.open(this.translate.instant('MIXTURE.PLEASE_SET_NAME'), this.translate.instant('COMMON.OK'), {
         duration: 3000,
         panelClass: ['warning-snackbar']
       });
-      this.editName(); // Focus on editing the name
+      this.editName();
       return;
     }
 
@@ -329,19 +332,17 @@ export class MixingComponent implements OnInit, OnDestroy {
         };
         this.cartService.addItem(cartItem).subscribe({
           next: () => {
-            this.isAddingToCart = false; // Reset loading state
-            this.snackBar.open('Mixture added to cart successfully!', 'OK', {
+            this.isAddingToCart = false;
+            this.snackBar.open(this.translate.instant('MIXTURE.ADDED_TO_CART_SUCCESS'), this.translate.instant('COMMON.OK'), {
               duration: 3000,
               panelClass: ['success-snackbar']
             });
-
-            // Navigate to cart page after successful addition
             this.router.navigate(['/cart']);
           },
           error: err => {
             console.error('Failed to add mixture to cart:', err);
-            this.isAddingToCart = false; // Reset loading state
-            this.snackBar.open('Failed to add mixture to cart', 'OK', {
+            this.isAddingToCart = false;
+            this.snackBar.open(this.translate.instant('MIXTURE.ADD_TO_CART_FAILED'), this.translate.instant('COMMON.OK'), {
               duration: 3000,
               panelClass: ['error-snackbar']
             });
@@ -351,7 +352,7 @@ export class MixingComponent implements OnInit, OnDestroy {
       error: err => {
         console.error('Failed to save mixture:', err);
         this.isAddingToCart = false;
-        this.snackBar.open('Failed to create mixture', 'OK', {
+        this.snackBar.open(this.translate.instant('MIXTURE.CREATE_FAILED'), this.translate.instant('COMMON.OK'), {
           duration: 3000,
           panelClass: ['error-snackbar']
         });

@@ -16,6 +16,7 @@ import { ResponseLocaleDto } from '../../../dto/configuration/response-locale-dt
 import { LocaleMapperService } from '../../../services/locale-mapper.service';
 import { MediaDTO } from '../../../dto/media/media-dto';
 import { LocalizedFieldDTO } from '../../../dto/base/localized-field-dto';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-categories-admin-create',
@@ -43,6 +44,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private configService: ConfigurationService,
     private localeMapperService: LocaleMapperService,
+    private translateService: TranslateService,
   ) {}
 
   get mediaControls(): FormArray {
@@ -166,7 +168,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
 
   openMediaDeleteDialog(i: number): void {
     this.dialog.open(ConfirmationDialogComponent, {
-      data: { title: 'Delete Media', message: 'Really delete this media?', warn: true }
+      data: { title: 'DIALOG.DELETE_MEDIA_TITLE', message: 'DIALOG.DELETE_MEDIA_MESSAGE', warn: true }
     }).afterClosed().subscribe(ok => {
       if (ok) this.mediaControls.removeAt(i);
     });
@@ -175,7 +177,7 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
   onSave(): void {
     if (this.categoryForm.invalid) {
       this.categoryForm.markAllAsTouched();
-      this.snackBar.open('Please correct the highlighted fields.', 'Close', { duration: 5000 });
+      this.snackBar.open(this.translateService.instant('VALIDATION.FIX_HIGHLIGHTED_FIELDS'), this.translateService.instant('COMMON.CLOSE'), { duration: 5000 });
       return;
     }
 
@@ -217,20 +219,20 @@ export class CategoriesAdminCreateComponent implements OnInit, OnDestroy {
 
   private handleSaveSuccess(): void {
     this.saving = false;
-    this.snackBar.open('Category created successfully!', 'Close', { duration: 3000 });
+    this.snackBar.open(this.translateService.instant('CATEGORIES.ADMIN.CREATE_SUCCESS'), this.translateService.instant('COMMON.CLOSE'), { duration: 3000 });
     this.router.navigate(['/admin/categories']);
   }
 
   private handleSaveError(err: any): void {
     this.saving = false;
     console.error('Creation failed:', err);
-    this.snackBar.open('Failed to create category', 'Close', { duration: 5000 });
+    this.snackBar.open(this.translateService.instant('CATEGORIES.ADMIN.CREATE_FAILED'), this.translateService.instant('COMMON.CLOSE'), { duration: 5000 });
   }
 
   openCancelDialog(): void {
     if (this.categoryForm?.dirty) {
       this.dialog.open(ConfirmationDialogComponent, {
-        data: { title: 'Cancel Update', message: 'Discard changes?', warn: true }
+        data: { title: 'DIALOG.CANCEL_CHANGES_TITLE', message: 'DIALOG.CANCEL_CHANGES_MESSAGE', warn: true }
       }).afterClosed().subscribe(ok => {
         if (ok) this.router.navigate(['/admin/categories']);
       });

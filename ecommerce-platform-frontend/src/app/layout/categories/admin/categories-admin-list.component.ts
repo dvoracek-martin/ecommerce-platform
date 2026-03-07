@@ -10,6 +10,7 @@ import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TagService} from '../../../services/tag.service';
 import {ResponseTagDTO} from '../../../dto/tag/response-tag-dto';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-categories-admin-list',
@@ -32,7 +33,8 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private tagService: TagService
+    private tagService: TagService,
+    private translate: TranslateService,
   ) {
   }
 
@@ -125,8 +127,8 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
   openDeleteDialog(categoryId: number): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
-        title: 'Delete Category',
-        message: 'Are you sure you want to delete this category?'
+        title: 'DIALOG.DELETE_CATEGORY_TITLE',
+        message: 'DIALOG.DELETE_CATEGORY_MESSAGE'
       }
     });
 
@@ -152,7 +154,7 @@ export class CategoriesAdminListComponent implements OnInit, OnDestroy {
       next: () => {
         this.categories = this.categories.filter(c => c.id !== id);
         this.filteredCategories = this.filteredCategories.filter(c => c.id !== id);
-        this.snackBar.open('Category deleted successfully.', 'Close', {duration: 3000});
+        this.snackBar.open(this.translate.instant('CATEGORIES.ADMIN.DELETE_SUCCESS'), this.translate.instant('COMMON.CLOSE'), {duration: 3000});
       },
       error: err => console.error('Delete failed:', err)
     });

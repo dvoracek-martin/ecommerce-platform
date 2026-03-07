@@ -526,12 +526,17 @@ video.media-preview {
 
   .admin-search-checkbox-wrapper {
     ::ng-deep .mat-checkbox-checked .mat-checkbox-background {
-      background-color: var(--quaternary-color) !important;
+      background-color: var(--quinary-color) !important;
     }
 
     ::ng-deep .mat-checkbox-label {
       color: var(--text-white);
       font-weight: 500;
+    }
+
+    // Also cover checkboxes that use the .admin-active-checkbox class directly
+    ::ng-deep .admin-active-checkbox.mat-checkbox-checked .mat-checkbox-background {
+      background-color: var(--quinary-color) !important;
     }
   }
 }
