@@ -27,8 +27,8 @@
 
         <app-user-login (loginSuccess)="onSuccess()"></app-user-login>
 
-        <div class="auth-links">
-          <button (click)="openForgotPassword()" class="auth-link" mat-button>
+        <div class="auth-links auth-links--two">
+          <button (click)="openForgotPassword()" class="auth-link forgot" mat-button>
             {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
           </button>
           <button (click)="switchToRegister($event)" class="auth-link primary" mat-button>

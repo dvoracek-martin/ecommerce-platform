@@ -72,38 +72,17 @@
 }
 
 // ===== SUBMIT BUTTON =====
-.login-submit-btn {
-  background: var(--primary-color) !important;
-  color: white !important;
-  border-radius: var(--radius-md) !important;
-  padding: var(--spacing-md) !important;
-  font-weight: 600 !important;
-  font-size: var(--font-size-base) !important;
-  height: 48px !important;
-  transition: all var(--transition-normal) !important;
-  margin-top: var(--spacing-sm);
+// Styling handled by auth-popup parent via ::ng-deep
 
-  &:hover:not(:disabled) {
-    background: var(--primary-hover) !important;
-    transform: translateY(-1px);
-  }
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
-  }
-
-  .btn-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-  }
-
-  .btn-text {
-    font-weight: 600;
-  }
+.btn-text {
+  font-weight: 600;
 }
 
 // ===== PROGRESS BAR =====
