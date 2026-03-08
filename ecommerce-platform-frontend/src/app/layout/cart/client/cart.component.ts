@@ -345,6 +345,7 @@ export class CartComponent implements OnInit, OnDestroy {
         cartItem.mixture.products.forEach(product => {
           this.productService.getProductById(product.id).subscribe( responseProductDTO=>{
             product.translatedName = this.productService.getLocalizedName(responseProductDTO);
+            product.media = responseProductDTO.media;
           })
         });
       }

@@ -79,7 +79,8 @@
                         (click)="item.cartItemType === CartItemType.PRODUCT ? goToProduct(item.product) : goToMixture(item.itemId)">
                       {{ item.product?.translatedName || item.mixture?.translatedName }}
                     </h3>
-                    <div class="item-price">{{ (item.product?.price || item.mixture?.price || 0) | swissCurrency }}</div>
+                    <div class="item-price">{{ (item.product?.price || item.mixture?.price || 0) | swissCurrency }}
+                    </div>
                   </div>
 
                   <div class="item-description" *ngIf="item.product?.translatedDescription">
@@ -89,13 +90,30 @@
                   <!-- Mixture Details -->
                   <div *ngIf="item.cartItemType === CartItemType.MIXTURE && item.mixture" class="mixture-display">
                     <h4>{{ 'CART.MIXTURE_CONTAINS' | translate }}</h4>
+
                     <div class="mixture-products-list">
+
+                      <!-- FIX: Added thumbnail rendering -->
                       <div *ngFor="let product of item.mixture.products" class="mixture-product-item">
+
+                        <div class="mixture-product-media">
+                          <img
+                            class="cart-thumbnail"
+                            *ngIf="product.media?.[0]"
+                            [src]="'data:' + product.media[0].contentType + ';base64,' + product.media[0].base64Data"
+                            [alt]="product.translatedName">
+                          <div *ngIf="!product.media?.[0]" class="no-image">
+                            <mat-icon>inventory_2</mat-icon>
+                          </div>
+                        </div>
+
                         <div class="mixture-product-info">
                           <div class="mixture-product-name">{{ product.translatedName }}</div>
                           <div class="mixture-product-price">{{ product.price | swissCurrency }}</div>
                         </div>
+
                       </div>
+
                     </div>
                   </div>
 
@@ -142,6 +160,7 @@
                     <mat-icon>delete_outline</mat-icon>
                   </button>
                 </div>
+
               </div>
             </div>
           </div>
@@ -150,7 +169,7 @@
 
       <!-- Order Summary Sidebar -->
       <div class="order-sidebar" *ngIf="isCartLoaded && cartItemsWithDetails.length > 0">
-        <!-- Order Summary -->
+
         <div class="form-section">
           <h3 class="section-subtitle">
             <mat-icon>receipt</mat-icon>
@@ -163,41 +182,6 @@
               <span>{{ getCartTotal() | swissCurrency }}</span>
             </div>
 
-            <!-- Discount Section -->
-            <div class="discount-section" *ngIf="!isDiscountApplied()">
-              <mat-form-field appearance="outline" class="form-field full-width">
-                <mat-label>{{ 'CART.DISCOUNT_CODE' | translate }}</mat-label>
-                <input type="text"
-                       [(ngModel)]="discountCode"
-                       matInput
-                       [placeholder]="'CART.DISCOUNT_PLACEHOLDER' | translate"
-                       (keyup.enter)="applyDiscount()">
-                <button mat-icon-button matSuffix
-                        (click)="applyDiscount()"
-                        [disabled]="!discountCode"
-                        class="action-btn">
-                  <mat-icon>local_offer</mat-icon>
-                </button>
-              </mat-form-field>
-            </div>
-
-            <!-- Applied Discount -->
-            <div class="discount-applied" *ngIf="isDiscountApplied()">
-              <div class="summary-row discount">
-                <span>{{ 'CART.DISCOUNT' | translate }} ({{ cart?.discountCode }}):</span>
-                <span>-{{ cart?.discount | swissCurrency }}</span>
-              </div>
-              <div class="remove-discount">
-                <button mat-stroked-button
-                        color="warn"
-                        (click)="removeDiscount()"
-                        class="remove-discount-btn">
-                  <mat-icon>close</mat-icon>
-                  {{ 'CART.REMOVE_DISCOUNT' | translate }}
-                </button>
-              </div>
-            </div>
-
             <div class="summary-row total">
               <span>{{ 'CART.TOTAL' | translate }}:</span>
               <span>{{ getDiscountedTotal() | swissCurrency }}</span>
@@ -205,7 +189,6 @@
           </div>
         </div>
 
-        <!-- Checkout Action -->
         <div class="form-section">
           <button class="admin-create-btn"
                   mat-flat-button
@@ -216,7 +199,6 @@
           </button>
         </div>
 
-        <!-- Continue Shopping -->
         <div class="form-section">
           <button class="back-btn"
                   mat-stroked-button
@@ -225,6 +207,7 @@
             {{ 'CART.CONTINUE_SHOPPING' | translate }}
           </button>
         </div>
+
       </div>
     </div>
   </mat-card>

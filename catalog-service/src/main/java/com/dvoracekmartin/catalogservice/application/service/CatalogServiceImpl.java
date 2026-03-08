@@ -450,7 +450,7 @@ public class CatalogServiceImpl implements CatalogService {
         Mixture savedMixture = mixtureRepository.save(existingMixture);
 
         // elasticsearchService.indexMixture(catalogMapper.mapMixtureToResponseMixtureDTO(savedMixture));
-        
+
         Map<String, LocalizedField> translationMap = getTranslationMap(createRequestForTranslationGetOrDelete(savedMixture.getId(), TranslationObjectsEnum.MIXTURE));
         return catalogMapper.mapMixtureToResponseMixtureDTO(savedMixture, uploadResult.mediaDTOs(), translationMap);
     }
@@ -482,7 +482,8 @@ public class CatalogServiceImpl implements CatalogService {
                 getTranslationMap(createRequestForTranslationGetOrDelete(mixture.getId(), TranslationObjectsEnum.MIXTURE)),
                 mixture.getPriority(),
                 mixture.isActive(),
-                retrieveMediaForEntity(mixture.getId().toString(), BucketName.MIXTURES),
+                null,
+                // retrieveMediaForEntity(mixture.getId().toString(), BucketName.MIXTURES),
                 mixture.getCategory().getId(),
                 mixture.getProducts().stream().map(catalogMapper::mapProductToResponseProductDTO).toList(),
                 mixture.getTags().stream().map(Tag::getId).toList(),
@@ -627,7 +628,7 @@ public class CatalogServiceImpl implements CatalogService {
     // Tag methods
     @Override
     public ResponseTagDTO createTag(@Valid CreateTagDTO createTagDTO) {
-         Tag tag = new Tag();
+        Tag tag = new Tag();
         tag.setPriority(createTagDTO.getPriority());
         tag.setActive(createTagDTO.isActive());
         tag.setColor(createTagDTO.getColor());

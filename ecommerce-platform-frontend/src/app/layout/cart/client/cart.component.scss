@@ -48,6 +48,13 @@
   }
 }
 
+.cart-thumbnail {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
 /* Layout */
 .order-layout-wrapper {
   display: grid;
